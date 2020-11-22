@@ -30,3 +30,8 @@
 *.exe
 *.out
 *.app
+*.ilk
+*.pdb
+game/x64/Debug
+yuyu/.vs
+yuyu/x64/Debug
