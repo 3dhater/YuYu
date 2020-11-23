@@ -157,6 +157,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="yy_dl.cpp" />
     <ClCompile Include="yy_log.cpp" />
     <ClCompile Include="yy_main.cpp" />
   </ItemGroup>
