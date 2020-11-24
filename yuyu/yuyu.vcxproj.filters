@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\zlib">
+      <UniqueIdentifier>{b1bf99c1-0c69-4815-85af-7b1fcdfeda9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\LibPNG">
+      <UniqueIdentifier>{536e72c8-6384-480e-8520-ddff8a08ae11}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="yy_main.cpp">
@@ -22,6 +28,108 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="yy_dl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="yy_resource.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="image_loader_dds.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="image_loader_png.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\ZLib\gzread.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\ZLib\gzwrite.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\ZLib\infback.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\ZLib\inffast.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\ZLib\inflate.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\ZLib\inftrees.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\ZLib\trees.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\ZLib\uncompr.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\ZLib\zutil.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\ZLib\adler32.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\ZLib\compress.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\ZLib\crc32.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\ZLib\deflate.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\ZLib\gzclose.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\ZLib\gzlib.c">
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\LibPNG\pngrutil.c">
+      <Filter>Source Files\LibPNG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\LibPNG\pngset.c">
+      <Filter>Source Files\LibPNG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\LibPNG\pngtrans.c">
+      <Filter>Source Files\LibPNG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\LibPNG\pngwio.c">
+      <Filter>Source Files\LibPNG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\LibPNG\pngwrite.c">
+      <Filter>Source Files\LibPNG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\LibPNG\pngwtran.c">
+      <Filter>Source Files\LibPNG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\LibPNG\pngwutil.c">
+      <Filter>Source Files\LibPNG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\LibPNG\png.c">
+      <Filter>Source Files\LibPNG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\LibPNG\pngerror.c">
+      <Filter>Source Files\LibPNG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\LibPNG\pngget.c">
+      <Filter>Source Files\LibPNG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\LibPNG\pngmem.c">
+      <Filter>Source Files\LibPNG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\LibPNG\pngpread.c">
+      <Filter>Source Files\LibPNG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\LibPNG\pngread.c">
+      <Filter>Source Files\LibPNG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\LibPNG\pngrio.c">
+      <Filter>Source Files\LibPNG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\LibPNG\pngrtran.c">
+      <Filter>Source Files\LibPNG</Filter>
+    </ClCompile>
+    <ClCompile Include="yy_backgroundWorker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

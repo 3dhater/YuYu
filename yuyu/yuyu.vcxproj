@@ -94,9 +94,10 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);YY_EXPORTS;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../common/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../common/;../libs/LibPNG/;../libs/ZLib/</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -111,9 +112,10 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);YY_EXPORTS;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../common/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../common/;../libs/LibPNG/;../libs/ZLib/</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,9 +130,10 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);YY_EXPORTS;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../common/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../common/;../libs/LibPNG/;../libs/ZLib/</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,9 +148,10 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);YY_EXPORTS;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../common/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../common/;../libs/LibPNG/;../libs/ZLib/</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -157,7 +161,41 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\libs\LibPNG\png.c" />
+    <ClCompile Include="..\libs\LibPNG\pngerror.c" />
+    <ClCompile Include="..\libs\LibPNG\pngget.c" />
+    <ClCompile Include="..\libs\LibPNG\pngmem.c" />
+    <ClCompile Include="..\libs\LibPNG\pngpread.c" />
+    <ClCompile Include="..\libs\LibPNG\pngread.c" />
+    <ClCompile Include="..\libs\LibPNG\pngrio.c" />
+    <ClCompile Include="..\libs\LibPNG\pngrtran.c" />
+    <ClCompile Include="..\libs\LibPNG\pngrutil.c" />
+    <ClCompile Include="..\libs\LibPNG\pngset.c" />
+    <ClCompile Include="..\libs\LibPNG\pngtrans.c" />
+    <ClCompile Include="..\libs\LibPNG\pngwio.c" />
+    <ClCompile Include="..\libs\LibPNG\pngwrite.c" />
+    <ClCompile Include="..\libs\LibPNG\pngwtran.c" />
+    <ClCompile Include="..\libs\LibPNG\pngwutil.c" />
+    <ClCompile Include="..\libs\ZLib\adler32.c" />
+    <ClCompile Include="..\libs\ZLib\compress.c" />
+    <ClCompile Include="..\libs\ZLib\crc32.c" />
+    <ClCompile Include="..\libs\ZLib\deflate.c" />
+    <ClCompile Include="..\libs\ZLib\gzclose.c" />
+    <ClCompile Include="..\libs\ZLib\gzlib.c" />
+    <ClCompile Include="..\libs\ZLib\gzread.c" />
+    <ClCompile Include="..\libs\ZLib\gzwrite.c" />
+    <ClCompile Include="..\libs\ZLib\infback.c" />
+    <ClCompile Include="..\libs\ZLib\inffast.c" />
+    <ClCompile Include="..\libs\ZLib\inflate.c" />
+    <ClCompile Include="..\libs\ZLib\inftrees.c" />
+    <ClCompile Include="..\libs\ZLib\trees.c" />
+    <ClCompile Include="..\libs\ZLib\uncompr.c" />
+    <ClCompile Include="..\libs\ZLib\zutil.c" />
+    <ClCompile Include="image_loader_dds.cpp" />
+    <ClCompile Include="image_loader_png.cpp" />
+    <ClCompile Include="yy_backgroundWorker.cpp" />
     <ClCompile Include="yy_dl.cpp" />
+    <ClCompile Include="yy_resource.cpp" />
     <ClCompile Include="yy_log.cpp" />
     <ClCompile Include="yy_main.cpp" />
   </ItemGroup>
