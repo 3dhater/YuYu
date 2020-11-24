@@ -17,6 +17,4 @@ name.yyvd - video driver
 
 # TODO
 
-* resource manager
-* resource manager - getTexture
-* videoDriver - createTexture
+* resource manager - releaseTexture
