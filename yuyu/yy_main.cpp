@@ -107,6 +107,7 @@ YY_API yyVideoDriverAPI* YY_C_DECL yyGetVideoDriverAPI()
 {
 	return g_engine->m_videoAPI;
 }
+
 YY_API bool YY_C_DECL yyInitVideoDriver(const char* dl, yyWindow* window)
 {
 	if(g_engine)
