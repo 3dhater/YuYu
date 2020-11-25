@@ -238,20 +238,9 @@ public:
 		return ret;
 	}
 
-	const_pointer c_str() const 
-	{
-		return m_data;
-	}
-
-	pointer data() const 
-	{
-		return m_data;
-	}
-
-	const u32 size() const 
-	{
-		return m_size;
-	}
+	const_pointer c_str() const { return m_data; }
+	pointer data() const { return m_data; }
+	const u32 size() const { return m_size; }
 
 	this_type& operator=( this_const_reference str )
 	{
@@ -457,10 +446,10 @@ public:
 	}
 };
 
-using Game_String   = yyString_base<char16_t,yyDefault_allocator>;
-using Game_StringW  = yyString_base<wchar_t,yyDefault_allocator>;
-using Game_String32 = yyString_base<char32_t,yyDefault_allocator>;
-using Game_StringA  = yyString_base<char,yyDefault_allocator>;
+using yyString   = yyString_base<char16_t,yyDefault_allocator>;
+using yyStringW  = yyString_base<wchar_t,yyDefault_allocator>;
+using yyString32 = yyString_base<char32_t,yyDefault_allocator>;
+using yyStringA  = yyString_base<char,yyDefault_allocator>;
 
 namespace util
 {

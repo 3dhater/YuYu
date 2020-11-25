@@ -1229,15 +1229,19 @@ extern PFNGLTEXTURESTORAGE3DMULTISAMPLEEXTPROC gglTextureStorage3DMultisampleEXT
 #define glTextureStorage3DMultisampleEXT		gglTextureStorage3DMultisampleEXT
 
 #include <filesystem>
-#include <vector>
+//#include <unordered_map>
+#include "containers/list.h"
 
 struct TextureCacheNode
 {
 	std::filesystem::path m_path;
-	yyResource m_resource;
-
+	yyResource * m_resource = nullptr;
 	s32 m_refCount = 0;
 };
+//struct TextureCacheNodeCell
+//{
+//	TextureCacheNode* m_node = nullptr;
+//};
 
 class OpenGLTexture
 {
@@ -1283,7 +1287,16 @@ class OpenGL
 
 	yyWindow * m_window = nullptr;
 	
-	std::vector<TextureCacheNode> m_textureCache;
+	// need to get texture if texture loaded from file
+	//std::unordered_map<std::string,TextureCacheNode> m_textureCache;
+
+	//std::vector<TextureCacheNode> m_textureCache;
+	//TextureCacheNodeCell* m_textureCacheNodes = nullptr;
+	//u32 m_freeTextureCacheNodeCellIndex = 0;
+	yyList<TextureCacheNode*> m_textureCache;
+
+	// all textures
+	// get it using index from yyResource
 	OpenGLTextureCell* m_textures = nullptr;
 	u32 m_freeTextureCellIndex = 0;
 
@@ -1295,8 +1308,9 @@ public:
 
 	bool Init(yyWindow* window);
 	
-	friend yyResource CreateTexture(yyImage* image, bool useLinearFilter);
-	friend yyResource GetTexture(const char* fileName, bool useLinearFilter);
+	friend void ReleaseTexture(yyResource* res);
+	friend yyResource* CreateTexture(yyImage* image, bool useLinearFilter);
+	friend yyResource* GetTexture(const char* fileName, bool useLinearFilter);
 	friend void EndDraw();
 
 	//bool m_useClearColor = true;

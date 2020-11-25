@@ -6,6 +6,8 @@
 #include "yy_async.h"
 #include "yy_resource.h"
 
+#include "strings/string.h"
+
 #include <cstdio>
 #include <vector>
 #include <filesystem>
@@ -123,7 +125,7 @@ vidOk:
 
 	yyLoadImageAsync("../res/grass.dds",1);
 	yyLoadImageAsync("../res/grass.png",2);
-
+	
 	bool run = true;
 	while( run )
 	{
@@ -147,8 +149,10 @@ vidOk:
 			break;
 		case yySystemState::Run:
 		{
+
 			videoDriver->BeginDrawClearAll();
 			videoDriver->EndDraw();
+
 		}break;
 		}
 	}

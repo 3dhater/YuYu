@@ -36,3 +36,7 @@ game/x64/Debug
 yuyu/.vs
 yuyu/x64/Debug
 video/opengl/x64
+*.iobj
+*.ipdb
+game/x64/Release
+yuyu/x64/Release

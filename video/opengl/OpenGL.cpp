@@ -692,6 +692,31 @@ OpenGL::~OpenGL()
 {
 	yyLogWriteInfo("Destroy video driver...\n");
 
+	/*if(m_textureCacheNodes)
+	{
+		for(u32 i = 0; i < YY_MAX_TEXTURES; ++i)
+		{
+			if(m_textureCacheNodes[i].m_node)
+			{
+				delete m_textureCacheNodes[i].m_node;
+				m_textureCacheNodes[i].m_node = nullptr;
+			}
+		}
+		delete[] m_textureCacheNodes;
+	}*/
+	auto node = m_textureCache.head();
+	if(node)
+	{
+		for(size_t i = 0, sz = m_textureCache.size(); i < sz; ++i)
+		{
+			if( node->m_data )
+			{
+				delete node->m_data; // TextureCacheNode * cacheNode = new TextureCacheNode;
+			}
+			node = node->m_right;
+		}
+	}
+
 	if(m_textures)
 	{
 		for(u32 i = 0; i < YY_MAX_TEXTURES; ++i)
@@ -1341,6 +1366,7 @@ bool OpenGL::Init(yyWindow* window)
 	m_window = window;
 
 	m_textures = new OpenGLTextureCell[YY_MAX_TEXTURES];
+	//m_textureCacheNodes = new TextureCacheNodeCell[YY_MAX_TEXTURES];
 
 #ifdef YY_PLATFORM_WINDOWS
 	m_OpenGL_lib = LoadLibrary(L"OpenGL32.dll");

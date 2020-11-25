@@ -5,7 +5,7 @@
 
 yyVideoDriverAPI g_api;
 
-yyResource g_defaultRes;
+//yyResource g_defaultRes;
 
 #ifdef YY_PLATFORM_WINDOWS
 extern wglSwapIntervalEXT_t gwglSwapIntervalEXT;
@@ -87,11 +87,15 @@ void EndDraw()
 #endif
 }
 
-yyResource CreateTexture(yyImage* image, bool useLinearFilter)
+yyResource* CreateTexture(yyImage* image, bool useLinearFilter)
 {
-	yyResource newRes;
-	newRes.m_type = yyResourceType::Texture;
-	newRes.m_index = g_openGL->m_freeTextureCellIndex;
+	yyResource * newRes = new yyResource;
+	newRes->m_type = yyResourceType::Texture;
+	newRes->m_index = g_openGL->m_freeTextureCellIndex;
+
+	// need ?
+	//if(g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture)
+	//	delete g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture;
 
 	g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture = new OpenGLTexture;
 	
@@ -115,39 +119,97 @@ yyResource CreateTexture(yyImage* image, bool useLinearFilter)
 		return newRes;
 	}
 
-	return g_defaultRes;
+	if(newRes)
+		delete newRes;
+	if(g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture)
+	{
+		delete g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture;
+		g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture = nullptr;
+	}
+	return nullptr;
 }
 
-yyResource GetTexture(const char* fileName, bool useLinearFilter)
+yyResource* GetTexture(const char* fileName, bool useLinearFilter)
 {
-	if(!fileName) return g_defaultRes;
+	if(!fileName) return nullptr;
 	std::filesystem::path p(fileName);
-	for(size_t i = 0, sz = g_openGL->m_textureCache.size(); i < sz; ++i)
+
+	auto node = g_openGL->m_textureCache.head();
+	if(node)
 	{
-		auto & node = g_openGL->m_textureCache[i];
-		if(node.m_path == p)
+		for(size_t i = 0, sz = g_openGL->m_textureCache.size(); i < sz; ++i)
 		{
-			++node.m_refCount;
-			return node.m_resource;
+			if( node->m_data )
+			{
+				if( node->m_data->m_path == p )
+				{
+					++node->m_data->m_refCount;
+					return node->m_data->m_resource;
+				}
+			}
+			node = node->m_right;
 		}
 	}
+
 	auto image = yyLoadImage(fileName);
 	if(image)
 	{
 		auto res = CreateTexture(image, useLinearFilter);
 		yyDeleteImage(image);
-		TextureCacheNode cacheNode;
-		cacheNode.m_refCount = 1;
-		cacheNode.m_path = fileName;
-		cacheNode.m_resource = res;
+
+		TextureCacheNode * cacheNode = new TextureCacheNode;
+		cacheNode->m_refCount = 1;
+		cacheNode->m_path = fileName;
+		cacheNode->m_resource = res;
+		//g_openGL->m_textureCache.push_back(cacheNode);
 		g_openGL->m_textureCache.push_back(cacheNode);
 		return res;
 	}
-	return g_defaultRes;
+	return nullptr;
 }
 
-void ReleaseTexture(yyResource& res)
+// STL code is so difficult to understand
+// I need to rewrite it - remove STL
+void ReleaseTexture(yyResource* res)
 {
+	if(res->m_type == yyResourceType::Texture)
+	{
+		res->m_type = yyResourceType::None; // now this yyResource is empty
+		auto node = g_openGL->m_textureCache.head();
+		for( size_t i = 0, sz = g_openGL->m_textureCache.size(); i < sz; ++i )
+		{
+			if(node->m_data->m_resource->m_index == res->m_index)
+			{
+				--node->m_data->m_refCount;
+				if(!node->m_data->m_refCount)
+				{
+					auto index = node->m_data->m_resource->m_index;
+					if(g_openGL->m_textures[index].m_texture)
+					{
+						delete g_openGL->m_textures[index].m_texture;
+						g_openGL->m_textures[index].m_texture = nullptr;
+					}
+					node->m_data->m_path.clear();
+					delete res;
+					//g_openGL->m_textureCache.erase(N.second.m_path.generic_string());
+					g_openGL->m_textureCache.erase_first(node->m_data);
+
+					if(index < g_openGL->m_freeTextureCellIndex)
+						g_openGL->m_freeTextureCellIndex = index;
+				}
+				return;
+			}
+			node = node->m_right;
+		}
+	}
+	if(g_openGL->m_textures[res->m_index].m_texture)
+	{
+		delete g_openGL->m_textures[res->m_index].m_texture;
+		g_openGL->m_textures[res->m_index].m_texture = nullptr;
+	}
+	if(res->m_index < g_openGL->m_freeTextureCellIndex)
+		g_openGL->m_freeTextureCellIndex = res->m_index;
+	delete res;
 }
 
 void UseVSync(bool v)

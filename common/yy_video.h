@@ -22,9 +22,9 @@ struct yyVideoDriverAPI
 	void (*BeginDrawNotClear)()=nullptr;
 	void (*EndDraw)()=nullptr;
 
-	yyResource (*GetTexture)(const char* fileName, bool useLinearFilter)=nullptr; // AddRef every time.
-	yyResource (*CreateTexture)(yyImage*, bool useLinearFilter)=nullptr;          // create new every call. m_refCount = 1
-	void (*ReleaseTexture)(yyResource&)=nullptr;             // Release, --m_refCount;
+	yyResource* (*GetTexture)(const char* fileName, bool useLinearFilter)=nullptr; // AddRef every time.
+	yyResource* (*CreateTexture)(yyImage*, bool useLinearFilter)=nullptr;          // create new every call. m_refCount = 1
+	void (*ReleaseTexture)(yyResource*)=nullptr;             // Release, --m_refCount;
 };
 
 #endif

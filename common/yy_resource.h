@@ -27,7 +27,7 @@ enum class yyResourceType : u16
 struct yyResource
 {
 	yyResourceType m_type = yyResourceType::None;
-	u16 m_index = 0; // index in video driver (or any other driver) array
+	u16 m_index = 0; // index in video driver array (or in any other driver array) 
 };
 
 class yyResourceManager
