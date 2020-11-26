@@ -17,7 +17,8 @@ public:
 
 	~yyPtr()
 	{
-		delete m_data;
+		if(m_data) 
+			yyDestroy(m_data);
 	}
 
 	type * m_data = nullptr;

@@ -712,21 +712,21 @@ OpenGL::~OpenGL()
 		for(size_t i = 0, sz = m_textureCache.size(); i < sz; ++i)
 		{
 			if( node->m_data )
-			{
-				delete node->m_data; // TextureCacheNode * cacheNode = new TextureCacheNode;
-			}
+				yyDestroy( node->m_data ); // TextureCacheNode * cacheNode = new TextureCacheNode;
 			node = node->m_right;
 		}
 	}
 	 
 	if(m_textures)
-		delete m_textures;
+		yyDestroy(m_textures);
+		//delete m_textures;
 	
 //	if(m_guiElements)
 //		delete m_guiElements;
 
 	if(m_models)
-		delete m_models;
+		yyDestroy(m_models);
+		//delete m_models;
 
 #ifdef YY_PLATFORM_WINDOWS
 	if(m_OpenGL_lib)
@@ -1363,9 +1363,11 @@ bool OpenGL::Init(yyWindow* window)
 	yyLogWriteInfo("Init video driver - OpenGL...\n");
 	m_window = window;
 
-	m_textures = new ResourceGroup<OpenGLTexture*, YY_MAX_TEXTURES>();
-//	m_guiElements = new ResourceGroup<yyGUIElement*, YY_MAX_GUI_ELEMENTS>();
-	m_models = new ResourceGroup<OpenGLModel*, YY_MAX_MODELS>();
+	//m_textures = new ResourceGroup<OpenGLTexture*, YY_MAX_TEXTURES>();
+	m_textures = yyCreate<ResourceGroup<OpenGLTexture*, YY_MAX_TEXTURES>>();
+	
+	//m_models = new ResourceGroup<OpenGLModel*, YY_MAX_MODELS>();
+	m_models = yyCreate<ResourceGroup<OpenGLModel*, YY_MAX_MODELS>>();
 
 #ifdef YY_PLATFORM_WINDOWS
 	m_OpenGL_lib = LoadLibrary(L"OpenGL32.dll");
@@ -1648,7 +1650,7 @@ bool OpenGL::initModel(yyModel* model, OpenGLModel* openglModel)
 	{
 		auto meshBuffer = model->m_meshBuffers.m_data[i];
 
-		OpenGLMeshBuffer* openGLMEshBuffer = new OpenGLMeshBuffer;
+		OpenGLMeshBuffer* openGLMEshBuffer = yyCreate<OpenGLMeshBuffer>();
 
 		gglGenVertexArrays(1, &openGLMEshBuffer->m_VAO);
 		gglBindVertexArray(openGLMEshBuffer->m_VAO);

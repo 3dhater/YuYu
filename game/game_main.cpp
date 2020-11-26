@@ -55,8 +55,8 @@ void asyncLoadEventHandler(u32 userIndex, yyResource resource, void* rawData)
 	{
 	default:
 		break;
-	case 1: g_img1 = (yyImage*)rawData; break;
-	case 2: g_img2 = (yyImage*)rawData; break;
+	case 1: g_img1 = (yyImage*)rawData; printf("1\n"); break;
+	case 2: g_img2 = (yyImage*)rawData; printf("2\n"); break;
 	}
 }
 

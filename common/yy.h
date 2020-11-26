@@ -5,6 +5,7 @@
 #include "yy_info.h"
 #include "yy_types.h"
 #include "yy_forward.h"
+#include "yy_memory.h"
 #include "yy_log.h"
 #include "yy_resource.h"
 #include "yy_video.h"

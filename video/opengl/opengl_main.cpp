@@ -23,10 +23,10 @@ bool Init(yyWindow* window)
 	if(g_openGL)
 		return true;
 
-	g_openGL = new OpenGL;
+	g_openGL = yyCreate<OpenGL>();
 	if(!g_openGL->Init(window))
 	{
-		delete g_openGL;
+		yyDestroy(g_openGL);
 		g_openGL = nullptr;
 		return false;
 	}
@@ -36,7 +36,7 @@ void Destroy()
 {
 	if(g_openGL)
 	{
-		delete g_openGL;
+		yyDestroy(g_openGL);
 		g_openGL = nullptr;
 	}
 }
@@ -89,7 +89,7 @@ void EndDraw()
 
 yyResource* CreateTexture(yyImage* image, bool useLinearFilter)
 {
-	yyResource * newRes = new yyResource;
+	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Texture;
 	newRes->m_index = g_openGL->m_freeTextureCellIndex;
 
@@ -97,7 +97,7 @@ yyResource* CreateTexture(yyImage* image, bool useLinearFilter)
 	//if(g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture)
 	//	delete g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture;
 
-	g_openGL->m_textures->m_data[g_openGL->m_freeTextureCellIndex].m_data = new OpenGLTexture;
+	g_openGL->m_textures->m_data[g_openGL->m_freeTextureCellIndex].m_data = yyCreate<OpenGLTexture>();
 	
 	if(g_openGL->initTexture(image, g_openGL->m_textures->m_data[g_openGL->m_freeTextureCellIndex].m_data, useLinearFilter))
 	{
@@ -120,10 +120,10 @@ yyResource* CreateTexture(yyImage* image, bool useLinearFilter)
 	}
 
 	if(newRes)
-		delete newRes;
+		yyDestroy( newRes );
 	if(g_openGL->m_textures->m_data[g_openGL->m_freeTextureCellIndex].m_data)
 	{
-		delete g_openGL->m_textures->m_data[g_openGL->m_freeTextureCellIndex].m_data;
+		yyDestroy( g_openGL->m_textures->m_data[g_openGL->m_freeTextureCellIndex].m_data );
 		g_openGL->m_textures->m_data[g_openGL->m_freeTextureCellIndex].m_data = nullptr;
 	}
 	return nullptr;
@@ -157,7 +157,7 @@ yyResource* GetTexture(const char* fileName, bool useLinearFilter)
 		auto res = CreateTexture(image, useLinearFilter);
 		yyDeleteImage(image);
 
-		TextureCacheNode * cacheNode = new TextureCacheNode;
+		TextureCacheNode * cacheNode = yyCreate<TextureCacheNode>();
 		cacheNode->m_refCount = 1;
 		cacheNode->m_path = fileName;
 		cacheNode->m_resource = res;
@@ -186,11 +186,11 @@ void ReleaseTexture(yyResource* res)
 					auto index = node->m_data->m_resource->m_index;
 					if(g_openGL->m_textures->m_data[index].m_data)
 					{
-						delete g_openGL->m_textures->m_data[index].m_data;
+						yyDestroy( g_openGL->m_textures->m_data[index].m_data );
 						g_openGL->m_textures->m_data[index].m_data = nullptr;
 					}
 					node->m_data->m_path.clear();
-					delete res;
+					yyDestroy( res );
 					//g_openGL->m_textureCache.erase(N.second.m_path.generic_string());
 					g_openGL->m_textureCache.erase_first(node->m_data);
 
@@ -204,12 +204,12 @@ void ReleaseTexture(yyResource* res)
 	}
 	if(g_openGL->m_textures->m_data[res->m_index].m_data)
 	{
-		delete g_openGL->m_textures->m_data[res->m_index].m_data;
+		yyDestroy( g_openGL->m_textures->m_data[res->m_index].m_data );
 		g_openGL->m_textures->m_data[res->m_index].m_data = nullptr;
 	}
 	if(res->m_index < g_openGL->m_freeTextureCellIndex)
 		g_openGL->m_freeTextureCellIndex = res->m_index;
-	delete res;
+	yyDestroy( res );
 }
 
 void UseVSync(bool v)
@@ -223,7 +223,7 @@ void UseVSync(bool v)
 
 yyResource* CreateModel(yyModel* model)
 {
-	yyResource * newRes = new yyResource;
+	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Model;
 	newRes->m_index = g_openGL->m_freeModelsCellIndex;
 
@@ -231,7 +231,7 @@ yyResource* CreateModel(yyModel* model)
 	//if(g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture)
 	//	delete g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture;
 
-	g_openGL->m_models->m_data[g_openGL->m_freeModelsCellIndex].m_data = new OpenGLModel;
+	g_openGL->m_models->m_data[g_openGL->m_freeModelsCellIndex].m_data = yyCreate<OpenGLModel>();
 	
 	if(g_openGL->initModel(model, g_openGL->m_models->m_data[g_openGL->m_freeModelsCellIndex].m_data))
 	{
@@ -254,10 +254,10 @@ yyResource* CreateModel(yyModel* model)
 	}
 
 	if(newRes)
-		delete newRes;
+		yyDestroy( newRes );
 	if(g_openGL->m_models->m_data[g_openGL->m_freeModelsCellIndex].m_data)
 	{
-		delete g_openGL->m_models->m_data[g_openGL->m_freeModelsCellIndex].m_data;
+		yyDestroy( g_openGL->m_models->m_data[g_openGL->m_freeModelsCellIndex].m_data );
 		g_openGL->m_models->m_data[g_openGL->m_freeModelsCellIndex].m_data = nullptr;
 	}
 	return nullptr;

@@ -121,7 +121,7 @@ yyImage* ImageLoader_PNG(const std::filesystem::path& p)
 	png_get_IHDR( png.png_ptr, png.info_ptr, &w, &h, &bits, &color_type,
 		NULL, NULL, NULL);
 
-	yyImage* image = new yyImage;
+	yyImage* image = yyCreate<yyImage>();
 	image->m_width = w;
 	image->m_height = h;
 	if( color_type == PNG_COLOR_TYPE_RGB_ALPHA ){
@@ -133,7 +133,7 @@ yyImage* ImageLoader_PNG(const std::filesystem::path& p)
 	}
 
 	image->m_dataSize = image->m_pitch * image->m_height;
-	image->m_data = (u8*)malloc(image->m_dataSize);
+	image->m_data = (u8*)yyMemAlloc(image->m_dataSize);
 
 	std::unique_ptr<png_bytep[]> row_pointers( new png_bytep[ image->m_height ] );
 	for( u32 row = 0, p = 0; row < image->m_height; ++row ){

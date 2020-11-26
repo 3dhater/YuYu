@@ -9,18 +9,6 @@
 #include "engine.h"
 
 extern Engine * g_engine;
-//
-//yyResourceManager::yyResourceManager()
-//{
-//	yyLogWriteInfo("Init resource manager\n");
-//
-//	
-//}
-//
-//yyResourceManager::~yyResourceManager()
-//{
-//	yyLogWriteInfo("Destroy resource manager\n");
-//}
 
 extern "C"
 {
@@ -59,7 +47,7 @@ YY_API yyImage* YY_C_DECL yyLoadImage(const char* fileName)
 YY_API void YY_C_DECL yyDeleteImage(yyImage* image)
 {
 	assert(image);
-	delete image;
+	yyDestroy( image );
 }
 
 /*YY_API yyResource YY_C_DECL yyGetTextureFromFile(const char* fn)

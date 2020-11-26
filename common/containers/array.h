@@ -239,7 +239,7 @@ class yyArraySmall
 	void reallocate( u16 new_capacity )
 	{
 		new_capacity += 4;
-		pointer new_data = static_cast<type*>(std::malloc(new_capacity * sizeof( type )));
+		pointer new_data = static_cast<type*>(yyMemAlloc(new_capacity * sizeof( type )));
 
 		if( m_data )
 		{
@@ -248,7 +248,7 @@ class yyArraySmall
 				new(&new_data[i]) type( m_data[i] );
 				(&m_data[i])->~type();
 			}
-			std::free(m_data);
+			yyMemFree(m_data);
 		}
 		m_data = new_data;
 		m_allocated = new_capacity;
@@ -319,7 +319,7 @@ public:
 			{
 				(&m_data[i])->~type();
 			}
-			std::free(m_data);
+			yyMemFree(m_data);
 
 			m_allocated = m_size = 0u;
 			m_data = nullptr;

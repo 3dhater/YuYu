@@ -4,6 +4,7 @@
 #include "yy_async.h"
 #include "containers/fixed_fifo.h"
 #include "containers/list.h"
+#include "containers/array.h"
 
 void yyBackgroundWorkerFunction();
 
@@ -40,8 +41,7 @@ struct BackgroundWorkerCommands
 	BackgroundWorkerCommands(type t, const char* fn, s32 id)
 	{
 		m_type = t;
-		if(fn)
-			m_fileName = fn;
+		m_fileName = fn;
 		m_id = id;
 	}
 	~BackgroundWorkerCommands(){}
@@ -49,7 +49,7 @@ struct BackgroundWorkerCommands
 
 	type m_type = type::None;
 	
-	std::string m_fileName;
+	const char* m_fileName = nullptr;
 	s32 m_id = 0;
 };
 
@@ -66,7 +66,7 @@ public:
 	videoGetApi m_videoDriverGetApi = nullptr;
 	yyVideoDriverAPI* m_videoAPI = nullptr;
 
-	std::vector<yyImageLoader> m_imageLoaders;
+	yyArraySmall<yyImageLoader> m_imageLoaders;
 	//yyResourceManager* m_resourceManager = nullptr;
 
 	yyAsyncLoadEventHandler m_asyncEventHandler = nullptr;

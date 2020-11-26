@@ -30,7 +30,7 @@ Engine::~Engine()
 	{
 		for(size_t i = 0, sz = m_guiElements.size(); i < sz; ++i)
 		{
-			delete guiNode->m_data;
+			yyDestroy( guiNode->m_data );
 			guiNode = guiNode->m_right;
 		}
 	}
@@ -49,7 +49,7 @@ public:
 	{
 		if(g_engine) // Visual Studio want to delete g_engine more than 1 time
 		{
-			delete g_engine;
+			yyDestroy( g_engine );
 			g_engine = nullptr;
 		}
 	}
@@ -62,7 +62,7 @@ extern "C"
 YY_API yySystemState* YY_C_DECL yyStart()
 {
 	assert(!g_engine);
-	g_engine = new Engine;
+	g_engine = yyCreate<Engine>();
 	//g_engine->m_resourceManager = new yyResourceManager;
 	g_engine->m_backgroundWorker = new std::thread(yyBackgroundWorkerFunction);
 	return &g_engine->m_state;
@@ -93,9 +93,7 @@ YY_API void YY_C_DECL yyStop()
 			g_engine->m_videoDriverLib = nullptr;
 		}
 
-
-
-		delete g_engine;
+		yyDestroy( g_engine );
 		g_engine = nullptr;
 	}
 }

@@ -20,9 +20,7 @@ struct yyImage
 	~yyImage()
 	{
 		if( m_data )
-		{
-			delete[] m_data;
-		}
+			yyMemFree(m_data);
 	}
 
 	void fill( const yyColor& color )

@@ -1294,7 +1294,7 @@ public:
 	{
 		for(u16 i = 0, sz = m_meshBuffers.size(); i < sz; ++i)
 		{
-			delete m_meshBuffers[i];
+			yyDestroy( m_meshBuffers[i] );
 		}
 	}
 	yyArraySmall<OpenGLMeshBuffer*> m_meshBuffers;
@@ -1311,7 +1311,7 @@ public:
 	~ResourceCell()
 	{
 		if(m_data)
-			delete m_data;
+			yyDestroy( m_data );
 	}
 	type m_data;
 };

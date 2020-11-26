@@ -9,11 +9,11 @@ public:
 
 	void* allocate( u32 size )
 	{
-		return std::malloc(size);
+		return yyMemAlloc(size);
 	}
 	void free( void * ptr )
 	{
-		std::free(ptr);
+		yyMemFree(ptr);
 	}
 };
 

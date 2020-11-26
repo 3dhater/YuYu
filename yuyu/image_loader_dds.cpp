@@ -11,29 +11,29 @@
 
 #include "yy_ptr.h"
 
-bool ImageLoader_DDS_export(yyImage* img, const char* fileName, const char* extName)
-{
-	char filePath[256];
-	sprintf(filePath, "%s.%s", fileName, extName);
-	
-	yyFileIO f;
-	if(!f.open(filePath, "wb+"))
-	{
-		YY_PRINT_FAILED;
-		return false;
-	}
-
-	DDS_HEADER hdr;
-	hdr.height = img->m_height;
-	hdr.width = img->m_width;
-	hdr.pitchOrLinearSize = img->m_dataSize;
-	
-	const unsigned int dds_magic = 0x20534444;
-	f.writeUnsignedInt(dds_magic);
-	f.writeBytes(&hdr, hdr.size);
-	f.writeBytes(img->m_data, img->m_dataSize);
-	return true;
-}
+//bool ImageLoader_DDS_export(yyImage* img, const char* fileName, const char* extName)
+//{
+//	char filePath[256];
+//	sprintf(filePath, "%s.%s", fileName, extName);
+//	
+//	yyFileIO f;
+//	if(!f.open(filePath, "wb+"))
+//	{
+//		YY_PRINT_FAILED;
+//		return false;
+//	}
+//
+//	DDS_HEADER hdr;
+//	hdr.height = img->m_height;
+//	hdr.width = img->m_width;
+//	hdr.pitchOrLinearSize = img->m_dataSize;
+//	
+//	const unsigned int dds_magic = 0x20534444;
+//	f.writeUnsignedInt(dds_magic);
+//	f.writeBytes(&hdr, hdr.size);
+//	f.writeBytes(img->m_data, img->m_dataSize);
+//	return true;
+//}
 
 yyImage* ImageLoader_DDS(const std::filesystem::path& p)
 {
@@ -119,7 +119,7 @@ yyImage* ImageLoader_DDS(const std::filesystem::path& p)
 		return 0;
 	}
 
-	yyPtr<yyImage> image = new yyImage;
+	yyPtr<yyImage> image = yyCreate<yyImage>();
 	if(!image.m_data)
 	{
 		YY_PRINT_FAILED;
@@ -151,7 +151,7 @@ yyImage* ImageLoader_DDS(const std::filesystem::path& p)
 		}
 	}
 
-	image.m_data->m_data = new u8[image.m_data->m_dataSize];
+	image.m_data->m_data = (u8*)yyMemAlloc(image.m_data->m_dataSize);
 	if(!image.m_data->m_data)
 	{
 		YY_PRINT_FAILED;

@@ -16,7 +16,7 @@ yyGUIPictureBox::~yyGUIPictureBox()
 
 YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4i& rect, yyResource* texture, s32 id)
 {
-	yyGUIPictureBox* element = new yyGUIPictureBox;
+	yyGUIPictureBox* element = yyCreate<yyGUIPictureBox>();
 	element->m_rect = rect;
 	element->m_texture = texture;
 	element->m_id = id;
