@@ -1,6 +1,8 @@
 ﻿#include "yy.h"
 #include "yy_window.h"
 #include "yy_image.h"
+#include "yy_gui.h"
+#include "yy_mesh.h"
 
 #include "OpenGL.h"
 
@@ -716,19 +718,15 @@ OpenGL::~OpenGL()
 			node = node->m_right;
 		}
 	}
-
+	 
 	if(m_textures)
-	{
-		for(u32 i = 0; i < YY_MAX_TEXTURES; ++i)
-		{
-			if(m_textures[i].m_texture)
-			{
-				delete m_textures[i].m_texture;
-				m_textures[i].m_texture = nullptr;
-			}
-		}
-		delete[] m_textures;
-	}
+		delete m_textures;
+	
+//	if(m_guiElements)
+//		delete m_guiElements;
+
+	if(m_models)
+		delete m_models;
 
 #ifdef YY_PLATFORM_WINDOWS
 	if(m_OpenGL_lib)
@@ -1365,8 +1363,9 @@ bool OpenGL::Init(yyWindow* window)
 	yyLogWriteInfo("Init video driver - OpenGL...\n");
 	m_window = window;
 
-	m_textures = new OpenGLTextureCell[YY_MAX_TEXTURES];
-	//m_textureCacheNodes = new TextureCacheNodeCell[YY_MAX_TEXTURES];
+	m_textures = new ResourceGroup<OpenGLTexture*, YY_MAX_TEXTURES>();
+//	m_guiElements = new ResourceGroup<yyGUIElement*, YY_MAX_GUI_ELEMENTS>();
+	m_models = new ResourceGroup<OpenGLModel*, YY_MAX_MODELS>();
 
 #ifdef YY_PLATFORM_WINDOWS
 	m_OpenGL_lib = LoadLibrary(L"OpenGL32.dll");
@@ -1643,10 +1642,59 @@ bool OpenGL::initTexture(yyImage* image, OpenGLTexture* newTexture, bool useLine
 	return true;
 }
 
-//void OpenGL::SetVSync(bool v)
-//{
-//	gwglSwapIntervalEXT(v ? 1 : 0);
-//}
+bool OpenGL::initModel(yyModel* model, OpenGLModel* openglModel)
+{
+	for(u16 i = 0, sz = model->m_meshBuffers.size(); i < sz; ++i)
+	{
+		auto meshBuffer = model->m_meshBuffers.m_data[i];
+
+		OpenGLMeshBuffer* openGLMEshBuffer = new OpenGLMeshBuffer;
+
+		gglGenVertexArrays(1, &openGLMEshBuffer->m_VAO);
+		gglBindVertexArray(openGLMEshBuffer->m_VAO);
+		gglGenBuffers(1, &openGLMEshBuffer->m_vBuffer);
+		gglBindBuffer(GL_ARRAY_BUFFER, openGLMEshBuffer->m_vBuffer);
+		gglBufferData(GL_ARRAY_BUFFER, meshBuffer->m_vCount * meshBuffer->m_stride, meshBuffer->m_vertices, GL_DYNAMIC_DRAW);
+
+		// POSITION
+		gglEnableVertexAttribArray(0);
+		gglVertexAttribPointer(0, 3, GL_FLOAT, false, meshBuffer->m_stride, 0); 
+
+		// TexCoords
+		gglEnableVertexAttribArray(1);
+		gglBindBuffer(GL_ARRAY_BUFFER, openGLMEshBuffer->m_vBuffer);
+		gglVertexAttribPointer(1, 2, GL_FLOAT, false, meshBuffer->m_stride, (unsigned char*)NULL + (3 * sizeof(float)));
+	
+		//// Normals
+		//gglEnableVertexAttribArray(2);
+		//gglBindBuffer(GL_ARRAY_BUFFER, m_vBuffer);
+		//gglVertexAttribPointer(2, 3, GL_FLOAT, false, smesh->m_stride, (unsigned char*)NULL + (5 * sizeof(float)));
+	
+		//// binormal
+		//gglEnableVertexAttribArray(3);
+		//gglBindBuffer(GL_ARRAY_BUFFER, m_vBuffer);
+		//gglVertexAttribPointer(3, 3, GL_FLOAT, false, smesh->m_stride, (unsigned char*)NULL + (8 * sizeof(float)));
+
+		//// tangent
+		//gglEnableVertexAttribArray(4);
+		//gglBindBuffer(GL_ARRAY_BUFFER, m_vBuffer);
+		//gglVertexAttribPointer(4, 3, GL_FLOAT, false, smesh->m_stride, (unsigned char*)NULL + (11 * sizeof(float)));
+
+		gglGenBuffers(1, &openGLMEshBuffer->m_iBuffer);
+		gglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, openGLMEshBuffer->m_iBuffer);
+		gglBufferData(GL_ELEMENT_ARRAY_BUFFER, meshBuffer->m_iCount * sizeof(u16), meshBuffer->m_indices, GL_DYNAMIC_DRAW);
+
+		openGLMEshBuffer->m_iCount = meshBuffer->m_iCount;
+
+		openglModel->m_meshBuffers.push_back(openGLMEshBuffer);
+
+		gglBindVertexArray(0);
+		gglBindBuffer(GL_ARRAY_BUFFER,0);
+		gglBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+	}
+
+	return true;
+}
 
 //void Game_GSOpenGL::OnWindowSizeChange(s32 newSizeX, s32 newSizeY)
 //{

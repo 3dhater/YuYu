@@ -4,12 +4,42 @@
 
 #include "yy_resource.h"
 #include "yy_async.h"
+#include "yy_gui.h"
 
 #include "engine.h"
 
 #include <thread>
 
 Engine * g_engine = nullptr;
+
+Engine::Engine()
+{
+	yyImageLoader loader;
+	loader.ext = ".dds";
+	loader.image_loader_callback = ImageLoader_DDS;
+	m_imageLoaders.push_back(loader);
+
+	loader.ext = ".png";
+	loader.image_loader_callback = ImageLoader_PNG;
+	m_imageLoaders.push_back(loader);
+}
+Engine::~Engine()
+{
+	auto guiNode = m_guiElements.head();
+	if(guiNode)
+	{
+		for(size_t i = 0, sz = m_guiElements.size(); i < sz; ++i)
+		{
+			delete guiNode->m_data;
+			guiNode = guiNode->m_right;
+		}
+	}
+}
+
+void Engine::addGuiElement(yyGUIElement* el)
+{
+	m_guiElements.push_back(el);
+}
 
 class EngineDestroyer
 {
@@ -33,7 +63,7 @@ YY_API yySystemState* YY_C_DECL yyStart()
 {
 	assert(!g_engine);
 	g_engine = new Engine;
-	g_engine->m_resourceManager = new yyResourceManager;
+	//g_engine->m_resourceManager = new yyResourceManager;
 	g_engine->m_backgroundWorker = new std::thread(yyBackgroundWorkerFunction);
 	return &g_engine->m_state;
 }
@@ -49,11 +79,11 @@ YY_API void YY_C_DECL yyStop()
 			delete g_engine->m_backgroundWorker;
 		}
 
-		if(g_engine->m_resourceManager)
+		/*if(g_engine->m_resourceManager)
 		{
 			delete g_engine->m_resourceManager;
 			g_engine->m_resourceManager = nullptr;
-		}
+		}*/
 
 		if(g_engine->m_videoDriverLib)
 		{
@@ -153,7 +183,7 @@ YY_API bool YY_C_DECL yyInitVideoDriver(const char* dl, yyWindow* window)
 			return false;
 		}
 
-		g_engine->m_resourceManager->m_videoDriverAPI = g_engine->m_videoAPI;
+		//g_engine->m_resourceManager->m_videoDriverAPI = g_engine->m_videoAPI;
 
 		return g_engine->m_videoAPI->Init(window);
 	}

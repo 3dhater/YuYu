@@ -3,6 +3,7 @@
 
 #include "yy_async.h"
 #include "containers/fixed_fifo.h"
+#include "containers/list.h"
 
 void yyBackgroundWorkerFunction();
 
@@ -55,8 +56,8 @@ struct BackgroundWorkerCommands
 class Engine
 {
 public:
-	Engine(){}
-	~Engine(){}
+	Engine();
+	~Engine();
 
 	yySystemState m_state = yySystemState::Run;
 	dl_handle m_videoDriverLib = nullptr;
@@ -65,13 +66,17 @@ public:
 	videoGetApi m_videoDriverGetApi = nullptr;
 	yyVideoDriverAPI* m_videoAPI = nullptr;
 
-	yyResourceManager* m_resourceManager = nullptr;
+	std::vector<yyImageLoader> m_imageLoaders;
+	//yyResourceManager* m_resourceManager = nullptr;
 
 	yyAsyncLoadEventHandler m_asyncEventHandler = nullptr;
 	std::thread* m_backgroundWorker = nullptr;
 	yyFixedFIFOThread<BackgroundWorkerCommands, 20> m_workerCommands;
 	
 	yyFixedFIFOThread<BackgroundWorkerResults, 20> m_workerResults;
+
+	void addGuiElement(yyGUIElement*);
+	yyList<yyGUIElement*> m_guiElements;
 };
 
 #endif

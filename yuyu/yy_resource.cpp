@@ -2,32 +2,25 @@
 
 #include "yy_resource.h"
 #include "yy_ptr.h"
+#include "yy_image.h"
 
 #include <cassert>
 #include <string>
 #include "engine.h"
 
 extern Engine * g_engine;
-
-
-yyResourceManager::yyResourceManager()
-{
-	yyLogWriteInfo("Init resource manager\n");
-
-	yyImageLoader loader;
-	loader.ext = ".dds";
-	loader.image_loader_callback = ImageLoader_DDS;
-	m_imageLoaders.push_back(loader);
-
-	loader.ext = ".png";
-	loader.image_loader_callback = ImageLoader_PNG;
-	m_imageLoaders.push_back(loader);
-}
-
-yyResourceManager::~yyResourceManager()
-{
-	yyLogWriteInfo("Destroy resource manager\n");
-}
+//
+//yyResourceManager::yyResourceManager()
+//{
+//	yyLogWriteInfo("Init resource manager\n");
+//
+//	
+//}
+//
+//yyResourceManager::~yyResourceManager()
+//{
+//	yyLogWriteInfo("Destroy resource manager\n");
+//}
 
 extern "C"
 {
@@ -52,7 +45,7 @@ YY_API yyImage* YY_C_DECL yyLoadImage(const char* fileName)
 		return nullptr;
 	}
 
-	for( auto & loader : g_engine->m_resourceManager->m_imageLoaders )
+	for( auto & loader : g_engine->m_imageLoaders )
 	{
 		auto e1 = p.extension().u8string();
 		std::transform(e1.begin(), e1.end(), e1.begin(),

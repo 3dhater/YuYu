@@ -16,5 +16,3 @@ game.exe - application with platform specific code. Add .cpp files from game/os_
 name.yyvd - YuYu video driver
 
 # TODO
-
-* resource manager - releaseTexture

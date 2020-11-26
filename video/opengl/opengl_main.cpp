@@ -97,19 +97,19 @@ yyResource* CreateTexture(yyImage* image, bool useLinearFilter)
 	//if(g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture)
 	//	delete g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture;
 
-	g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture = new OpenGLTexture;
+	g_openGL->m_textures->m_data[g_openGL->m_freeTextureCellIndex].m_data = new OpenGLTexture;
 	
-	if(g_openGL->initTexture(image, g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture, useLinearFilter))
+	if(g_openGL->initTexture(image, g_openGL->m_textures->m_data[g_openGL->m_freeTextureCellIndex].m_data, useLinearFilter))
 	{
 		++g_openGL->m_freeTextureCellIndex;
 		if(g_openGL->m_freeTextureCellIndex == YY_MAX_TEXTURES)
 			g_openGL->m_freeTextureCellIndex = 0;
 
-		if(g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture)
+		if(g_openGL->m_textures->m_data[g_openGL->m_freeTextureCellIndex].m_data)
 		{
 			for(u32 i = 0; i < YY_MAX_TEXTURES; ++i)
 			{
-				if(!g_openGL->m_textures[i].m_texture)
+				if(!g_openGL->m_textures->m_data[i].m_data)
 				{
 					g_openGL->m_freeTextureCellIndex = i;
 					break;
@@ -121,10 +121,10 @@ yyResource* CreateTexture(yyImage* image, bool useLinearFilter)
 
 	if(newRes)
 		delete newRes;
-	if(g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture)
+	if(g_openGL->m_textures->m_data[g_openGL->m_freeTextureCellIndex].m_data)
 	{
-		delete g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture;
-		g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture = nullptr;
+		delete g_openGL->m_textures->m_data[g_openGL->m_freeTextureCellIndex].m_data;
+		g_openGL->m_textures->m_data[g_openGL->m_freeTextureCellIndex].m_data = nullptr;
 	}
 	return nullptr;
 }
@@ -184,10 +184,10 @@ void ReleaseTexture(yyResource* res)
 				if(!node->m_data->m_refCount)
 				{
 					auto index = node->m_data->m_resource->m_index;
-					if(g_openGL->m_textures[index].m_texture)
+					if(g_openGL->m_textures->m_data[index].m_data)
 					{
-						delete g_openGL->m_textures[index].m_texture;
-						g_openGL->m_textures[index].m_texture = nullptr;
+						delete g_openGL->m_textures->m_data[index].m_data;
+						g_openGL->m_textures->m_data[index].m_data = nullptr;
 					}
 					node->m_data->m_path.clear();
 					delete res;
@@ -202,10 +202,10 @@ void ReleaseTexture(yyResource* res)
 			node = node->m_right;
 		}
 	}
-	if(g_openGL->m_textures[res->m_index].m_texture)
+	if(g_openGL->m_textures->m_data[res->m_index].m_data)
 	{
-		delete g_openGL->m_textures[res->m_index].m_texture;
-		g_openGL->m_textures[res->m_index].m_texture = nullptr;
+		delete g_openGL->m_textures->m_data[res->m_index].m_data;
+		g_openGL->m_textures->m_data[res->m_index].m_data = nullptr;
 	}
 	if(res->m_index < g_openGL->m_freeTextureCellIndex)
 		g_openGL->m_freeTextureCellIndex = res->m_index;
@@ -219,6 +219,52 @@ void UseVSync(bool v)
 #else
 #error For Windows
 #endif
+}
+
+yyResource* CreateModel(yyModel* model)
+{
+	yyResource * newRes = new yyResource;
+	newRes->m_type = yyResourceType::Model;
+	newRes->m_index = g_openGL->m_freeModelsCellIndex;
+
+	// need ?
+	//if(g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture)
+	//	delete g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture;
+
+	g_openGL->m_models->m_data[g_openGL->m_freeModelsCellIndex].m_data = new OpenGLModel;
+	
+	if(g_openGL->initModel(model, g_openGL->m_models->m_data[g_openGL->m_freeModelsCellIndex].m_data))
+	{
+		++g_openGL->m_freeModelsCellIndex;
+		if(g_openGL->m_freeModelsCellIndex == YY_MAX_MODELS)
+			g_openGL->m_freeModelsCellIndex = 0;
+
+		if(g_openGL->m_models->m_data[g_openGL->m_freeModelsCellIndex].m_data)
+		{
+			for(u32 i = 0; i < YY_MAX_MODELS; ++i)
+			{
+				if(!g_openGL->m_models->m_data[i].m_data)
+				{
+					g_openGL->m_freeModelsCellIndex = i;
+					break;
+				}
+			}
+		}
+		return newRes;
+	}
+
+	if(newRes)
+		delete newRes;
+	if(g_openGL->m_models->m_data[g_openGL->m_freeModelsCellIndex].m_data)
+	{
+		delete g_openGL->m_models->m_data[g_openGL->m_freeModelsCellIndex].m_data;
+		g_openGL->m_models->m_data[g_openGL->m_freeModelsCellIndex].m_data = nullptr;
+	}
+	return nullptr;
+}
+
+void ReleaseModel(yyResource* res)
+{
 }
 
 extern "C"
@@ -243,6 +289,8 @@ extern "C"
 		g_api.GetTexture = GetTexture;
 		g_api.ReleaseTexture = ReleaseTexture;
 		g_api.UseVSync = UseVSync;
+		g_api.CreateModel = CreateModel;
+		g_api.ReleaseModel = ReleaseModel;
 
 		return &g_api;
 	}

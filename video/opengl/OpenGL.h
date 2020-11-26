@@ -1,6 +1,7 @@
 ﻿#ifndef _YY_OPENGL_H_
 #define _YY_OPENGL_H_
 
+
 #include <random>
 
 #ifdef YY_PLATFORM_WINDOWS
@@ -1231,6 +1232,7 @@ extern PFNGLTEXTURESTORAGE3DMULTISAMPLEEXTPROC gglTextureStorage3DMultisampleEXT
 #include <filesystem>
 //#include <unordered_map>
 #include "containers/list.h"
+#include "containers/array.h"
 
 struct TextureCacheNode
 {
@@ -1266,13 +1268,71 @@ public:
 	u32 m_w = 0;
 };
 
-class OpenGLTextureCell
+class OpenGLMeshBuffer
 {
 public:
-	OpenGLTextureCell(){}
-	~OpenGLTextureCell(){}
+	OpenGLMeshBuffer(){}
+	~OpenGLMeshBuffer()
+	{
+		gglBindBuffer(GL_ARRAY_BUFFER, 0);
+		gglDeleteBuffers(1, &m_vBuffer);
+		gglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		gglDeleteBuffers(1, &m_iBuffer);
+		gglBindVertexArray(0);
+		gglDeleteVertexArrays(1,&m_VAO);
+	}
+	GLuint m_VAO     = 0;
+	GLuint m_vBuffer = 0;
+	GLuint m_iBuffer = 0;
+	GLsizei m_iCount = 0;
+};
+class OpenGLModel
+{
+public:
+	OpenGLModel(){}
+	~OpenGLModel()
+	{
+		for(u16 i = 0, sz = m_meshBuffers.size(); i < sz; ++i)
+		{
+			delete m_meshBuffers[i];
+		}
+	}
+	yyArraySmall<OpenGLMeshBuffer*> m_meshBuffers;
+};
 
-	OpenGLTexture* m_texture = nullptr;
+template<typename type>
+class ResourceCell
+{
+public:
+	ResourceCell()
+	:
+		m_data(nullptr)
+	{}
+	~ResourceCell()
+	{
+		if(m_data)
+			delete m_data;
+	}
+	type m_data;
+};
+
+template<typename type, u32 size>
+class ResourceGroup
+{
+public:
+	ResourceGroup()
+	{
+		m_data = new ResourceCell<type>[size];
+	}
+	~ResourceGroup()
+	{
+		if(m_data)
+		{
+			delete[] m_data;
+		}
+	}
+
+	ResourceCell<type>* m_data = nullptr;
 };
 
 class OpenGL
@@ -1297,10 +1357,18 @@ class OpenGL
 
 	// all textures
 	// get it using index from yyResource
-	OpenGLTextureCell* m_textures = nullptr;
+	//ResourceCell<OpenGLTexture*>* m_textures = nullptr;
+	ResourceGroup<OpenGLTexture*, YY_MAX_TEXTURES>* m_textures = nullptr;
 	u32 m_freeTextureCellIndex = 0;
 
+	//ResourceGroup<yyGUIElement*, YY_MAX_GUI_ELEMENTS>* m_guiElements = nullptr;
+	//u32 m_freeGUIElementCellIndex = 0;
+
+	ResourceGroup<OpenGLModel*, YY_MAX_MODELS>* m_models = nullptr;
+	u32 m_freeModelsCellIndex = 0;
+
 	bool initTexture(yyImage*, OpenGLTexture*, bool useLinearFilter);
+	bool initModel(yyModel*, OpenGLModel*);
 
 public:
 	OpenGL();
@@ -1308,6 +1376,8 @@ public:
 
 	bool Init(yyWindow* window);
 	
+	friend yyResource* CreateModel(yyModel* model);
+
 	friend void ReleaseTexture(yyResource* res);
 	friend yyResource* CreateTexture(yyImage* image, bool useLinearFilter);
 	friend yyResource* GetTexture(const char* fileName, bool useLinearFilter);

@@ -15,6 +15,7 @@ namespace fs = std::filesystem;
 #include <string>
 
 #include "yy_image.h"
+#include "yy_gui.h"
 
 // for auto create\delete
 struct EngineContext
@@ -126,6 +127,13 @@ vidOk:
 	yyLoadImageAsync("../res/grass.dds",1);
 	yyLoadImageAsync("../res/grass.png",2);
 	
+	//for(int i = 0; i < 10000; ++i)
+	//{
+	//	printf("%i\n",i);
+	//	auto t = videoDriver->GetTexture("../res/grass.dds",true);
+	//	videoDriver->ReleaseTexture(t);
+	//}
+
 	bool run = true;
 	while( run )
 	{
@@ -149,6 +157,7 @@ vidOk:
 			break;
 		case yySystemState::Run:
 		{
+			
 
 			videoDriver->BeginDrawClearAll();
 			videoDriver->EndDraw();

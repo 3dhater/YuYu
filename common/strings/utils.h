@@ -30,7 +30,7 @@ YY_FORCE_INLINE void getLine( std::u16string& outText, const char16_t * inText )
 		inText++;
 	}
 }
-YY_FORCE_INLINE void getLine( Game_String& outText, const char16_t * inText )
+YY_FORCE_INLINE void getLine( yyString& outText, const char16_t * inText )
 {
 	outText.clear();
 	while(true)

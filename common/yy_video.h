@@ -25,6 +25,9 @@ struct yyVideoDriverAPI
 	yyResource* (*GetTexture)(const char* fileName, bool useLinearFilter)=nullptr; // AddRef every time.
 	yyResource* (*CreateTexture)(yyImage*, bool useLinearFilter)=nullptr;          // create new every call. m_refCount = 1
 	void (*ReleaseTexture)(yyResource*)=nullptr;             // Release, --m_refCount;
+
+	yyResource* (*CreateModel)(yyModel*)=nullptr;
+	void (*ReleaseModel)(yyResource*)=nullptr;
 };
 
 #endif

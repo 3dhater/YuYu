@@ -1,7 +1,7 @@
 ﻿#ifndef _YY_RES_H_
 #define _YY_RES_H_
 
-#include "yy_image.h"
+//#include "yy_image.h"
 #include <filesystem>
 
 // IMAGE LOADER PROTOTYPES
@@ -23,6 +23,7 @@ enum class yyResourceType : u16
 {
 	None,
 	Texture,
+	Model,
 };
 struct yyResource
 {
@@ -30,15 +31,15 @@ struct yyResource
 	u16 m_index = 0; // index in video driver array (or in any other driver array) 
 };
 
-class yyResourceManager
-{
-public:
-	yyResourceManager();
-	~yyResourceManager();
-
-	yyVideoDriverAPI* m_videoDriverAPI = nullptr;
-
-	std::vector<yyImageLoader> m_imageLoaders;
-};
+//class yyResourceManager
+//{
+//public:
+//	yyResourceManager();
+//	~yyResourceManager();
+//
+//	//yyVideoDriverAPI* m_videoDriverAPI = nullptr;
+//
+//	std::vector<yyImageLoader> m_imageLoaders;
+//};
 
 #endif
