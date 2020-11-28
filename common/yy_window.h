@@ -61,6 +61,7 @@ public:
 	yyWindow_callbackKeyboard m_onKeyboard = nullptr;
 
 	v2i m_size;
+	v2i m_clientSize;
 
 #ifdef YY_PLATFORM_WINDOWS
 	HWND m_hWnd = nullptr;

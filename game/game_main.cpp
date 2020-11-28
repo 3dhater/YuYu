@@ -134,6 +134,8 @@ vidOk:
 	//	videoDriver->ReleaseTexture(t);
 	//}
 
+	auto pictureBox = yyGUICreatePictureBox(v4i(0.f, 0.f, 512.f, 512.f), videoDriver->GetTexture("../res/grass.png",true), 1);
+
 	bool run = true;
 	while( run )
 	{
@@ -160,6 +162,11 @@ vidOk:
 			
 
 			videoDriver->BeginDrawClearAll();
+			
+			//videoDriver->BeginDrawGUI();
+			yyGUIDrawAll();
+			//videoDriver->EndDrawGUI();
+
 			videoDriver->EndDraw();
 
 		}break;

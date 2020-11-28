@@ -34,6 +34,14 @@ Engine::~Engine()
 			guiNode = guiNode->m_right;
 		}
 	}
+
+	if(m_videoDriverLib)
+	{
+		m_videoAPI->Destroy();
+
+		yyFreeLybrary(m_videoDriverLib);
+		m_videoDriverLib = nullptr;
+	}
 }
 
 void Engine::addGuiElement(yyGUIElement* el)
@@ -85,13 +93,7 @@ YY_API void YY_C_DECL yyStop()
 			g_engine->m_resourceManager = nullptr;
 		}*/
 
-		if(g_engine->m_videoDriverLib)
-		{
-			g_engine->m_videoAPI->Destroy();
-
-			yyFreeLybrary(g_engine->m_videoDriverLib);
-			g_engine->m_videoDriverLib = nullptr;
-		}
+		
 
 		yyDestroy( g_engine );
 		g_engine = nullptr;

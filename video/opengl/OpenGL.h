@@ -1233,8 +1233,9 @@ extern PFNGLTEXTURESTORAGE3DMULTISAMPLEEXTPROC gglTextureStorage3DMultisampleEXT
 //#include <unordered_map>
 #include "containers/list.h"
 #include "containers/array.h"
+#include "math/mat.h"
 
-struct TextureCacheNode
+struct CacheNode
 {
 	std::filesystem::path m_path;
 	yyResource * m_resource = nullptr;
@@ -1245,60 +1246,11 @@ struct TextureCacheNode
 //	TextureCacheNode* m_node = nullptr;
 //};
 
-class OpenGLTexture
-{
-public:
-	OpenGLTexture(){}
-	~OpenGLTexture()
-	{
-		if( m_FBO )
-		{
-			gglBindFramebuffer(GL_FRAMEBUFFER, 0);
-			gglDeleteFramebuffers(1, &m_FBO);
-		}
-		if( m_depthRBO ) gglDeleteRenderbuffers(1, &m_depthRBO);
-		if( m_texture ) gglDeleteTextures(1, &m_texture);
-	}
-	
-	GLuint m_texture   = 0;
-	GLuint m_depthRBO = 0;
-	GLuint m_FBO = 0;
+class OpenGLShaderGUI;
+class OpenGLTexture;
 
-	u32 m_h = 0;
-	u32 m_w = 0;
-};
-
-class OpenGLMeshBuffer
-{
-public:
-	OpenGLMeshBuffer(){}
-	~OpenGLMeshBuffer()
-	{
-		gglBindBuffer(GL_ARRAY_BUFFER, 0);
-		gglDeleteBuffers(1, &m_vBuffer);
-		gglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		gglDeleteBuffers(1, &m_iBuffer);
-		gglBindVertexArray(0);
-		gglDeleteVertexArrays(1,&m_VAO);
-	}
-	GLuint m_VAO     = 0;
-	GLuint m_vBuffer = 0;
-	GLuint m_iBuffer = 0;
-	GLsizei m_iCount = 0;
-};
-class OpenGLModel
-{
-public:
-	OpenGLModel(){}
-	~OpenGLModel()
-	{
-		for(u16 i = 0, sz = m_meshBuffers.size(); i < sz; ++i)
-		{
-			yyDestroy( m_meshBuffers[i] );
-		}
-	}
-	yyArraySmall<OpenGLMeshBuffer*> m_meshBuffers;
-};
+class OpenGLMeshBuffer;
+class OpenGLModel;
 
 template<typename type>
 class ResourceCell
@@ -1322,47 +1274,56 @@ class ResourceGroup
 public:
 	ResourceGroup()
 	{
-		m_data = new ResourceCell<type>[size];
+		m_cells = new ResourceCell<type>[size];
 	}
 	~ResourceGroup()
 	{
-		if(m_data)
+		if(m_cells)
 		{
-			delete[] m_data;
+			delete[] m_cells;
 		}
 	}
 
-	ResourceCell<type>* m_data = nullptr;
+	ResourceCell<type>* m_cells = nullptr;
 };
 
 class OpenGL
 {
 	void* get_proc(const char *proc);
 	void load_procs(void);
-#ifdef YY_PLATFORM_WINDOWS
-	HMODULE m_OpenGL_lib = nullptr;
-	HDC m_windowDC = nullptr;
-	HGLRC m_renderingContext = nullptr;
-#endif
+
 
 	yyWindow * m_window = nullptr;
 	
-	// need to get texture if texture loaded from file
-	//std::unordered_map<std::string,TextureCacheNode> m_textureCache;
+	
 
+public:
+	OpenGL();
+	~OpenGL();
+
+	void UpdateGUIProjectionMatrix(const v2i& windowSize);
+	bool Init(yyWindow* window);
+
+	/*friend yyResource* CreateModel(yyModel* model);
+	friend void ReleaseModel(yyResource* res);
+
+	friend void ReleaseTexture(yyResource* res);
+	friend yyResource* CreateTexture(yyImage* image, bool useLinearFilter);
+	friend yyResource* GetTexture(const char* fileName, bool useLinearFilter);
+	
+	friend void EndDraw();
+	friend void BeginDrawGUI();*/
+
+
+	// try without friends
 	//std::vector<TextureCacheNode> m_textureCache;
-	//TextureCacheNodeCell* m_textureCacheNodes = nullptr;
-	//u32 m_freeTextureCacheNodeCellIndex = 0;
-	yyList<TextureCacheNode*> m_textureCache;
+	yyList<CacheNode*> m_textureCache;
+	yyList<CacheNode*> m_modelCache;
 
 	// all textures
 	// get it using index from yyResource
-	//ResourceCell<OpenGLTexture*>* m_textures = nullptr;
 	ResourceGroup<OpenGLTexture*, YY_MAX_TEXTURES>* m_textures = nullptr;
 	u32 m_freeTextureCellIndex = 0;
-
-	//ResourceGroup<yyGUIElement*, YY_MAX_GUI_ELEMENTS>* m_guiElements = nullptr;
-	//u32 m_freeGUIElementCellIndex = 0;
 
 	ResourceGroup<OpenGLModel*, YY_MAX_MODELS>* m_models = nullptr;
 	u32 m_freeModelsCellIndex = 0;
@@ -1370,21 +1331,19 @@ class OpenGL
 	bool initTexture(yyImage*, OpenGLTexture*, bool useLinearFilter);
 	bool initModel(yyModel*, OpenGLModel*);
 
-public:
-	OpenGL();
-	~OpenGL();
+	OpenGLShaderGUI* m_gui_shader = nullptr;
+	Mat4 m_guiProjectionMatrix;
 
-	bool Init(yyWindow* window);
-	
-	friend yyResource* CreateModel(yyModel* model);
+	OpenGLTexture* m_currentTextures[(u32)yyVideoDriverTextureSlot::Count];
+	OpenGLModel*   m_currentModel = nullptr;
 
-	friend void ReleaseTexture(yyResource* res);
-	friend yyResource* CreateTexture(yyImage* image, bool useLinearFilter);
-	friend yyResource* GetTexture(const char* fileName, bool useLinearFilter);
-	friend void EndDraw();
+#ifdef YY_PLATFORM_WINDOWS
+	HMODULE m_OpenGL_lib = nullptr;
+	HDC m_windowDC = nullptr;
+	HGLRC m_renderingContext = nullptr;
+#endif
 
-	//bool m_useClearColor = true;
-	//bool m_useClearDepth = true;
+	bool m_isGUI = false;
 };
 
 #endif

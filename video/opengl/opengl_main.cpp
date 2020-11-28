@@ -2,6 +2,9 @@
 #include "yy.h"
 
 #include "OpenGL.h"
+#include "OpenGL_texture.h"
+#include "OpenGL_model.h"
+#include "OpenGL_shader_GUI.h"
 
 yyVideoDriverAPI g_api;
 
@@ -97,19 +100,19 @@ yyResource* CreateTexture(yyImage* image, bool useLinearFilter)
 	//if(g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture)
 	//	delete g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture;
 
-	g_openGL->m_textures->m_data[g_openGL->m_freeTextureCellIndex].m_data = yyCreate<OpenGLTexture>();
+	g_openGL->m_textures->m_cells[g_openGL->m_freeTextureCellIndex].m_data = yyCreate<OpenGLTexture>();
 	
-	if(g_openGL->initTexture(image, g_openGL->m_textures->m_data[g_openGL->m_freeTextureCellIndex].m_data, useLinearFilter))
+	if(g_openGL->initTexture(image, g_openGL->m_textures->m_cells[g_openGL->m_freeTextureCellIndex].m_data, useLinearFilter))
 	{
 		++g_openGL->m_freeTextureCellIndex;
 		if(g_openGL->m_freeTextureCellIndex == YY_MAX_TEXTURES)
 			g_openGL->m_freeTextureCellIndex = 0;
 
-		if(g_openGL->m_textures->m_data[g_openGL->m_freeTextureCellIndex].m_data)
+		if(g_openGL->m_textures->m_cells[g_openGL->m_freeTextureCellIndex].m_data)
 		{
 			for(u32 i = 0; i < YY_MAX_TEXTURES; ++i)
 			{
-				if(!g_openGL->m_textures->m_data[i].m_data)
+				if(!g_openGL->m_textures->m_cells[i].m_data)
 				{
 					g_openGL->m_freeTextureCellIndex = i;
 					break;
@@ -121,10 +124,10 @@ yyResource* CreateTexture(yyImage* image, bool useLinearFilter)
 
 	if(newRes)
 		yyDestroy( newRes );
-	if(g_openGL->m_textures->m_data[g_openGL->m_freeTextureCellIndex].m_data)
+	if(g_openGL->m_textures->m_cells[g_openGL->m_freeTextureCellIndex].m_data)
 	{
-		yyDestroy( g_openGL->m_textures->m_data[g_openGL->m_freeTextureCellIndex].m_data );
-		g_openGL->m_textures->m_data[g_openGL->m_freeTextureCellIndex].m_data = nullptr;
+		yyDestroy( g_openGL->m_textures->m_cells[g_openGL->m_freeTextureCellIndex].m_data );
+		g_openGL->m_textures->m_cells[g_openGL->m_freeTextureCellIndex].m_data = nullptr;
 	}
 	return nullptr;
 }
@@ -157,7 +160,7 @@ yyResource* GetTexture(const char* fileName, bool useLinearFilter)
 		auto res = CreateTexture(image, useLinearFilter);
 		yyDeleteImage(image);
 
-		TextureCacheNode * cacheNode = yyCreate<TextureCacheNode>();
+		CacheNode * cacheNode = yyCreate<CacheNode>();
 		cacheNode->m_refCount = 1;
 		cacheNode->m_path = fileName;
 		cacheNode->m_resource = res;
@@ -184,10 +187,10 @@ void ReleaseTexture(yyResource* res)
 				if(!node->m_data->m_refCount)
 				{
 					auto index = node->m_data->m_resource->m_index;
-					if(g_openGL->m_textures->m_data[index].m_data)
+					if(g_openGL->m_textures->m_cells[index].m_data)
 					{
-						yyDestroy( g_openGL->m_textures->m_data[index].m_data );
-						g_openGL->m_textures->m_data[index].m_data = nullptr;
+						yyDestroy( g_openGL->m_textures->m_cells[index].m_data );
+						g_openGL->m_textures->m_cells[index].m_data = nullptr;
 					}
 					node->m_data->m_path.clear();
 					yyDestroy( res );
@@ -202,10 +205,10 @@ void ReleaseTexture(yyResource* res)
 			node = node->m_right;
 		}
 	}
-	if(g_openGL->m_textures->m_data[res->m_index].m_data)
+	if(g_openGL->m_textures->m_cells[res->m_index].m_data)
 	{
-		yyDestroy( g_openGL->m_textures->m_data[res->m_index].m_data );
-		g_openGL->m_textures->m_data[res->m_index].m_data = nullptr;
+		yyDestroy( g_openGL->m_textures->m_cells[res->m_index].m_data );
+		g_openGL->m_textures->m_cells[res->m_index].m_data = nullptr;
 	}
 	if(res->m_index < g_openGL->m_freeTextureCellIndex)
 		g_openGL->m_freeTextureCellIndex = res->m_index;
@@ -231,19 +234,19 @@ yyResource* CreateModel(yyModel* model)
 	//if(g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture)
 	//	delete g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture;
 
-	g_openGL->m_models->m_data[g_openGL->m_freeModelsCellIndex].m_data = yyCreate<OpenGLModel>();
+	g_openGL->m_models->m_cells[g_openGL->m_freeModelsCellIndex].m_data = yyCreate<OpenGLModel>();
 	
-	if(g_openGL->initModel(model, g_openGL->m_models->m_data[g_openGL->m_freeModelsCellIndex].m_data))
+	if(g_openGL->initModel(model, g_openGL->m_models->m_cells[g_openGL->m_freeModelsCellIndex].m_data))
 	{
 		++g_openGL->m_freeModelsCellIndex;
 		if(g_openGL->m_freeModelsCellIndex == YY_MAX_MODELS)
 			g_openGL->m_freeModelsCellIndex = 0;
 
-		if(g_openGL->m_models->m_data[g_openGL->m_freeModelsCellIndex].m_data)
+		if(g_openGL->m_models->m_cells[g_openGL->m_freeModelsCellIndex].m_data)
 		{
 			for(u32 i = 0; i < YY_MAX_MODELS; ++i)
 			{
-				if(!g_openGL->m_models->m_data[i].m_data)
+				if(!g_openGL->m_models->m_cells[i].m_data)
 				{
 					g_openGL->m_freeModelsCellIndex = i;
 					break;
@@ -255,16 +258,173 @@ yyResource* CreateModel(yyModel* model)
 
 	if(newRes)
 		yyDestroy( newRes );
-	if(g_openGL->m_models->m_data[g_openGL->m_freeModelsCellIndex].m_data)
+	if(g_openGL->m_models->m_cells[g_openGL->m_freeModelsCellIndex].m_data)
 	{
-		yyDestroy( g_openGL->m_models->m_data[g_openGL->m_freeModelsCellIndex].m_data );
-		g_openGL->m_models->m_data[g_openGL->m_freeModelsCellIndex].m_data = nullptr;
+		yyDestroy( g_openGL->m_models->m_cells[g_openGL->m_freeModelsCellIndex].m_data );
+		g_openGL->m_models->m_cells[g_openGL->m_freeModelsCellIndex].m_data = nullptr;
 	}
 	return nullptr;
 }
 
 void ReleaseModel(yyResource* res)
 {
+	if(res->m_type == yyResourceType::Model)
+	{
+		res->m_type = yyResourceType::None; // now this yyResource is empty
+		auto node = g_openGL->m_modelCache.head();
+		for( size_t i = 0, sz = g_openGL->m_modelCache.size(); i < sz; ++i )
+		{
+			if(node->m_data->m_resource->m_index == res->m_index)
+			{
+				--node->m_data->m_refCount;
+				if(!node->m_data->m_refCount)
+				{
+					auto index = node->m_data->m_resource->m_index;
+					if(g_openGL->m_models->m_cells[index].m_data)
+					{
+						yyDestroy( g_openGL->m_models->m_cells[index].m_data );
+						g_openGL->m_models->m_cells[index].m_data = nullptr;
+					}
+					node->m_data->m_path.clear();
+					yyDestroy( res );
+					g_openGL->m_modelCache.erase_first(node->m_data);
+
+					if(index < g_openGL->m_freeModelsCellIndex)
+						g_openGL->m_freeModelsCellIndex = index;
+				}
+				return;
+			}
+			node = node->m_right;
+		}
+	}
+	if(g_openGL->m_models->m_cells[res->m_index].m_data)
+	{
+		yyDestroy( g_openGL->m_models->m_cells[res->m_index].m_data );
+		g_openGL->m_models->m_cells[res->m_index].m_data = nullptr;
+	}
+	if(res->m_index < g_openGL->m_freeModelsCellIndex)
+		g_openGL->m_freeModelsCellIndex = res->m_index;
+	yyDestroy( res );
+}
+
+GLenum last_active_texture;
+GLint last_program;
+GLint last_texture;
+GLint last_sampler;
+GLint last_array_buffer;
+GLint last_vertex_array_object;
+GLint last_polygon_mode[2];
+GLint last_viewport[4];
+GLint last_scissor_box[4];
+GLenum last_blend_src_rgb;
+GLenum last_blend_dst_rgb;
+GLenum last_blend_src_alpha;
+GLenum last_blend_dst_alpha;
+GLenum last_blend_equation_rgb;
+GLenum last_blend_equation_alpha;
+GLboolean last_enable_blend;
+GLboolean last_enable_cull_face;
+GLboolean last_enable_depth_test;
+GLboolean last_enable_scissor_test;
+void BeginDrawGUI()
+{
+	gglGetIntegerv(GL_ACTIVE_TEXTURE, (GLint*)&last_active_texture);
+	gglActiveTexture(GL_TEXTURE0);
+	gglGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
+	gglGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+#ifdef GL_SAMPLER_BINDING
+	gglGetIntegerv(GL_SAMPLER_BINDING, &last_sampler);
+#endif
+	gglGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
+	gglGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array_object);
+#ifdef GL_POLYGON_MODE
+	gglGetIntegerv(GL_POLYGON_MODE, last_polygon_mode);
+#endif
+	gglGetIntegerv(GL_VIEWPORT, last_viewport);
+	gglGetIntegerv(GL_SCISSOR_BOX, last_scissor_box);
+	gglGetIntegerv(GL_BLEND_SRC_RGB, (GLint*)&last_blend_src_rgb);
+	gglGetIntegerv(GL_BLEND_DST_RGB, (GLint*)&last_blend_dst_rgb);
+	gglGetIntegerv(GL_BLEND_SRC_ALPHA, (GLint*)&last_blend_src_alpha);
+	gglGetIntegerv(GL_BLEND_DST_ALPHA, (GLint*)&last_blend_dst_alpha);
+	gglGetIntegerv(GL_BLEND_EQUATION_RGB, (GLint*)&last_blend_equation_rgb);
+	gglGetIntegerv(GL_BLEND_EQUATION_ALPHA, (GLint*)&last_blend_equation_alpha);
+	last_enable_blend = gglIsEnabled(GL_BLEND);
+	last_enable_cull_face = gglIsEnabled(GL_CULL_FACE);
+	last_enable_depth_test = gglIsEnabled(GL_DEPTH_TEST);
+	last_enable_scissor_test = gglIsEnabled(GL_SCISSOR_TEST);
+
+	/*gglEnable(GL_BLEND);
+	gglBlendEquation(GL_FUNC_ADD);
+	gglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);*/
+	gglDisable(GL_CULL_FACE);
+	gglDisable(GL_DEPTH_TEST);
+	gglEnable(GL_SCISSOR_TEST);
+#ifdef GL_POLYGON_MODE
+	gglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
+
+	gglUseProgram(g_openGL->m_gui_shader->m_program);
+	gglUniformMatrix4fv(g_openGL->m_gui_shader->m_uniform_ProjMtx, 1, GL_FALSE, g_openGL->m_guiProjectionMatrix.getPtr() );
+	
+	g_openGL->m_isGUI = true;
+}
+void EndDrawGUI()
+{
+	g_openGL->m_isGUI = false;
+
+	// Restore modified GL state
+	gglUseProgram(last_program);
+	gglBindTexture(GL_TEXTURE_2D, last_texture);
+#ifdef GL_SAMPLER_BINDING
+	gglBindSampler(0, last_sampler);
+#endif
+	gglActiveTexture(last_active_texture);
+	gglBindVertexArray(last_vertex_array_object);
+	gglBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
+	gglBlendEquationSeparate(last_blend_equation_rgb, last_blend_equation_alpha);
+	gglBlendFuncSeparate(last_blend_src_rgb, last_blend_dst_rgb, last_blend_src_alpha, last_blend_dst_alpha);
+	if (last_enable_blend) gglEnable(GL_BLEND); else gglDisable(GL_BLEND);
+	if (last_enable_cull_face) gglEnable(GL_CULL_FACE); else gglDisable(GL_CULL_FACE);
+	if (last_enable_depth_test) gglEnable(GL_DEPTH_TEST); else gglDisable(GL_DEPTH_TEST);
+	if (last_enable_scissor_test) gglEnable(GL_SCISSOR_TEST); else gglDisable(GL_SCISSOR_TEST);
+#ifdef GL_POLYGON_MODE
+	gglPolygonMode(GL_FRONT_AND_BACK, (GLenum)last_polygon_mode[0]);
+#endif
+	gglViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
+	gglScissor(last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2], (GLsizei)last_scissor_box[3]);
+}
+
+void SetTexture(yyVideoDriverTextureSlot slot, yyResource* res)
+{
+	g_openGL->m_currentTextures[(u32)slot] = g_openGL->m_textures->m_cells[ res->m_index ].m_data;
+}
+void SetModel(yyResource* res)
+{
+	g_openGL->m_currentModel = g_openGL->m_models->m_cells[res->m_index].m_data;
+}
+void Draw()
+{
+	if( !g_openGL->m_currentModel )
+		return;
+
+	if(g_openGL->m_isGUI)
+	{
+		if(g_openGL->m_currentTextures[0])
+		{
+			gglActiveTexture(GL_TEXTURE0);
+			gglBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);
+		}
+
+		for(u16 i = 0, sz = g_openGL->m_currentModel->m_meshBuffers.size(); i < sz; ++i)
+		{
+			auto meshBuffer = g_openGL->m_currentModel->m_meshBuffers[i];
+			gglBindVertexArray(meshBuffer->m_VAO);
+			gglDrawElements(GL_TRIANGLES, meshBuffer->m_iCount, GL_UNSIGNED_SHORT, 0);
+		}
+	}
+	else
+	{
+	}
 }
 
 extern "C"
@@ -291,6 +451,13 @@ extern "C"
 		g_api.UseVSync = UseVSync;
 		g_api.CreateModel = CreateModel;
 		g_api.ReleaseModel = ReleaseModel;
+
+		g_api.BeginDrawGUI = BeginDrawGUI;
+		g_api.EndDrawGUI = EndDrawGUI;
+		g_api.SetTexture = SetTexture;
+		g_api.SetModel = SetModel;
+		
+		g_api.Draw = Draw;
 
 		return &g_api;
 	}

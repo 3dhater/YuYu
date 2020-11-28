@@ -19,8 +19,8 @@ struct yyMeshBuffer
 	yyMeshBuffer(){}
 	~yyMeshBuffer()
 	{
-		if(m_vertices) delete[] m_vertices;
-		if(m_indices) delete[] m_indices;
+		if(m_vertices) yyMemFree( m_vertices );
+		if(m_indices) yyMemFree( m_indices ); 
 	}
 
 	u8* m_vertices = nullptr;
@@ -39,7 +39,7 @@ struct yyModel
 	{
 		for(u16 i = 0, sz = m_meshBuffers.size(); i < sz; ++i)
 		{
-			delete m_meshBuffers[i];
+			yyDestroy( m_meshBuffers[i] );
 		}
 	}
 

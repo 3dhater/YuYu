@@ -16,3 +16,5 @@ game.exe - application with platform specific code. Add .cpp files from game/os_
 name.yyvd - YuYu video driver
 
 # TODO
+
+* onWindowSize for video API - need to update GUI projection matrix if window size has been changed

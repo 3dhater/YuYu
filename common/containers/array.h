@@ -270,8 +270,8 @@ public:
 	void setData(pointer ptr) { m_data = ptr; }
 	pointer data() const     { return m_data; }
 	void    setSize( u16 s ) { m_size = s; }
-	u32     size() const     { return m_size; }
-	u32     capacity() const { return m_allocated; }
+	u16     size() const     { return m_size; }
+	u16     capacity() const { return m_allocated; }
 	bool    empty() const    { return m_size == 0u; }
 
 	const_reference at( u16 id ) const { return m_data[id]; }

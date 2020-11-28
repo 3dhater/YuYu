@@ -6,9 +6,9 @@
 
 class Mat4
 {
-	v4f m_data[ 4u ]; //< components
-
 public:
+
+	v4f m_data[ 4u ]; //< components
 
 	Mat4()
 	{
@@ -258,7 +258,7 @@ public:
 				}
 				// Print this is a singular matrix, return identity ?
 				if (big == column)
-					Game_LogWriteWarning("Singular matrix\n"); 
+					yyLogWriteWarning("Singular matrix\n"); 
 				// Swap rows                               
 				else for (unsigned j = 0; j < 4; ++j) 
 				{ 
@@ -321,7 +321,7 @@ namespace math
 		// \param aspect: aspect ratio
 		// \param Near: near clip plane
 		// \param Far: far clip plane
-	GAME_FORCE_INLINE void  makePerspectiveLHMatrix( Mat4& out, f32 FOV, f32 aspect,
+	YY_FORCE_INLINE void  makePerspectiveLHMatrix( Mat4& out, f32 FOV, f32 aspect,
 		f32 Near, f32 Far)
 	{
 		f32 S	=	std::sin( 0.5f * FOV );
@@ -340,7 +340,7 @@ namespace math
 		// \param aspect: aspect ratio
 		// \param Near: near clip plane
 		// \param Far: far clip plane
-	GAME_FORCE_INLINE void  makePerspectiveRHMatrix( Mat4& out, f32 FOV, f32 aspect,
+	YY_FORCE_INLINE void  makePerspectiveRHMatrix( Mat4& out, f32 FOV, f32 aspect,
 		f32 Near, f32 Far)
 	{
 		f32 S	=	std::sin( 0.5f * FOV );
@@ -359,7 +359,7 @@ namespace math
 		// \param height: height of viewport
 		// \param Near: near clip plane
 		// \param Far: far clip plane
-	GAME_FORCE_INLINE void  makeOrthoRHMatrix( Mat4& out, f32 width, f32 height,
+	YY_FORCE_INLINE void  makeOrthoRHMatrix( Mat4& out, f32 width, f32 height,
 		f32 Near, f32 Far )
 	{
 		out[ 0u ] = v4f( 2.f / width, 0.f, 0.f, 0.f );
@@ -373,7 +373,7 @@ namespace math
 		// \param eye: camera position
 		// \param center: camera target
 		// \param up: up vector
-	GAME_FORCE_INLINE void  makeLookAtRHMatrix( const v4f& eye, const v4f& center, const v4f& up, Mat4& out )
+	YY_FORCE_INLINE void  makeLookAtRHMatrix( const v4f& eye, const v4f& center, const v4f& up, Mat4& out )
 	{
 		v4f f( center - eye );
 		f.normalize2();
@@ -401,7 +401,7 @@ namespace math
 		out[ 3u ].z = f.dot( eye );
 	}
 
-	GAME_FORCE_INLINE void  makeLookAtLHMatrix( const v4f& eye, const v4f& center,const v4f& up, Mat4& out)
+	YY_FORCE_INLINE void  makeLookAtLHMatrix( const v4f& eye, const v4f& center,const v4f& up, Mat4& out)
 	{
 		v4f f( center - eye );
 		f.normalize2();
@@ -429,21 +429,21 @@ namespace math
 		out[ 3u ].z = -f.dot( eye );
 	}
 
-	GAME_FORCE_INLINE void makeTranslationMatrix( const v4f& position, Mat4& out )
+	YY_FORCE_INLINE void makeTranslationMatrix( const v4f& position, Mat4& out )
 	{
 		out[ 3u ].x = position.x;
 		out[ 3u ].y = position.y;
 		out[ 3u ].z = position.z;
 	}
 
-	GAME_FORCE_INLINE void makeScaleMatrix( const v4f& scale, Mat4& out )
+	YY_FORCE_INLINE void makeScaleMatrix( const v4f& scale, Mat4& out )
 	{
 		out[ 0u ].x = scale.x;
 		out[ 1u ].y = scale.y;
 		out[ 2u ].z = scale.z;
 	}
 
-	GAME_FORCE_INLINE void makeRotationMatrix( Mat4& out, const Quat& p ){
+	YY_FORCE_INLINE void makeRotationMatrix( Mat4& out, const Quat& p ){
 			
 		f32	wx, wy, wz;
 		f32	xx, yy, yz;
@@ -488,7 +488,7 @@ namespace math
 	}
 
 		//Vector-matrix product 
-	GAME_FORCE_INLINE v4f mul( const v4f& vec, const Mat4& mat )
+	YY_FORCE_INLINE v4f mul( const v4f& vec, const Mat4& mat )
 	{
 		return v4f
 		(
@@ -498,7 +498,7 @@ namespace math
 			mat[ 0u ].w * vec.x + mat[ 1u ].w * vec.y + mat[ 2u ].w * vec.z + mat[ 3u ].w * vec.w
 		);
 	}
-	GAME_FORCE_INLINE v3f mul( const v3f& vec, const Mat4& mat )
+	YY_FORCE_INLINE v3f mul( const v3f& vec, const Mat4& mat )
 	{
 		return v3f
 		(
@@ -507,7 +507,7 @@ namespace math
 			mat[ 0u ].z * vec.x + mat[ 1u ].z * vec.y + mat[ 2u ].z * vec.z + mat[ 3u ].z
 		);
 	}
-	GAME_FORCE_INLINE v3f mulBasis( const v3f& vec, const Mat4& mat )
+	YY_FORCE_INLINE v3f mulBasis( const v3f& vec, const Mat4& mat )
 	{
 		return v3f
 		(
@@ -517,7 +517,7 @@ namespace math
 		);
 	}
 	
-	GAME_FORCE_INLINE Quat matToQuat( const Mat4& mat )
+	YY_FORCE_INLINE Quat matToQuat( const Mat4& mat )
 	{
 		Quat q;
 		f32 trace = mat[ 0 ].x + mat[ 1 ].y + mat[ 2 ].z;
@@ -556,7 +556,7 @@ namespace math
 	}
 
 
-	/*GAME_FORCE_INLINE v3f mul( const v3f& vec, const Mat4& mat )
+	/*YY_FORCE_INLINE v3f mul( const v3f& vec, const Mat4& mat )
 	{
 		return v3f
 		(
@@ -567,7 +567,7 @@ namespace math
 	}*/
 
 		//Matrix-vector product
-	/*GAME_FORCE_INLINE v4f mul( const Mat4& mat, const v4f& vec )
+	/*YY_FORCE_INLINE v4f mul( const Mat4& mat, const v4f& vec )
 	{
 		return v4f
 		(
@@ -577,7 +577,7 @@ namespace math
 			mat[ 3u ].x * vec.x + mat[ 3u ].y * vec.y + mat[ 3u ].z * vec.z + mat[ 3u ].w * vec.w
 		);
 	}
-	GAME_FORCE_INLINE v3f mul( const Mat4& mat, const v3f& vec )
+	YY_FORCE_INLINE v3f mul( const Mat4& mat, const v3f& vec )
 	{
 		return v3f
 		(

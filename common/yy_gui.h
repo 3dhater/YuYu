@@ -5,6 +5,12 @@
 
 using yyGUICallback = void(*)(s32 m_id);
 
+enum class yyGUIElementType  : u32
+{
+	Unknown,
+	PictureBox
+};
+
 class yyGUIElement
 {
 public:
@@ -18,6 +24,7 @@ public:
 
 	bool m_visible = true;
 
+	yyGUIElementType m_type = yyGUIElementType::Unknown;
 };
 
 class yyGUIPictureBox : public yyGUIElement
@@ -27,7 +34,8 @@ public:
 	virtual ~yyGUIPictureBox();
 
 	yyResource* m_texture = nullptr;
-	yyResource* m_pictureBoxMesh = nullptr; // yyResourceType::Mesh
+	yyResource* m_pictureBoxModel = nullptr; // yyResourceType::Model
+
 };
 
 extern "C"

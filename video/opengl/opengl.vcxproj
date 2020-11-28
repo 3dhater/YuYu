@@ -172,7 +172,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="OpenGL.cpp" />
+    <ClCompile Include="OpenGL_functions.cpp" />
     <ClCompile Include="opengl_main.cpp" />
+    <ClCompile Include="OpenGL_model.cpp" />
+    <ClCompile Include="OpenGL_shader.cpp" />
+    <ClCompile Include="OpenGL_shader_GUI.cpp" />
+    <ClCompile Include="OpenGL_texture.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="OpenGL_model.h" />
+    <ClInclude Include="OpenGL_shader.h" />
+    <ClInclude Include="OpenGL_shader_GUI.h" />
+    <ClInclude Include="OpenGL_texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
