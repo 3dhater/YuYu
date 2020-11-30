@@ -11,6 +11,8 @@ struct yyMeshBuffer;
 struct yyImage;
 struct yyInputContext;
 struct yyVideoDriverAPI;
+struct yySceneObjectBase;
+struct yyCamera;
 
 
 

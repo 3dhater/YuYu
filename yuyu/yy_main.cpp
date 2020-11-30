@@ -6,6 +6,7 @@
 #include "yy_async.h"
 #include "yy_gui.h"
 #include "yy_input.h"
+#include "scene/common.h"
 
 #include "engine.h"
 
@@ -15,6 +16,8 @@ Engine * g_engine = nullptr;
 
 Engine::Engine()
 {
+	m_sceneRootObject = new yySceneObjectBase;
+
 	yyImageLoader loader;
 	loader.ext = ".dds";
 	loader.image_loader_callback = ImageLoader_DDS;
@@ -30,6 +33,9 @@ Engine::~Engine()
 	{
 		yyDestroy(m_inputContext);
 	}*/
+
+	delete m_sceneRootObject;
+
 
 	auto guiNode = m_guiElements.head();
 	if(guiNode)

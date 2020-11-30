@@ -59,6 +59,9 @@ public:
 	Engine();
 	~Engine();
 
+	yySceneObjectBase* m_sceneRootObject = nullptr;
+	yyCamera* m_sceneActiveCamera = nullptr;
+
 	yyInputContext* m_inputContext = nullptr;
 
 	yySystemState m_state = yySystemState::Run;
