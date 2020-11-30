@@ -141,7 +141,7 @@ YY_API void YY_C_DECL yyUpdateAsyncLoader()
 		case BackgroundWorkerResults::type::None:
 			break;
 		case BackgroundWorkerResults::type::LoadImage:
-			g_engine->m_asyncEventHandler( obj.m_id, yyResource(), obj.m_rawData );
+			g_engine->m_asyncEventHandler( obj.m_id, obj.m_rawData );
 			break;
 		}
 	}

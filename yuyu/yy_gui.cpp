@@ -20,7 +20,7 @@ yyGUIPictureBox::~yyGUIPictureBox()
 	if( this->m_pictureBoxModel )
 		vAPI->ReleaseModel(this->m_pictureBoxModel);
 	if( this->m_texture )
-		vAPI->ReleaseModel(this->m_texture);
+		vAPI->ReleaseTexture(this->m_texture);
 }
 
 bool pointInRect( float x, float y, const v4f& rect )
@@ -80,16 +80,16 @@ YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResou
 
 	yyVertexGUI * vertex = (yyVertexGUI*)meshBuffer->m_vertices;
 	vertex->m_position.set(rect.x, rect.w, 0.f);
-	vertex->m_tcoords.set(0.f,0.f);
-	vertex++;
-	vertex->m_position.set(rect.x, rect.y, 0.f);
 	vertex->m_tcoords.set(0.f,1.f);
 	vertex++;
+	vertex->m_position.set(rect.x, rect.y, 0.f);
+	vertex->m_tcoords.set(0.f,0.f);
+	vertex++;
 	vertex->m_position.set(rect.z, rect.y, 0.f);
-	vertex->m_tcoords.set(1.f,1.f);
+	vertex->m_tcoords.set(1.f,0.f);
 	vertex++;
 	vertex->m_position.set(rect.z, rect.w, 0.f);
-	vertex->m_tcoords.set(1.f,0.f);
+	vertex->m_tcoords.set(1.f,1.f);
 	vertex++;
 
 	meshBuffer->m_indices[0] = 0;

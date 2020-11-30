@@ -48,22 +48,40 @@ void log_onInfo(const char* message)
 	fprintf(stdout,message);
 }
 
-yyImage * g_img1 = nullptr;
-yyImage * g_img2 = nullptr;
-void asyncLoadEventHandler(u32 userIndex, yyResource resource, void* rawData)
+//yyImage * g_img1 = nullptr;
+//yyImage * g_img2 = nullptr;
+yyGUIPictureBox * g_pictureBox_image1 = nullptr;
+yyGUIPictureBox * g_pictureBox_image2 = nullptr;
+yyVideoDriverAPI* g_videoDriver = nullptr;
+void asyncLoadEventHandler(u32 userIndex, void* data)
 {
 	switch (userIndex)
 	{
 	default:
 		break;
-	case 1: g_img1 = (yyImage*)rawData; printf("1\n"); break;
-	case 2: g_img2 = (yyImage*)rawData; printf("2\n"); break;
+	//case 1: g_img1 = (yyImage*)data; printf("1\n"); break;
+	//case 2: g_img2 = (yyImage*)data; printf("2\n"); break;
+	case 1:
+	{
+		auto i = (yyImage*)data;
+		g_videoDriver->ReleaseTexture(g_pictureBox_image1->m_texture);
+		g_pictureBox_image1->m_texture = g_videoDriver->CreateTexture(i, true);
+		yyDestroy(i);
+	}break;
+	case 2:
+	{
+		auto i = (yyImage*)data;
+		g_videoDriver->ReleaseTexture(g_pictureBox_image2->m_texture);
+		g_pictureBox_image2->m_texture = g_videoDriver->CreateTexture(i, true);
+		yyDestroy(i);
+	}break;
 	}
 }
 
-void pictureBox_onClick(yyGUIElement* elem, s32 m_id)
+void pictureBox_load_onClick(yyGUIElement* elem, s32 m_id)
 {
-	printf("Click\n");
+	yyLoadImageAsync("../res/grass.dds",1);
+	yyLoadImageAsync("../res/grass.png",2);
 }
 
 yyInputContext* g_inputContex = nullptr;
@@ -153,11 +171,10 @@ int main()
 
 vidOk:
 	
-	auto videoDriver = yyGetVideoDriverAPI();
-	videoDriver->SetClearColor(0.3f,0.3f,0.4f,1.f);
+	g_videoDriver = yyGetVideoDriverAPI();
+	g_videoDriver->SetClearColor(0.3f,0.3f,0.4f,1.f);
 
-	yyLoadImageAsync("../res/grass.dds",1);
-	yyLoadImageAsync("../res/grass.png",2);
+	
 	
 	//for(int i = 0; i < 10000; ++i)
 	//{
@@ -166,8 +183,11 @@ vidOk:
 	//	videoDriver->ReleaseTexture(t);
 	//}
 
-	auto pictureBox = yyGUICreatePictureBox(v4f(0.f, 0.f, 512.f, 512.f), videoDriver->GetTexture("../res/grass.png",true), 1);
-	pictureBox->m_onClick = pictureBox_onClick;
+	auto pictureBox_load = yyGUICreatePictureBox(v4f(0.f, 0.f, 82.f, 28.f), g_videoDriver->GetTexture("../res/load.png",true), 1);
+	pictureBox_load->m_onClick = pictureBox_load_onClick;
+	
+	g_pictureBox_image1 = yyGUICreatePictureBox(v4f(0.f, 28.f, 256.f, 256.f + 28.f), g_videoDriver->GetTexture("../res/image.dds",true), 1);
+	g_pictureBox_image2 = yyGUICreatePictureBox(v4f(0.f, 256.f + 28.f, 256.f, 512.f + 28.f), g_videoDriver->GetTexture("../res/image.dds",true), 1);
 
 	bool run = true;
 	while( run )
@@ -198,20 +218,20 @@ vidOk:
 		{
 			
 
-			videoDriver->BeginDrawClearAll();
+			g_videoDriver->BeginDrawClearAll();
 			
 			//videoDriver->BeginDrawGUI();
 			yyGUIDrawAll();
 			//videoDriver->EndDrawGUI();
 
-			videoDriver->EndDraw();
+			g_videoDriver->EndDraw();
 
 		}break;
 		}
 	}
 
-	if(g_img1) yyDeleteImage(g_img1);
-	if(g_img2) yyDeleteImage(g_img2);
+	//if(g_img1) yyDeleteImage(g_img1);
+	//if(g_img2) yyDeleteImage(g_img2);
 
 	return 0;
 }

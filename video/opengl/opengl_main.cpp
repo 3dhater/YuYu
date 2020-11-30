@@ -97,8 +97,8 @@ yyResource* CreateTexture(yyImage* image, bool useLinearFilter)
 	newRes->m_index = g_openGL->m_freeTextureCellIndex;
 
 	// need ?
-	//if(g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture)
-	//	delete g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture;
+	if(g_openGL->m_textures->m_cells[g_openGL->m_freeTextureCellIndex].m_data)
+		yyDestroy(g_openGL->m_textures->m_cells[g_openGL->m_freeTextureCellIndex].m_data);
 
 	g_openGL->m_textures->m_cells[g_openGL->m_freeTextureCellIndex].m_data = yyCreate<OpenGLTexture>();
 	
@@ -231,8 +231,8 @@ yyResource* CreateModel(yyModel* model)
 	newRes->m_index = g_openGL->m_freeModelsCellIndex;
 
 	// need ?
-	//if(g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture)
-	//	delete g_openGL->m_textures[g_openGL->m_freeTextureCellIndex].m_texture;
+	if(g_openGL->m_models->m_cells[g_openGL->m_freeModelsCellIndex].m_data)
+		yyDestroy( g_openGL->m_models->m_cells[g_openGL->m_freeModelsCellIndex].m_data );
 
 	g_openGL->m_models->m_cells[g_openGL->m_freeModelsCellIndex].m_data = yyCreate<OpenGLModel>();
 	
