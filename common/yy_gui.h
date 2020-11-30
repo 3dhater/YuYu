@@ -3,7 +3,7 @@
 
 #include "math/vec.h"
 
-using yyGUICallback = void(*)(s32 m_id);
+using yyGUICallback = void(*)(yyGUIElement* elem, s32 m_id);
 
 enum class yyGUIElementType  : u32
 {
@@ -19,8 +19,7 @@ public:
 	
 	s32 m_id = -1;
 
-	v4i m_rect;
-	v2i m_offset;
+	v4f m_rect;
 
 	bool m_visible = true;
 
@@ -36,13 +35,14 @@ public:
 	yyResource* m_texture = nullptr;
 	yyResource* m_pictureBoxModel = nullptr; // yyResourceType::Model
 
+	yyGUICallback m_onClick = nullptr; // LMB down
 };
 
 extern "C"
 {
-
+	YY_API void YY_C_DECL yyGUIUpdate(f32 deltaTime);
 	YY_API void YY_C_DECL yyGUIDrawAll();
-	YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4i& rect, yyResource* texture, s32 id);
+	YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResource* texture, s32 id);
 }
 
 #endif

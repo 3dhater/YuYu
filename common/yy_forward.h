@@ -9,6 +9,7 @@ struct yyMaterial;
 struct yyModel;
 struct yyMeshBuffer;
 struct yyImage;
+struct yyInputContext;
 struct yyVideoDriverAPI;
 
 

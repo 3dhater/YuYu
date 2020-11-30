@@ -5,6 +5,7 @@
 #include "yy_resource.h"
 #include "yy_async.h"
 #include "yy_gui.h"
+#include "yy_input.h"
 
 #include "engine.h"
 
@@ -25,6 +26,11 @@ Engine::Engine()
 }
 Engine::~Engine()
 {
+	/*if(m_inputContext)
+	{
+		yyDestroy(m_inputContext);
+	}*/
+
 	auto guiNode = m_guiElements.head();
 	if(guiNode)
 	{
@@ -67,12 +73,15 @@ EngineDestroyer g_engineDestroyer;
 extern "C"
 {
 
-YY_API yySystemState* YY_C_DECL yyStart()
+YY_API yySystemState* YY_C_DECL yyStart(yyInputContext* input)
 {
 	assert(!g_engine);
 	g_engine = yyCreate<Engine>();
+	g_engine->m_inputContext = input;
 	//g_engine->m_resourceManager = new yyResourceManager;
 	g_engine->m_backgroundWorker = new std::thread(yyBackgroundWorkerFunction);
+	//g_engine->m_inputContext = yyCreate<yyInputContext>();
+
 	return &g_engine->m_state;
 }
 
@@ -107,6 +116,11 @@ YY_API void YY_C_DECL yyQuit()
 		g_engine->m_state = yySystemState::Quit;
 	}
 }
+
+//YY_API yyInputContext* YY_C_DECL yyGetInputContext()
+//{
+//	return g_engine->m_inputContext;
+//}
 
 YY_API void YY_C_DECL yySetAsyncLoadEventHandler(yyAsyncLoadEventHandler f)
 {

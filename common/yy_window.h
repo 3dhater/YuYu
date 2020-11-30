@@ -56,7 +56,7 @@ public:
 	yyWindow_callback m_onRestore = nullptr;
 
 	yyWindow_callbackMouse m_onMouseWheel = nullptr;
-	yyWindow_callbackMouse m_onMouseMove  = nullptr;
+	yyWindow_callbackMouse m_onMouseButton  = nullptr;
 
 	yyWindow_callbackKeyboard m_onKeyboard = nullptr;
 

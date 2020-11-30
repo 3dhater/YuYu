@@ -59,6 +59,8 @@ public:
 	Engine();
 	~Engine();
 
+	yyInputContext* m_inputContext = nullptr;
+
 	yySystemState m_state = yySystemState::Run;
 	dl_handle m_videoDriverLib = nullptr;
 	

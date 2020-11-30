@@ -19,7 +19,7 @@ enum class yySystemState : u32
 
 extern "C"
 {
-	YY_API yySystemState* YY_C_DECL yyStart();
+	YY_API yySystemState* YY_C_DECL yyStart(yyInputContext* input);
 	YY_API void YY_C_DECL yyStop();
 	YY_API void YY_C_DECL yyQuit();
 	

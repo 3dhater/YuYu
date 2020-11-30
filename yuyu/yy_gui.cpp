@@ -3,6 +3,7 @@
 #include "math/vec.h"
 
 #include "yy_model.h"
+#include "yy_input.h"
 
 #include "engine.h"
 
@@ -22,7 +23,41 @@ yyGUIPictureBox::~yyGUIPictureBox()
 		vAPI->ReleaseModel(this->m_texture);
 }
 
-YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4i& rect, yyResource* texture, s32 id)
+bool pointInRect( float x, float y, const v4f& rect )
+{
+	if(x>rect.x){if(x<rect.z){if(y>rect.y){if(y<rect.w){return true;}}}}
+	return false;
+}
+
+YY_API void YY_C_DECL yyGUIUpdate(f32 deltaTime)
+{
+	auto guiElement = g_engine->m_guiElements.head();
+	for(size_t i = 0, sz = g_engine->m_guiElements.size(); i < sz; ++i)
+	{
+		switch (guiElement->m_data->m_type)
+		{
+		default:
+			break;
+		case yyGUIElementType::PictureBox:
+		{
+			yyGUIPictureBox* pictureBox = (yyGUIPictureBox*)guiElement->m_data;
+			bool inRect = pointInRect(
+				g_engine->m_inputContext->m_cursorCoords.x, 
+				g_engine->m_inputContext->m_cursorCoords.y, 
+				pictureBox->m_rect);
+
+			if(pictureBox->m_onClick && g_engine->m_inputContext->m_isLMBDown)
+			{
+				if(inRect)
+					pictureBox->m_onClick(guiElement->m_data, guiElement->m_data->m_id);
+			}
+		}break;
+		}
+		guiElement = guiElement->m_right;
+	}
+}
+
+YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResource* texture, s32 id)
 {
 	yyGUIPictureBox* element = yyCreate<yyGUIPictureBox>();
 	element->m_rect = rect;
