@@ -128,6 +128,7 @@ YY_API void YY_C_DECL yyQuit()
 //	return g_engine->m_inputContext;
 //}
 
+
 YY_API void YY_C_DECL yySetAsyncLoadEventHandler(yyAsyncLoadEventHandler f)
 {
 	g_engine->m_asyncEventHandler = f;

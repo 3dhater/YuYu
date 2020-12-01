@@ -20,6 +20,7 @@ namespace fs = std::filesystem;
 
 #include "scene/common.h"
 #include "scene/camera.h"
+#include "scene/sprite.h"
 
 // for auto create\delete
 struct yyEngineContext
@@ -51,10 +52,6 @@ void log_onInfo(const char* message)
 	fprintf(stdout,message);
 }
 
-//yyImage * g_img1 = nullptr;
-//yyImage * g_img2 = nullptr;
-yyGUIPictureBox * g_pictureBox_image1 = nullptr;
-yyGUIPictureBox * g_pictureBox_image2 = nullptr;
 yyVideoDriverAPI* g_videoDriver = nullptr;
 void asyncLoadEventHandler(u32 userIndex, void* data)
 {
@@ -66,17 +63,9 @@ void asyncLoadEventHandler(u32 userIndex, void* data)
 	//case 2: g_img2 = (yyImage*)data; printf("2\n"); break;
 	case 1:
 	{
-		auto i = (yyImage*)data;
-		g_videoDriver->ReleaseTexture(g_pictureBox_image1->m_texture);
-		g_pictureBox_image1->m_texture = g_videoDriver->CreateTexture(i, true);
-		yyDestroy(i);
 	}break;
 	case 2:
 	{
-		auto i = (yyImage*)data;
-		g_videoDriver->ReleaseTexture(g_pictureBox_image2->m_texture);
-		g_pictureBox_image2->m_texture = g_videoDriver->CreateTexture(i, true);
-		yyDestroy(i);
 	}break;
 	}
 }
@@ -106,6 +95,20 @@ void window_callbackMouse(yyWindow* w, s32 wheel, s32 x, s32 y, u32 click)
 void updateInputContext() // call before all callbacks
 {
 	g_inputContex->m_isLMBDown = false;
+}
+
+void window_callbackKeyboard(yyWindow*, bool isPress, u32 key, char16_t character)
+{
+	if(isPress)
+	{
+		if(key < 256)
+			g_inputContex->m_key_hold[key] = 1;
+	}
+	else
+	{
+		if(key < 256)
+			g_inputContex->m_key_hold[key] = 0;
+	}
 }
 
 int main()
@@ -138,6 +141,7 @@ int main()
 
 	p_window->m_onClose = window_onCLose;
 	p_window->m_onMouseButton = window_callbackMouse;
+	p_window->m_onKeyboard = window_callbackKeyboard;
 
 	// init video driver
 	const char * videoDriverType = "opengl.yyvd"; // for example read name from .ini
@@ -177,8 +181,8 @@ vidOk:
 	g_videoDriver = yyGetVideoDriverAPI();
 	g_videoDriver->SetClearColor(0.3f,0.3f,0.4f,1.f);
 
-	yyCamera* c = new yyCamera;
-	delete c;
+	/*yyCamera* c = new yyCamera;
+	delete c;*/
 	
 	//for(int i = 0; i < 10000; ++i)
 	//{
@@ -187,11 +191,9 @@ vidOk:
 	//	videoDriver->ReleaseTexture(t);
 	//}
 
-	auto pictureBox_load = yyGUICreatePictureBox(v4f(0.f, 0.f, 82.f, 28.f), g_videoDriver->GetTexture("../res/load.png",true), 1);
-	pictureBox_load->m_onClick = pictureBox_load_onClick;
-	
-	g_pictureBox_image1 = yyGUICreatePictureBox(v4f(0.f, 28.f, 256.f, 256.f + 28.f), g_videoDriver->GetTexture("../res/image.dds",true), 1);
-	g_pictureBox_image2 = yyGUICreatePictureBox(v4f(0.f, 256.f + 28.f, 256.f, 512.f + 28.f), g_videoDriver->GetTexture("../res/image.dds",true), 1);
+	yySprite* sprite = yyCreateSprite(v4f(0.f,0.f,32.f,32.f), g_videoDriver->GetTexture("../res/grass.dds",true));
+
+	sprite->m_objectBase.m_globalPosition.set(10.f, 10.f, 0.f, 0.f);
 
 	bool run = true;
 	while( run )
@@ -210,6 +212,7 @@ vidOk:
 #error For windows
 #endif
 
+
 		yyGUIUpdate(1.f);
 		yyUpdateAsyncLoader();
 
@@ -220,10 +223,28 @@ vidOk:
 			break;
 		case yySystemState::Run:
 		{
-			
+			if(g_inputContex->isKeyHold(yyKey::K_LEFT))
+			{
+				sprite->m_objectBase.m_globalPosition.x -= 1.f;
+			}
+			if(g_inputContex->isKeyHold(yyKey::K_RIGHT))
+			{
+				sprite->m_objectBase.m_globalPosition.x += 1.f;
+			}
+			if(g_inputContex->isKeyHold(yyKey::K_UP))
+			{
+				sprite->m_objectBase.m_globalPosition.y -= 1.f;
+			}
+			if(g_inputContex->isKeyHold(yyKey::K_DOWN))
+			{
+				sprite->m_objectBase.m_globalPosition.y += 1.f;
+			}
 
 			g_videoDriver->BeginDrawClearAll();
 			
+			g_videoDriver->DrawSprite(sprite);
+			
+
 			//videoDriver->BeginDrawGUI();
 			yyGUIDrawAll();
 			//videoDriver->EndDrawGUI();

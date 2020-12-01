@@ -1,5 +1,7 @@
 ﻿#include "yy.h"
 #include "scene/common.h"
+#include "scene/sprite.h"
+#include "yy_model.h"
 
 #include "engine.h"
 extern Engine * g_engine;
@@ -18,6 +20,51 @@ YY_API yyCamera* YY_C_DECL yySceneGetActiveCamera()
 YY_API void YY_C_DECL yySceneSetActiveCamera(yyCamera* c)
 {
 	g_engine->m_sceneActiveCamera = c;
+}
+
+YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& rect, yyResource* texture)
+{
+	yySprite* newSprite = yyCreate<yySprite>();
+
+	auto vAPI = yyGetVideoDriverAPI();
+	auto model = yyCreate<yyModel>();
+	auto meshBuffer = yyCreate<yyMeshBuffer>();
+
+	meshBuffer->m_iCount = 6;
+	meshBuffer->m_vCount = 4;
+	meshBuffer->m_stride = sizeof(yyVertexGUI);
+	meshBuffer->m_vertexType = yyVertexType::GUI;
+	meshBuffer->m_vertices = (u8*)yyMemAlloc(meshBuffer->m_vCount * meshBuffer->m_stride);
+	meshBuffer->m_indices  = (u16*)yyMemAlloc(meshBuffer->m_iCount * sizeof(u16));
+
+	yyVertexGUI * vertex = (yyVertexGUI*)meshBuffer->m_vertices;
+	vertex->m_position.set(rect.x, rect.w, 0.f);
+	vertex->m_tcoords.set(0.f,1.f);
+	vertex++;
+	vertex->m_position.set(rect.x, rect.y, 0.f);
+	vertex->m_tcoords.set(0.f,0.f);
+	vertex++;
+	vertex->m_position.set(rect.z, rect.y, 0.f);
+	vertex->m_tcoords.set(1.f,0.f);
+	vertex++;
+	vertex->m_position.set(rect.z, rect.w, 0.f);
+	vertex->m_tcoords.set(1.f,1.f);
+	vertex++;
+
+	meshBuffer->m_indices[0] = 0;
+	meshBuffer->m_indices[1] = 1;
+	meshBuffer->m_indices[2] = 2;
+	meshBuffer->m_indices[3] = 0;
+	meshBuffer->m_indices[4] = 2;
+	meshBuffer->m_indices[5] = 3;
+
+	model->m_meshBuffers.push_back(meshBuffer);
+	newSprite->m_model = vAPI->CreateModel(model);
+	newSprite->m_texture = texture;
+
+	yyDestroy(model);
+
+	return newSprite;
 }
 
 }

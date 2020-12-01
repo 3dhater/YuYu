@@ -1247,6 +1247,7 @@ struct CacheNode
 //};
 
 class OpenGLShaderGUI;
+class OpenGLShaderSprite;
 class OpenGLTexture;
 
 class OpenGLMeshBuffer;
@@ -1332,6 +1333,7 @@ public:
 	bool initModel(yyModel*, OpenGLModel*);
 
 	OpenGLShaderGUI* m_gui_shader = nullptr;
+	OpenGLShaderSprite* m_sprite_shader = nullptr;
 	Mat4 m_guiProjectionMatrix;
 
 	OpenGLTexture* m_currentTextures[(u32)yyVideoDriverTextureSlot::Count];

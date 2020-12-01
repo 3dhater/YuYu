@@ -13,6 +13,8 @@ struct yyInputContext;
 struct yyVideoDriverAPI;
 struct yySceneObjectBase;
 struct yyCamera;
+struct yySprite;
+struct v4f;
 
 
 

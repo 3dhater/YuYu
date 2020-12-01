@@ -65,6 +65,8 @@ struct yyVideoDriverAPI
 	void (*SetModel)(yyResource*)=nullptr;
 	// draw what we set above
 	void (*Draw)()=nullptr;
+	
+	void (*DrawSprite)(yySprite*)=nullptr;
 };
 
 #endif

@@ -47,7 +47,7 @@ struct yySceneObjectBase
 
 	f32 m_distanceToCamera = 0.f;
 
-	void        SetRotation(const v4f& rotation)
+	void SetRotation(const v4f& rotation)
 	{
 		m_rotation = rotation;
 		v4f r =  rotation - m_rotationOld;
@@ -80,12 +80,15 @@ struct yySceneObjectBase
 	enum ObjectType
 	{
 		Dummy,
-		Camera
+		Camera,
+		Sprite,
 	};
 	ObjectType m_objectType = ObjectType::Dummy;
 	void(*m_updateImplementation)(void*implementation) = nullptr;
 	void * m_implementationPtr = nullptr;
 	yySceneObjectFamily* m_family = nullptr;
+
+	void UpdateBase();
 };
 
 struct yySceneObjectFamily
@@ -173,6 +176,83 @@ YY_FORCE_INLINE void yySceneObjectBase::InitFamily()
 {
 	m_family = yyCreate<yySceneObjectFamily>();
 	m_family->m_object = this;
+}
+
+YY_FORCE_INLINE void yySceneObjectBase::UpdateBase()
+{
+	Mat4 tMatrix;
+	math::makeTranslationMatrix( m_localPosition, tMatrix );
+	Mat4 rMatrix;
+	math::makeRotationMatrix( rMatrix, m_orientation );
+	Mat4 sMatrix;
+	sMatrix[ 0u ].x = m_scale.x;
+	sMatrix[ 1u ].y = m_scale.y;
+	sMatrix[ 2u ].z = m_scale.z;
+
+	m_rotationScaleMatrix = rMatrix*sMatrix;
+
+	m_localMatrix = tMatrix*m_rotationScaleMatrix;
+	m_globalMatrix = m_localMatrix;
+
+	if(m_family)
+	{
+		if(m_family->m_parent)
+			m_globalMatrix = m_family->m_parent->m_object->m_globalMatrix * m_localMatrix;
+	}
+
+	m_globalPosition = m_globalMatrix[3];
+
+	m_obb.v1 = m_aabbWithoutTransforms.m_min;
+	m_obb.v2 = m_aabbWithoutTransforms.m_max;
+	m_obb.v3.set( m_obb.v1.x, m_obb.v1.y, m_obb.v2.z, 1.f );
+	m_obb.v4.set( m_obb.v2.x, m_obb.v1.y, m_obb.v1.z, 1.f );		
+	m_obb.v5.set( m_obb.v1.x, m_obb.v2.y, m_obb.v1.z, 1.f );		
+	m_obb.v6.set( m_obb.v1.x, m_obb.v2.y, m_obb.v2.z, 1.f );		
+	m_obb.v7.set( m_obb.v2.x, m_obb.v1.y, m_obb.v2.z, 1.f );		
+	m_obb.v8.set( m_obb.v2.x, m_obb.v2.y, m_obb.v1.z, 1.f );	
+	m_obb.v1.w = 1.f;
+	m_obb.v2.w = 1.f;
+			
+	auto W = m_globalMatrix;
+	W[3] = v4f(0.f,0.f,0.f,1.f);
+
+	m_obb.v1 = math::mul(m_obb.v1, W) + m_globalPosition;
+	m_obb.v2 = math::mul(m_obb.v2, W) + m_globalPosition;
+	m_obb.v3 = math::mul(m_obb.v3, W) + m_globalPosition;
+	m_obb.v4 = math::mul(m_obb.v4, W) + m_globalPosition;
+	m_obb.v5 = math::mul(m_obb.v5, W) + m_globalPosition;
+	m_obb.v6 = math::mul(m_obb.v6, W) + m_globalPosition;
+	m_obb.v7 = math::mul(m_obb.v7, W) + m_globalPosition;
+	m_obb.v8 = math::mul(m_obb.v8, W) + m_globalPosition;
+
+	m_aabb.reset();
+	m_aabb.add(m_obb.v1);
+	m_aabb.add(m_obb.v2);
+	m_aabb.add(m_obb.v3);
+	m_aabb.add(m_obb.v4);
+	m_aabb.add(m_obb.v5);
+	m_aabb.add(m_obb.v6);
+	m_aabb.add(m_obb.v7);
+	m_aabb.add(m_obb.v8);
+
+	if(m_family)
+	{
+		auto children_head = m_family->m_children.head();
+		if(children_head)
+		{
+			auto last = children_head->m_left;
+			while(true)
+			{
+				auto next = children_head->m_right;
+				children_head->m_data->m_object->UpdateBase();
+				if(children_head->m_data->m_object->m_updateImplementation)
+					children_head->m_data->m_object->m_updateImplementation(children_head->m_data->m_object->m_implementationPtr);
+				if(children_head == last)
+					break;
+				children_head = next;
+			}
+		}
+	}
 }
 
 #endif

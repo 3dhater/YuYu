@@ -5,6 +5,10 @@
 #include "OpenGL_texture.h"
 #include "OpenGL_model.h"
 #include "OpenGL_shader_GUI.h"
+#include "OpenGL_shader_sprite.h"
+
+#include "scene/common.h"
+#include "scene/sprite.h"
 
 yyVideoDriverAPI g_api;
 
@@ -353,18 +357,18 @@ void BeginDrawGUI()
 	last_enable_depth_test = gglIsEnabled(GL_DEPTH_TEST);
 	last_enable_scissor_test = gglIsEnabled(GL_SCISSOR_TEST);
 
-	/*gglEnable(GL_BLEND);
-	gglBlendEquation(GL_FUNC_ADD);
-	gglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);*/
-	gglDisable(GL_CULL_FACE);
-	gglDisable(GL_DEPTH_TEST);
-	gglEnable(GL_SCISSOR_TEST);
+	glEnable(GL_BLEND);
+	glBlendEquation(GL_FUNC_ADD);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_SCISSOR_TEST);
 #ifdef GL_POLYGON_MODE
-	gglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 #endif
 
-	gglUseProgram(g_openGL->m_gui_shader->m_program);
-	gglUniformMatrix4fv(g_openGL->m_gui_shader->m_uniform_ProjMtx, 1, GL_FALSE, g_openGL->m_guiProjectionMatrix.getPtr() );
+	glUseProgram(g_openGL->m_gui_shader->m_program);
+	glUniformMatrix4fv(g_openGL->m_gui_shader->m_uniform_ProjMtx, 1, GL_FALSE, g_openGL->m_guiProjectionMatrix.getPtr() );
 	
 	g_openGL->m_isGUI = true;
 }
@@ -373,25 +377,25 @@ void EndDrawGUI()
 	g_openGL->m_isGUI = false;
 
 	// Restore modified GL state
-	gglUseProgram(last_program);
-	gglBindTexture(GL_TEXTURE_2D, last_texture);
+	glUseProgram(last_program);
+	glBindTexture(GL_TEXTURE_2D, last_texture);
 #ifdef GL_SAMPLER_BINDING
-	gglBindSampler(0, last_sampler);
+	glBindSampler(0, last_sampler);
 #endif
-	gglActiveTexture(last_active_texture);
-	gglBindVertexArray(last_vertex_array_object);
-	gglBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
-	gglBlendEquationSeparate(last_blend_equation_rgb, last_blend_equation_alpha);
-	gglBlendFuncSeparate(last_blend_src_rgb, last_blend_dst_rgb, last_blend_src_alpha, last_blend_dst_alpha);
+	glActiveTexture(last_active_texture);
+	glBindVertexArray(last_vertex_array_object);
+	glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
+	glBlendEquationSeparate(last_blend_equation_rgb, last_blend_equation_alpha);
+	glBlendFuncSeparate(last_blend_src_rgb, last_blend_dst_rgb, last_blend_src_alpha, last_blend_dst_alpha);
 	if (last_enable_blend) gglEnable(GL_BLEND); else gglDisable(GL_BLEND);
 	if (last_enable_cull_face) gglEnable(GL_CULL_FACE); else gglDisable(GL_CULL_FACE);
 	if (last_enable_depth_test) gglEnable(GL_DEPTH_TEST); else gglDisable(GL_DEPTH_TEST);
 	if (last_enable_scissor_test) gglEnable(GL_SCISSOR_TEST); else gglDisable(GL_SCISSOR_TEST);
 #ifdef GL_POLYGON_MODE
-	gglPolygonMode(GL_FRONT_AND_BACK, (GLenum)last_polygon_mode[0]);
+	glPolygonMode(GL_FRONT_AND_BACK, (GLenum)last_polygon_mode[0]);
 #endif
-	gglViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
-	gglScissor(last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2], (GLsizei)last_scissor_box[3]);
+	glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
+	glScissor(last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2], (GLsizei)last_scissor_box[3]);
 }
 
 void SetTexture(yyVideoDriverTextureSlot slot, yyResource* res)
@@ -426,6 +430,23 @@ void Draw()
 	{
 	}
 }
+void DrawSprite(yySprite* sprite)
+{
+	glUseProgram( g_openGL->m_sprite_shader->m_program );
+	glUniformMatrix4fv(g_openGL->m_sprite_shader->m_uniform_ProjMtx, 1, GL_FALSE, g_openGL->m_guiProjectionMatrix.getPtr() );
+	glUniform4fv(g_openGL->m_sprite_shader->m_uniform_SpritePosition, 1, sprite->m_objectBase.m_globalPosition.data());
+
+	if(sprite->m_texture)
+	{
+		SetTexture(yyVideoDriverTextureSlot::Texture0, sprite->m_texture);
+		gglActiveTexture(GL_TEXTURE0);
+		gglBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);
+	}
+	SetModel(sprite->m_model);
+	auto meshBuffer = g_openGL->m_currentModel->m_meshBuffers[0];
+	gglBindVertexArray(meshBuffer->m_VAO);
+	gglDrawElements(GL_TRIANGLES, meshBuffer->m_iCount, GL_UNSIGNED_SHORT, 0);
+}
 
 extern "C"
 {
@@ -458,6 +479,7 @@ extern "C"
 		g_api.SetModel = SetModel;
 		
 		g_api.Draw = Draw;
+		g_api.DrawSprite = DrawSprite;
 
 		return &g_api;
 	}

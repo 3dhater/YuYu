@@ -8,6 +8,7 @@
 #include "OpenGL_texture.h"
 #include "OpenGL_model.h"
 #include "OpenGL_shader_GUI.h"
+#include "OpenGL_shader_sprite.h"
 
 #include "math/mat.h"
 
@@ -118,8 +119,8 @@ OpenGL::~OpenGL()
 {
 	yyLogWriteInfo("Destroy video driver...\n");
 
-	if(m_gui_shader)
-		yyDestroy(m_gui_shader);
+	if(m_gui_shader) yyDestroy(m_gui_shader);
+	if(m_sprite_shader) yyDestroy(m_sprite_shader);
 
 	auto node = m_textureCache.head();
 	if(node)
@@ -392,6 +393,14 @@ bool OpenGL::Init(yyWindow* window)
 	if(!m_gui_shader->init())
 	{
 		yyLogWriteError("Can't create gui shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	m_sprite_shader = yyCreate<OpenGLShaderSprite>();
+	if(!m_sprite_shader->init())
+	{
+		yyLogWriteError("Can't create sprite shader...");
 		YY_PRINT_FAILED;
 		return false;
 	}

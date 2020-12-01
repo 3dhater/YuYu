@@ -3,17 +3,17 @@
 #include "OpenGL.h"
 
 #include "OpenGL_shader.h"
-#include "OpenGL_shader_GUI.h"
+#include "OpenGL_shader_sprite.h"
 
 #include "math/mat.h"
 extern Mat4 g_guiProjectionMatrix;
 
-OpenGLShaderGUI::OpenGLShaderGUI()
+OpenGLShaderSprite::OpenGLShaderSprite()
 {
 
 }
 
-OpenGLShaderGUI::~OpenGLShaderGUI()
+OpenGLShaderSprite::~OpenGLShaderSprite()
 {
 	if( m_VAO )
 		gglDeleteVertexArrays(1,&m_VAO);
@@ -21,16 +21,17 @@ OpenGLShaderGUI::~OpenGLShaderGUI()
 		gglDeleteProgram(m_program);
 }
 
-bool OpenGLShaderGUI::init()
+bool OpenGLShaderSprite::init()
 {
 	const char * text_v = 
 		"#version 130\n"
 		"in vec3 Position;\n"
 		"in vec2 UV;\n"
 		"uniform mat4 ProjMtx;\n"
+		"uniform vec4 SpritePosition;\n"
 		"out vec2 out_UV;\n"
 		"void main(){\n"
-		"    gl_Position = ProjMtx * vec4(Position.xyz,1);\n"
+		"    gl_Position = ProjMtx * vec4(Position.xyz + SpritePosition.xyz,1);\n"
 		"    out_UV = UV;\n"
 		"}\n";
 	const char * text_f = 
@@ -46,6 +47,7 @@ bool OpenGLShaderGUI::init()
 
 	glUseProgram(m_program);
 	m_uniform_ProjMtx = glGetUniformLocation(m_program, "ProjMtx");
+	m_uniform_SpritePosition = glGetUniformLocation(m_program, "SpritePosition");
 	
 	glUniform1i(glGetUniformLocation(m_program, "Texture"), 0); 
 

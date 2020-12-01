@@ -177,12 +177,14 @@
     <ClCompile Include="OpenGL_model.cpp" />
     <ClCompile Include="OpenGL_shader.cpp" />
     <ClCompile Include="OpenGL_shader_GUI.cpp" />
+    <ClCompile Include="OpenGL_shader_sprite.cpp" />
     <ClCompile Include="OpenGL_texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="OpenGL_model.h" />
     <ClInclude Include="OpenGL_shader.h" />
     <ClInclude Include="OpenGL_shader_GUI.h" />
+    <ClInclude Include="OpenGL_shader_sprite.h" />
     <ClInclude Include="OpenGL_texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
