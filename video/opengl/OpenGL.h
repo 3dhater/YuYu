@@ -1230,63 +1230,19 @@ extern PFNGLTEXTURESTORAGE3DMULTISAMPLEEXTPROC gglTextureStorage3DMultisampleEXT
 #define glTextureStorage3DMultisampleEXT		gglTextureStorage3DMultisampleEXT
 
 #include <filesystem>
-//#include <unordered_map>
 #include "containers/list.h"
 #include "containers/array.h"
 #include "math/mat.h"
 
-struct CacheNode
-{
-	std::filesystem::path m_path;
-	yyResource * m_resource = nullptr;
-	s32 m_refCount = 0;
-};
-//struct TextureCacheNodeCell
-//{
-//	TextureCacheNode* m_node = nullptr;
-//};
 
 class OpenGLShaderGUI;
 class OpenGLShaderSprite;
+class OpenGLShaderLine3D;
 class OpenGLTexture;
 
 class OpenGLMeshBuffer;
 class OpenGLModel;
 
-template<typename type>
-class ResourceCell
-{
-public:
-	ResourceCell()
-	:
-		m_data(nullptr)
-	{}
-	~ResourceCell()
-	{
-		if(m_data)
-			yyDestroy( m_data );
-	}
-	type m_data;
-};
-
-template<typename type, u32 size>
-class ResourceGroup
-{
-public:
-	ResourceGroup()
-	{
-		m_cells = new ResourceCell<type>[size];
-	}
-	~ResourceGroup()
-	{
-		if(m_cells)
-		{
-			delete[] m_cells;
-		}
-	}
-
-	ResourceCell<type>* m_cells = nullptr;
-};
 
 class OpenGL
 {
@@ -1295,9 +1251,6 @@ class OpenGL
 
 
 	yyWindow * m_window = nullptr;
-	
-	
-
 public:
 	OpenGL();
 	~OpenGL();
@@ -1305,35 +1258,15 @@ public:
 	void UpdateGUIProjectionMatrix(const v2i& windowSize);
 	bool Init(yyWindow* window);
 
-	/*friend yyResource* CreateModel(yyModel* model);
-	friend void ReleaseModel(yyResource* res);
-
-	friend void ReleaseTexture(yyResource* res);
-	friend yyResource* CreateTexture(yyImage* image, bool useLinearFilter);
-	friend yyResource* GetTexture(const char* fileName, bool useLinearFilter);
-	
-	friend void EndDraw();
-	friend void BeginDrawGUI();*/
-
-
-	// try without friends
-	//std::vector<TextureCacheNode> m_textureCache;
-	yyList<CacheNode*> m_textureCache;
-	yyList<CacheNode*> m_modelCache;
-
-	// all textures
-	// get it using index from yyResource
-	ResourceGroup<OpenGLTexture*, YY_MAX_TEXTURES>* m_textures = nullptr;
-	u32 m_freeTextureCellIndex = 0;
-
-	ResourceGroup<OpenGLModel*, YY_MAX_MODELS>* m_models = nullptr;
-	u32 m_freeModelsCellIndex = 0;
+	std::vector<OpenGLTexture*> m_textures;
+	std::vector<OpenGLModel*> m_models;
 
 	bool initTexture(yyImage*, OpenGLTexture*, bool useLinearFilter);
 	bool initModel(yyModel*, OpenGLModel*);
 
-	OpenGLShaderGUI* m_gui_shader = nullptr;
-	OpenGLShaderSprite* m_sprite_shader = nullptr;
+	OpenGLShaderGUI* m_shader_gui = nullptr;
+	OpenGLShaderSprite* m_shader_sprite = nullptr;
+	OpenGLShaderLine3D* m_shader_line3d = nullptr;
 	Mat4 m_guiProjectionMatrix;
 
 	OpenGLTexture* m_currentTextures[(u32)yyVideoDriverTextureSlot::Count];
@@ -1346,6 +1279,11 @@ public:
 #endif
 
 	bool m_isGUI = false;
+
+	Mat4 m_matrixWorld;
+	Mat4 m_matrixView;
+	Mat4 m_matrixProjection;
+	Mat4 m_matrixViewProjection;
 };
 
 #endif

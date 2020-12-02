@@ -373,7 +373,7 @@ namespace math
 		// \param eye: camera position
 		// \param center: camera target
 		// \param up: up vector
-	YY_FORCE_INLINE void  makeLookAtRHMatrix( const v4f& eye, const v4f& center, const v4f& up, Mat4& out )
+	YY_FORCE_INLINE void  makeLookAtRHMatrix( Mat4& out, const v4f& eye, const v4f& center, const v4f& up )
 	{
 		v4f f( center - eye );
 		f.normalize2();

@@ -3,6 +3,7 @@
 #include "yy_resource.h"
 #include "yy_ptr.h"
 #include "yy_image.h"
+#include "yy_model.h"
 
 #include <cassert>
 #include <string>
@@ -48,6 +49,17 @@ YY_API void YY_C_DECL yyDeleteImage(yyImage* image)
 {
 	assert(image);
 	yyDestroy( image );
+}
+
+YY_API yyModel* YY_C_DECL yyLoadModel(const char* fn)
+{
+	return nullptr;
+}
+
+YY_API void YY_C_DECL yyDeleteModel(yyModel* m)
+{
+	assert(m);
+	yyDestroy( m );
 }
 
 /*YY_API yyResource YY_C_DECL yyGetTextureFromFile(const char* fn)

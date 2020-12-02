@@ -67,14 +67,14 @@ void asyncLoadEventHandler(u32 userIndex, void* data)
 	case 1:
 	{
 		auto i = (yyImage*)data;
-		g_videoDriver->ReleaseTexture(g_pictureBox_image1->m_texture);
+		g_videoDriver->UnloadTexture(g_pictureBox_image1->m_texture);
 		g_pictureBox_image1->m_texture = g_videoDriver->CreateTexture(i, true);
 		yyDestroy(i);
 	}break;
 	case 2:
 	{
 		auto i = (yyImage*)data;
-		g_videoDriver->ReleaseTexture(g_pictureBox_image2->m_texture);
+		g_videoDriver->UnloadTexture(g_pictureBox_image2->m_texture);
 		g_pictureBox_image2->m_texture = g_videoDriver->CreateTexture(i, true);
 		yyDestroy(i);
 	}break;
@@ -187,11 +187,11 @@ vidOk:
 	//	videoDriver->ReleaseTexture(t);
 	//}
 
-	auto pictureBox_load = yyGUICreatePictureBox(v4f(0.f, 0.f, 82.f, 28.f), g_videoDriver->GetTexture("../res/load.png",true), 1);
+	auto pictureBox_load = yyGUICreatePictureBox(v4f(0.f, 0.f, 82.f, 28.f), g_videoDriver->CreateTextureFromFile("../res/load.png",true), 1);
 	pictureBox_load->m_onClick = pictureBox_load_onClick;
 	
-	g_pictureBox_image1 = yyGUICreatePictureBox(v4f(0.f, 28.f, 256.f, 256.f + 28.f), g_videoDriver->GetTexture("../res/image.dds",true), 1);
-	g_pictureBox_image2 = yyGUICreatePictureBox(v4f(0.f, 256.f + 28.f, 256.f, 512.f + 28.f), g_videoDriver->GetTexture("../res/image.dds",true), 1);
+	g_pictureBox_image1 = yyGUICreatePictureBox(v4f(0.f, 28.f, 256.f, 256.f + 28.f), g_videoDriver->CreateTextureFromFile("../res/image.dds",true), 1);
+	g_pictureBox_image2 = yyGUICreatePictureBox(v4f(0.f, 256.f + 28.f, 256.f, 512.f + 28.f), g_videoDriver->CreateTextureFromFile("../res/image.dds",true), 1);
 
 	bool run = true;
 	while( run )

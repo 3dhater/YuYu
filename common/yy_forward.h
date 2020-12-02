@@ -1,6 +1,7 @@
 ﻿#ifndef _YUYU_FORWARD_H_
 #define _YUYU_FORWARD_H_
 
+class yyColor;
 class yyGUIElement;
 class yyWindow;
 class Mat4;

@@ -130,6 +130,13 @@ struct yyCamera
 	v4f m_viewport;
 	v4f m_target;
 	yyCameraFrustum m_frustum;
+
+	void Update()
+	{
+		if(m_updateCallback)
+			m_updateCallback(this);
+		else this->m_objectBase.m_updateImplementation(this);
+	}
 	void(*m_updateCallback)(yyCamera*) = nullptr;
 };
 
@@ -150,10 +157,10 @@ YY_FORCE_INLINE void yyCamera_update(void * impl)
 			camera->m_near,
 			camera->m_far );
 		math::makeLookAtRHMatrix(
+			camera->m_viewMatrix,
 			camera->m_objectBase.m_localPosition,
 			camera->m_target,
-			camera->m_up,
-			camera->m_viewMatrix
+			camera->m_up
 		);
 		break;
 	case yyCameraType::Free:

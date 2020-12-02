@@ -30,8 +30,9 @@ extern "C"
 	YY_API yyImage* YY_C_DECL yyLoadImage(const char*); // after loading, you must call yyDestroyImage
 	YY_API void YY_C_DECL yyLoadImageAsync(const char*, s32 id); // after loading, you must call yyDestroyImage
 	YY_API void YY_C_DECL yyDeleteImage(yyImage*);
-
-	YY_API yyResource YY_C_DECL yyGetTextureFromFile(const char*);
+	
+	YY_API yyModel* YY_C_DECL yyLoadModel(const char*); // after loading, you must call yyDeleteModel
+	YY_API void YY_C_DECL yyDeleteModel(yyModel*);
 
 	YY_API void YY_C_DECL yyUpdateAsyncLoader();
 

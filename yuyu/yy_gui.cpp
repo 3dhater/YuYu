@@ -18,9 +18,10 @@ yyGUIPictureBox::~yyGUIPictureBox()
 {
 	auto vAPI = yyGetVideoDriverAPI();
 	if( this->m_pictureBoxModel )
-		vAPI->ReleaseModel(this->m_pictureBoxModel);
+		vAPI->UnloadModel(this->m_pictureBoxModel);
+	
 	if( this->m_texture )
-		vAPI->ReleaseTexture(this->m_texture);
+		vAPI->UnloadTexture(this->m_texture);
 }
 
 bool pointInRect( float x, float y, const v4f& rect )

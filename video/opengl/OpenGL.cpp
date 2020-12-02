@@ -9,6 +9,7 @@
 #include "OpenGL_model.h"
 #include "OpenGL_shader_GUI.h"
 #include "OpenGL_shader_sprite.h"
+#include "OpenGL_shader_Line3D.h"
 
 #include "math/mat.h"
 
@@ -119,41 +120,21 @@ OpenGL::~OpenGL()
 {
 	yyLogWriteInfo("Destroy video driver...\n");
 
-	if(m_gui_shader) yyDestroy(m_gui_shader);
-	if(m_sprite_shader) yyDestroy(m_sprite_shader);
+	if(m_shader_gui) yyDestroy(m_shader_gui);
+	if(m_shader_sprite) yyDestroy(m_shader_sprite);
+	if(m_shader_line3d) yyDestroy(m_shader_line3d);
 
-	auto node = m_textureCache.head();
-	if(node)
+	for(size_t i = 0, sz = m_textures.size(); i < sz; ++i)
 	{
-		for(size_t i = 0, sz = m_textureCache.size(); i < sz; ++i)
-		{
-			if( node->m_data )
-				yyDestroy( node->m_data ); // CacheNode * cacheNode = new CacheNode;
-			node = node->m_right;
-		}
+		if( m_textures[i] )
+			yyDestroy( m_textures[i] );
 	}
 
-	node = m_modelCache.head();
-	if(node)
+	for(size_t i = 0, sz = m_models.size(); i < sz; ++i)
 	{
-		for(size_t i = 0, sz = m_modelCache.size(); i < sz; ++i)
-		{
-			if( node->m_data )
-				yyDestroy( node->m_data );
-			node = node->m_right;
-		}
+		if( m_models[i] )
+			yyDestroy( m_models[i] );
 	}
-	 
-	if(m_textures)
-		yyDestroy(m_textures);
-		//delete m_textures;
-	
-//	if(m_guiElements)
-//		delete m_guiElements;
-
-	if(m_models)
-		yyDestroy(m_models);
-		//delete m_models;
 
 #ifdef YY_PLATFORM_WINDOWS
 	if(m_OpenGL_lib)
@@ -181,12 +162,6 @@ bool OpenGL::Init(yyWindow* window)
 {
 	yyLogWriteInfo("Init video driver - OpenGL...\n");
 	m_window = window;
-
-	//m_textures = new ResourceGroup<OpenGLTexture*, YY_MAX_TEXTURES>();
-	m_textures = yyCreate<ResourceGroup<OpenGLTexture*, YY_MAX_TEXTURES>>();
-	
-	//m_models = new ResourceGroup<OpenGLModel*, YY_MAX_MODELS>();
-	m_models = yyCreate<ResourceGroup<OpenGLModel*, YY_MAX_MODELS>>();
 
 #ifdef YY_PLATFORM_WINDOWS
 	m_OpenGL_lib = LoadLibrary(L"OpenGL32.dll");
@@ -389,18 +364,26 @@ bool OpenGL::Init(yyWindow* window)
 	gglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//_createdefaultShaders();
-	m_gui_shader = yyCreate<OpenGLShaderGUI>();
-	if(!m_gui_shader->init())
+	m_shader_gui = yyCreate<OpenGLShaderGUI>();
+	if(!m_shader_gui->init())
 	{
 		yyLogWriteError("Can't create gui shader...");
 		YY_PRINT_FAILED;
 		return false;
 	}
 
-	m_sprite_shader = yyCreate<OpenGLShaderSprite>();
-	if(!m_sprite_shader->init())
+	m_shader_sprite = yyCreate<OpenGLShaderSprite>();
+	if(!m_shader_sprite->init())
 	{
 		yyLogWriteError("Can't create sprite shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	m_shader_line3d = yyCreate<OpenGLShaderLine3D>();
+	if(!m_shader_line3d->init())
+	{
+		yyLogWriteError("Can't create 3d line shader...");
 		YY_PRINT_FAILED;
 		return false;
 	}

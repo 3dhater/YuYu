@@ -181,19 +181,26 @@ vidOk:
 	g_videoDriver = yyGetVideoDriverAPI();
 	g_videoDriver->SetClearColor(0.3f,0.3f,0.4f,1.f);
 
-	/*yyCamera* c = new yyCamera;
-	delete c;*/
-	
-	//for(int i = 0; i < 10000; ++i)
-	//{
-	//	printf("%i\n",i);
-	//	auto t = videoDriver->GetTexture("../res/grass.dds",true);
-	//	videoDriver->ReleaseTexture(t);
-	//}
+	// CAMERA
+	Mat4 proj;
+	math::makePerspectiveRHMatrix(proj, 1.f, 1980.f/1080.f, 0.1f,1000.f);
+	g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::Projection, proj);
+	Mat4 view;
+	math::makeLookAtRHMatrix(view, v4f(10.f, 10.f, 10.f, 0.f), v4f(), v4f(0.f, 1.f, 0.f, 0.f));
+	g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::View, view);
+	g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::ViewProjection, proj * view);
+	// OR LIKE THIS
+	yyCamera* camera = yyCreate<yyCamera>();
+	camera->m_objectBase.m_localPosition.set(10.f,10.f,10.f,0.f);
+	camera->Update();
+	g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::Projection, camera->m_projectionMatrix);
+	g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::View, camera->m_viewMatrix);
+	g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::ViewProjection, camera->m_projectionMatrix * camera->m_viewMatrix);
 
-	yySprite* sprite = yyCreateSprite(v4f(0.f,0.f,32.f,32.f), g_videoDriver->GetTexture("../res/grass.dds",true));
 
-	sprite->m_objectBase.m_globalPosition.set(10.f, 10.f, 0.f, 0.f);
+
+	yySprite* sprite = yyCreateSprite(v4f(0.f,0.f,32.f,32.f), g_videoDriver->CreateTextureFromFile("../res/grass.dds",true));
+	sprite->m_objectBase.m_localPosition.set(10.f, 10.f, 0.f, 0.f);
 
 	bool run = true;
 	while( run )
@@ -225,23 +232,26 @@ vidOk:
 		{
 			if(g_inputContex->isKeyHold(yyKey::K_LEFT))
 			{
-				sprite->m_objectBase.m_globalPosition.x -= 1.f;
+				sprite->m_objectBase.m_localPosition.x -= 1.f;
 			}
 			if(g_inputContex->isKeyHold(yyKey::K_RIGHT))
 			{
-				sprite->m_objectBase.m_globalPosition.x += 1.f;
+				sprite->m_objectBase.m_localPosition.x += 1.f;
 			}
 			if(g_inputContex->isKeyHold(yyKey::K_UP))
 			{
-				sprite->m_objectBase.m_globalPosition.y -= 1.f;
+				sprite->m_objectBase.m_localPosition.y -= 1.f;
 			}
 			if(g_inputContex->isKeyHold(yyKey::K_DOWN))
 			{
-				sprite->m_objectBase.m_globalPosition.y += 1.f;
+				sprite->m_objectBase.m_localPosition.y += 1.f;
 			}
 
 			g_videoDriver->BeginDrawClearAll();
 			
+			g_videoDriver->DrawLine3D(v4f(-2.f, 0.f, 0.f, 0.f), v4f(2.f, 0.f, 0.f, 0.f), ColorRed);
+
+			sprite->m_objectBase.UpdateBase();
 			g_videoDriver->DrawSprite(sprite);
 			
 
@@ -255,8 +265,10 @@ vidOk:
 		}
 	}
 
-	//if(g_img1) yyDeleteImage(g_img1);
-	//if(g_img2) yyDeleteImage(g_img2);
+	if(sprite)
+		yyDestroy(sprite);
+	if(camera)
+		yyDestroy(camera);
 
 	return 0;
 }

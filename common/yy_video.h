@@ -52,12 +52,24 @@ struct yyVideoDriverAPI
 	void (*BeginDrawGUI)()=nullptr;
 	void (*EndDrawGUI)()=nullptr;
 
-	yyResource* (*GetTexture)(const char* fileName, bool useLinearFilter)=nullptr; // AddRef every time.
-	yyResource* (*CreateTexture)(yyImage*, bool useLinearFilter)=nullptr;          // create new every call. m_refCount = 1
-	void (*ReleaseTexture)(yyResource*)=nullptr;             // Release, --m_refCount;
+	// Каждый вызов Create... создаёт абсолютно новый ресурс который останется в памяти на всё время
+	// Ресурс хранит индекс на массив с указателями, которые указывают на реализацию ресурса (например текстура)
+	// Реализацию можно выгрузить из памяти, и загрузить снова. Всё основано на подсчёте ссылок.
+	//   это нужно иметь ввиду.
+	// Если создаётся ресурс с использованием например yyImage* , 
+	//   то, чтобы работали Unload... Load... нужно хранить этот yyImage* (ведь нужно знать из чего делать текстуру)
+	// Unload... убавит счётчик ссылок на 1, и если будет 0 то реализация уничтожится
+	// Load... Прибавит счётчик на 1. Если будет 1 то нужно заново создать реализацию. Если будет
+	//   доступен resource->m_source то будет создано на основе него (если это текстура то m_source должен быть yyImage*)
+	//   иначе будет попытка загрузить реализацию из файла
+	yyResource* (*CreateTexture)(yyImage*, bool useLinearFilter)=nullptr;
+	yyResource* (*CreateTextureFromFile)(const char* fileName, bool useLinearFilter)=nullptr;
+	void (*UnloadTexture)(yyResource*)=nullptr; // --m_refCount; or unload
+	void (*LoadTexture)(yyResource*)=nullptr; // ++m_refCount; or load
 
 	yyResource* (*CreateModel)(yyModel*)=nullptr;
-	void (*ReleaseModel)(yyResource*)=nullptr;
+	void (*UnloadModel)(yyResource*)=nullptr;
+	void (*LoadModel)(yyResource*)=nullptr;
 
 	// yyResource::m_type MUST BE yyResourceType::Texture
 	void (*SetTexture)(yyVideoDriverTextureSlot, yyResource*)=nullptr;
@@ -67,6 +79,16 @@ struct yyVideoDriverAPI
 	void (*Draw)()=nullptr;
 	
 	void (*DrawSprite)(yySprite*)=nullptr;
+	void (*DrawLine3D)(const v4f& _p1, const v4f& _p2, const yyColor& color)=nullptr;
+
+	enum MatrixType
+	{
+		World,
+		View,
+		Projection,
+		ViewProjection, //For 3d line
+	};
+	void (*SetMatrix)(MatrixType, const Mat4&)=nullptr;
 };
 
 #endif

@@ -2,6 +2,7 @@
 #define _YY_MESH_H__
 
 #include "containers/array.h"
+#include "math/vec.h"
 
 struct yyVertexGUI
 {
