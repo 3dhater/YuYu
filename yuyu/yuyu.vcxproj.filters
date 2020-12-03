@@ -19,6 +19,9 @@
     <Filter Include="Source Files\LibPNG">
       <UniqueIdentifier>{536e72c8-6384-480e-8520-ddff8a08ae11}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\zstd">
+      <UniqueIdentifier>{e47f3a23-ea45-4739-98b2-df97b607cc01}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="yy_main.cpp">
@@ -140,6 +143,81 @@
     </ClCompile>
     <ClCompile Include="yy_scene.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model_loader_tr3d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\common\debug.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\common\entropy_common.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\common\error_private.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\common\fse_decompress.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\common\pool.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\common\threading.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\common\xxhash.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\common\zstd_common.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\compress\hist.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\compress\huf_compress.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\compress\zstd_compress.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\compress\zstd_compress_literals.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\compress\zstd_compress_sequences.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\compress\zstd_double_fast.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\compress\zstd_fast.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\compress\zstd_lazy.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\compress\zstd_ldm.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\compress\zstd_opt.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\compress\zstdmt_compress.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\compress\fse_compress.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\decompress\zstd_ddict.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\decompress\zstd_decompress.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\decompress\zstd_decompress_block.c">
+      <Filter>Source Files\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\zstd\lib\decompress\huf_decompress.c">
+      <Filter>Source Files\zstd</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

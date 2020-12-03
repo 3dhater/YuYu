@@ -16,6 +16,11 @@ enum class yySystemState : u32
 	Quit
 };
 
+enum class yyCompressType : u32
+{
+	WithoutCompress,
+	ZStd
+};
 
 extern "C"
 {
@@ -23,6 +28,9 @@ extern "C"
 	YY_API void YY_C_DECL yyStop();
 	YY_API void YY_C_DECL yyQuit();
 	
+	YY_API u8* YY_C_DECL yyCompressData( u8* in_data, u32 in_data_size, u32& out_data_size, yyCompressType ct );
+	YY_API u8* YY_C_DECL yyDecompressData( u8* in_data, u32 in_data_size, u32& out_data_size, yyCompressType ct );
+
 	YY_API bool YY_C_DECL yyInitVideoDriver(const char* dl, yyWindow*);
 	
 	YY_API yyVideoDriverAPI* YY_C_DECL yyGetVideoDriverAPI();

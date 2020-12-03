@@ -5,9 +5,10 @@
 
 #include <filesystem>
 
-// IMAGE LOADER PROTOTYPES
+// LOADER PROTOTYPES
 yyImage* ImageLoader_DDS(const std::filesystem::path& p);
 yyImage* ImageLoader_PNG(const std::filesystem::path& p);
+yyModel* ModelLoader_TR3D(const std::filesystem::path& p); // from my old game
 
 using ImageLoaderFunction_t = yyImage*(*)(const std::filesystem::path& p);
 //using ImageLoaderExportFunction_t = bool(*)(yyImage* image, const char* fileName, const char* extName );

@@ -94,7 +94,7 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);YY_EXPORTS;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../common/;../libs/LibPNG/;../libs/ZLib/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../common/;../libs/LibPNG/;../libs/ZLib/;../libs/zstd/lib/;../libs/zstd/lib/common/</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -112,7 +112,7 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);YY_EXPORTS;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../common/;../libs/LibPNG/;../libs/ZLib/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../common/;../libs/LibPNG/;../libs/ZLib/;../libs/zstd/lib/;../libs/zstd/lib/common/</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -130,7 +130,7 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);YY_EXPORTS;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../common/;../libs/LibPNG/;../libs/ZLib/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../common/;../libs/LibPNG/;../libs/ZLib/;../libs/zstd/lib/;../libs/zstd/lib/common/</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -148,7 +148,7 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);YY_EXPORTS;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../common/;../libs/LibPNG/;../libs/ZLib/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../common/;../libs/LibPNG/;../libs/ZLib/;../libs/zstd/lib/;../libs/zstd/lib/common/</AdditionalIncludeDirectories>
       <FloatingPointModel>Fast</FloatingPointModel>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -191,8 +191,33 @@
     <ClCompile Include="..\libs\ZLib\trees.c" />
     <ClCompile Include="..\libs\ZLib\uncompr.c" />
     <ClCompile Include="..\libs\ZLib\zutil.c" />
+    <ClCompile Include="..\libs\zstd\lib\common\debug.c" />
+    <ClCompile Include="..\libs\zstd\lib\common\entropy_common.c" />
+    <ClCompile Include="..\libs\zstd\lib\common\error_private.c" />
+    <ClCompile Include="..\libs\zstd\lib\common\fse_decompress.c" />
+    <ClCompile Include="..\libs\zstd\lib\common\pool.c" />
+    <ClCompile Include="..\libs\zstd\lib\common\threading.c" />
+    <ClCompile Include="..\libs\zstd\lib\common\xxhash.c" />
+    <ClCompile Include="..\libs\zstd\lib\common\zstd_common.c" />
+    <ClCompile Include="..\libs\zstd\lib\compress\fse_compress.c" />
+    <ClCompile Include="..\libs\zstd\lib\compress\hist.c" />
+    <ClCompile Include="..\libs\zstd\lib\compress\huf_compress.c" />
+    <ClCompile Include="..\libs\zstd\lib\compress\zstdmt_compress.c" />
+    <ClCompile Include="..\libs\zstd\lib\compress\zstd_compress.c" />
+    <ClCompile Include="..\libs\zstd\lib\compress\zstd_compress_literals.c" />
+    <ClCompile Include="..\libs\zstd\lib\compress\zstd_compress_sequences.c" />
+    <ClCompile Include="..\libs\zstd\lib\compress\zstd_double_fast.c" />
+    <ClCompile Include="..\libs\zstd\lib\compress\zstd_fast.c" />
+    <ClCompile Include="..\libs\zstd\lib\compress\zstd_lazy.c" />
+    <ClCompile Include="..\libs\zstd\lib\compress\zstd_ldm.c" />
+    <ClCompile Include="..\libs\zstd\lib\compress\zstd_opt.c" />
+    <ClCompile Include="..\libs\zstd\lib\decompress\huf_decompress.c" />
+    <ClCompile Include="..\libs\zstd\lib\decompress\zstd_ddict.c" />
+    <ClCompile Include="..\libs\zstd\lib\decompress\zstd_decompress.c" />
+    <ClCompile Include="..\libs\zstd\lib\decompress\zstd_decompress_block.c" />
     <ClCompile Include="image_loader_dds.cpp" />
     <ClCompile Include="image_loader_png.cpp" />
+    <ClCompile Include="model_loader_tr3d.cpp" />
     <ClCompile Include="yy_backgroundWorker.cpp" />
     <ClCompile Include="yy_dl.cpp" />
     <ClCompile Include="yy_gui.cpp" />

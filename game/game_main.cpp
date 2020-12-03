@@ -199,8 +199,8 @@ vidOk:
 
 
 
-	yySprite* sprite = yyCreateSprite(v4f(0.f,0.f,32.f,32.f), g_videoDriver->CreateTextureFromFile("../res/grass.dds",true));
-	sprite->m_objectBase.m_localPosition.set(10.f, 10.f, 0.f, 0.f);
+	yySprite* sprite = yyCreateSprite(v4f(0.f,0.f,1160.f,224.f), g_videoDriver->CreateTextureFromFile("../res/GA3E/level1_ground.png",false));
+	sprite->m_objectBase.m_localPosition.set(0.f, 0.f, 0.f, 0.f);
 
 	bool run = true;
 	while( run )

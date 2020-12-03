@@ -17,6 +17,7 @@ Engine * g_engine = nullptr;
 Engine::Engine()
 {
 	m_sceneRootObject = new yySceneObjectBase;
+	m_cctx = ZSTD_createCCtx();
 
 	yyImageLoader loader;
 	loader.ext = ".dds";
@@ -54,6 +55,7 @@ Engine::~Engine()
 		yyFreeLybrary(m_videoDriverLib);
 		m_videoDriverLib = nullptr;
 	}
+	ZSTD_freeCCtx(m_cctx);
 }
 
 void Engine::addGuiElement(yyGUIElement* el)
@@ -128,7 +130,74 @@ YY_API void YY_C_DECL yyQuit()
 //	return g_engine->m_inputContext;
 //}
 
+u8* Engine::compressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size)
+{
+	u8* out_data = (u8*)yyMemAlloc(in_data_size);
+	if( !out_data )
+	{
+		YY_PRINT_FAILED;
+		return out_data;
+	}
 
+	auto compressBound = ZSTD_compressBound(in_data_size);
+
+	size_t const cSize = ZSTD_compressCCtx( m_cctx, out_data, compressBound, in_data, in_data_size, 1);
+    if( ZSTD_isError(cSize) )
+	{
+		yyMemFree(out_data);
+		return out_data;
+	}
+
+	yyMemRealloc(out_data,cSize);
+	out_data_size = (u32)cSize;
+	return out_data;
+}
+
+u8* Engine::decompressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size)
+{
+	unsigned long long const rSize = ZSTD_getFrameContentSize(in_data, in_data_size);
+	u8* out_data = (u8*)yyMemAlloc((u32)rSize);
+	if( !out_data )
+	{
+		YY_PRINT_FAILED;
+		return out_data;
+	}
+
+	size_t const dSize = ZSTD_decompress(out_data, (size_t)rSize, in_data, in_data_size);
+	out_data_size = (u32)dSize;
+	return out_data;
+}
+
+YY_API u8* YY_C_DECL yyCompressData( u8* in_data, u32 in_data_size, u32& out_data_size, yyCompressType ct )
+{
+	switch (ct)
+	{
+	case yyCompressType::WithoutCompress:
+		break;
+	case yyCompressType::ZStd:
+		return g_engine->compressData_zstd(in_data,  in_data_size,  out_data_size);
+	default:
+		yyLogWriteWarning("Need implement\n");
+		YY_PRINT_FAILED;
+		break;
+	}
+	return nullptr;
+}
+YY_API u8* YY_C_DECL yyDecompressData( u8* in_data, u32 in_data_size, u32& out_data_size, yyCompressType ct )
+{
+	switch (ct)
+	{
+	case yyCompressType::WithoutCompress:
+		break;
+	case yyCompressType::ZStd:
+		return g_engine->decompressData_zstd(in_data,  in_data_size,  out_data_size);
+	default:
+		yyLogWriteWarning("Need implement\n");
+		YY_PRINT_FAILED;
+		break;
+	}
+	return nullptr;
+}
 YY_API void YY_C_DECL yySetAsyncLoadEventHandler(yyAsyncLoadEventHandler f)
 {
 	g_engine->m_asyncEventHandler = f;

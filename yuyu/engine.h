@@ -1,6 +1,8 @@
 ﻿#ifndef _YUYU_ENGINE_H_
 #define _YUYU_ENGINE_H_
 
+#include <zstd.h>
+
 #include "yy_async.h"
 #include "containers/fixed_fifo.h"
 #include "containers/list.h"
@@ -82,6 +84,10 @@ public:
 
 	void addGuiElement(yyGUIElement*);
 	yyList<yyGUIElement*> m_guiElements;
+
+	ZSTD_CCtx* m_cctx = nullptr;
+	u8* compressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size);
+	u8* decompressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size);
 };
 
 #endif
