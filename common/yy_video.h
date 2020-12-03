@@ -41,6 +41,7 @@ struct yyVideoDriverAPI
 	//void (*UseClearDepth)(bool)=nullptr;
 
 	void (*UseVSync)(bool)=nullptr;
+	void (*UseDepth)(bool)=nullptr;
 	
 	void (*SetClearColor)(f32 r, f32 g, f32 b, f32 a)=nullptr;
 	
@@ -92,6 +93,9 @@ struct yyVideoDriverAPI
 		WorldViewProjection,
 	};
 	void (*SetMatrix)(MatrixType, const Mat4&)=nullptr;
+	
+	v2f* (*GetSpriteCameraPosition)()=nullptr;
+	v2f* (*GetSpriteCameraScale)()=nullptr;
 };
 
 #endif

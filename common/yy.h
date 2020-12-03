@@ -22,12 +22,17 @@ enum class yyCompressType : u32
 	ZStd
 };
 
+
+
 extern "C"
 {
 	YY_API yySystemState* YY_C_DECL yyStart(yyInputContext* input);
 	YY_API void YY_C_DECL yyStop();
 	YY_API void YY_C_DECL yyQuit();
 	
+	YY_API u64 YY_C_DECL yyGetTime();
+
+
 	YY_API u8* YY_C_DECL yyCompressData( u8* in_data, u32 in_data_size, u32& out_data_size, yyCompressType ct );
 	YY_API u8* YY_C_DECL yyDecompressData( u8* in_data, u32 in_data_size, u32& out_data_size, yyCompressType ct );
 

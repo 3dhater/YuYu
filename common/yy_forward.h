@@ -16,6 +16,7 @@ struct yySceneObjectBase;
 struct yyCamera;
 struct yySprite;
 struct v4f;
+struct v2f;
 
 
 

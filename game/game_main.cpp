@@ -23,6 +23,18 @@ namespace fs = std::filesystem;
 #include "scene/camera.h"
 #include "scene/sprite.h"
 
+YY_FORCE_INLINE v4f yySpriteMovePivotOnCenter(const v4f& rect)
+{
+	f32 w = (rect.z - rect.x) * 0.5f;
+	f32 h = (rect.w - rect.y) * 0.5f;
+	return v4f(
+		rect.x - w,
+		rect.y - h,
+		rect.z - w,
+		rect.w - h
+	);
+}
+
 // for auto create\delete
 struct yyEngineContext
 {
@@ -184,29 +196,43 @@ vidOk:
 
 	// CAMERA
 	Mat4 proj;
-	math::makePerspectiveRHMatrix(proj, 1.f, 1980.f/1080.f, 0.1f,1000.f);
+	math::makePerspectiveRHMatrix(proj, 1.f, (f32)window.m_data->m_clientSize.x/(f32)window.m_data->m_clientSize.y, 0.1f,1000.f);
 	g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::Projection, proj);
 	Mat4 view;
 	math::makeLookAtRHMatrix(view, v4f(10.f, 10.f, 10.f, 0.f), v4f(), v4f(0.f, 1.f, 0.f, 0.f));
 	g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::View, view);
-	g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::ViewProjection, proj * view);
+	g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::ViewProjection, proj * view); 
 	// OR LIKE THIS
 	yyCamera* camera = yyCreate<yyCamera>();
 	camera->m_objectBase.m_localPosition.set(10.f,10.f,10.f,0.f);
+	camera->m_aspect = (f32)window.m_data->m_clientSize.x/(f32)window.m_data->m_clientSize.y;
 	camera->Update();
 	g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::Projection, camera->m_projectionMatrix);
 	g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::View, camera->m_viewMatrix);
+	// for 3d line
 	g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::ViewProjection, camera->m_projectionMatrix * camera->m_viewMatrix);
 
 	auto modelGPU = g_videoDriver->CreateModelFromFile("../res/tr/map/map001.tr3d");
 	auto grassGPU = g_videoDriver->CreateTextureFromFile("../res/tr/grass.dds", true);
 
-	yySprite* sprite = yyCreateSprite(v4f(0.f,0.f,1160.f,224.f), g_videoDriver->CreateTextureFromFile("../res/GA3E/level1_ground.png",false));
-	sprite->m_objectBase.m_localPosition.set(0.f, 0.f, 0.f, 0.f);
+	yySprite* spriteLevel = yyCreateSprite(v4f(0.f,0.f,1160.f,224.f), g_videoDriver->CreateTextureFromFile("../res/GA3E/level1_ground.png",false));
+	
+	yySprite* spriteHero = yyCreateSprite(yySpriteMovePivotOnCenter(v4f(0.f,0.f,39.f,86.f)), g_videoDriver->CreateTextureFromFile("../res/GA3E/hero0.png",false));
+	spriteHero->m_objectBase.m_localPosition.set(10.f, 20.f, 0.f, 0.f);
 
+	auto spriteCameraPosition = g_videoDriver->GetSpriteCameraPosition();
+	auto spriteCameraScale    = g_videoDriver->GetSpriteCameraScale();
+	
+	f32 deltaTime = 0.f;
 	bool run = true;
 	while( run )
 	{
+		static u64 t1 = 0u;
+		u64 t2 = yyGetTime();
+		f32 m_tick = f32(t2 - t1);
+		t1 = t2;
+		deltaTime = m_tick / 1000.f;
+
 		updateInputContext();
 
 #ifdef YY_PLATFORM_WINDOWS
@@ -232,25 +258,76 @@ vidOk:
 			break;
 		case yySystemState::Run:
 		{
+			f32  spriteCameraMoveSpeed = 50.f;
+			f32  heroMoveSpeed = 70.f;
+			f32  spriteCameraScaleSpeed = 1.f;
+			if(g_inputContex->isKeyHold(yyKey::K_NUM_4))
+			{
+				spriteCameraPosition->x -= spriteCameraMoveSpeed * deltaTime;
+			}
+			if(g_inputContex->isKeyHold(yyKey::K_NUM_6))
+			{
+				spriteCameraPosition->x += spriteCameraMoveSpeed * deltaTime;
+			}
+			if(g_inputContex->isKeyHold(yyKey::K_NUM_8))
+			{
+				spriteCameraPosition->y -= spriteCameraMoveSpeed * deltaTime;
+			}
+			if(g_inputContex->isKeyHold(yyKey::K_NUM_2))
+			{
+				spriteCameraPosition->y += spriteCameraMoveSpeed * deltaTime;
+			}
+			if(g_inputContex->isKeyHold(yyKey::K_NUM_7))
+			{
+				spriteCameraScale->x -= spriteCameraScaleSpeed * deltaTime;
+			}
+			if(g_inputContex->isKeyHold(yyKey::K_NUM_9))
+			{
+				spriteCameraScale->x += spriteCameraScaleSpeed * deltaTime;
+			}
+			if(g_inputContex->isKeyHold(yyKey::K_NUM_1))
+			{
+				spriteCameraScale->y -= spriteCameraScaleSpeed * deltaTime;
+			}
+			if(g_inputContex->isKeyHold(yyKey::K_NUM_3))
+			{
+				spriteCameraScale->y += spriteCameraScaleSpeed * deltaTime;
+			}
+
 			if(g_inputContex->isKeyHold(yyKey::K_LEFT))
 			{
-				sprite->m_objectBase.m_localPosition.x -= 1.f;
+				spriteHero->m_objectBase.m_localPosition.x -= heroMoveSpeed * deltaTime;
 			}
 			if(g_inputContex->isKeyHold(yyKey::K_RIGHT))
 			{
-				sprite->m_objectBase.m_localPosition.x += 1.f;
+				spriteHero->m_objectBase.m_localPosition.x += heroMoveSpeed * deltaTime;
 			}
 			if(g_inputContex->isKeyHold(yyKey::K_UP))
 			{
-				sprite->m_objectBase.m_localPosition.y -= 1.f;
+				spriteHero->m_objectBase.m_localPosition.y -= heroMoveSpeed * deltaTime;
 			}
 			if(g_inputContex->isKeyHold(yyKey::K_DOWN))
 			{
-				sprite->m_objectBase.m_localPosition.y += 1.f;
+				spriteHero->m_objectBase.m_localPosition.y += heroMoveSpeed * deltaTime;
 			}
+			if(g_inputContex->isKeyHold(yyKey::K_PGUP))
+			{
+				v4f r = spriteHero->m_objectBase.m_rotation;
+				r.z += 1.f;
+				spriteHero->m_objectBase.SetRotation(r);
+			}
+			if(g_inputContex->isKeyHold(yyKey::K_PGDOWN))
+			{
+				v4f r = spriteHero->m_objectBase.m_rotation;
+				r.z -= 1.f;
+				spriteHero->m_objectBase.SetRotation(r);
+			}
+
 
 			g_videoDriver->BeginDrawClearAll();
 			
+			g_videoDriver->UseDepth(true);
+
 			g_videoDriver->DrawLine3D(v4f(-2.f, 0.f, 0.f, 0.f), v4f(2.f, 0.f, 0.f, 0.f), ColorRed);
 			
 			g_videoDriver->SetModel(modelGPU);
@@ -258,8 +335,10 @@ vidOk:
 			g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection, camera->m_projectionMatrix * camera->m_viewMatrix * Mat4());
 			g_videoDriver->Draw();
 
-			sprite->m_objectBase.UpdateBase();
-			g_videoDriver->DrawSprite(sprite);
+			g_videoDriver->UseDepth(false);
+			g_videoDriver->DrawSprite(spriteLevel);
+			spriteHero->m_objectBase.UpdateBase();
+			g_videoDriver->DrawSprite(spriteHero);
 			
 
 			//videoDriver->BeginDrawGUI();
@@ -272,8 +351,8 @@ vidOk:
 		}
 	}
 
-	if(sprite)
-		yyDestroy(sprite);
+	if(spriteLevel)
+		yyDestroy(spriteLevel);
 	if(camera)
 		yyDestroy(camera);
 

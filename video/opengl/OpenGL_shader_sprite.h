@@ -11,7 +11,9 @@ public:
 	GLuint m_VAO = 0;
 
 	GLint m_uniform_ProjMtx = 0;
-	GLint m_uniform_SpritePosition = 0;
+	GLint m_uniform_WorldMtx = 0;
+	GLint m_uniform_CameraPosition = 0;
+	GLint m_uniform_CameraScale = 0;
 	GLint m_uniform_Texture = 0;
 
 	bool init();

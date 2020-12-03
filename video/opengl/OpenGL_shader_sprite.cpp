@@ -28,10 +28,18 @@ bool OpenGLShaderSprite::init()
 		"in vec3 Position;\n"
 		"in vec2 UV;\n"
 		"uniform mat4 ProjMtx;\n"
-		"uniform vec4 SpritePosition;\n"
+		"uniform mat4 World;\n"
+		"uniform vec2 CameraPosition;\n"
+		"uniform vec2 CameraScale;\n"
 		"out vec2 out_UV;\n"
 		"void main(){\n"
-		"    gl_Position = ProjMtx * vec4(Position.xyz + SpritePosition.xyz,1);\n"
+	//	"    gl_Position = (ProjMtx * World) * vec4(Position.x - CameraPosition.x, Position.y - CameraPosition.y, Position.z, 1.f);\n"
+		"    gl_Position = (ProjMtx * World) * vec4(Position.x, Position.y, Position.z, 1.f);\n"
+		"    vec4 camPos = ProjMtx * vec4(CameraPosition.x, CameraPosition.y, 1.f, 1.f);"
+		"    gl_Position.x -= camPos.x;\n"
+		"    gl_Position.y -= camPos.y;\n"
+		"    gl_Position.x *= CameraScale.x;\n"
+		"    gl_Position.y *= CameraScale.y;\n"
 		"    out_UV = UV;\n"
 		"}\n";
 	const char * text_f = 
@@ -47,7 +55,9 @@ bool OpenGLShaderSprite::init()
 
 	glUseProgram(m_program);
 	m_uniform_ProjMtx = glGetUniformLocation(m_program, "ProjMtx");
-	m_uniform_SpritePosition = glGetUniformLocation(m_program, "SpritePosition");
+	m_uniform_WorldMtx = glGetUniformLocation(m_program, "World");
+	m_uniform_CameraPosition = glGetUniformLocation(m_program, "CameraPosition");
+	m_uniform_CameraScale = glGetUniformLocation(m_program, "CameraScale");
 	
 	glUniform1i(glGetUniformLocation(m_program, "Texture"), 0); 
 

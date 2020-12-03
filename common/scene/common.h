@@ -202,6 +202,8 @@ YY_FORCE_INLINE void yySceneObjectBase::UpdateBase()
 
 	m_globalPosition = m_globalMatrix[3];
 
+	// НАДО УБРАТЬ ОББ 
+	// оптимизация по frustum должна быть либо по сфере либо по аабб - на выбор. сфера по умолчанию
 	m_obb.v1 = m_aabbWithoutTransforms.m_min;
 	m_obb.v2 = m_aabbWithoutTransforms.m_max;
 	m_obb.v3.set( m_obb.v1.x, m_obb.v1.y, m_obb.v2.z, 1.f );

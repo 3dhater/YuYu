@@ -1288,6 +1288,9 @@ public:
 	Mat4 m_matrixProjection;
 	Mat4 m_matrixViewProjection;
 	Mat4 m_matrixWorldViewProjection;
+	
+	v2f m_spriteCameraPosition;
+	v2f m_spriteCameraScale = v2f(1.f,1.f);
 };
 
 #endif

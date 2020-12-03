@@ -130,6 +130,23 @@ YY_API void YY_C_DECL yyQuit()
 	}
 }
 
+YY_API u64 YY_C_DECL yyGetTime()
+{
+	static bool isInit = false;
+	static u64 baseTime;
+	if( !isInit )
+	{
+		auto now = std::chrono::high_resolution_clock::now();
+		baseTime = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
+
+		isInit = true;
+	}
+	auto now = std::chrono::high_resolution_clock::now();
+	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
+
+	return ms - baseTime;
+}
+
 //YY_API yyInputContext* YY_C_DECL yyGetInputContext()
 //{
 //	return g_engine->m_inputContext;

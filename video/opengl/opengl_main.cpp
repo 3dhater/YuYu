@@ -213,6 +213,11 @@ void UseVSync(bool v)
 #error For Windows
 #endif
 }
+void UseDepth(bool v)
+{
+	v ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
+}
+
 
 yyResource* CreateModelFromFile(const char* fileName)
 {
@@ -429,7 +434,10 @@ void DrawSprite(yySprite* sprite)
 {
 	glUseProgram( g_openGL->m_shader_sprite->m_program );
 	glUniformMatrix4fv(g_openGL->m_shader_sprite->m_uniform_ProjMtx, 1, GL_FALSE, g_openGL->m_guiProjectionMatrix.getPtr() );
-	glUniform4fv(g_openGL->m_shader_sprite->m_uniform_SpritePosition, 1, sprite->m_objectBase.m_globalPosition.data());
+	glUniformMatrix4fv(g_openGL->m_shader_sprite->m_uniform_WorldMtx, 1, GL_FALSE, sprite->m_objectBase.m_globalMatrix.getPtr() );
+	glUniform2fv(g_openGL->m_shader_sprite->m_uniform_CameraPosition, 1, &g_openGL->m_spriteCameraPosition.x);
+	glUniform2fv(g_openGL->m_shader_sprite->m_uniform_CameraScale, 1, &g_openGL->m_spriteCameraScale.x);
+	//glUniform4fv(g_openGL->m_shader_sprite->m_uniform_SpritePosition, 1, sprite->m_objectBase.m_globalPosition.data());
 
 	if(sprite->m_texture)
 	{
@@ -477,6 +485,14 @@ void SetMatrix(yyVideoDriverAPI::MatrixType mt, const Mat4& mat)
 		break;
 	}
 }
+v2f* GetSpriteCameraPosition()
+{
+	return &g_openGL->m_spriteCameraPosition;
+}
+v2f* GetSpriteCameraScale()
+{
+	return &g_openGL->m_spriteCameraScale;
+}
 
 extern "C"
 {
@@ -504,6 +520,8 @@ extern "C"
 		g_api.LoadTexture = LoadTexture;
 
 		g_api.UseVSync = UseVSync;
+		g_api.UseDepth = UseDepth;
+
 		g_api.CreateModel = CreateModel;
 		g_api.CreateModelFromFile = CreateModelFromFile;
 		g_api.LoadModel = LoadModel;
@@ -518,6 +536,8 @@ extern "C"
 		g_api.DrawSprite = DrawSprite;
 		g_api.DrawLine3D = DrawLine3D;
 		g_api.SetMatrix = SetMatrix;
+		g_api.GetSpriteCameraPosition = GetSpriteCameraPosition;
+		g_api.GetSpriteCameraScale = GetSpriteCameraScale;
 
 		return &g_api;
 	}
