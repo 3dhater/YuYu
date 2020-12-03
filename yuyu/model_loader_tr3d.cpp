@@ -83,6 +83,8 @@ yyModel* ModelLoader_TR3D(const std::filesystem::path& p)
 	{
 		Game_TR3DHeaderMeshHeader meshhead;
 		yyPtr<yyMeshBuffer> new_mesh = yyCreate<yyMeshBuffer>();
+		
+		new_mesh.m_data->m_vertexType = yyVertexType::Model;
 
 		in.read((char*)&meshhead, sizeof(Game_TR3DHeaderMeshHeader));
 

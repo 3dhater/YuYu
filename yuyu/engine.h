@@ -74,7 +74,7 @@ public:
 	yyVideoDriverAPI* m_videoAPI = nullptr;
 
 	yyArraySmall<yyImageLoader> m_imageLoaders;
-	//yyResourceManager* m_resourceManager = nullptr;
+	yyArraySmall<yyModelLoader> m_modelLoaders;
 
 	yyAsyncLoadEventHandler m_asyncEventHandler = nullptr;
 	std::thread* m_backgroundWorker = nullptr;

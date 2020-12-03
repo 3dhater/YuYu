@@ -1,36 +1,37 @@
 ﻿#ifndef _YY_VID_H_
 #define _YY_VID_H_
 
-enum class yyVideoDriverTextureSlot : u32
-{
-	Texture0,
-	Texture1,
-	Texture2,
-	Texture3,
-	Texture4,
-	Texture5,
-	Texture6,
-	Texture7,
-	Texture8,
-	Texture9,
-	Texture10,
-	Texture11,
-	Texture12,
-	Texture13,
-	Texture14,
-	Texture15,
-	Texture16,
-	Texture17,
-	Texture18,
-	Texture19,
-	Texture20,
-
-	Count
-};
 
 constexpr u32 yyVideoDriverAPIVersion = 1;
 struct yyVideoDriverAPI
 {
+	enum class TextureSlot : u32
+	{
+		Texture0,
+		Texture1,
+		Texture2,
+		Texture3,
+		Texture4,
+		Texture5,
+		Texture6,
+		Texture7,
+		Texture8,
+		Texture9,
+		Texture10,
+		Texture11,
+		Texture12,
+		Texture13,
+		Texture14,
+		Texture15,
+		Texture16,
+		Texture17,
+		Texture18,
+		Texture19,
+		Texture20,
+
+		Count
+	};
+
 	u32 (*GetAPIVersion)() = nullptr;
 
 	bool (*Init)(yyWindow*)=nullptr;
@@ -68,11 +69,12 @@ struct yyVideoDriverAPI
 	void (*LoadTexture)(yyResource*)=nullptr; // ++m_refCount; or load
 
 	yyResource* (*CreateModel)(yyModel*)=nullptr;
+	yyResource* (*CreateModelFromFile)(const char* fileName)=nullptr;
 	void (*UnloadModel)(yyResource*)=nullptr;
 	void (*LoadModel)(yyResource*)=nullptr;
 
 	// yyResource::m_type MUST BE yyResourceType::Texture
-	void (*SetTexture)(yyVideoDriverTextureSlot, yyResource*)=nullptr;
+	void (*SetTexture)(yyVideoDriverAPI::TextureSlot, yyResource*)=nullptr;
 	// yyResource::m_type MUST BE yyResourceType::Model
 	void (*SetModel)(yyResource*)=nullptr;
 	// draw what we set above
@@ -87,6 +89,7 @@ struct yyVideoDriverAPI
 		View,
 		Projection,
 		ViewProjection, //For 3d line
+		WorldViewProjection,
 	};
 	void (*SetMatrix)(MatrixType, const Mat4&)=nullptr;
 };

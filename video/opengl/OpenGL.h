@@ -1238,8 +1238,9 @@ extern PFNGLTEXTURESTORAGE3DMULTISAMPLEEXTPROC gglTextureStorage3DMultisampleEXT
 class OpenGLShaderGUI;
 class OpenGLShaderSprite;
 class OpenGLShaderLine3D;
-class OpenGLTexture;
+class OpenGLShaderStd;
 
+class OpenGLTexture;
 class OpenGLMeshBuffer;
 class OpenGLModel;
 
@@ -1267,9 +1268,11 @@ public:
 	OpenGLShaderGUI* m_shader_gui = nullptr;
 	OpenGLShaderSprite* m_shader_sprite = nullptr;
 	OpenGLShaderLine3D* m_shader_line3d = nullptr;
+	OpenGLShaderStd* m_shader_std = nullptr;
+
 	Mat4 m_guiProjectionMatrix;
 
-	OpenGLTexture* m_currentTextures[(u32)yyVideoDriverTextureSlot::Count];
+	OpenGLTexture* m_currentTextures[(u32)yyVideoDriverAPI::TextureSlot::Count];
 	OpenGLModel*   m_currentModel = nullptr;
 
 #ifdef YY_PLATFORM_WINDOWS
@@ -1284,6 +1287,7 @@ public:
 	Mat4 m_matrixView;
 	Mat4 m_matrixProjection;
 	Mat4 m_matrixViewProjection;
+	Mat4 m_matrixWorldViewProjection;
 };
 
 #endif

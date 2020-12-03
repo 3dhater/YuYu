@@ -126,7 +126,7 @@ YY_API void YY_C_DECL yyGUIDrawAll()
 		{
 			yyGUIPictureBox* pictureBox = (yyGUIPictureBox*)guiElement->m_data;
 			if(pictureBox->m_texture)
-				g_engine->m_videoAPI->SetTexture(yyVideoDriverTextureSlot::Texture0, pictureBox->m_texture);
+				g_engine->m_videoAPI->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, pictureBox->m_texture);
 			if(pictureBox->m_pictureBoxModel)
 				g_engine->m_videoAPI->SetModel(pictureBox->m_pictureBoxModel);
 			g_engine->m_videoAPI->Draw();

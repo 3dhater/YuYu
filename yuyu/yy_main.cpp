@@ -19,14 +19,19 @@ Engine::Engine()
 	m_sceneRootObject = new yySceneObjectBase;
 	m_cctx = ZSTD_createCCtx();
 
-	yyImageLoader loader;
-	loader.ext = ".dds";
-	loader.image_loader_callback = ImageLoader_DDS;
-	m_imageLoaders.push_back(loader);
+	yyImageLoader imageLoader;
+	imageLoader.ext = ".dds";
+	imageLoader.image_loader_callback = ImageLoader_DDS;
+	m_imageLoaders.push_back(imageLoader);
 
-	loader.ext = ".png";
-	loader.image_loader_callback = ImageLoader_PNG;
-	m_imageLoaders.push_back(loader);
+	imageLoader.ext = ".png";
+	imageLoader.image_loader_callback = ImageLoader_PNG;
+	m_imageLoaders.push_back(imageLoader);
+
+	yyModelLoader modelLoader;
+	modelLoader.ext = ".tr3d";
+	modelLoader.model_loader_callback = ModelLoader_TR3D;
+	m_modelLoaders.push_back(modelLoader);
 }
 Engine::~Engine()
 {

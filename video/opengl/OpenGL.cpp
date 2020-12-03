@@ -10,6 +10,7 @@
 #include "OpenGL_shader_GUI.h"
 #include "OpenGL_shader_sprite.h"
 #include "OpenGL_shader_Line3D.h"
+#include "OpenGL_shader_standart.h"
 
 #include "math/mat.h"
 
@@ -110,7 +111,7 @@ wglDeleteContext_t gwglDeleteContext = nullptr;
 
 OpenGL::OpenGL()
 {
-	for( u32 i = 0; i < (u32)yyVideoDriverTextureSlot::Count; ++i)
+	for( u32 i = 0; i < (u32)yyVideoDriverAPI::TextureSlot::Count; ++i)
 	{
 		m_currentTextures[i] = nullptr;
 	}
@@ -384,6 +385,14 @@ bool OpenGL::Init(yyWindow* window)
 	if(!m_shader_line3d->init())
 	{
 		yyLogWriteError("Can't create 3d line shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	m_shader_std = yyCreate<OpenGLShaderStd>();
+	if(!m_shader_std->init())
+	{
+		yyLogWriteError("Can't create standart shader...");
 		YY_PRINT_FAILED;
 		return false;
 	}

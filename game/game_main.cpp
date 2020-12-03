@@ -15,6 +15,7 @@ namespace fs = std::filesystem;
 #include <string>
 
 #include "yy_image.h"
+#include "yy_model.h"
 #include "yy_gui.h"
 #include "yy_input.h"
 
@@ -197,7 +198,8 @@ vidOk:
 	g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::View, camera->m_viewMatrix);
 	g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::ViewProjection, camera->m_projectionMatrix * camera->m_viewMatrix);
 
-
+	auto modelGPU = g_videoDriver->CreateModelFromFile("../res/tr/map/map001.tr3d");
+	auto grassGPU = g_videoDriver->CreateTextureFromFile("../res/tr/grass.dds", true);
 
 	yySprite* sprite = yyCreateSprite(v4f(0.f,0.f,1160.f,224.f), g_videoDriver->CreateTextureFromFile("../res/GA3E/level1_ground.png",false));
 	sprite->m_objectBase.m_localPosition.set(0.f, 0.f, 0.f, 0.f);
@@ -250,6 +252,11 @@ vidOk:
 			g_videoDriver->BeginDrawClearAll();
 			
 			g_videoDriver->DrawLine3D(v4f(-2.f, 0.f, 0.f, 0.f), v4f(2.f, 0.f, 0.f, 0.f), ColorRed);
+			
+			g_videoDriver->SetModel(modelGPU);
+			g_videoDriver->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, grassGPU);
+			g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection, camera->m_projectionMatrix * camera->m_viewMatrix * Mat4());
+			g_videoDriver->Draw();
 
 			sprite->m_objectBase.UpdateBase();
 			g_videoDriver->DrawSprite(sprite);

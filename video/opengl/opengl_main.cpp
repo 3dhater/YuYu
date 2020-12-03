@@ -11,6 +11,7 @@
 #include "OpenGL_shader_GUI.h"
 #include "OpenGL_shader_sprite.h"
 #include "OpenGL_shader_Line3D.h"
+#include "OpenGL_shader_standart.h"
 
 #include "scene/common.h"
 #include "scene/sprite.h"
@@ -213,6 +214,28 @@ void UseVSync(bool v)
 #endif
 }
 
+yyResource* CreateModelFromFile(const char* fileName)
+{
+	yyResource * newRes = yyCreate<yyResource>();
+	newRes->m_type = yyResourceType::Model;
+	newRes->m_source = nullptr;
+	newRes->m_index = g_openGL->m_models.size();
+	newRes->m_refCount = 1;
+	newRes->m_file = fileName;
+
+	yyPtr<yyModel> model = yyLoadModel(fileName);
+
+	auto newModel = CreateOpenGLModel(model.m_data);
+	if(newModel)
+	{
+		g_openGL->m_models.push_back(newModel);
+		return newRes;
+	}
+
+	if(newRes)
+		yyDestroy( newRes );
+	return nullptr;
+}
 yyResource* CreateModel(yyModel* model)
 {
 	yyResource * newRes = yyCreate<yyResource>();
@@ -363,7 +386,7 @@ void EndDrawGUI()
 	glScissor(last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2], (GLsizei)last_scissor_box[3]);
 }
 
-void SetTexture(yyVideoDriverTextureSlot slot, yyResource* res)
+void SetTexture(yyVideoDriverAPI::TextureSlot slot, yyResource* res)
 {
 	g_openGL->m_currentTextures[(u32)slot] = g_openGL->m_textures[ res->m_index ];
 }
@@ -383,16 +406,23 @@ void Draw()
 			gglActiveTexture(GL_TEXTURE0);
 			gglBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);
 		}
-
-		for(u16 i = 0, sz = g_openGL->m_currentModel->m_meshBuffers.size(); i < sz; ++i)
-		{
-			auto meshBuffer = g_openGL->m_currentModel->m_meshBuffers[i];
-			gglBindVertexArray(meshBuffer->m_VAO);
-			gglDrawElements(GL_TRIANGLES, meshBuffer->m_iCount, GL_UNSIGNED_SHORT, 0);
-		}
 	}
 	else
 	{
+		glUseProgram( g_openGL->m_shader_std->m_program );
+		glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr() );
+		if(g_openGL->m_currentTextures[0])
+		{
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);
+		}
+	}
+
+	for(u16 i = 0, sz = g_openGL->m_currentModel->m_meshBuffers.size(); i < sz; ++i)
+	{
+		auto meshBuffer = g_openGL->m_currentModel->m_meshBuffers[i];
+		gglBindVertexArray(meshBuffer->m_VAO);
+		gglDrawElements(GL_TRIANGLES, meshBuffer->m_iCount, GL_UNSIGNED_SHORT, 0);
 	}
 }
 void DrawSprite(yySprite* sprite)
@@ -403,7 +433,7 @@ void DrawSprite(yySprite* sprite)
 
 	if(sprite->m_texture)
 	{
-		SetTexture(yyVideoDriverTextureSlot::Texture0, sprite->m_texture);
+		SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, sprite->m_texture);
 		gglActiveTexture(GL_TEXTURE0);
 		gglBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);
 	}
@@ -439,6 +469,9 @@ void SetMatrix(yyVideoDriverAPI::MatrixType mt, const Mat4& mat)
 	case yyVideoDriverAPI::ViewProjection:
 		g_openGL->m_matrixViewProjection = mat;
 		break;
+	case yyVideoDriverAPI::WorldViewProjection:
+		g_openGL->m_matrixWorldViewProjection = mat;
+		break;
 	default:
 		YY_PRINT_FAILED;
 		break;
@@ -472,6 +505,7 @@ extern "C"
 
 		g_api.UseVSync = UseVSync;
 		g_api.CreateModel = CreateModel;
+		g_api.CreateModelFromFile = CreateModelFromFile;
 		g_api.LoadModel = LoadModel;
 		g_api.UnloadModel = UnloadModel;
 

@@ -176,6 +176,7 @@
     <ClCompile Include="opengl_main.cpp" />
     <ClCompile Include="OpenGL_model.cpp" />
     <ClCompile Include="OpenGL_shader.cpp" />
+    <ClCompile Include="OpenGL_shader_standart.cpp" />
     <ClCompile Include="OpenGL_shader_GUI.cpp" />
     <ClCompile Include="OpenGL_shader_Line3D.cpp" />
     <ClCompile Include="OpenGL_shader_sprite.cpp" />
@@ -184,6 +185,7 @@
   <ItemGroup>
     <ClInclude Include="OpenGL_model.h" />
     <ClInclude Include="OpenGL_shader.h" />
+    <ClInclude Include="OpenGL_shader_standart.h" />
     <ClInclude Include="OpenGL_shader_GUI.h" />
     <ClInclude Include="OpenGL_shader_Line3D.h" />
     <ClInclude Include="OpenGL_shader_sprite.h" />

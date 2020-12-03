@@ -40,3 +40,4 @@ video/opengl/x64
 *.ipdb
 game/x64/Release
 yuyu/x64/Release
+res/tr
