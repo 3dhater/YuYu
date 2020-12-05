@@ -17,6 +17,7 @@ struct yyCamera;
 struct yySprite;
 struct v4f;
 struct v2f;
+struct v2i;
 
 
 

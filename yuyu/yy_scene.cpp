@@ -6,6 +6,18 @@
 #include "engine.h"
 extern Engine * g_engine;
 
+YY_FORCE_INLINE v4f yySpriteMovePivotOnCenter(const v4f& rect)
+{
+	f32 w = (rect.z - rect.x) * 0.5f;
+	f32 h = (rect.w - rect.y) * 0.5f;
+	return v4f(
+		rect.x - w,
+		rect.y - h,
+		rect.z - w,
+		rect.w - h
+	);
+}
+
 extern "C"
 {
 
@@ -22,9 +34,13 @@ YY_API void YY_C_DECL yySceneSetActiveCamera(yyCamera* c)
 	g_engine->m_sceneActiveCamera = c;
 }
 
-YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& rect, yyResource* texture)
+YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& r, yyResource* texture, bool pivotOnCenter)
 {
 	yySprite* newSprite = yyCreate<yySprite>();
+
+	auto rect = r;
+	if(pivotOnCenter)
+		rect = yySpriteMovePivotOnCenter(r);
 
 	auto vAPI = yyGetVideoDriverAPI();
 	auto model = yyCreate<yyModel>();

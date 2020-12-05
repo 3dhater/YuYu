@@ -96,6 +96,8 @@ struct yyVideoDriverAPI
 	
 	v2f* (*GetSpriteCameraPosition)()=nullptr;
 	v2f* (*GetSpriteCameraScale)()=nullptr;
+
+	void (*GetTextureSize)(yyResource* r, v2i*)=nullptr;
 };
 
 #endif

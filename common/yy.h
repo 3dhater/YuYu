@@ -55,7 +55,13 @@ extern "C"
 	YY_API void YY_C_DECL yyFreeLybrary(dl_handle);
 	YY_API dl_function YY_C_DECL yyGetProcAddress(dl_handle,const char* functionName);
 	
-	YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& rect, yyResource* texture);
+	YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& rect, yyResource* texture, bool pivotOnCenter);
+
+	// get from cache. if not found, create GPU resource, add to cache
+	YY_API yyResource* YY_C_DECL yyGetTexture(const char*, bool useFilter);
+	YY_API yyResource* YY_C_DECL yyGetModel(const char*);
+
+	YY_API void YY_C_DECL yyGetTextureSize(yyResource*, v2i*);
 
 }
 

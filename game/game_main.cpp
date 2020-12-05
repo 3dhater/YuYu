@@ -23,18 +23,6 @@ namespace fs = std::filesystem;
 #include "scene/camera.h"
 #include "scene/sprite.h"
 
-YY_FORCE_INLINE v4f yySpriteMovePivotOnCenter(const v4f& rect)
-{
-	f32 w = (rect.z - rect.x) * 0.5f;
-	f32 h = (rect.w - rect.y) * 0.5f;
-	return v4f(
-		rect.x - w,
-		rect.y - h,
-		rect.z - w,
-		rect.w - h
-	);
-}
-
 // for auto create\delete
 struct yyEngineContext
 {
@@ -215,13 +203,31 @@ vidOk:
 	auto modelGPU = g_videoDriver->CreateModelFromFile("../res/tr/map/map001.tr3d");
 	auto grassGPU = g_videoDriver->CreateTextureFromFile("../res/tr/grass.dds", true);
 
-	yySprite* spriteLevel = yyCreateSprite(v4f(0.f,0.f,1160.f,224.f), g_videoDriver->CreateTextureFromFile("../res/GA3E/level1_ground.png",false));
+	yySprite* spriteLevel = yyCreateSprite(v4f(0.f,0.f,1160.f,224.f), g_videoDriver->CreateTextureFromFile("../res/GA3E/level1_ground.png",false), false);
 	
-	yySprite* spriteHero = yyCreateSprite(yySpriteMovePivotOnCenter(v4f(0.f,0.f,39.f,86.f)), g_videoDriver->CreateTextureFromFile("../res/GA3E/hero0.png",false));
+	yySprite* spriteHero = yyCreateSprite(v4f(0.f,0.f,50.f,76.f), g_videoDriver->CreateTextureFromFile("../res/GA3E/hero0.png",false), true);
+	spriteHero->SetMainFrame(123, 8, 174, 85);
 	spriteHero->m_objectBase.m_localPosition.set(10.f, 20.f, 0.f, 0.f);
+	auto stateIdleRight = spriteHero->AddState("IdleRight");
+	stateIdleRight->m_isAnimation = true;
+	//stateIdle->m_invertX = true;
+	//stateIdle->m_invertY = true;
+	stateIdleRight->AddAnimationFrame(0,0, 38,84);
+	stateIdleRight->AddAnimationFrame(41,0, 79,84);
+	stateIdleRight->SetFPS(2.f);
+	auto stateIdleLeft = spriteHero->AddState("IdleLeft");
+	stateIdleLeft->m_isAnimation = true;
+	stateIdleLeft->m_invertX = true;
+	stateIdleLeft->AddAnimationFrame(0,0, 38,84);
+	stateIdleLeft->AddAnimationFrame(41,0, 79,84);
+	stateIdleLeft->SetFPS(2.f);
+	
+	spriteHero->SetState(stateIdleRight);
 
 	auto spriteCameraPosition = g_videoDriver->GetSpriteCameraPosition();
 	auto spriteCameraScale    = g_videoDriver->GetSpriteCameraScale();
+	spriteCameraScale->x = 1.7f;
+	spriteCameraScale->y = 1.7f;
 	
 	f32 deltaTime = 0.f;
 	bool run = true;
@@ -297,10 +303,14 @@ vidOk:
 			if(g_inputContex->isKeyHold(yyKey::K_LEFT))
 			{
 				spriteHero->m_objectBase.m_localPosition.x -= heroMoveSpeed * deltaTime;
+				if(spriteHero->m_currentState != stateIdleLeft)
+					spriteHero->SetState(stateIdleLeft);
 			}
 			if(g_inputContex->isKeyHold(yyKey::K_RIGHT))
 			{
 				spriteHero->m_objectBase.m_localPosition.x += heroMoveSpeed * deltaTime;
+				if(spriteHero->m_currentState != stateIdleRight)
+					spriteHero->SetState(stateIdleRight);
 			}
 			if(g_inputContex->isKeyHold(yyKey::K_UP))
 			{
@@ -338,6 +348,8 @@ vidOk:
 			g_videoDriver->UseDepth(false);
 			g_videoDriver->DrawSprite(spriteLevel);
 			spriteHero->m_objectBase.UpdateBase();
+			//spriteHero->m_objectBase.m_updateImplementation(spriteHero);
+			spriteHero->Update(deltaTime);
 			g_videoDriver->DrawSprite(spriteHero);
 			
 

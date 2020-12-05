@@ -115,7 +115,8 @@ void UnloadTexture(yyResource* r)
 		YY_PRINT_FAILED;
 	}
 #endif
-	assert(r->m_refCount != 0);
+	if(r->m_refCount == 0)
+		return;
 
 	--r->m_refCount;
 	if(!r->m_refCount)
@@ -268,7 +269,8 @@ void UnloadModel(yyResource* r)
 		YY_PRINT_FAILED;
 	}
 #endif
-	assert(r->m_refCount != 0);
+	if(r->m_refCount == 0)
+		return;
 
 	--r->m_refCount;
 	if(!r->m_refCount)
@@ -437,6 +439,20 @@ void DrawSprite(yySprite* sprite)
 	glUniformMatrix4fv(g_openGL->m_shader_sprite->m_uniform_WorldMtx, 1, GL_FALSE, sprite->m_objectBase.m_globalMatrix.getPtr() );
 	glUniform2fv(g_openGL->m_shader_sprite->m_uniform_CameraPosition, 1, &g_openGL->m_spriteCameraPosition.x);
 	glUniform2fv(g_openGL->m_shader_sprite->m_uniform_CameraScale, 1, &g_openGL->m_spriteCameraScale.x);
+	glUniform2fv(g_openGL->m_shader_sprite->m_uniform_uv1, 1, &sprite->m_tcoords_1.x);
+	glUniform2fv(g_openGL->m_shader_sprite->m_uniform_uv2, 1, &sprite->m_tcoords_2.x);
+
+	int flags = 0;
+	if(sprite->m_currentState)
+	{
+		if(sprite->m_currentState->m_invertX)
+			flags |= 1;
+		if(sprite->m_currentState->m_invertY)
+			flags |= 2;
+	}
+	
+	glUniform1i(g_openGL->m_shader_sprite->m_uniform_flags, flags);
+
 	//glUniform4fv(g_openGL->m_shader_sprite->m_uniform_SpritePosition, 1, sprite->m_objectBase.m_globalPosition.data());
 
 	if(sprite->m_texture)
@@ -494,6 +510,17 @@ v2f* GetSpriteCameraScale()
 	return &g_openGL->m_spriteCameraScale;
 }
 
+void GetTextureSize(yyResource* r, v2i* s)
+{
+	if(r->m_type != yyResourceType::Texture)
+		return;
+	OpenGLTexture* t = g_openGL->m_textures[ r->m_index ];
+	if(!t)
+		return;
+	s->x = t->m_w;
+	s->y = t->m_h;
+}
+
 extern "C"
 {
 	YY_API yyVideoDriverAPI* YY_C_DECL GetAPI()
@@ -538,6 +565,8 @@ extern "C"
 		g_api.SetMatrix = SetMatrix;
 		g_api.GetSpriteCameraPosition = GetSpriteCameraPosition;
 		g_api.GetSpriteCameraScale = GetSpriteCameraScale;
+
+		g_api.GetTextureSize = GetTextureSize;
 
 		return &g_api;
 	}

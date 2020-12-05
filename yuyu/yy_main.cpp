@@ -86,6 +86,65 @@ EngineDestroyer g_engineDestroyer;
 extern "C"
 {
 
+YY_API yyResource* YY_C_DECL yyGetTexture(const char* fileName, bool useFilter)
+{
+	assert(fileName);
+	std::filesystem::path p(fileName);
+	for( auto & node : g_engine->m_textureCache )
+	{
+		if( node.m_path == p )
+			return node.m_resource;
+	}
+
+	auto res = g_engine->m_videoAPI->CreateTextureFromFile(fileName, useFilter);
+	
+	if( res )
+	{
+		CacheNode cache_node;
+		cache_node.m_resource = res;
+		cache_node.m_path    = p;
+		g_engine->m_textureCache.push_back(cache_node);
+	}
+	else
+	{
+		YY_PRINT_FAILED;
+		return nullptr;
+	}
+	return res;
+}
+
+YY_API void YY_C_DECL yyGetTextureSize(yyResource* r, v2i* s)
+{
+	return g_engine->m_videoAPI->GetTextureSize(r, s);
+}
+
+YY_API yyResource* YY_C_DECL yyGetModel(const char* fileName)
+{
+	assert(fileName);
+	std::filesystem::path p(fileName);
+	for( auto & node : g_engine->m_modelCache )
+	{
+		if( node.m_path == p )
+			return node.m_resource;
+	}
+
+	auto res = g_engine->m_videoAPI->CreateModelFromFile(fileName);
+	
+	if( res )
+	{
+		CacheNode cache_node;
+		cache_node.m_resource = res;
+		cache_node.m_path    = p;
+		g_engine->m_modelCache.push_back(cache_node);
+	}
+	else
+	{
+		YY_PRINT_FAILED;
+		return nullptr;
+	}
+	return res;
+}
+
 YY_API yySystemState* YY_C_DECL yyStart(yyInputContext* input)
 {
 	assert(!g_engine);
@@ -170,7 +229,7 @@ u8* Engine::compressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size
 		return out_data;
 	}
 
-	yyMemRealloc(out_data,cSize);
+	yyMemRealloc(out_data,(u32)cSize);
 	out_data_size = (u32)cSize;
 	return out_data;
 }

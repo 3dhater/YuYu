@@ -14,6 +14,9 @@ public:
 	GLint m_uniform_WorldMtx = 0;
 	GLint m_uniform_CameraPosition = 0;
 	GLint m_uniform_CameraScale = 0;
+	GLint m_uniform_uv1 = 0;
+	GLint m_uniform_uv2 = 0;
+	GLint m_uniform_flags = 0;
 	GLint m_uniform_Texture = 0;
 
 	bool init();
