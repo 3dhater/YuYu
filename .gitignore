@@ -41,3 +41,5 @@ video/opengl/x64
 game/x64/Release
 yuyu/x64/Release
 res/tr
+*.db
+*.opendb

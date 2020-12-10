@@ -29,6 +29,44 @@ inline void stringFlip( Type& str )
 	str = flippedStr;
 }
 template<typename Type>
+inline void stringFlipSlash( Type& str )
+{
+	u32 sz = str.size();
+	for( u32 i = 0u; i < sz; ++i )
+	{
+		if( str[ i ] == '\\' )
+			str[ i ] = '/';
+	}
+}
+template<typename Type>
+inline void stringFlipSlashBackSlash( Type& str )
+{
+	u32 sz = str.size();
+	for( u32 i = 0u; i < sz; ++i )
+	{
+		if( str[ i ] == '/' )
+			str[ i ] = '\\';
+	}
+}
+template<typename Type>
+inline void stringPopBackBefore( Type& str, s8 c )
+{
+	if( str.size() )
+		str.pop_back();
+	if( str.size() )
+	{
+		for( u32 i = str.size() - 1u; i >= 0u; --i )
+		{
+			if( str[ i ] == (Type::value_type)c ) 
+				break;
+			else 
+				str.pop_back();
+			if( !i ) 
+				break;
+		}
+	}
+}
+template<typename Type>
 inline Type stringGetExtension( const Type& str, bool addDot )
 {
 	Type ret;
@@ -267,6 +305,80 @@ YY_FORCE_INLINE float to_float(const char16_t* str)
 
 	return is_negative ? -result : result;
 }
+
+template<typename input_string_type, typename output_string_type>
+void utf16_to_utf8(input_string_type* utf16, output_string_type* utf8)
+{
+	u32 sz = utf16->size();
+	for( u32 i = 0u; i < sz; ++i )
+	{
+		input_string_type::value_type ch16 = utf16->operator[]( i );
+		if( ch16 < 0x80 )
+		{
+			*utf8 += (output_string_type::value_type)ch16;
+		}
+		else if( ch16 < 0x800 )
+		{
+			*utf8 += (output_string_type::value_type)((ch16>>6)|0xc0);
+			*utf8 += (output_string_type::value_type)((ch16&0x3f)|0x80);
+		}
+	}
+}
+
+template<typename output_string_type>
+void utf8_to_utf16(yyStringA* utf8, output_string_type* utf16)
+{
+	auto utf8_data = utf8->data();
+	while(*utf8_data)
+	{
+		unsigned char utf8_char = *utf8_data;
+		++utf8_data;
+
+		if(utf8_char >= 0 && utf8_char < 0x80) // one byte
+		{
+			utf16->append((output_string_type::value_type)utf8_char);
+		}
+		else if(utf8_char >= 0xC0 && utf8_char < 0xE0) // 2
+		{
+			unsigned char utf8_char2 = *utf8_data;
+			if(utf8_char2)
+			{
+				++utf8_data;
+
+				output_string_type::value_type char16 = 0;
+				char16 = utf8_char;
+				char16 ^= 0xC0;
+				char16 <<= 6;
+				char16 |= (utf8_char2^0x80);
+		
+				utf16->append(char16);
+			}
+		}
+		else if(utf8_char >= 0xE0 && utf8_char < 0xF0) // 3
+		{
+			unsigned char utf8_char2 = *utf8_data;
+			if(utf8_char2)
+			{
+				++utf8_data;
+				unsigned char utf8_char3 = *utf8_data;
+				if(utf8_char3)
+				{
+					++utf8_data;
+
+					output_string_type::value_type char16 = 0;
+					char16 = utf8_char;
+					char16 ^= 0xE0;
+					char16 <<= 12;
+					char16 |= (utf8_char2^0x80) << 6;
+					char16 |= (utf8_char3^0x80);
+		
+					utf16->append(char16);
+				}
+			}
+		}
+	}
+}
+
 }
 
 

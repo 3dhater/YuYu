@@ -76,7 +76,7 @@ class yyString_base
 
 
 public:
-	typedef char_type character_type;
+	typedef char_type value_type;
 	
 	yyString_base()
 		: m_stringWordSize(16), m_data(nullptr), m_allocated(16), m_size(0)
@@ -193,35 +193,35 @@ public:
 	void append( s32 c )
 	{
 		char buf[32u];
-		::std::snprintf( buf, 32, "%i", c );
+		::std::sprintf( buf, "%i", c );
 		append( buf );
 	}
 
 	void append( u32 c )
 	{
 		char buf[32u];
-		::std::snprintf( buf, 32, "%u", c );
+		::std::sprintf( buf, "%u", c );
 		append( buf );
 	}
 
 	void append( u64 c )
 	{
 		char buf[32u];
-		::std::snprintf( buf, 32, "%llu", c );
+		::std::sprintf( buf, "%llu", c );
 		append( buf );
 	}
 
 	void append( f64 c )
 	{
 		char buf[32u];
-		::std::snprintf( buf, 32, "%.12f", c );
+		::std::sprintf( buf, "%.12f", c );
 		append( buf );
 	}
 
 	void append( f32 c )
 	{
 		char buf[32u];
-		::std::snprintf( buf, 32, "%.4f", c );
+		::std::sprintf( buf, "%.4f", c );
 		append( buf );
 	}
 
@@ -462,11 +462,15 @@ namespace util
 	void _string_UTF16_to_UTF8( yyString_base<char16_t,allocator>& utf16, yyString_base<char,allocator>& utf8 )
 	{
 		u32 sz = utf16.size();
-		for( u32 i = 0u; i < sz; ++i ){
+		for( u32 i = 0u; i < sz; ++i )
+		{
 			char16_t ch16 = utf16[ i ];
-			if( ch16 < 0x80 ){
+			if( ch16 < 0x80 )
+			{
 				utf8 += (char)ch16;
-			}else if( ch16 < 0x800 ){
+			}
+			else if( ch16 < 0x800 )
+			{
 				utf8 += (char)((ch16>>6)|0xc0);
 				utf8 += (char)((ch16&0x3f)|0x80);
 			}

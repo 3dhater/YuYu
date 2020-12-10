@@ -10,10 +10,9 @@
 
 #include <cstdio>
 #include <vector>
-#include <filesystem>
-namespace fs = std::filesystem;
 #include <string>
 
+#include "yy_fs.h"
 #include "yy_image.h"
 #include "yy_model.h"
 #include "yy_gui.h"
@@ -28,6 +27,7 @@ struct yyEngineContext
 {
 	yyEngineContext()
 	{
+		m_state = nullptr;
 	}
 	~yyEngineContext()
 	{
@@ -39,7 +39,7 @@ struct yyEngineContext
 		m_state = yyStart(input); // allocate memory for main class inside yuyu.dll
 	}
 
-	yySystemState * m_state = nullptr;
+	yySystemState * m_state;
 };
 
 void window_onCLose(yyWindow* window)
@@ -151,14 +151,16 @@ int main()
 
 	// init video driver
 	const char * videoDriverType = "opengl.yyvd"; // for example read name from .ini
-	if( !yyInitVideoDriver(videoDriverType, p_window) )
+	//if( !yyInitVideoDriver(videoDriverType, p_window) )
 	{
 		yyLogWriteWarning("Can't load video driver : %s\n", videoDriverType);
 
 		// if failed, try to init other type
 		std::vector<std::string> vidDrivers;
-		for(const auto & entry : fs::directory_iterator(fs::current_path()))
+		
+		for(auto & entry : yyFS::directory_iterator(yyFS::current_path() ) )
 		{
+
 			auto path = entry.path();
 			if(path.has_extension())
 			{

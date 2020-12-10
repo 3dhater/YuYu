@@ -53,6 +53,7 @@ _type * yyCreate()
 	//return yyObjectCreator<_type>::create(std::forward<Args>(args)...);
 	return yyObjectCreator<_type>::create();
 }
+
 /// Destroy object
 template<typename _type>
 void yyDestroy( _type * ptr )

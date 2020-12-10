@@ -29,7 +29,7 @@ YY_API yyImage* YY_C_DECL yyLoadImage(const char* fileName)
 		YY_PRINT_FAILED;
 		return nullptr;
 	}*/
-	if(!yyFS::existsFile(fileName))
+	if(!yyFS::exists(fileName))
 	{
 		YY_PRINT_FAILED;
 		return nullptr;
@@ -62,7 +62,7 @@ YY_API yyModel* YY_C_DECL yyLoadModel(const char* fileName)
 	assert(fileName);
 	//std::filesystem::path p(fileName);
 	//if( !std::filesystem::exists(p) )
-	if(!yyFS::existsFile(fileName))
+	if(!yyFS::exists(fileName))
 	{
 		YY_PRINT_FAILED;
 		return nullptr;

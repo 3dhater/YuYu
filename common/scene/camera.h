@@ -114,17 +114,25 @@ struct yyCamera
 		m_objectBase.m_objectType = yySceneObjectBase::ObjectType::Camera;
 		m_objectBase.m_implementationPtr = this;
 		m_objectBase.m_updateImplementation = yyCamera_update;
+
+		m_cameraType = yyCameraType::LookAt;
+		m_up     = v4f(0.f,1.f,0.f,1.f);
+		m_fov    = 0.785398185f;
+		m_near   = 1.f;
+		m_far    = 100.f;
+		m_aspect = 1.333333f;
+		m_updateCallback = nullptr;
 	}
 	~yyCamera(){}
 
 	yySceneObjectBase m_objectBase;
 
-	yyCameraType m_cameraType = yyCameraType::LookAt;
-	v4f m_up     = v4f(0.f,1.f,0.f,1.f);
-	f32	m_fov    = 0.785398185f;
-	f32	m_near   = 1.f;
-	f32	m_far    = 100.f;
-	f32	m_aspect = 1.333333f;
+	yyCameraType m_cameraType;
+	v4f m_up;
+	f32	m_fov;
+	f32	m_near;
+	f32	m_far;
+	f32	m_aspect;
 	Mat4 m_viewMatrix;
 	Mat4 m_projectionMatrix;
 	v4f m_viewport;
@@ -137,7 +145,7 @@ struct yyCamera
 			m_updateCallback(this);
 		else this->m_objectBase.m_updateImplementation(this);
 	}
-	void(*m_updateCallback)(yyCamera*) = nullptr;
+	void(*m_updateCallback)(yyCamera*);
 };
 
 YY_FORCE_INLINE void yyCamera_update(void * impl)
