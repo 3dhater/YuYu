@@ -6,10 +6,10 @@ class OpenGLMeshBuffer
 public:
 	OpenGLMeshBuffer();
 	~OpenGLMeshBuffer();
-	GLuint m_VAO     = 0;
-	GLuint m_vBuffer = 0;
-	GLuint m_iBuffer = 0;
-	GLsizei m_iCount = 0;
+	GLuint m_VAO;
+	GLuint m_vBuffer;
+	GLuint m_iBuffer;
+	GLsizei m_iCount;
 };
 
 class OpenGLModel

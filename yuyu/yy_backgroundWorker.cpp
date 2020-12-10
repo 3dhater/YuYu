@@ -28,7 +28,7 @@ void yyBackgroundWorkerFunction()
 				BackgroundWorkerResults res;
 				res.m_type = BackgroundWorkerResults::type::LoadImage;
 				res.m_id   = obj.m_id;
-				res.m_rawData = yyLoadImage(obj.m_fileName);
+				res.m_data = yyLoadImage(obj.m_fileName);
 				g_engine->m_workerResults.put(res);
 			}break;
 			default:

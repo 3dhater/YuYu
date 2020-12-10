@@ -3,7 +3,7 @@
 
 #include "math/vec.h"
 
-using yyGUICallback = void(*)(yyGUIElement* elem, s32 m_id);
+typedef void(*yyGUICallback)(yyGUIElement* elem, s32 m_id);
 
 enum class yyGUIElementType  : u32
 {
@@ -14,16 +14,18 @@ enum class yyGUIElementType  : u32
 class yyGUIElement
 {
 public:
-	yyGUIElement(){}
+	yyGUIElement()
+	:
+		m_id(-1),
+		m_visible(true),
+		m_type(yyGUIElementType::Unknown)
+	{}
 	virtual ~yyGUIElement(){}
 	
-	s32 m_id = -1;
-
+	s32 m_id;
+	bool m_visible;
+	yyGUIElementType m_type;
 	v4f m_rect;
-
-	bool m_visible = true;
-
-	yyGUIElementType m_type = yyGUIElementType::Unknown;
 };
 
 class yyGUIPictureBox : public yyGUIElement
@@ -32,10 +34,10 @@ public:
 	yyGUIPictureBox();
 	virtual ~yyGUIPictureBox();
 
-	yyResource* m_texture = nullptr;
-	yyResource* m_pictureBoxModel = nullptr; // yyResourceType::Model
+	yyResource* m_texture;
+	yyResource* m_pictureBoxModel; // yyResourceType::Model
 
-	yyGUICallback m_onClick = nullptr; // LMB down
+	yyGUICallback m_onClick; // LMB down
 };
 
 extern "C"

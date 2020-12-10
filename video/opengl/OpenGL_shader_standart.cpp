@@ -9,7 +9,9 @@
 
 OpenGLShaderStd::OpenGLShaderStd()
 {
-
+	m_program = 0;
+	m_VAO = 0;
+	m_uniform_WVP = 0;
 }
 
 OpenGLShaderStd::~OpenGLShaderStd()

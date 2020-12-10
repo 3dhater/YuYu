@@ -8,19 +8,30 @@ struct yySprite;
 
 struct yySpriteState
 {
+	yySpriteState()
+		:
+		m_frameCurrent(0),
+		m_frameSize(0),
+		m_invertX(false),
+		m_invertY(false),
+		m_isAnimation(false),
+		m_fps(1.f),
+		m_fpsTime(1.f),
+		m_sprite(nullptr)
+	{}
 
 	yyStringA m_name;
 	
 	yyArraySmall<v4f> m_frames; // координаты UV
-	u16 m_frameCurrent = 0;
-	u16 m_frameSize = 0;
+	u16 m_frameCurrent;
+	u16 m_frameSize;
 
-	bool m_invertX = false;
-	bool m_invertY = false;
+	bool m_invertX;
+	bool m_invertY;
 
-	bool m_isAnimation = false;
-	f32 m_fps = 1.f;
-	f32 m_fpsTime = 1.f;
+	bool m_isAnimation;
+	f32 m_fps;
+	f32 m_fpsTime;
 	void SetFPS(f32 newFPS)
 	{
 		if(newFPS < 1.f)
@@ -33,7 +44,7 @@ struct yySpriteState
 	                   //     можно будет поставить указанный фрейм если анимашка не зациклена
 
 	// чтобы анимация проигрывалась нужно вызывать функцию обновления для спрайта, в главном цикле (как обычное обновление объекта).
-	yySprite* m_sprite = nullptr;
+	yySprite* m_sprite;
 	void SetMainFrame(int leftTopX, int leftTopY, int rightBottomX, int rightBottomY);
 	void AddAnimationFrame(int leftTopX, int leftTopY, int rightBottomX, int rightBottomY);
 };
@@ -42,6 +53,12 @@ void yySprite_update(void * impl);
 struct yySprite
 {
 	yySprite()
+		:
+		m_currentState(nullptr),
+		m_texture(nullptr),
+		m_model(nullptr),
+		m_tcoords_1(v2f(0.f, 0.f)),
+		m_tcoords_2(v2f(1.f, 1.f))
 	{
 		m_objectBase.m_objectType = yySceneObjectBase::ObjectType::Sprite;
 		m_objectBase.m_implementationPtr = this;
@@ -77,9 +94,7 @@ struct yySprite
 		}
 	}
 	yySceneObjectBase m_objectBase;
-
-
-	yySpriteState* m_currentState = nullptr;
+	yySpriteState* m_currentState;
 	void SetState(yySpriteState* state)
 	{
 		m_currentState = state;
@@ -105,16 +120,16 @@ struct yySprite
 	}
 
 
-	yyResource* m_texture = nullptr;
-	yyResource* m_model   = nullptr;
+	yyResource* m_texture;
+	yyResource* m_model;
 
 	// если m_currentState не установлен, то будет работать на основе этого vvv
 	// если установлен, то m_tcoords_1 и m_tcoords_2 должны вычислятся на основе 
 	//   m_mainFrame или анимации из m_currentState
 
 	// to shader - то что идёт в шейдер.
-	v2f m_tcoords_1 = v2f(0.f, 0.f); // UV left bottom
-	v2f m_tcoords_2 = v2f(1.f, 1.f); // UV right top
+	v2f m_tcoords_1; // UV left bottom
+	v2f m_tcoords_2; // UV right top
 
 	v4f m_mainFrame; // при создании оно не играет роли. изменяется только в SetMainFrame. просто хранится значение
 	void ResetMainFrame()

@@ -9,8 +9,12 @@
 extern Mat4 g_guiProjectionMatrix;
 
 OpenGLShaderGUI::OpenGLShaderGUI()
+	:
+	m_program(0),
+	m_VAO(0),
+	m_uniform_ProjMtx(0),
+	m_uniform_Texture(0)
 {
-
 }
 
 OpenGLShaderGUI::~OpenGLShaderGUI()

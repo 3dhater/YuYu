@@ -7,12 +7,12 @@ public:
 	OpenGLTexture();
 	~OpenGLTexture();
 	
-	GLuint m_texture   = 0;
-	GLuint m_depthRBO = 0;
-	GLuint m_FBO = 0;
+	GLuint m_texture;
+	GLuint m_depthRBO;
+	GLuint m_FBO;
 
-	u32 m_h = 0;
-	u32 m_w = 0;
+	u32 m_h;
+	u32 m_w;
 };
 
 #endif

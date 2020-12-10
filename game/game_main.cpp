@@ -26,13 +26,17 @@ namespace fs = std::filesystem;
 // for auto create\delete
 struct yyEngineContext
 {
-	yyEngineContext(yyInputContext* input)
+	yyEngineContext()
 	{
-		m_state = yyStart(input); // allocate memory for main class inside yuyu.dll
 	}
 	~yyEngineContext()
 	{
 		yyStop(); // destroy main class, free memory
+	}
+
+	void init(yyInputContext* input)
+	{
+		m_state = yyStart(input); // allocate memory for main class inside yuyu.dll
 	}
 
 	yySystemState * m_state = nullptr;
@@ -120,7 +124,8 @@ int main()
 	yyPtr<yyInputContext> inputContext = yyCreate<yyInputContext>();
 	g_inputContex = inputContext.m_data;
 
-	yyPtr<yyEngineContext> engineContext = yyCreate<yyEngineContext>(inputContext.m_data);
+	yyPtr<yyEngineContext> engineContext = yyCreate<yyEngineContext>();
+	engineContext.m_data->init(inputContext.m_data);
 	auto p_engineContext = engineContext.m_data;
 
 
@@ -200,12 +205,12 @@ vidOk:
 	// for 3d line
 	g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::ViewProjection, camera->m_projectionMatrix * camera->m_viewMatrix);
 
-	auto modelGPU = g_videoDriver->CreateModelFromFile("../res/tr/map/map001.tr3d");
-	auto grassGPU = g_videoDriver->CreateTextureFromFile("../res/tr/grass.dds", true);
+	auto modelGPU = g_videoDriver->CreateModelFromFile("../res/tr/map/map001.tr3d", true);
+	auto grassGPU = g_videoDriver->CreateTextureFromFile("../res/tr/grass.dds", true, true);
 
-	yySprite* spriteLevel = yyCreateSprite(v4f(0.f,0.f,1160.f,224.f), g_videoDriver->CreateTextureFromFile("../res/GA3E/level1_ground.png",false), false);
+	yySprite* spriteLevel = yyCreateSprite(v4f(0.f,0.f,1160.f,224.f), g_videoDriver->CreateTextureFromFile("../res/GA3E/level1_ground.png",false, true), false);
 	
-	yySprite* spriteHero = yyCreateSprite(v4f(0.f,0.f,50.f,76.f), g_videoDriver->CreateTextureFromFile("../res/GA3E/hero0.png",false), true);
+	yySprite* spriteHero = yyCreateSprite(v4f(0.f,0.f,50.f,76.f), g_videoDriver->CreateTextureFromFile("../res/GA3E/hero0.png",false, true), true);
 	spriteHero->SetMainFrame(123, 8, 174, 85);
 	spriteHero->m_objectBase.m_localPosition.set(10.f, 20.f, 0.f, 0.f);
 	auto stateIdleRight = spriteHero->AddState("IdleRight");

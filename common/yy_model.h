@@ -26,20 +26,28 @@ enum class yyVertexType : u32
 
 struct yyMeshBuffer
 {
-	yyMeshBuffer(){}
+	yyMeshBuffer()
+	:
+		m_vertices(nullptr),
+		m_indices(nullptr),
+		m_vCount(0),
+		m_iCount(0),
+		m_stride(0),
+		m_vertexType(yyVertexType::GUI)
+	{}
 	~yyMeshBuffer()
 	{
 		if(m_vertices) yyMemFree( m_vertices );
 		if(m_indices) yyMemFree( m_indices ); 
 	}
 
-	u8* m_vertices = nullptr;
-	u16* m_indices = nullptr;
-	u32 m_vCount = 0;
-	u32 m_iCount = 0;
-	u32 m_stride = 0;
+	u8* m_vertices;
+	u16* m_indices;
+	u32 m_vCount;
+	u32 m_iCount;
+	u32 m_stride;
 
-	yyVertexType m_vertexType = yyVertexType::GUI;
+	yyVertexType m_vertexType;
 
 	void calculateTangents( v3f& normal, v3f& tangent, v3f& binormal,
 		const v3f& vt1, const v3f& vt2, const v3f& vt3, // vertices

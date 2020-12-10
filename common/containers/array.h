@@ -233,8 +233,8 @@ class yyArraySmall
 	typedef type& reference;
 	typedef const type& const_reference;
 
-	u16     m_size = 0;
-	u16     m_allocated = 0;
+	u16     m_size;
+	u16     m_allocated;
 
 	void reallocate( u16 new_capacity )
 	{
@@ -264,7 +264,12 @@ public:
 		return (m_data+(m_size));
 	}
 
-	yyArraySmall(){}
+	yyArraySmall()
+		:
+		m_size(0),
+		m_allocated(0),
+		m_data(nullptr)
+	{}
 	~yyArraySmall(){ clear(); }
 		
 	void setData(pointer ptr) { m_data = ptr; }
@@ -370,7 +375,7 @@ public:
 		}
 	}
 	
-	pointer m_data = nullptr;
+	pointer m_data;
 };
 #pragma pack()
 

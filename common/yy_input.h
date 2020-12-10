@@ -6,18 +6,21 @@
 struct yyInputContext
 {
 	yyInputContext()
+		:
+		m_isLMBDown(false),
+		m_isLMBHold(false)
 	{
 		memset(m_key_hold, 0, sizeof(u8) * 256);
 	}
 
-	bool m_isLMBDown = false;
-	bool m_isLMBHold = false;
+	bool m_isLMBDown;
+	bool m_isLMBHold;
 	v2f  m_cursorCoords;
 
 	u8 m_key_hold[256];
 	bool isKeyHold(yyKey key)
 	{
-		return m_key_hold[(u32)key];
+		return m_key_hold[(u32)key] != 0;
 	}
 };
 

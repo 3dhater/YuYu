@@ -16,7 +16,17 @@ enum class yyImageFormat : u32
 
 struct yyImage
 {
-	yyImage(){}
+	yyImage()
+	:
+		m_data(nullptr),
+		m_dataSize(0),
+		m_width(0),
+		m_height(0),
+		m_bits(32),
+		m_mipCount(1),
+		m_pitch(0),
+		m_format(yyImageFormat::R8G8B8A8)
+	{}
 	~yyImage()
 	{
 		if( m_data )
@@ -38,14 +48,14 @@ struct yyImage
 		}
 	}
 
-	u8 * m_data = nullptr;
-	u32 m_dataSize = 0;
-	u32	m_width     = 0;
-	u32	m_height    = 0;
-	u32	m_bits      = 32;
-	u32	m_mipCount  = 1;
-	u32	m_pitch     = 0; // m_width * 4
-	yyImageFormat m_format = yyImageFormat::R8G8B8A8;
+	u8 * m_data;
+	u32 m_dataSize;
+	u32	m_width;
+	u32	m_height;
+	u32	m_bits;
+	u32	m_mipCount;
+	u32	m_pitch;
+	yyImageFormat m_format;
 
 };
 

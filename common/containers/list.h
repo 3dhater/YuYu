@@ -6,27 +6,37 @@
 template<typename T>
 struct yyListNode
 {
+	yyListNode()
+		:
+		m_left(nullptr),
+		m_right(nullptr)
+	{}
+
 	T m_data;
 
-	yyListNode* m_left  = nullptr;
-	yyListNode* m_right = nullptr;
+	yyListNode* m_left;
+	yyListNode* m_right;
 };
 
 template<typename T>
 class yyList
 {
-	std::size_t m_size = 0;
-	yyListNode<T>* m_head = nullptr;
+	yyList(const yyList& other){};
+	yyList(yyList&& other){};
+	
+
+	std::size_t m_size;
+	yyListNode<T>* m_head;
 	yyAllocator<yyListNode<T>> m_allocator;
 	
 public:
 
 	yyList()
-	{
-	}
+		:
+		m_size(0),
+		m_head(nullptr)
+	{}
 
-	yyList(const yyList& other) = delete;
-	yyList(yyList&& other) = delete;
 
 	~yyList()
 	{
@@ -83,7 +93,7 @@ public:
 		return false;
 	}
 
-	void clear() noexcept
+	void clear()
 	{
 		if(!m_head)
 			return;

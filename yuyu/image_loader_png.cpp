@@ -5,6 +5,7 @@
 #include <filesystem>
 
 #include "yy_image.h"
+#include "yy_fs.h"
 
 #include <png.h>
 #include <zlib.h>
@@ -42,10 +43,11 @@ void PNGAPI user_read_fn( png_structp png_ptr, png_bytep data, png_size_t length
 	f->read( (char*)data, (u32)length );
 }
 
-yyImage* ImageLoader_PNG(const std::filesystem::path& p)
+yyImage* ImageLoader_PNG(const char* p)
 {
-	auto file_size = std::filesystem::file_size(p);
-	std::ifstream in(p.c_str(), std::ios::binary);
+	//auto file_size = std::filesystem::file_size(p);
+	auto file_size = yyFS::file_size(p);
+	std::ifstream in(p, std::ios::binary);
 	if(!in)
 	{
 		YY_PRINT_FAILED;

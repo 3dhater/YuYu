@@ -10,23 +10,17 @@
 
 struct v4i
 {
-	v4i(){}
+	v4i():x(0),y(0),z(0),w(0){}
 	v4i(s32 _x, s32 _y, s32 _z, s32 _w):x(_x),y(_y),z(_z),w(_w){}
-	s32 x = 0;
-	s32 y = 0;
-	s32 z = 0;
-	s32 w = 0;
+	s32 x, y, z, w;
 };
 
 struct v4f
 {
-	v4f(){}
+	v4f():x(0.f),y(0.f),z(0.f),w(0.f){}
 	v4f(f32 _v):x(_v),y(_v),z(_v),w(_v){}
 	v4f(f32 _x, f32 _y, f32 _z, f32 _w):x(_x),y(_y),z(_z),w(_w){}
-	f32 x = 0.f;
-	f32 y = 0.f;
-	f32 z = 0.f;
-	f32 w = 0.f;
+	f32 x, y, z, w;
 
 	const f32* cdata()const{return &x;}
 	f32* data(){return &x;}
@@ -76,32 +70,28 @@ YY_FORCE_INLINE v4f operator*(const f32& s, const v4f& v){return v * s;}
 
 struct v2i
 {
-	v2i(){}
+	v2i():x(0),y(0){}
 	v2i(const v2i& o):x(o.x),y(o.y){}
 	v2i(s32 X, s32 Y):x(X),y(Y){}
-	s32 x = 0;
-	s32 y = 0;
+	s32 x, y;
 	v2i operator/(const v2i& v)const{v2i r;r.x=x/v.x;r.y=y/v.y;return r;}
 	v2i operator/(int v)const{v2i r;r.x=x/v;r.y=y/v;return r;}
 };
 
 struct v2f
 {
-	v2f(){}
+	v2f():x(0.f),y(0.f){}
 	v2f(f32 _x, f32 _y):x(_x),y(_y){}
-	f32 x = 0.f;
-	f32 y = 0.f;
+	f32 x, y;
 	void set(f32 _x, f32 _y){x=_x;y=_y;}
 };
 
 struct v3f
 {
-	v3f(){}
+	v3f():x(0.f),y(0.f),z(0.f){}
 	v3f(f32 _v):x(_v),y(_v),z(_v){}
 	v3f(f32 _x, f32 _y, f32 _z):x(_x),y(_y),z(_z){}
-	f32 x = 0.f;
-	f32 y = 0.f;
-	f32 z = 0.f;
+	f32 x,y,z;
 	void set(f32 _x, f32 _y, f32 _z){x=_x;y=_y;z=_z;}
 	f32* data(){return &x;}
 	void operator+=( const v3f& v ){x += v.x;y += v.y;z += v.z;}

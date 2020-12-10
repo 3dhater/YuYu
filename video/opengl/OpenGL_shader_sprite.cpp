@@ -9,8 +9,18 @@
 extern Mat4 g_guiProjectionMatrix;
 
 OpenGLShaderSprite::OpenGLShaderSprite()
+	:
+	m_program(0),
+	m_VAO(0),
+	m_uniform_ProjMtx(0),
+	m_uniform_WorldMtx(0),
+	m_uniform_CameraPosition(0),
+	m_uniform_CameraScale(0),
+	m_uniform_uv1(0),
+	m_uniform_uv2(0),
+	m_uniform_flags(0),
+	m_uniform_Texture(0)
 {
-
 }
 
 OpenGLShaderSprite::~OpenGLShaderSprite()

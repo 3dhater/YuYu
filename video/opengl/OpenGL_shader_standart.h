@@ -7,10 +7,9 @@ public:
 	OpenGLShaderStd();
 	~OpenGLShaderStd();
 
-	GLuint m_program = 0;
-	GLuint m_VAO = 0;
-
-	GLint m_uniform_WVP = 0;
+	GLuint m_program;
+	GLuint m_VAO;
+	GLint m_uniform_WVP;
 //	GLint m_uniform_diffuseTexture = 0;
 
 	bool init();

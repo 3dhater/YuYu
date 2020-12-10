@@ -8,9 +8,9 @@
 
 #include "math/vec.h"
 
-using yyWindow_callback = void(*)(yyWindow*);
-using yyWindow_callbackMouse = void(*)(yyWindow*, s32 wheel, s32 x, s32 y, u32 click);
-using yyWindow_callbackKeyboard = void(*)(yyWindow*, bool isPress, u32 key, char16_t character);
+typedef void(*yyWindow_callback)(yyWindow*);
+typedef void(*yyWindow_callbackMouse)(yyWindow*, s32 wheel, s32 x, s32 y, u32 click);
+typedef void(*yyWindow_callbackKeyboard)(yyWindow*, bool isPress, u32 key, char16_t character);
 
 enum yyWindow_mouseClickMask
 {
@@ -43,29 +43,29 @@ public:
 	bool init(int size_x, int size_y);
 
 	// use it if you want ask user something before closing window
-	yyWindow_callback m_onClose = nullptr;
+	yyWindow_callback m_onClose;
 	
-	yyWindow_callback m_onShow = nullptr;
-	yyWindow_callback m_onMove = nullptr;
-	yyWindow_callback m_onFocusLost = nullptr;
-	yyWindow_callback m_onFocusSet = nullptr;
-	yyWindow_callback m_onActivate = nullptr;
-	yyWindow_callback m_onPaint = nullptr;
-	yyWindow_callback m_onSize = nullptr;
-	yyWindow_callback m_onMinimize = nullptr;
-	yyWindow_callback m_onRestore = nullptr;
+	yyWindow_callback m_onShow;
+	yyWindow_callback m_onMove;
+	yyWindow_callback m_onFocusLost;
+	yyWindow_callback m_onFocusSet;
+	yyWindow_callback m_onActivate;
+	yyWindow_callback m_onPaint;
+	yyWindow_callback m_onSize;
+	yyWindow_callback m_onMinimize;
+	yyWindow_callback m_onRestore;
 
-	yyWindow_callbackMouse m_onMouseWheel = nullptr;
-	yyWindow_callbackMouse m_onMouseButton  = nullptr;
+	yyWindow_callbackMouse m_onMouseWheel;
+	yyWindow_callbackMouse m_onMouseButton;
 
-	yyWindow_callbackKeyboard m_onKeyboard = nullptr;
+	yyWindow_callbackKeyboard m_onKeyboard;
 
 	v2i m_size;
 	v2i m_clientSize;
 
 #ifdef YY_PLATFORM_WINDOWS
-	HWND m_hWnd = nullptr;
-	HDC  m_dc = nullptr;
+	HWND m_hWnd;
+	HDC  m_dc;
 	wchar_t m_class_name[32];
 	friend LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 #endif

@@ -3,28 +3,38 @@
 
 #include "strings/string.h"
 
-#include <filesystem>
+#include "yy_fs.h"
+//#include <filesystem>
 
 // LOADER PROTOTYPES
-yyImage* ImageLoader_DDS(const std::filesystem::path& p);
-yyImage* ImageLoader_PNG(const std::filesystem::path& p);
-yyModel* ModelLoader_TR3D(const std::filesystem::path& p); // from my old game
+yyImage* ImageLoader_DDS(const char* p);
+yyImage* ImageLoader_PNG(const char* p);
+yyModel* ModelLoader_TR3D(const char* p); // from my old game
 
-using ImageLoaderFunction_t = yyImage*(*)(const std::filesystem::path& p);
-using ModelLoaderFunction_t = yyModel*(*)(const std::filesystem::path& p);
+typedef yyImage*(*ImageLoaderFunction_t)(const char* p);
+typedef yyModel*(*ModelLoaderFunction_t)(const char* p);
 //using ImageLoaderExportFunction_t = bool(*)(yyImage* image, const char* fileName, const char* extName );
 
 struct yyImageLoader
 {
+	yyImageLoader()
+		:
+		image_loader_callback(nullptr)
+	{}
+
 	yyStringA ext;
-	ImageLoaderFunction_t image_loader_callback = nullptr;
-//	ImageLoaderExportFunction_t image_export_callback = nullptr;
+	ImageLoaderFunction_t image_loader_callback;
 };
 
 struct yyModelLoader
 {
+	yyModelLoader()
+		:
+		model_loader_callback(nullptr)
+	{}
+
 	yyStringA ext;
-	ModelLoaderFunction_t model_loader_callback = nullptr;
+	ModelLoaderFunction_t model_loader_callback;
 };
 
 // for yyResource
@@ -36,14 +46,23 @@ enum class yyResourceType : u16
 };
 struct yyResource
 {
-	yyResourceType m_type = yyResourceType::None;
-	size_t m_index = 0; // index in video driver array (or in any other driver array) 
-	u32 m_refCount=0;
+	yyResource()
+		:
+		m_type(yyResourceType::None),
+		m_index(0),
+		m_refCount(0),
+		m_source(nullptr),
+		m_flags(0)
+	{}
+
+	yyResourceType m_type;
+	size_t m_index; // index in video driver array (or in any other driver array) 
+	u32 m_refCount;
 
 	// for reload
 	yyStringA m_file; // from file
-	void * m_source = nullptr; //from yyImage* or yyModel*
-	u32 m_flags = 0;
+	void * m_source; //from yyImage* or yyModel*
+	u32 m_flags;
 	enum flags{
 		texture_useLinearFilter = BIT(0)
 	};

@@ -9,7 +9,12 @@
 
 OpenGLShaderLine3D::OpenGLShaderLine3D()
 {
-
+	m_program = 0;
+	m_VAO = 0;
+	m_uniform_ProjMtx = 0;
+	m_uniform_P1 = 0;
+	m_uniform_P2 = 0;
+	m_uniform_Color = 0;
 }
 
 OpenGLShaderLine3D::~OpenGLShaderLine3D()

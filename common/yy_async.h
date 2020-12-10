@@ -13,7 +13,7 @@
 
 // rawData only for:
 //   - async yyImage loading
-using yyAsyncLoadEventHandler = void(*)(u32 userIndex, void* rawData);
+typedef void(*yyAsyncLoadEventHandler)(u32 userIndex, void* rawData);
 
 extern "C"
 {

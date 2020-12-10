@@ -17,20 +17,20 @@ template<typename char_type, typename allocator>
 class yyString_base
 {
 		
-	using pointer = char_type*;
-	using const_pointer = const char_type*;
-	using reference = char_type&;
-	using const_reference = const char_type&;
-	using this_type = yyString_base;
-	using this_const_reference = const yyString_base&;
+	typedef char_type* pointer;
+	typedef const char_type* const_pointer;
+	typedef char_type& reference ;
+	typedef const char_type&  const_reference;
+	typedef yyString_base this_type;
+	typedef const yyString_base& this_const_reference;
 	
 	allocator m_allocator;
 
-	u32 m_stringWordSize = 16u;
+	u32 m_stringWordSize;
 
-	pointer m_data = nullptr;
-	u32     m_allocated = 16u;
-	u32     m_size = 0;
+	pointer m_data;
+	u32     m_allocated;
+	u32     m_size;
 
 	void reallocate( u32 new_allocated )
 	{
@@ -76,33 +76,38 @@ class yyString_base
 
 
 public:
-	using character_type = char_type;
+	typedef char_type character_type;
 	
 	yyString_base()
+		: m_stringWordSize(16), m_data(nullptr), m_allocated(16), m_size(0)
 	{
 		reallocate( m_allocated );
 	}
 
 	template<typename other_type>
 	yyString_base( const other_type * str )
+		: m_stringWordSize(16), m_data(nullptr), m_allocated(16), m_size(0)
 	{
 		reallocate( m_allocated );
 		assign( str );
 	}
 
 	yyString_base( this_const_reference str )
+		: m_stringWordSize(16), m_data(nullptr), m_allocated(16), m_size(0)
 	{
 		reallocate( m_allocated );
 		assign( str );
 	}
 
 	yyString_base( this_type&& str )
+		: m_stringWordSize(16), m_data(nullptr), m_allocated(16), m_size(0)
 	{
 		reallocate( m_allocated );
 		assign( str );
 	}
 
 	yyString_base( char_type c )
+		: m_stringWordSize(16), m_data(nullptr), m_allocated(16), m_size(0)
 	{
 		u32 new_size = 1u;
 		reallocate( (new_size + 1u) + m_stringWordSize );
@@ -446,10 +451,10 @@ public:
 	}
 };
 
-using yyString   = yyString_base<char16_t,yyDefault_allocator>;
-using yyStringW  = yyString_base<wchar_t,yyDefault_allocator>;
-using yyString32 = yyString_base<char32_t,yyDefault_allocator>;
-using yyStringA  = yyString_base<char,yyDefault_allocator>;
+typedef yyString_base<char16_t,yyDefault_allocator> yyString;
+typedef yyString_base<wchar_t,yyDefault_allocator> yyStringW;
+typedef yyString_base<char32_t,yyDefault_allocator> yyString32;
+typedef yyString_base<char,yyDefault_allocator> yyStringA;
 
 namespace util
 {

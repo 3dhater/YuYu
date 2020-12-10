@@ -1,7 +1,7 @@
 ﻿#ifndef __DDS_H__
 #define __DDS_H__
 
-constexpr u32 DDS_MAGIC = 0x20534444;
+const u32 DDS_MAGIC = 0x20534444;
 
 #define DDS_FOURCC      0x00000004  // DDPF_FOURCC
 #define DDS_RGB         0x00000040  // DDPF_RGB
@@ -24,38 +24,67 @@ constexpr u32 DDS_MAGIC = 0x20534444;
 
 struct DDS_PIXELFORMAT
 {
-	u32    size = sizeof(DDS_PIXELFORMAT);
-	u32 flags = 0x00000041; //DDS_RGBA
-	u32 fourCC = 0;
-	u32 RGBBitCount = 32;
-	u32 RBitMask = 0x000000ff;
-	u32 GBitMask = 0x0000ff00;
-	u32 BBitMask = 0x00ff0000;
-	u32 ABitMask = 0xff000000;
+	DDS_PIXELFORMAT()
+		:
+		size(sizeof(DDS_PIXELFORMAT)),
+		flags(0x00000041),
+		fourCC(0),
+		RGBBitCount(32),
+		RBitMask(0x000000ff),
+		GBitMask(0x0000ff00),
+		BBitMask(0x00ff0000),
+		ABitMask(0xff000000)
+	{}
+	u32    size;
+	u32 flags; //DDS_RGBA
+	u32 fourCC ;
+	u32 RGBBitCount ;
+	u32 RBitMask ;
+	u32 GBitMask ;
+	u32 BBitMask ;
+	u32 ABitMask ;
 };
 
 struct DDS_HEADER
 {
-	u32 size = sizeof(DDS_HEADER);     // offset 0
+	DDS_HEADER()
+		:
+		size(sizeof(DDS_HEADER)),
+		flags(0x00000002 | 0x00000004),
+		height(0),
+		width(0),
+		pitchOrLinearSize(0),
+		depth(0),
+		mipMapCount(1),
+		caps(0),
+		caps2(0),
+		caps3(0),
+		caps4(0),
+		reserved2(0)
+	{
+		memset(&reserved1, 0, sizeof(u32) * 11);
+	}
+
+	u32 size;     // offset 0
 	// DDS_HEIGHT | DDS_WIDTH
-	u32 flags = 0x00000002 | 0x00000004;    // offset 4
-	u32 height = 0;   // offset 8
-	u32 width = 0;    // offset 12
-	u32 pitchOrLinearSize = 0; // offset 16
-	u32 depth = 0;    // offset 20
-	u32 mipMapCount = 1;  // offset 24
+	u32 flags;    // offset 4
+	u32 height;   // offset 8
+	u32 width;    // offset 12
+	u32 pitchOrLinearSize ; // offset 16
+	u32 depth ;    // offset 20
+	u32 mipMapCount ;  // offset 24
 	u32 reserved1[11]; 
 	DDS_PIXELFORMAT ddspf;
-	u32 caps = 0;
-	u32 caps2 = 0;
-	u32 caps3 = 0;
-	u32 caps4 = 0;
-	u32 reserved2 = 0;
+	u32 caps ;
+	u32 caps2 ;
+	u32 caps3 ;
+	u32 caps4 ;
+	u32 reserved2;
 };
 
 
 #define ISBITMASK( r,g,b,a ) ( ddpf.RBitMask == r && ddpf.GBitMask == g && ddpf.BBitMask == b && ddpf.ABitMask == a )
-inline yyImageFormat GetDDSImageFormat(const DDS_PIXELFORMAT& ddpf) noexcept
+inline yyImageFormat GetDDSImageFormat(const DDS_PIXELFORMAT& ddpf) 
 {
 	if(ddpf.flags & DDS_RGB)
 	{

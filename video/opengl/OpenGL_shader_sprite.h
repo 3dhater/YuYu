@@ -7,17 +7,17 @@ public:
 	OpenGLShaderSprite();
 	~OpenGLShaderSprite();
 
-	GLuint m_program = 0;
-	GLuint m_VAO = 0;
+	GLuint m_program;
+	GLuint m_VAO;
 
-	GLint m_uniform_ProjMtx = 0;
-	GLint m_uniform_WorldMtx = 0;
-	GLint m_uniform_CameraPosition = 0;
-	GLint m_uniform_CameraScale = 0;
-	GLint m_uniform_uv1 = 0;
-	GLint m_uniform_uv2 = 0;
-	GLint m_uniform_flags = 0;
-	GLint m_uniform_Texture = 0;
+	GLint m_uniform_ProjMtx;
+	GLint m_uniform_WorldMtx;
+	GLint m_uniform_CameraPosition;
+	GLint m_uniform_CameraScale;
+	GLint m_uniform_uv1;
+	GLint m_uniform_uv2;
+	GLint m_uniform_flags;
+	GLint m_uniform_Texture;
 
 	bool init();
 };

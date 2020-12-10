@@ -3,15 +3,19 @@
 
 #include <cmath>
 
-namespace math
-{
-	constexpr f32 ColorDivider = static_cast<f32>(0.00392156862745);
-}
+// I don't know how to call it
+#define YY_ColorDivider 0.00392156862745f
 
 class yyColorBytes
 {
 public:
-	yyColorBytes(){}
+	yyColorBytes()
+	:
+		r(0),
+		g(0),
+		b(0),
+		a(255)
+	{}
 	yyColorBytes(u8 R, u8 G, u8 B, u8 A)
 	:
 		r(R),
@@ -28,10 +32,7 @@ public:
 		a = static_cast<u8>( uint_data >> 24u );
 	}
 
-	u8 r = 0;
-	u8 g = 0;
-	u8 b = 0;
-	u8 a = 255;
+	u8 r,g,b,a;
 
 	bool	operator==( const yyColorBytes& v ) const 
 	{
@@ -149,10 +150,10 @@ public:
 	void setGreen( f32 v ){ m_data[ 1u ] = v;	}
 	void setBlue( f32 v ) { m_data[ 2u ] = v;	}
 
-	void setAsByteAlpha( s32 v ){ m_data[ 3u ] = static_cast<f32>(v) * math::ColorDivider; }
-	void setAsByteRed( s32 v )  { m_data[ 0u ] = static_cast<f32>(v) * math::ColorDivider; }
-	void setAsByteGreen( s32 v ){ m_data[ 1u ] = static_cast<f32>(v) * math::ColorDivider; }
-	void setAsByteBlue( s32 v ) { m_data[ 2u ] = static_cast<f32>(v) * math::ColorDivider; }
+	void setAsByteAlpha( s32 v ){ m_data[ 3u ] = static_cast<f32>(v) * YY_ColorDivider; }
+	void setAsByteRed( s32 v )  { m_data[ 0u ] = static_cast<f32>(v) * YY_ColorDivider; }
+	void setAsByteGreen( s32 v ){ m_data[ 1u ] = static_cast<f32>(v) * YY_ColorDivider; }
+	void setAsByteBlue( s32 v ) { m_data[ 2u ] = static_cast<f32>(v) * YY_ColorDivider; }
 
 	void setAsInteger( u32 v )
 	{

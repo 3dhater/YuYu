@@ -10,6 +10,10 @@
 extern Engine * g_engine;
 
 yyGUIPictureBox::yyGUIPictureBox()
+	:
+	m_texture(nullptr),
+	m_pictureBoxModel(nullptr),
+	m_onClick(nullptr)
 {
 	m_type = yyGUIElementType::PictureBox;
 }

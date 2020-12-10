@@ -9,13 +9,13 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <Windows.h>
-using wglChoosePixelFormatARB_t = BOOL (APIENTRY*)(HDC hdc,const int *piAttribIList,const FLOAT *pfAttribFList,UINT nMaxFormats,int *piFormats,UINT *nNumFormats);
-using wglCreateContextAttribsARB_t = HGLRC (APIENTRY*)(HDC hDC, HGLRC hShareContext,const int *attribList);
-using wglSwapIntervalEXT_t = BOOL (APIENTRY*)(int interval);
-using wglCreateContext_t = HGLRC (APIENTRY*)(HDC Arg1);
-using wglMakeCurrent_t = BOOL (APIENTRY*)(HDC, HGLRC);
-using wglGetProcAddress_t = PROC (APIENTRY*)(LPCSTR Arg1);
-using wglDeleteContext_t = BOOL (APIENTRY*)(HGLRC Arg1);
+typedef BOOL (APIENTRY*wglChoosePixelFormatARB_t)(HDC hdc,const int *piAttribIList,const FLOAT *pfAttribFList,UINT nMaxFormats,int *piFormats,UINT *nNumFormats);
+typedef HGLRC (APIENTRY*wglCreateContextAttribsARB_t)(HDC hDC, HGLRC hShareContext,const int *attribList);
+typedef BOOL (APIENTRY*wglSwapIntervalEXT_t)(int interval);
+typedef HGLRC (APIENTRY*wglCreateContext_t)(HDC Arg1);
+typedef BOOL (APIENTRY*wglMakeCurrent_t)(HDC, HGLRC);
+typedef PROC (APIENTRY*wglGetProcAddress_t)(LPCSTR Arg1);
+typedef BOOL (APIENTRY*wglDeleteContext_t)(HGLRC Arg1);
 #endif
 
 #include "glcorearb.h"
@@ -1251,7 +1251,7 @@ class OpenGL
 	void load_procs(void);
 
 
-	yyWindow * m_window = nullptr;
+	yyWindow * m_window;
 public:
 	OpenGL();
 	~OpenGL();
@@ -1265,23 +1265,23 @@ public:
 	bool initTexture(yyImage*, OpenGLTexture*, bool useLinearFilter);
 	bool initModel(yyModel*, OpenGLModel*);
 
-	OpenGLShaderGUI* m_shader_gui = nullptr;
-	OpenGLShaderSprite* m_shader_sprite = nullptr;
-	OpenGLShaderLine3D* m_shader_line3d = nullptr;
-	OpenGLShaderStd* m_shader_std = nullptr;
+	OpenGLShaderGUI* m_shader_gui;
+	OpenGLShaderSprite* m_shader_sprite;
+	OpenGLShaderLine3D* m_shader_line3d;
+	OpenGLShaderStd* m_shader_std;
 
 	Mat4 m_guiProjectionMatrix;
 
 	OpenGLTexture* m_currentTextures[(u32)yyVideoDriverAPI::TextureSlot::Count];
-	OpenGLModel*   m_currentModel = nullptr;
+	OpenGLModel*   m_currentModel;
 
 #ifdef YY_PLATFORM_WINDOWS
-	HMODULE m_OpenGL_lib = nullptr;
-	HDC m_windowDC = nullptr;
-	HGLRC m_renderingContext = nullptr;
+	HMODULE m_OpenGL_lib;
+	HDC m_windowDC;
+	HGLRC m_renderingContext;
 #endif
 
-	bool m_isGUI = false;
+	bool m_isGUI;
 
 	Mat4 m_matrixWorld;
 	Mat4 m_matrixView;
@@ -1290,7 +1290,7 @@ public:
 	Mat4 m_matrixWorldViewProjection;
 	
 	v2f m_spriteCameraPosition;
-	v2f m_spriteCameraScale = v2f(1.f,1.f);
+	v2f m_spriteCameraScale;
 };
 
 #endif

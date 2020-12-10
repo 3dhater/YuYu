@@ -110,7 +110,21 @@ wglDeleteContext_t gwglDeleteContext = nullptr;
 #endif
 
 OpenGL::OpenGL()
+	:
+	m_window(nullptr),
+	m_shader_gui(nullptr),
+	m_shader_sprite(nullptr),
+	m_shader_line3d(nullptr),
+	m_shader_std(nullptr),
+	m_currentModel(nullptr),
+	m_isGUI(false),
+	m_spriteCameraScale(v2f(1.f,1.f))
 {
+#ifdef YY_PLATFORM_WINDOWS
+	m_OpenGL_lib = nullptr;
+	m_windowDC = nullptr;
+	m_renderingContext = nullptr;
+#endif
 	for( u32 i = 0; i < (u32)yyVideoDriverAPI::TextureSlot::Count; ++i)
 	{
 		m_currentTextures[i] = nullptr;

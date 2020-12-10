@@ -5,6 +5,11 @@
 #include "OpenGL_model.h"
 
 OpenGLMeshBuffer::OpenGLMeshBuffer()
+	:
+	m_VAO(0),
+	m_vBuffer(0),
+	m_iBuffer(0),
+	m_iCount(0)
 {
 }
 

@@ -7,9 +7,10 @@
 
 #include <iostream>
 #include <fstream>
-#include <filesystem>
+//#include <filesystem>
 
 #include "yy_ptr.h"
+#include "yy_fs.h"
 
 //bool ImageLoader_DDS_export(yyImage* img, const char* fileName, const char* extName)
 //{
@@ -35,9 +36,10 @@
 //	return true;
 //}
 
-yyImage* ImageLoader_DDS(const std::filesystem::path& p)
+yyImage* ImageLoader_DDS(const char* p)
 {
-	auto file_size = std::filesystem::file_size(p);
+	//auto file_size = std::filesystem::file_size(p);
+	auto file_size = yyFS::file_size(p);
 
 	if( file_size < sizeof(u32) + sizeof(DDS_HEADER) )
 	{
@@ -54,7 +56,7 @@ yyImage* ImageLoader_DDS(const std::filesystem::path& p)
 
 	yyPtr<u8> _u8_destroyer(file_data);
 
-	std::ifstream in(p.c_str(), std::ios::binary);
+	std::ifstream in(p, std::ios::binary);
 	if(!in)
 	{
 		YY_PRINT_FAILED;

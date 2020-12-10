@@ -2,7 +2,7 @@
 #define _YY_VID_H_
 
 
-constexpr u32 yyVideoDriverAPIVersion = 1;
+const u32 yyVideoDriverAPIVersion = 1;
 struct yyVideoDriverAPI
 {
 	enum class TextureSlot : u32
@@ -32,27 +32,27 @@ struct yyVideoDriverAPI
 		Count
 	};
 
-	u32 (*GetAPIVersion)() = nullptr;
+	u32 (*GetAPIVersion)();
 
-	bool (*Init)(yyWindow*)=nullptr;
-	void (*Destroy)()=nullptr;
+	bool (*Init)(yyWindow*);
+	void (*Destroy)();
 	
-	//void (*UseClearColor)(bool)=nullptr;
-	//void (*UseClearDepth)(bool)=nullptr;
+	//void (*UseClearColor)(bool);
+	//void (*UseClearDepth)(bool);
 
-	void (*UseVSync)(bool)=nullptr;
-	void (*UseDepth)(bool)=nullptr;
+	void (*UseVSync)(bool);
+	void (*UseDepth)(bool);
 	
-	void (*SetClearColor)(f32 r, f32 g, f32 b, f32 a)=nullptr;
+	void (*SetClearColor)(f32 r, f32 g, f32 b, f32 a);
 	
-	void (*BeginDrawClearDepth)()=nullptr;
-	void (*BeginDrawClearColor)()=nullptr;
-	void (*BeginDrawClearAll)()=nullptr;
-	void (*BeginDrawNotClear)()=nullptr;
-	void (*EndDraw)()=nullptr;
+	void (*BeginDrawClearDepth)();
+	void (*BeginDrawClearColor)();
+	void (*BeginDrawClearAll)();
+	void (*BeginDrawNotClear)();
+	void (*EndDraw)();
 
-	void (*BeginDrawGUI)()=nullptr;
-	void (*EndDrawGUI)()=nullptr;
+	void (*BeginDrawGUI)();
+	void (*EndDrawGUI)();
 
 	// Каждый вызов Create... создаёт абсолютно новый ресурс который останется в памяти на всё время
 	// Ресурс хранит индекс на массив с указателями, которые указывают на реализацию ресурса (например текстура)
@@ -64,25 +64,25 @@ struct yyVideoDriverAPI
 	// Load... Прибавит счётчик на 1. Если будет 1 то нужно заново создать реализацию. Если будет
 	//   доступен resource->m_source то будет создано на основе него (если это текстура то m_source должен быть yyImage*)
 	//   иначе будет попытка загрузить реализацию из файла
-	yyResource* (*CreateTexture)(yyImage*, bool useLinearFilter)=nullptr;
-	yyResource* (*CreateTextureFromFile)(const char* fileName, bool useLinearFilter)=nullptr;
-	void (*UnloadTexture)(yyResource*)=nullptr; // --m_refCount; or unload
-	void (*LoadTexture)(yyResource*)=nullptr; // ++m_refCount; or load
+	yyResource* (*CreateTexture)(yyImage*, bool useLinearFilter);
+	yyResource* (*CreateTextureFromFile)(const char* fileName, bool useLinearFilter, bool load);
+	void (*UnloadTexture)(yyResource*); // --m_refCount; or unload
+	void (*LoadTexture)(yyResource*); // ++m_refCount; or load
 
-	yyResource* (*CreateModel)(yyModel*)=nullptr;
-	yyResource* (*CreateModelFromFile)(const char* fileName)=nullptr;
-	void (*UnloadModel)(yyResource*)=nullptr;
-	void (*LoadModel)(yyResource*)=nullptr;
+	yyResource* (*CreateModel)(yyModel*);
+	yyResource* (*CreateModelFromFile)(const char* fileName, bool load);
+	void (*UnloadModel)(yyResource*);
+	void (*LoadModel)(yyResource*);
 
 	// yyResource::m_type MUST BE yyResourceType::Texture
-	void (*SetTexture)(yyVideoDriverAPI::TextureSlot, yyResource*)=nullptr;
+	void (*SetTexture)(yyVideoDriverAPI::TextureSlot, yyResource*);
 	// yyResource::m_type MUST BE yyResourceType::Model
-	void (*SetModel)(yyResource*)=nullptr;
+	void (*SetModel)(yyResource*);
 	// draw what we set above
-	void (*Draw)()=nullptr;
+	void (*Draw)();
 	
-	void (*DrawSprite)(yySprite*)=nullptr;
-	void (*DrawLine3D)(const v4f& _p1, const v4f& _p2, const yyColor& color)=nullptr;
+	void (*DrawSprite)(yySprite*);
+	void (*DrawLine3D)(const v4f& _p1, const v4f& _p2, const yyColor& color);
 
 	enum MatrixType
 	{
@@ -92,12 +92,12 @@ struct yyVideoDriverAPI
 		ViewProjection, //For 3d line
 		WorldViewProjection,
 	};
-	void (*SetMatrix)(MatrixType, const Mat4&)=nullptr;
+	void (*SetMatrix)(MatrixType, const Mat4&);
 	
-	v2f* (*GetSpriteCameraPosition)()=nullptr;
-	v2f* (*GetSpriteCameraScale)()=nullptr;
+	v2f* (*GetSpriteCameraPosition)();
+	v2f* (*GetSpriteCameraScale)();
 
-	void (*GetTextureSize)(yyResource* r, v2i*)=nullptr;
+	void (*GetTextureSize)(yyResource* r, v2i*);
 };
 
 #endif

@@ -15,6 +15,17 @@
 Engine * g_engine = nullptr;
 
 Engine::Engine()
+	:
+	m_sceneRootObject(nullptr),
+	m_sceneActiveCamera(nullptr),
+	m_inputContext(nullptr),
+	m_state(yySystemState::Run),
+	m_videoDriverLib(nullptr),
+	m_videoDriverGetApi(nullptr),
+	m_videoAPI(nullptr),
+	m_asyncEventHandler(nullptr),
+	m_backgroundWorker(nullptr),
+	m_cctx(nullptr)
 {
 	m_sceneRootObject = new yySceneObjectBase;
 	m_cctx = ZSTD_createCCtx();
@@ -86,17 +97,18 @@ EngineDestroyer g_engineDestroyer;
 extern "C"
 {
 
-YY_API yyResource* YY_C_DECL yyGetTexture(const char* fileName, bool useFilter)
+YY_API yyResource* YY_C_DECL yyGetTexture(const char* fileName, bool useFilter, bool load)
 {
 	assert(fileName);
-	std::filesystem::path p(fileName);
+	//std::filesystem::path p(fileName);
+	yyStringA p;
 	for( auto & node : g_engine->m_textureCache )
 	{
 		if( node.m_path == p )
 			return node.m_resource;
 	}
 
-	auto res = g_engine->m_videoAPI->CreateTextureFromFile(fileName, useFilter);
+	auto res = g_engine->m_videoAPI->CreateTextureFromFile(fileName, useFilter, load);
 	
 	if( res )
 	{
@@ -118,17 +130,18 @@ YY_API void YY_C_DECL yyGetTextureSize(yyResource* r, v2i* s)
 	return g_engine->m_videoAPI->GetTextureSize(r, s);
 }
 
-YY_API yyResource* YY_C_DECL yyGetModel(const char* fileName)
+YY_API yyResource* YY_C_DECL yyGetModel(const char* fileName, bool load)
 {
 	assert(fileName);
-	std::filesystem::path p(fileName);
+	//std::filesystem::path p(fileName);
+	yyStringA p;
 	for( auto & node : g_engine->m_modelCache )
 	{
 		if( node.m_path == p )
 			return node.m_resource;
 	}
 
-	auto res = g_engine->m_videoAPI->CreateModelFromFile(fileName);
+	auto res = g_engine->m_videoAPI->CreateModelFromFile(fileName, load);
 	
 	if( res )
 	{
@@ -298,7 +311,7 @@ YY_API void YY_C_DECL yyUpdateAsyncLoader()
 		case BackgroundWorkerResults::type::None:
 			break;
 		case BackgroundWorkerResults::type::LoadImage:
-			g_engine->m_asyncEventHandler( obj.m_id, obj.m_rawData );
+			g_engine->m_asyncEventHandler( obj.m_id, obj.m_data );
 			break;
 		}
 	}

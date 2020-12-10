@@ -6,6 +6,8 @@ class yyPtr
 {
 public:
 	yyPtr()
+		:
+		m_data(nullptr)
 	{
 	}
 
@@ -21,7 +23,7 @@ public:
 			yyDestroy(m_data);
 	}
 
-	type * m_data = nullptr;
+	type * m_data;
 
 };
 

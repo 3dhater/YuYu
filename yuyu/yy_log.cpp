@@ -47,14 +47,19 @@ public:
 
 	char m_buffer[1024];
 
-	bool m_isInit = false;
+	bool m_isInit;
 
-	void(*m_onError)(const char* message) = nullptr;
-	void(*m_onInfo)(const char* message) = nullptr;
-	void(*m_onWarning)(const char* message) = nullptr;
+	void(*m_onError)(const char* message) ;
+	void(*m_onInfo)(const char* message) ;
+	void(*m_onWarning)(const char* message) ;
 };
 
 Log::Log()
+	:
+	m_isInit(false),
+	m_onError(nullptr),
+	m_onInfo(nullptr),
+	m_onWarning(nullptr)
 {
 }
 

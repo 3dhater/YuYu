@@ -18,16 +18,24 @@ struct BackgroundWorkerResults
 		LoadImage,
 	};
 
-	BackgroundWorkerResults(){}
+	BackgroundWorkerResults()
+	:
+		m_type(type::None),
+		m_id(-1),
+		m_data(nullptr)
+	{}
 	BackgroundWorkerResults(type t)
-	{
-		m_type = t;
-	}
+		:
+		m_type(t),
+		m_id(-1),
+		m_data(nullptr)
+	{}
+
 	~BackgroundWorkerResults(){}
 	
-	type m_type = type::None;
-	s32 m_id = 0;
-	void* m_rawData = nullptr;
+	type m_type;
+	s32 m_id;
+	void* m_data;
 };
 
 struct BackgroundWorkerCommands
@@ -39,26 +47,35 @@ struct BackgroundWorkerCommands
 		LoadImage,
 	};
 
-	BackgroundWorkerCommands(){}
+	BackgroundWorkerCommands()
+	:
+		m_type(type::None),
+		m_fileName(nullptr),
+		m_id(-1)
+	{}
 	BackgroundWorkerCommands(type t, const char* fn, s32 id)
-	{
-		m_type = t;
-		m_fileName = fn;
-		m_id = id;
-	}
+	:
+		m_type(t),
+		m_fileName(fn),
+		m_id(id)
+	{}
 	~BackgroundWorkerCommands(){}
 
 
-	type m_type = type::None;
-	
-	const char* m_fileName = nullptr;
-	s32 m_id = 0;
+	type m_type;
+	const char* m_fileName ;
+	s32 m_id;
 };
 
 struct CacheNode
 {
-	std::filesystem::path m_path;
-	yyResource* m_resource = nullptr;
+	CacheNode()
+		:
+		m_resource(nullptr)
+	{}
+	//std::filesystem::path m_path;
+	yyStringA m_path;
+	yyResource* m_resource;
 };
 
 class Engine
@@ -67,23 +84,23 @@ public:
 	Engine();
 	~Engine();
 
-	yySceneObjectBase* m_sceneRootObject = nullptr;
-	yyCamera* m_sceneActiveCamera = nullptr;
+	yySceneObjectBase* m_sceneRootObject;
+	yyCamera* m_sceneActiveCamera;
 
-	yyInputContext* m_inputContext = nullptr;
+	yyInputContext* m_inputContext;
 
-	yySystemState m_state = yySystemState::Run;
-	dl_handle m_videoDriverLib = nullptr;
+	yySystemState m_state;
+	dl_handle m_videoDriverLib;
 	
-	using videoGetApi = yyVideoDriverAPI*(*)();
-	videoGetApi m_videoDriverGetApi = nullptr;
-	yyVideoDriverAPI* m_videoAPI = nullptr;
+	typedef yyVideoDriverAPI*(*videoGetApi)();
+	videoGetApi m_videoDriverGetApi;
+	yyVideoDriverAPI* m_videoAPI;
 
 	yyArraySmall<yyImageLoader> m_imageLoaders;
 	yyArraySmall<yyModelLoader> m_modelLoaders;
 
-	yyAsyncLoadEventHandler m_asyncEventHandler = nullptr;
-	std::thread* m_backgroundWorker = nullptr;
+	yyAsyncLoadEventHandler m_asyncEventHandler;
+	std::thread* m_backgroundWorker;
 	yyFixedFIFOThread<BackgroundWorkerCommands, 20> m_workerCommands;
 	
 	yyFixedFIFOThread<BackgroundWorkerResults, 20> m_workerResults;
@@ -91,7 +108,7 @@ public:
 	void addGuiElement(yyGUIElement*);
 	yyList<yyGUIElement*> m_guiElements;
 
-	ZSTD_CCtx* m_cctx = nullptr;
+	ZSTD_CCtx* m_cctx;
 	u8* compressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size);
 	u8* decompressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size);
 

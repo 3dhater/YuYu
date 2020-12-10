@@ -7,13 +7,13 @@ public:
 	OpenGLShaderLine3D();
 	~OpenGLShaderLine3D();
 
-	GLuint m_program = 0;
-	GLuint m_VAO = 0;
+	GLuint m_program;
+	GLuint m_VAO;
 
-	GLint m_uniform_ProjMtx = 0;
-	GLint m_uniform_P1 = 0;
-	GLint m_uniform_P2 = 0;
-	GLint m_uniform_Color = 0;
+	GLint m_uniform_ProjMtx;
+	GLint m_uniform_P1;
+	GLint m_uniform_P2;
+	GLint m_uniform_Color;
 
 	bool init();
 };

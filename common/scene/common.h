@@ -18,7 +18,19 @@ extern "C"
 struct yySceneObjectFamily;
 struct yySceneObjectBase
 {
-	yySceneObjectBase(){}
+	yySceneObjectBase()
+	:
+		m_scale(v4f(1.f)),
+		m_id(-1),
+		m_isVisible(true),
+		m_isTransparent(false),
+		m_distanceToCamera(0.f),
+		m_objectType(ObjectType::Dummy),
+		m_updateImplementation(nullptr),
+		m_implementationPtr(nullptr),
+		m_family(nullptr)
+	{}
+
 	~yySceneObjectBase()
 	{
 		DeleteFamily();
@@ -29,7 +41,7 @@ struct yySceneObjectBase
 	yyString m_name;
 	v4f m_localPosition;
 	v4f m_globalPosition;
-	v4f m_scale = v4f(1.f);
+	v4f m_scale;
 	v4f m_rotation, m_rotationOld;
 	Quat m_orientation;
 
@@ -41,11 +53,11 @@ struct yySceneObjectBase
 	Aabb m_aabb;
 	Obb  m_obb;
 
-	s32 m_id = -1;
-	bool m_isVisible = true;
-	bool m_isTransparent = false;
+	s32 m_id;
+	bool m_isVisible;
+	bool m_isTransparent;
 
-	f32 m_distanceToCamera = 0.f;
+	f32 m_distanceToCamera;
 
 	void SetRotation(const v4f& rotation)
 	{
@@ -83,18 +95,24 @@ struct yySceneObjectBase
 		Camera,
 		Sprite,
 	};
-	ObjectType m_objectType = ObjectType::Dummy;
-	void(*m_updateImplementation)(void*implementation) = nullptr;
-	void * m_implementationPtr = nullptr;
-	yySceneObjectFamily* m_family = nullptr;
+	ObjectType m_objectType;
+	void(*m_updateImplementation)(void*implementation);
+	void * m_implementationPtr ;
+	yySceneObjectFamily* m_family ;
 
 	void UpdateBase();
 };
 
 struct yySceneObjectFamily
 {
-	yySceneObjectBase* m_object = nullptr;
-	yySceneObjectFamily* m_parent = nullptr;
+	yySceneObjectFamily()
+		:
+		m_object(nullptr),
+		m_parent(nullptr)
+	{}
+
+	yySceneObjectBase* m_object ;
+	yySceneObjectFamily* m_parent ;
 	yyList<yySceneObjectFamily*> m_children;
 
 	bool _removeChild(yySceneObjectFamily * child)

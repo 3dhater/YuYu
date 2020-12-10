@@ -17,7 +17,8 @@ template<typename _type>
 class yyObjectCreator
 {
 public:
-	template<typename... Args>
+
+	/*template<typename... Args>
 	static _type * create(Args&&... args)
 	{
 		_type * ptr = (_type*)yyMemAlloc(sizeof(_type));
@@ -26,7 +27,16 @@ public:
 			new(ptr) _type(std::forward<Args>(args)...);
 		}
 		return ptr;
+	}*/
+	static _type * create()
+	{
+		_type * ptr = (_type*)yyMemAlloc(sizeof(_type));
+		if( ptr )
+			new(ptr) _type();
+		return ptr;
 	}
+
+
 	static void destroy( _type * ptr )
 	{
 		assert(ptr);
@@ -35,10 +45,13 @@ public:
 	}
 };
 /// Create object
-template<typename _type, typename... Args>
-_type * yyCreate(Args&&... args)
+//template<typename _type, typename... Args>
+//_type * yyCreate(Args&&... args)
+template<typename _type>
+_type * yyCreate()
 {
-	return yyObjectCreator<_type>::create(std::forward<Args>(args)...);
+	//return yyObjectCreator<_type>::create(std::forward<Args>(args)...);
+	return yyObjectCreator<_type>::create();
 }
 /// Destroy object
 template<typename _type>

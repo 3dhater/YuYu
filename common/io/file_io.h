@@ -6,11 +6,14 @@
 
 class yyFileIO
 {
-	FILE * m_file = nullptr;
-	bool m_isOpen = false;
+	FILE * m_file;
+	bool m_isOpen;
 	
 public:
 	yyFileIO()
+		:
+		m_file(nullptr),
+		m_isOpen(false)
 	{
 	}
 
@@ -149,10 +152,10 @@ public:
 				if( rn < 2 )
 					return readNum;
 
-				char16_t currentChar = buf[1];
+				wchar_t currentChar = buf[1];
 				currentChar <<= 8;
 				currentChar |= buf[0];
-				if(currentChar == u'\n')
+				if(currentChar == L'\n')
 					break;
 			}
 		}
@@ -160,7 +163,7 @@ public:
 	}
 
 	size_t readWordFromUTF16LE(
-		std::u16string& outString, 
+		std::wstring& outString, 
 		bool withoutAlphas = false, 
 		bool withoutDigits = false, 
 		bool withoutDots = false, 
@@ -184,7 +187,7 @@ public:
 				if( rn < 2 )
 					return readNum;
 
-				char16_t currentChar = buf[1];
+				wchar_t currentChar = buf[1];
 				currentChar <<= 8;
 				currentChar |= buf[0];
 
@@ -194,7 +197,7 @@ public:
 						//*isNewLine = true;
 				}
 
-				if( currentChar == u'\n' )
+				if( currentChar == L'\n' )
 				{
 					if(isNewLine)  *isNewLine = true;
 					return readNum;
@@ -208,13 +211,13 @@ public:
 					outString.push_back(currentChar);
 				else if( util::is_alpha(currentChar) && !withoutAlphas )
 					outString.push_back(currentChar);
-				else if( currentChar == u'-' && !withoutPlusAndMinus )
+				else if( currentChar == L'-' && !withoutPlusAndMinus )
 					outString.push_back(currentChar);
-				else if( currentChar == u'+' && !withoutPlusAndMinus )
+				else if( currentChar == L'+' && !withoutPlusAndMinus )
 					outString.push_back(currentChar);
-				else if( currentChar == u'.' && !withoutPlusAndMinus )
+				else if( currentChar == L'.' && !withoutPlusAndMinus )
 					outString.push_back(currentChar);
-				else if( currentChar == u',' && !withoutPlusAndMinus )
+				else if( currentChar == L',' && !withoutPlusAndMinus )
 					outString.push_back(currentChar);
 				else if( !withoutAnyOtheSymbols )
 					outString.push_back(currentChar);
@@ -241,7 +244,7 @@ public:
 		return false;
 	}
 	size_t get_lineUTF16LE(
-		std::u16string& outString){
+		std::wstring& outString){
 		size_t readNum=0;
 		if( m_isOpen )
 		{
@@ -257,11 +260,11 @@ public:
 				if( rn < 2 )
 					return readNum;
 
-				char16_t currentChar = buf[1];
+				wchar_t currentChar = buf[1];
 				currentChar <<= 8;
 				currentChar |= buf[0];
 
-				if( currentChar == u'\n' )
+				if( currentChar == L'\n' )
 					break;
 				else
 					outString.push_back(currentChar);

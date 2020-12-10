@@ -49,8 +49,8 @@ extern "C"
 
 	YY_API void YY_C_DECL yyUpdateAsyncLoader();
 
-	using dl_handle = void*;
-	using dl_function = void*;
+	typedef void* dl_handle;
+	typedef void* dl_function;
 	YY_API dl_handle YY_C_DECL yyLoadLybrary(const char* libraryName);
 	YY_API void YY_C_DECL yyFreeLybrary(dl_handle);
 	YY_API dl_function YY_C_DECL yyGetProcAddress(dl_handle,const char* functionName);
@@ -58,8 +58,8 @@ extern "C"
 	YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& rect, yyResource* texture, bool pivotOnCenter);
 
 	// get from cache. if not found, create GPU resource, add to cache
-	YY_API yyResource* YY_C_DECL yyGetTexture(const char*, bool useFilter);
-	YY_API yyResource* YY_C_DECL yyGetModel(const char*);
+	YY_API yyResource* YY_C_DECL yyGetTexture(const char*, bool useFilter, bool load);
+	YY_API yyResource* YY_C_DECL yyGetModel(const char*, bool load);
 
 	YY_API void YY_C_DECL yyGetTextureSize(yyResource*, v2i*);
 

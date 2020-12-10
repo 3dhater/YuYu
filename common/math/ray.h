@@ -8,10 +8,20 @@ inline int max_dim(const v4f& v)
 		? 0 : 2) : ((v.y > v.z) ? 1 : 2);
 }
 
+//const f32 g_tMax = Infinity;
+
 class kkRay
 {
 public:
-	kkRay(){}
+	kkRay()
+	:
+		m_kz(0),
+		m_kx(0),
+		m_ky(0),
+		m_Sx(0.f),
+		m_Sy(0.f),
+		m_Sz(0.f)
+	{}
 	~kkRay(){}
 
 	v4f m_origin;
@@ -19,15 +29,14 @@ public:
 	v4f m_direction;
 	v4f m_invDir;
 
-	s32 m_kz = 0;
-	s32 m_kx = 0;
-	s32 m_ky = 0;
+	s32 m_kz;
+	s32 m_kx;
+	s32 m_ky;
 
-	f32 m_Sx = 0.f;
-	f32 m_Sy = 0.f;
-	f32 m_Sz = 0.f;
+	f32 m_Sx;
+	f32 m_Sy;
+	f32 m_Sz;
 
-	mutable f32 m_tMax = Infinity;
 
 	f32 distanceToLine(const v4f& lineP0, const v4f& lineP1)
 	{

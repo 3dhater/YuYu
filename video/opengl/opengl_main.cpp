@@ -18,6 +18,8 @@
 
 yyVideoDriverAPI g_api;
 
+void LoadModel(yyResource* r);
+
 //yyResource g_defaultRes;
 
 #ifdef YY_PLATFORM_WINDOWS
@@ -33,6 +35,7 @@ OpenGL * g_openGL = nullptr;
 
 bool Init(yyWindow* window)
 {
+	assert(window);
 	if(g_openGL)
 		return true;
 
@@ -53,15 +56,6 @@ void Destroy()
 		g_openGL = nullptr;
 	}
 }
-
-//void UseClearColor(bool use)
-//{
-//	g_openGL->m_useClearColor = use;
-//}
-//void UseClearDepth(bool use)
-//{
-//	g_openGL->m_useClearDepth = use;
-//}
 
 void SetClearColor(f32 r, f32 g, f32 b, f32 a)
 {
@@ -101,6 +95,7 @@ void EndDraw()
 }
 OpenGLModel* CreateOpenGLModel(yyModel* model)
 {
+	assert(model);
 	auto newModel = yyCreate<OpenGLModel>();
 	if(g_openGL->initModel(model, newModel))
 		return newModel;
@@ -109,6 +104,7 @@ OpenGLModel* CreateOpenGLModel(yyModel* model)
 }
 void UnloadTexture(yyResource* r)
 {
+	assert(r);
 #ifdef YY_DEBUG
 	if(r->m_type != yyResourceType::Texture)
 	{
@@ -127,6 +123,7 @@ void UnloadTexture(yyResource* r)
 }
 OpenGLTexture* CreateOpenGLTexture(yyImage* image, bool useLinearFilter)
 {
+	assert(image);
 	auto newTexture = yyCreate<OpenGLTexture>();
 	if(g_openGL->initTexture(image, newTexture, useLinearFilter))
 		return newTexture;
@@ -135,6 +132,7 @@ OpenGLTexture* CreateOpenGLTexture(yyImage* image, bool useLinearFilter)
 }
 void LoadTexture(yyResource* r)
 {
+	assert(r);
 #ifdef YY_DEBUG
 	if(r->m_type != yyResourceType::Texture)
 	{
@@ -160,32 +158,27 @@ void LoadTexture(yyResource* r)
 		} 
 	}
 }
-yyResource* CreateTextureFromFile(const char* fileName, bool useLinearFilter)
+yyResource* CreateTextureFromFile(const char* fileName, bool useLinearFilter, bool load)
 {
+	assert(fileName);
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Texture;
 	newRes->m_source = nullptr;
 	newRes->m_index = g_openGL->m_textures.size();
-	newRes->m_refCount = 1;
+	newRes->m_refCount = 0;
 	if(useLinearFilter)
 		newRes->m_flags |= yyResource::flags::texture_useLinearFilter;
 	newRes->m_file = fileName;
 
-	yyPtr<yyImage> image = yyLoadImage(fileName);
+	g_openGL->m_textures.push_back(nullptr);
 
-	auto newTexture = CreateOpenGLTexture(image.m_data, useLinearFilter);
-	if(newTexture)
-	{
-		g_openGL->m_textures.push_back(newTexture);
-		return newRes;
-	}
-
-	if(newRes)
-		yyDestroy( newRes );
-	return nullptr;
+	if(load)
+		LoadTexture(newRes);
+	return newRes;
 }
 yyResource* CreateTexture(yyImage* image, bool useLinearFilter)
 {
+	assert(image);
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Texture;
 	newRes->m_source = image;
@@ -220,30 +213,25 @@ void UseDepth(bool v)
 }
 
 
-yyResource* CreateModelFromFile(const char* fileName)
+yyResource* CreateModelFromFile(const char* fileName, bool load)
 {
+	assert(fileName);
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Model;
 	newRes->m_source = nullptr;
 	newRes->m_index = g_openGL->m_models.size();
-	newRes->m_refCount = 1;
+	newRes->m_refCount = 0;
 	newRes->m_file = fileName;
 
-	yyPtr<yyModel> model = yyLoadModel(fileName);
+	g_openGL->m_models.push_back(nullptr);
 
-	auto newModel = CreateOpenGLModel(model.m_data);
-	if(newModel)
-	{
-		g_openGL->m_models.push_back(newModel);
-		return newRes;
-	}
-
-	if(newRes)
-		yyDestroy( newRes );
-	return nullptr;
+	if(load)
+		LoadModel(newRes);
+	return newRes;
 }
 yyResource* CreateModel(yyModel* model)
 {
+	assert(model);
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Model;
 	newRes->m_index = g_openGL->m_models.size();
@@ -263,6 +251,7 @@ yyResource* CreateModel(yyModel* model)
 }
 void UnloadModel(yyResource* r)
 {
+	assert(r);
 #ifdef YY_DEBUG
 	if(r->m_type != yyResourceType::Model)
 	{
@@ -281,6 +270,7 @@ void UnloadModel(yyResource* r)
 }
 void LoadModel(yyResource* r)
 {
+	assert(r);
 #ifdef YY_DEBUG
 	if(r->m_type != yyResourceType::Model)
 	{
@@ -434,6 +424,7 @@ void Draw()
 }
 void DrawSprite(yySprite* sprite)
 {
+	assert(sprite);
 	glUseProgram( g_openGL->m_shader_sprite->m_program );
 	glUniformMatrix4fv(g_openGL->m_shader_sprite->m_uniform_ProjMtx, 1, GL_FALSE, g_openGL->m_guiProjectionMatrix.getPtr() );
 	glUniformMatrix4fv(g_openGL->m_shader_sprite->m_uniform_WorldMtx, 1, GL_FALSE, sprite->m_objectBase.m_globalMatrix.getPtr() );
@@ -452,8 +443,6 @@ void DrawSprite(yySprite* sprite)
 	}
 	
 	glUniform1i(g_openGL->m_shader_sprite->m_uniform_flags, flags);
-
-	//glUniform4fv(g_openGL->m_shader_sprite->m_uniform_SpritePosition, 1, sprite->m_objectBase.m_globalPosition.data());
 
 	if(sprite->m_texture)
 	{
@@ -512,6 +501,8 @@ v2f* GetSpriteCameraScale()
 
 void GetTextureSize(yyResource* r, v2i* s)
 {
+	assert(r);
+	assert(s);
 	if(r->m_type != yyResourceType::Texture)
 		return;
 	OpenGLTexture* t = g_openGL->m_textures[ r->m_index ];
@@ -529,8 +520,6 @@ extern "C"
 		g_api.Init          = Init;
 		g_api.Destroy       = Destroy;
 	
-		//g_api.UseClearColor = UseClearColor;
-		//g_api.UseClearDepth = UseClearDepth;
 		g_api.SetClearColor = SetClearColor;
 		//g_api.BeginDraw		= BeginDraw;
 		g_api.BeginDrawClearAll	= BeginDrawClearAll;
@@ -540,8 +529,6 @@ extern "C"
 		g_api.EndDraw		= EndDraw;
 
 		g_api.CreateTexture = CreateTexture;
-		//g_api.GetTexture = GetTexture;
-		//g_api.ReleaseTexture = ReleaseTexture;
 		g_api.CreateTextureFromFile = CreateTextureFromFile;
 		g_api.UnloadTexture = UnloadTexture;
 		g_api.LoadTexture = LoadTexture;

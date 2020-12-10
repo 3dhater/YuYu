@@ -16,6 +16,37 @@ inline void stringToLower( Type& str )
 			str[ i ] += 32;
 	}
 }
+//	abc -> cba
+template<typename Type>
+inline void stringFlip( Type& str )
+{
+	Type flippedStr;
+	for( u32 i = str.size() - 1u; i >= 0u; --i )
+	{
+		flippedStr += str[ i ];
+		if( !i ) break;
+	}
+	str = flippedStr;
+}
+template<typename Type>
+inline Type stringGetExtension( const Type& str, bool addDot )
+{
+	Type ret;
+	for( u32 i = str.size() - 1u; i >= 0u; --i )
+	{
+		auto c = str[ i ];
+		if( c == '/' || c == '.' )
+			break;
+		else ret += c;
+		if( !i ) break;
+	}
+	if(addDot && ret.size())
+	{
+		ret += ".";
+	}
+	stringFlip<Type>( ret );
+	return ret;
+}
 
 YY_FORCE_INLINE void getLine( std::u16string& outText, const char16_t * inText )
 {
@@ -23,7 +54,7 @@ YY_FORCE_INLINE void getLine( std::u16string& outText, const char16_t * inText )
 	while(true)
 	{
 		auto ch = *inText;
-		if(ch == u'\n' || ch == 0)
+		if(ch == '\n' || ch == 0)
 			break;
 
 		outText += ch;
@@ -36,7 +67,7 @@ YY_FORCE_INLINE void getLine( yyString& outText, const char16_t * inText )
 	while(true)
 	{
 		auto ch = *inText;
-		if(ch == u'\n' || ch == 0)
+		if(ch == '\n' || ch == 0)
 			break;
 
 		outText += ch;
@@ -61,10 +92,10 @@ YY_FORCE_INLINE bool is_space(char16_t c)
 {
 	switch (c)
 	{
-	case u' ':
-	case u'\t':
-	case u'\r':
-	case u'\n':
+	case ' ':
+	case '\t':
+	case '\r':
+	case '\n':
 		return true;
 	default:
 		break;
@@ -104,8 +135,8 @@ YY_FORCE_INLINE bool is_digit(char16_t c)
 {
 	switch (c)
 	{
-	case u'0': case u'1': case u'2': case u'3': case u'4': case u'5':
-	case u'6': case u'7': case u'8': case u'9':
+	case '0': case '1': case '2': case '3': case '4': case '5':
+	case '6': case '7': case '8': case '9':
 		return true;
 	default:
 		break;
@@ -167,7 +198,7 @@ YY_FORCE_INLINE s32 to_int(const char16_t* str, s32 size = -1)
 		len = str_len(str);
 	int result = 0;
 	int mul_val = 1;
-	bool is_neg = str[0]==u'-';
+	bool is_neg = str[0]=='-';
 	for(size_t i = 0, last = len-1; i < len; ++i)
 	{
 		int char_value = (int)str[last] - 0x30;
@@ -205,30 +236,30 @@ const float string_to_float_table[17] =
 YY_FORCE_INLINE float to_float(const char16_t* str)
 {
 	float result = 0.f;
-	bool is_negative = *str == u'-';
+	bool is_negative = *str == '-';
 
 	if(is_negative)
 		++str;
 
 	int i = 0;
-	while(*str >= u'0' && *str <= u'9')
+	while(*str >= '0' && *str <= '9')
 	{
 		i *= 10;
-		i += *str - u'0';
+		i += *str - '0';
 		++str;
 	}
 	result = (float)i;
 				
 	i = 0;
 
-	if(*str == u'.')
+	if(*str == '.')
 		++str;
 
 	int part_2_count = 0;
-	while(*str >= u'0' && *str <= u'9')
+	while(*str >= '0' && *str <= '9')
 	{
 		i *= 10;
-		i += *str - u'0';
+		i += *str - '0';
 		++str;
 		++part_2_count;
 	}

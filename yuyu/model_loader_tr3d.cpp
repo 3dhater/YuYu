@@ -9,16 +9,28 @@
 #include <filesystem>
 
 #include "yy_ptr.h"
+#include "yy_fs.h"
 
 struct Game_TR3DHeaderMeshHeader
 {
-	u32 m_dataComressSize_v = 0;
-	u32 m_dataComressSize_i = 0;
-	u32 m_dataDecomressSize_v = 0;
-	u32 m_dataDecomressSize_i = 0;
-	u32 m_vCount   = 0;
-	u32 m_iCount   = 0;
-	u32 m_stride   = 0;
+	Game_TR3DHeaderMeshHeader()
+		:
+		m_dataComressSize_v(0),
+		m_dataComressSize_i(0),
+		m_dataDecomressSize_v(0),
+		m_dataDecomressSize_i(0),
+		m_vCount(0),
+		m_iCount(0),
+		m_stride(0)
+	{}
+
+	u32 m_dataComressSize_v;
+	u32 m_dataComressSize_i;
+	u32 m_dataDecomressSize_v;
+	u32 m_dataDecomressSize_i;
+	u32 m_vCount   ;
+	u32 m_iCount   ;
+	u32 m_stride   ;
 };
 /*
 * Структура файла
@@ -30,20 +42,26 @@ struct Game_TR3DHeaderMeshHeader
 *		Game_TR3DHeaderMeshHeader
 *			меш
 */
-constexpr u32 Game_TR3DMagic = YY_MAKEFOURCC('T', 'R', '3', 'D');
-constexpr u32 Game_TR3DNameSize = 36;
+const u32 Game_TR3DMagic = YY_MAKEFOURCC('T', 'R', '3', 'D');
+const u32 Game_TR3DNameSize = 36;
 #pragma pack(1)
 struct Game_TR3DHeader
 {
-	u32 m_magic   = Game_TR3DMagic;
-	u32 m_meshCount = 0;
+	Game_TR3DHeader()
+		:
+		m_magic(Game_TR3DMagic),
+		m_meshCount(0)
+	{}
+	u32 m_magic;
+	u32 m_meshCount;
 	char m_name[Game_TR3DNameSize];
 };
 #pragma pack()
 
-yyModel* ModelLoader_TR3D(const std::filesystem::path& p)
+yyModel* ModelLoader_TR3D(const char* p)
 {
-	auto file_size = std::filesystem::file_size(p);
+	//auto file_size = std::filesystem::file_size(p);
+	auto file_size = yyFS::file_size(p);
 
 	if( file_size < sizeof(u32) + sizeof(Game_TR3DHeader) )
 	{
@@ -51,7 +69,7 @@ yyModel* ModelLoader_TR3D(const std::filesystem::path& p)
 		return nullptr;
 	}
 
-	std::ifstream in(p.c_str(), std::ios::binary);
+	std::ifstream in(p, std::ios::binary);
 	if(!in)
 	{
 		YY_PRINT_FAILED;

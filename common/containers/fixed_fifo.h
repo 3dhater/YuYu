@@ -6,13 +6,19 @@
 template<typename T, u32 size>
 class yyFixedFIFO
 {
-	u32 m_first = 0;
-	u32 m_put = 0;
+	u32 m_first;
+	u32 m_put;
 
 	yyAllocator<T,yyDefault_allocator> m_allocator;
 
 public:
 	yyFixedFIFO()
+		:
+		m_first(0),
+		m_put(0),
+		m_data(nullptr),
+		m_capacity(size),
+		m_size(0)
 	{
 		//m_data = new T[m_capacity];
 		m_data = m_allocator.allocate( m_capacity );
@@ -60,20 +66,26 @@ public:
 		return r;
 	}
 	
-	T* m_data = nullptr;
-	u32 m_capacity = size;	
-	u32 m_size = 0;
+	T* m_data;
+	u32 m_capacity;	
+	u32 m_size;
 };
 
 template<typename T, u32 size>
 class yyFixedFIFOThread
 {
-	u32 m_first = 0;
-	u32 m_put = 0;
+	u32 m_first;
+	u32 m_put;
 	std::mutex m_mutex;
 	yyAllocator<T,yyDefault_allocator> m_allocator;
 public:
 	yyFixedFIFOThread()
+		:
+		m_first(0),
+		m_put(0),
+		m_data(nullptr),
+		m_capacity(size),
+		m_size(0)
 	{
 		//m_data = new T[m_capacity];
 		m_data = m_allocator.allocate( m_capacity );
@@ -125,9 +137,9 @@ public:
 		return r;
 	}
 	
-	T* m_data = nullptr;
-	u32 m_capacity = size;	
-	u32 m_size = 0;
+	T* m_data ;
+	u32 m_capacity ;	
+	u32 m_size ;
 };
 
 #endif
