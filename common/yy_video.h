@@ -78,6 +78,7 @@ struct yyVideoDriverAPI
 	void (*SetTexture)(yyVideoDriverAPI::TextureSlot, yyResource*);
 	// yyResource::m_type MUST BE yyResourceType::Model
 	void (*SetModel)(yyResource*);
+	void (*SetMaterial)(yyMaterial* mat);
 	// draw what we set above
 	void (*Draw)();
 	
@@ -92,12 +93,17 @@ struct yyVideoDriverAPI
 		ViewProjection, //For 3d line
 		WorldViewProjection,
 	};
-	void (*SetMatrix)(MatrixType, const Mat4&);
+	void(*SetMatrix)(MatrixType, const Mat4&);
 	
 	v2f* (*GetSpriteCameraPosition)();
 	v2f* (*GetSpriteCameraScale)();
 
 	void (*GetTextureSize)(yyResource* r, v2i*);
+	void (*SetActiveWindow)(yyWindow*);
+	void (*InitWindow)(yyWindow*);
+
+	void (*MapModelForWriteVerts)(yyResource* r, u32 meshbufferIndex, u8** v_ptr);
+	void(*UnmapModelForWriteVerts)(yyResource* r);
 };
 
 #endif

@@ -10,10 +10,10 @@ inline int max_dim(const v4f& v)
 
 //const f32 g_tMax = Infinity;
 
-class kkRay
+class yyRay
 {
 public:
-	kkRay()
+	yyRay()
 	:
 		m_kz(0),
 		m_kx(0),
@@ -22,7 +22,7 @@ public:
 		m_Sy(0.f),
 		m_Sz(0.f)
 	{}
-	~kkRay(){}
+	~yyRay(){}
 
 	v4f m_origin;
 	v4f m_end;
@@ -37,6 +37,32 @@ public:
 	f32 m_Sy;
 	f32 m_Sz;
 
+	void createFrom2DCoords(const v2f& coord, const v4f& rc, const v2f& rc_sz, const Mat4& VPinv)
+	{
+		v2f point;
+		point.x = coord.x - rc.x;
+		point.y = coord.y - rc.y;
+
+		// координаты курсора от -1 до +1
+		float pt_x = (point.x / rc_sz.x) * 2.f - 1.f;
+		float pt_y = -(point.y / rc_sz.y) * 2.f + 1.f;
+
+		//                                           0.f - for d3d
+		m_origin = math::mul(v4f(pt_x, pt_y, -1.f, 1.f), VPinv);
+		m_end = math::mul(v4f(pt_x, pt_y, 1.f, 1.f), VPinv);
+
+		m_origin.w = 1.0f / m_origin.w;
+		m_origin.x *= m_origin.w;
+		m_origin.y *= m_origin.w;
+		m_origin.z *= m_origin.w;
+
+		m_end.w = 1.0f / m_end.w;
+		m_end.x *= m_end.w;
+		m_end.y *= m_end.w;
+		m_end.z *= m_end.w;
+
+		update();
+	}
 
 	f32 distanceToLine(const v4f& lineP0, const v4f& lineP1)
 	{

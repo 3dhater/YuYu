@@ -9,6 +9,7 @@
 #include "yy_log.h"
 #include "yy_resource.h"
 #include "yy_video.h"
+#include "yy_ptr.h"
 
 enum class yySystemState : u32 
 {
@@ -63,6 +64,8 @@ extern "C"
 
 	YY_API void YY_C_DECL yyGetTextureSize(yyResource*, v2i*);
 
+	YY_API void YY_C_DECL yySetMainWindow(yyWindow*);
+	YY_API yyWindow* YY_C_DECL yyGetMainWindow();
 }
 
 

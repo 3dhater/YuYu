@@ -14,14 +14,14 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="Source Files\Win32">
-      <UniqueIdentifier>{551594ec-d320-4a46-8911-88c4a1ded838}</UniqueIdentifier>
+      <UniqueIdentifier>{0c6dfeef-dfd8-4fa2-a82c-73dd1037ff3c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="game_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\yy_window.cpp">
+    <ClCompile Include="..\common\Win32\yy_window.cpp">
       <Filter>Source Files\Win32</Filter>
     </ClCompile>
   </ItemGroup>

@@ -12,12 +12,23 @@ enum class yyCameraType : u32
 struct yyCameraFrustum
 {
 	v4f m_planes[ 6u ];
+
+	/*float DistanceToPlane(v4f vPlane, v4f vPoint)
+	{
+		return vPoint.dot(vPlane);
+	}*/
+
 	// перед использованием обязательно нужно сделать point.KK_W = 1.f
 	bool pointInFrustum( const v4f& point )
 	{
 		for( s32 i = 0; i < 6; ++i )
 		{
-			if( m_planes[i].dot(point) < 0 )
+			if ((
+				m_planes[i].x * point.x +
+				m_planes[i].y * point.y +
+				m_planes[i].z * point.z +
+				m_planes[i].w)
+				< 0.f)
 				return false;
 		}
 		return true;
@@ -27,11 +38,44 @@ struct yyCameraFrustum
 	{
 		for( u32 i = 0u; i < 6u; ++i )
 		{
-			if( ( m_planes[ i ].x * position.x + m_planes[ i ].y * position.y + m_planes[ i ].z * position.z
-				+ m_planes[ i ].w ) <= -radius)
+			if(m_planes[i].x * position.x +
+				m_planes[i].y * position.y +
+				m_planes[i].z * position.z +
+				m_planes[i].w <= -radius)
 				return false;
 		}
 		return true;
+		/*float dist01 = std::min(DistanceToPlane(m_planes[0], position), DistanceToPlane(m_planes[1], position));
+		float dist23 = std::min(DistanceToPlane(m_planes[2], position), DistanceToPlane(m_planes[3], position));
+		float dist45 = std::min(DistanceToPlane(m_planes[4], position), DistanceToPlane(m_planes[5], position));
+		return std::min(std::min(dist01, dist23), dist45) + radius;*/
+	}
+
+	enum FrustumSide
+	{
+		RIGHT = 0,		// The RIGHT side of the frustum
+		LEFT = 1,		// The LEFT	 side of the frustum
+		BOTTOM = 2,		// The BOTTOM side of the frustum
+		TOP = 3,		// The TOP side of the frustum
+		BACK = 4,		// The BACK	side of the frustum
+		FRONT = 5			// The FRONT side of the frustum
+	};
+
+	void NormalizePlane(v4f& plane)
+	{
+		// Here we calculate the magnitude of the normal to the plane (point A B C)
+		// Remember that (A, B, C) is that same thing as the normal's (X, Y, Z).
+		// To calculate magnitude you use the equation:  magnitude = sqrt( x^2 + y^2 + z^2)
+		float magnitude = (float)sqrt(plane.x * plane.x +
+			plane.y * plane.y +
+			plane.z * plane.z);
+
+		// Then we divide the plane's values by it's magnitude.
+		// This makes it easier to work with.
+		plane.x /= magnitude;
+		plane.y /= magnitude;
+		plane.z /= magnitude;
+		plane.w /= magnitude;
 	}
 
 	void calculateFrustum( Mat4& P, Mat4& V )
@@ -62,46 +106,46 @@ struct yyCameraFrustum
 
 
 		//RIGHT 
-		m_planes[ 0u ].x = ( clip[ 3 ] - clip[ 0 ]);
-		m_planes[ 0u ].y = ( clip[ 7 ] - clip[ 4 ]);
-		m_planes[ 0u ].z = ( clip[ 11u ] - clip[ 8 ]);
-		m_planes[ 0u ].w = ( clip[ 15u ] - clip[ 12u ]);
-		m_planes[ 0u ].normalize2();
+		m_planes[RIGHT].x = ( clip[ 3 ] - clip[ 0 ]);
+		m_planes[RIGHT].y = ( clip[ 7 ] - clip[ 4 ]);
+		m_planes[RIGHT].z = ( clip[ 11u ] - clip[ 8 ]);
+		m_planes[RIGHT].w = ( clip[ 15u ] - clip[ 12u ]);
+		NormalizePlane(m_planes[RIGHT]);
 
 		//LEFT  
-		m_planes[ 1 ].x = ( clip[ 3 ] + clip[ 0 ]);
-		m_planes[ 1 ].y = ( clip[ 7 ] + clip[ 4 ]);
-		m_planes[ 1 ].z = ( clip[ 11u ] + clip[ 8 ]);
-		m_planes[ 1 ].w = ( clip[ 15u ] + clip[ 12u ]);
-		m_planes[ 1 ].normalize2();
+		m_planes[LEFT].x = ( clip[ 3 ] + clip[ 0 ]);
+		m_planes[LEFT].y = ( clip[ 7 ] + clip[ 4 ]);
+		m_planes[LEFT].z = ( clip[ 11u ] + clip[ 8 ]);
+		m_planes[LEFT].w = ( clip[ 15u ] + clip[ 12u ]);
+		NormalizePlane(m_planes[LEFT]);
 
 		//BOTTOM  
-		m_planes[ 2 ].x = ( clip[ 3 ] + clip[ 1 ]);
-		m_planes[ 2 ].y = ( clip[ 7 ] + clip[ 5 ]);
-		m_planes[ 2 ].z = ( clip[ 11u ] + clip[ 9 ]);
-		m_planes[ 2 ].w = ( clip[ 15u ] + clip[ 13u ]);
-		m_planes[ 2 ].normalize2();
+		m_planes[BOTTOM].x = ( clip[ 3 ] + clip[ 1 ]);
+		m_planes[BOTTOM].y = ( clip[ 7 ] + clip[ 5 ]);
+		m_planes[BOTTOM].z = ( clip[ 11u ] + clip[ 9 ]);
+		m_planes[BOTTOM].w = ( clip[ 15u ] + clip[ 13u ]);
+		NormalizePlane(m_planes[BOTTOM]);
 
 		//TOP  
-		m_planes[ 3 ].x = ( clip[ 3 ] - clip[ 1 ]);
-		m_planes[ 3 ].y = ( clip[ 7 ] - clip[ 5 ]);
-		m_planes[ 3 ].z = ( clip[ 11u ] - clip[ 9 ]);
-		m_planes[ 3 ].w = ( clip[ 15u ] - clip[ 13u ]);
-		m_planes[ 3 ].normalize2();
+		m_planes[TOP].x = ( clip[ 3 ] - clip[ 1 ]);
+		m_planes[TOP].y = ( clip[ 7 ] - clip[ 5 ]);
+		m_planes[TOP].z = ( clip[ 11u ] - clip[ 9 ]);
+		m_planes[TOP].w = ( clip[ 15u ] - clip[ 13u ]);
+		NormalizePlane(m_planes[TOP]);
 
 		//FAR  
-		m_planes[ 4 ].x = ( clip[ 3 ] - clip[ 2 ]);
-		m_planes[ 4 ].y = ( clip[ 7 ] - clip[ 6 ]);
-		m_planes[ 4 ].z = ( clip[ 11u ] - clip[ 10u ]);
-		m_planes[ 4 ].w = ( clip[ 15u ] - clip[ 14u ]);
-		m_planes[ 4 ].normalize2();
+		m_planes[BACK].x = ( clip[ 3 ] - clip[ 2 ]);
+		m_planes[BACK].y = ( clip[ 7 ] - clip[ 6 ]);
+		m_planes[BACK].z = ( clip[ 11u ] - clip[ 10u ]);
+		m_planes[BACK].w = ( clip[ 15u ] - clip[ 14u ]);
+		NormalizePlane(m_planes[BACK]);
 
 		//NEAR  
-		m_planes[ 5 ].x = ( clip[ 3 ] + clip[ 2 ]);
-		m_planes[ 5 ].y = ( clip[ 7 ] + clip[ 6 ]);
-		m_planes[ 5 ].z = ( clip[ 11u ] + clip[ 10u ]);
-		m_planes[ 5 ].w = ( clip[ 15u ] + clip[ 14u ]);
-		m_planes[ 5 ].normalize2();
+		m_planes[FRONT].x = ( clip[ 3 ] + clip[ 2 ]);
+		m_planes[FRONT].y = ( clip[ 7 ] + clip[ 6 ]);
+		m_planes[FRONT].z = ( clip[ 11u ] + clip[ 10u ]);
+		m_planes[FRONT].w = ( clip[ 15u ] + clip[ 14u ]);
+		NormalizePlane(m_planes[FRONT]);
 	}
 };
 
@@ -135,15 +179,19 @@ struct yyCamera
 	f32	m_aspect;
 	Mat4 m_viewMatrix;
 	Mat4 m_projectionMatrix;
+	Mat4 m_rotationMatrix;
+	Mat4 m_viewProjectionMatrix;
+	Mat4 m_viewProjectionInvertMatrix;
 	v4f m_viewport;
 	v4f m_target;
 	yyCameraFrustum m_frustum;
 
 	void Update()
 	{
-		if(m_updateCallback)
-			m_updateCallback(this);
-		else this->m_objectBase.m_updateImplementation(this);
+		//if(m_updateCallback)
+		//	m_updateCallback(this);
+		//else 
+			this->m_objectBase.m_updateImplementation(this);
 	}
 	void(*m_updateCallback)(yyCamera*);
 };
@@ -191,9 +239,9 @@ YY_FORCE_INLINE void yyCamera_update(void * impl)
 		math::makeRotationMatrix( P, qPitch );
 		math::makeRotationMatrix( Y, qYaw );
 
-		auto rotationMatrix = R * P * Y;
+		camera->m_rotationMatrix = R * P * Y;
 
-		camera->m_viewMatrix = rotationMatrix * camera->m_objectBase.m_globalMatrix;
+		camera->m_viewMatrix = camera->m_rotationMatrix * camera->m_objectBase.m_globalMatrix;
 	}break;
 	case yyCameraType::Custom:
 		if(camera->m_updateCallback)
@@ -204,6 +252,9 @@ YY_FORCE_INLINE void yyCamera_update(void * impl)
 	default:
 		break;
 	}
+	camera->m_viewProjectionMatrix = camera->m_projectionMatrix * camera->m_viewMatrix;
+	camera->m_viewProjectionInvertMatrix = camera->m_viewProjectionMatrix;
+	camera->m_viewProjectionInvertMatrix.invert();
 	camera->m_frustum.calculateFrustum( camera->m_projectionMatrix, camera->m_viewMatrix );
 }
 

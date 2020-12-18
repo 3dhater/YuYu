@@ -449,6 +449,24 @@ public:
 		if( m_data[ index ] == (char_type)'\t' ) return true;
 		return false;
 	}
+
+	u64 get_hash()
+	{
+		if (!m_size)
+			return 0;
+
+		const int p = 31;
+		const int m = 1e9 + 9;
+		long long hash_value = 0;
+		long long p_pow = 1;
+		for(u32 i = 0; i < m_size; ++i)
+		{
+			char c = (char)m_data[i];
+			hash_value = (hash_value + (c - 'a' + 1) * p_pow) % m;
+			p_pow = (p_pow * p) % m;
+		}
+		return hash_value;
+	}
 };
 
 typedef yyString_base<char16_t,yyDefault_allocator> yyString;

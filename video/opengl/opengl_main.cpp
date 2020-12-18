@@ -1,7 +1,9 @@
 ﻿#define YY_EXPORTS
 #include "yy.h"
 #include "yy_color.h"
+#include "yy_window.h"
 #include "yy_image.h"
+#include "yy_material.h"
 #include "yy_ptr.h"
 #include "yy_model.h"
 
@@ -406,6 +408,23 @@ void Draw()
 	}
 	else
 	{
+		if (g_openGL->m_currentMaterial)
+		{
+			if (g_openGL->m_currentMaterial->m_wireframe)
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			else
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			if (g_openGL->m_currentMaterial->m_cullBackFace)
+				glEnable(GL_CULL_FACE);
+			else
+				glDisable(GL_CULL_FACE);
+		}
+		else
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			//gglEnable(GL_CULL_FACE); else gglDisable(GL_CULL_FACE);
+			glDisable(GL_CULL_FACE);
+		}
 		glUseProgram( g_openGL->m_shader_std->m_program );
 		glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr() );
 		if(g_openGL->m_currentTextures[0])
@@ -419,7 +438,7 @@ void Draw()
 	{
 		auto meshBuffer = g_openGL->m_currentModel->m_meshBuffers[i];
 		gglBindVertexArray(meshBuffer->m_VAO);
-		gglDrawElements(GL_TRIANGLES, meshBuffer->m_iCount, GL_UNSIGNED_SHORT, 0);
+		gglDrawElements(GL_TRIANGLES, meshBuffer->m_iCount, meshBuffer->m_indexType, 0);
 	}
 }
 void DrawSprite(yySprite* sprite)
@@ -512,6 +531,32 @@ void GetTextureSize(yyResource* r, v2i* s)
 	s->y = t->m_h;
 }
 
+void SetActiveWindow(yyWindow* w)
+{
+	g_openGL->SetActive(w);
+}
+void InitWindow(yyWindow* w)
+{
+	g_openGL->InitWindow(w);
+}
+void SetMaterial(yyMaterial* mat)
+{
+	g_openGL->m_currentMaterial = mat;
+}
+void MapModelForWriteVerts(yyResource* r, u32 meshbufferIndex, u8** v_ptr)
+{
+	assert(r);
+	OpenGLModel* m = g_openGL->m_models[r->m_index];
+	auto mb = m->m_meshBuffers[meshbufferIndex];
+	glBindBuffer(GL_ARRAY_BUFFER, mb->m_vBuffer);
+	*v_ptr = (u8*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+}
+void UnmapModelForWriteVerts(yyResource* r)
+{
+	glUnmapBuffer(GL_ARRAY_BUFFER);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 extern "C"
 {
 	YY_API yyVideoDriverAPI* YY_C_DECL GetAPI()
@@ -554,6 +599,12 @@ extern "C"
 		g_api.GetSpriteCameraScale = GetSpriteCameraScale;
 
 		g_api.GetTextureSize = GetTextureSize;
+		g_api.SetActiveWindow = SetActiveWindow;
+		g_api.InitWindow = InitWindow;
+
+		g_api.SetMaterial = SetMaterial;
+		g_api.MapModelForWriteVerts = MapModelForWriteVerts;
+		g_api.UnmapModelForWriteVerts = UnmapModelForWriteVerts;
 
 		return &g_api;
 	}

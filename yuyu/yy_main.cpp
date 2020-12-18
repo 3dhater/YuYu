@@ -10,9 +10,11 @@
 
 #include "engine.h"
 
+
 #include <thread>
 
 Engine * g_engine = nullptr;
+yyWindow* g_mainWindow = nullptr;
 
 Engine::Engine()
 	:
@@ -101,11 +103,14 @@ YY_API yyResource* YY_C_DECL yyGetTexture(const char* fileName, bool useFilter, 
 {
 	assert(fileName);
 	//std::filesystem::path p(fileName);
-	yyStringA p;
+	yyFS::path p = fileName;
 	for( auto & node : g_engine->m_textureCache )
 	{
-		if( node.m_path == p )
+		if (node.m_path == p)
+		{
+			++node.m_resource->m_refCount;
 			return node.m_resource;
+		}
 	}
 
 	auto res = g_engine->m_videoAPI->CreateTextureFromFile(fileName, useFilter, load);
@@ -133,12 +138,14 @@ YY_API void YY_C_DECL yyGetTextureSize(yyResource* r, v2i* s)
 YY_API yyResource* YY_C_DECL yyGetModel(const char* fileName, bool load)
 {
 	assert(fileName);
-	//std::filesystem::path p(fileName);
-	yyStringA p;
+	yyFS::path p = fileName;
 	for( auto & node : g_engine->m_modelCache )
 	{
-		if( node.m_path == p )
+		if (node.m_path == p)
+		{
+			++node.m_resource->m_refCount;
 			return node.m_resource;
+		}
 	}
 
 	auto res = g_engine->m_videoAPI->CreateModelFromFile(fileName, load);
@@ -230,7 +237,7 @@ u8* Engine::compressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size
 	if( !out_data )
 	{
 		YY_PRINT_FAILED;
-		return out_data;
+		return nullptr;
 	}
 
 	auto compressBound = ZSTD_compressBound(in_data_size);
@@ -239,7 +246,7 @@ u8* Engine::compressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size
     if( ZSTD_isError(cSize) )
 	{
 		yyMemFree(out_data);
-		return out_data;
+		return nullptr;
 	}
 
 	yyMemRealloc(out_data,(u32)cSize);
@@ -254,7 +261,7 @@ u8* Engine::decompressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_si
 	if( !out_data )
 	{
 		YY_PRINT_FAILED;
-		return out_data;
+		return nullptr;
 	}
 
 	size_t const dSize = ZSTD_decompress(out_data, (size_t)rSize, in_data, in_data_size);
@@ -372,6 +379,15 @@ YY_API bool YY_C_DECL yyInitVideoDriver(const char* dl, yyWindow* window)
 		return g_engine->m_videoAPI->Init(window);
 	}
 	return false;
+}
+
+YY_API void YY_C_DECL yySetMainWindow(yyWindow* w)
+{
+	g_mainWindow = w;
+}
+YY_API yyWindow* YY_C_DECL yyGetMainWindow()
+{
+	return g_mainWindow;
 }
 
 }

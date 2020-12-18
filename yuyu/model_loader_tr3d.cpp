@@ -130,7 +130,7 @@ yyModel* ModelLoader_TR3D(const char* p)
 		in.read((char*)compressed_i, meshhead.m_dataComressSize_i);
 		u32 outsize = 0;
 		new_mesh.m_data->m_vertices = yyDecompressData(compressed_v, meshhead.m_dataComressSize_v, outsize, yyCompressType::ZStd);
-		new_mesh.m_data->m_indices = (u16*)yyDecompressData(compressed_i, meshhead.m_dataComressSize_i, outsize, yyCompressType::ZStd);
+		new_mesh.m_data->m_indices = (u8*)yyDecompressData(compressed_i, meshhead.m_dataComressSize_i, outsize, yyCompressType::ZStd);
 
 		yyMemFree(compressed_v);
 		yyMemFree(compressed_i);

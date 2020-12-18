@@ -7,6 +7,7 @@
 #include "containers/fixed_fifo.h"
 #include "containers/list.h"
 #include "containers/array.h"
+#include "yy_fs.h"
 
 void yyBackgroundWorkerFunction();
 
@@ -74,7 +75,7 @@ struct CacheNode
 		m_resource(nullptr)
 	{}
 	//std::filesystem::path m_path;
-	yyStringA m_path;
+	yyFS::path m_path;
 	yyResource* m_resource;
 };
 

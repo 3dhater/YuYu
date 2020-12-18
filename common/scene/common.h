@@ -29,7 +29,9 @@ struct yySceneObjectBase
 		m_updateImplementation(nullptr),
 		m_implementationPtr(nullptr),
 		m_family(nullptr)
-	{}
+	{
+		m_radiusAabb = 0.f;
+	}
 
 	~yySceneObjectBase()
 	{
@@ -51,7 +53,8 @@ struct yySceneObjectBase
 
 	Aabb m_aabbWithoutTransforms;
 	Aabb m_aabb;
-	Obb  m_obb;
+	f32  m_radiusAabb;
+	//Obb  m_obb;
 
 	s32 m_id;
 	bool m_isVisible;
@@ -222,7 +225,7 @@ YY_FORCE_INLINE void yySceneObjectBase::UpdateBase()
 
 	// НАДО УБРАТЬ ОББ 
 	// оптимизация по frustum должна быть либо по сфере либо по аабб - на выбор. сфера по умолчанию
-	m_obb.v1 = m_aabbWithoutTransforms.m_min;
+	/*m_obb.v1 = m_aabbWithoutTransforms.m_min;
 	m_obb.v2 = m_aabbWithoutTransforms.m_max;
 	m_obb.v3.set( m_obb.v1.x, m_obb.v1.y, m_obb.v2.z, 1.f );
 	m_obb.v4.set( m_obb.v2.x, m_obb.v1.y, m_obb.v1.z, 1.f );		
@@ -231,29 +234,31 @@ YY_FORCE_INLINE void yySceneObjectBase::UpdateBase()
 	m_obb.v7.set( m_obb.v2.x, m_obb.v1.y, m_obb.v2.z, 1.f );		
 	m_obb.v8.set( m_obb.v2.x, m_obb.v2.y, m_obb.v1.z, 1.f );	
 	m_obb.v1.w = 1.f;
-	m_obb.v2.w = 1.f;
+	m_obb.v2.w = 1.f;*/
 			
 	auto W = m_globalMatrix;
 	W[3] = v4f(0.f,0.f,0.f,1.f);
 
-	m_obb.v1 = math::mul(m_obb.v1, W) + m_globalPosition;
+	/*m_obb.v1 = math::mul(m_obb.v1, W) + m_globalPosition;
 	m_obb.v2 = math::mul(m_obb.v2, W) + m_globalPosition;
 	m_obb.v3 = math::mul(m_obb.v3, W) + m_globalPosition;
 	m_obb.v4 = math::mul(m_obb.v4, W) + m_globalPosition;
 	m_obb.v5 = math::mul(m_obb.v5, W) + m_globalPosition;
 	m_obb.v6 = math::mul(m_obb.v6, W) + m_globalPosition;
 	m_obb.v7 = math::mul(m_obb.v7, W) + m_globalPosition;
-	m_obb.v8 = math::mul(m_obb.v8, W) + m_globalPosition;
+	m_obb.v8 = math::mul(m_obb.v8, W) + m_globalPosition;*/
 
-	m_aabb.reset();
-	m_aabb.add(m_obb.v1);
+	//m_aabb.reset();
+	m_radiusAabb = m_aabb.m_min.distance(m_aabb.m_max);
+
+	/*m_aabb.add(m_obb.v1);
 	m_aabb.add(m_obb.v2);
 	m_aabb.add(m_obb.v3);
 	m_aabb.add(m_obb.v4);
 	m_aabb.add(m_obb.v5);
 	m_aabb.add(m_obb.v6);
 	m_aabb.add(m_obb.v7);
-	m_aabb.add(m_obb.v8);
+	m_aabb.add(m_obb.v8);*/
 
 	if(m_family)
 	{

@@ -3,6 +3,7 @@
 
 #include "strings/string.h"
 #include "strings/utils.h"
+#include "containers\list.h"
 
 #ifdef YY_PLATFORM_WINDOWS
 #define WIN32_LEAN_AND_MEAN
@@ -48,18 +49,26 @@ namespace yyFS
 
 		bool has_extension()
 		{
+			bool dot = false;
 			if(m_data.size())
 			{
+
 				for( u32 i = m_data.size() - 1u; i >= 0u; --i )
 				{
 					auto c = m_data[ i ];
-					if( c == '\\' || c == '.' )
-						break;
-					else return true;
+
+					if (c == '/' || c == '\\')
+					{
+						return dot;
+					}
+
+					if (c == '.')
+						dot = true;
+
 					if( !i ) break;
 				}
 			}
-			return false;
+			return dot;
 		}
 
 		path extension()
@@ -85,6 +94,17 @@ namespace yyFS
 		{
 			std::string result;
 			util::utf16_to_utf8(&m_data, &result);
+			return result;
+		}
+		std::u16string generic_u16string()
+		{
+			std::u16string result;
+			result.reserve(m_data.size());
+			auto data = m_data.data();
+			for (size_t i = 0, sz = m_data.size(); i < sz; ++i)
+			{
+				result += (std::u16string::value_type)data[i];
+			}
 			return result;
 		}
 
@@ -141,6 +161,19 @@ namespace yyFS
 		return result;
 	}
 
+	YY_FORCE_INLINE bool create_directory(const path& p)
+	{
+		path _p = p;
+		util::stringFlipSlashBackSlash(_p.m_data);
+#ifdef YY_PLATFORM_WINDOWS
+		if (CreateDirectory(_p.m_data.c_str(), 0) != 0)
+			return true;
+#else
+#error Need implement
+#endif
+		return false;
+	}
+
 //	class directory_iterator;
 	class directory_entry
 	{
@@ -182,18 +215,17 @@ namespace yyFS
 		}
 
 		path m_path;
-		const path& path()
-		{
-			return m_path;
-		}
-
+		const path& path()const{return m_path;}
 
 		bool m_endSearch;
-	//	directory_iterator* m_dirIt;
 	};
 
 	class directory_iterator
 	{
+	protected:
+
+		bool m_isRecursiveIterator;
+
 		class Iterator
 		{
 			friend class ConstIterator;
@@ -224,6 +256,9 @@ namespace yyFS
 #endif
 
 		path m_path;
+		path m_startPath;
+
+		yyListFast<yyStringW> m_subDirs;
 
 		directory_iterator(){}
 
@@ -234,12 +269,43 @@ namespace yyFS
 			WIN32_FIND_DATA ffd;
 			if( FindNextFile( hFind, &ffd ) == FALSE )
 			{
-				m_begin.m_endSearch = true;
+				if (m_isRecursiveIterator)
+				{
+					auto listHead = m_subDirs.head();
+					if (listHead)
+					{
+						m_path.m_data = listHead->m_data.c_str();
+						m_path.m_data += L"\\";
+						if (hFind)
+							FindClose(hFind);
+						begin();
+						m_subDirs.erase_node(listHead);
+					}
+					else
+					{
+						m_begin.m_endSearch = true;
+					}
+				}
+				else
+				{
+					m_begin.m_endSearch = true;
+				}
 			}
 			else
 			{
-				m_begin.m_path = ffd.cFileName;
+				m_begin.m_path = m_startPath;
+				m_begin.m_path.m_data += ffd.cFileName;
 				m_begin._check();
+
+				if (m_isRecursiveIterator)
+				{
+					if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY
+						&& (lstrcmpW(L"..", ffd.cFileName) != 0)
+						)
+					{
+						m_subDirs.push_back(m_begin.m_path.m_data);
+					}
+				}
 			}
 #else
 #error Need implement
@@ -251,16 +317,17 @@ namespace yyFS
 		directory_iterator(const path& p)
 		{
 			m_end.m_endSearch = true;
-
+			m_isRecursiveIterator = false;
 			m_it_begin = Iterator(&m_begin, this);
 			m_it_end = Iterator(&m_end, this);
 			m_path = p;
+			m_startPath = p;
 #ifdef YY_PLATFORM_WINDOWS
 			hFind = 0;
 #endif
 		}
 
-		~directory_iterator()
+		virtual ~directory_iterator()
 		{
 #ifdef YY_PLATFORM_WINDOWS
 			if( hFind )
@@ -270,24 +337,20 @@ namespace yyFS
 
 		Iterator begin()
 		{
+			m_startPath = m_path;
 #ifdef YY_PLATFORM_WINDOWS
-			static bool firstCall = false;
-			if(!firstCall)
+			WIN32_FIND_DATA ffd;
+			m_path.m_data += "*";
+			hFind = FindFirstFile( (wchar_t*)m_path.m_data.c_str(), &ffd );
+			if( INVALID_HANDLE_VALUE == hFind )
 			{
-				WIN32_FIND_DATA ffd;
-				firstCall = true;
-				m_path.m_data += "*";
-				hFind = FindFirstFile( (wchar_t*)m_path.m_data.c_str(), &ffd );
-				if( INVALID_HANDLE_VALUE == hFind )
-				{
-					DWORD error = GetLastError();
-					yyLogWriteError( "Can't scan dir. Error code [%u].\n", error );
-					return Iterator();
-				}
-				
-				m_begin.m_path = ffd.cFileName;
-				m_begin._check();
+				DWORD error = GetLastError();
+				yyLogWriteError( "Can't scan dir. Error code [%u].\n", error );
+				return Iterator();
 			}
+				
+			m_begin.m_path = ffd.cFileName;
+			m_begin._check();
 #else
 #error Need implement
 #endif
@@ -295,6 +358,22 @@ namespace yyFS
 		}
 		Iterator end(){return m_it_end;}
 
+	};
+
+	class recursive_directory_iterator : public directory_iterator
+	{
+	public:
+
+		recursive_directory_iterator(const path& p)
+			:
+			directory_iterator(p)
+		{
+			m_isRecursiveIterator = true;
+		}
+
+		~recursive_directory_iterator()
+		{
+		}
 	};
 }
 

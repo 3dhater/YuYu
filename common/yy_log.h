@@ -12,5 +12,6 @@ YY_API void YY_C_DECL				yyLogSetWarningOutput(void(*)(const char* message));
 }
 
 #define YY_PRINT_FAILED	yyLogWriteError( "Failed [%s][%s][%i]:(\n", YY_FILE, YY_FUNCTION, YY_LINE )
+#define YY_CHECK_POINTER(ptr) if(!ptr) YY_PRINT_FAILED
 
 #endif

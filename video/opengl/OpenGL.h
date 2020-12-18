@@ -1251,13 +1251,15 @@ class OpenGL
 	void load_procs(void);
 
 
-	yyWindow * m_window;
+	//yyWindow * m_window;
 public:
 	OpenGL();
 	~OpenGL();
 
 	void UpdateGUIProjectionMatrix(const v2i& windowSize);
 	bool Init(yyWindow* window);
+	void SetActive(yyWindow* window);
+	void InitWindow(yyWindow* window);
 
 	std::vector<OpenGLTexture*> m_textures;
 	std::vector<OpenGLModel*> m_models;
@@ -1274,6 +1276,8 @@ public:
 
 	OpenGLTexture* m_currentTextures[(u32)yyVideoDriverAPI::TextureSlot::Count];
 	OpenGLModel*   m_currentModel;
+
+	yyMaterial * m_currentMaterial;
 
 #ifdef YY_PLATFORM_WINDOWS
 	HMODULE m_OpenGL_lib;

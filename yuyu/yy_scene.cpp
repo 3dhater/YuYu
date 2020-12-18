@@ -51,7 +51,9 @@ YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& r, yyResource* texture, boo
 	meshBuffer->m_stride = sizeof(yyVertexGUI);
 	meshBuffer->m_vertexType = yyVertexType::GUI;
 	meshBuffer->m_vertices = (u8*)yyMemAlloc(meshBuffer->m_vCount * meshBuffer->m_stride);
-	meshBuffer->m_indices  = (u16*)yyMemAlloc(meshBuffer->m_iCount * sizeof(u16));
+	meshBuffer->m_indices  = (u8*)yyMemAlloc(meshBuffer->m_iCount * sizeof(u16));
+
+	u16* inds = (u16*)meshBuffer->m_indices;
 
 	yyVertexGUI * vertex = (yyVertexGUI*)meshBuffer->m_vertices;
 	vertex->m_position.set(rect.x, rect.w, 0.f);
@@ -67,12 +69,12 @@ YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& r, yyResource* texture, boo
 	vertex->m_tcoords.set(1.f,1.f);
 	vertex++;
 
-	meshBuffer->m_indices[0] = 0;
-	meshBuffer->m_indices[1] = 1;
-	meshBuffer->m_indices[2] = 2;
-	meshBuffer->m_indices[3] = 0;
-	meshBuffer->m_indices[4] = 2;
-	meshBuffer->m_indices[5] = 3;
+	inds[0] = 0;
+	inds[1] = 1;
+	inds[2] = 2;
+	inds[3] = 0;
+	inds[4] = 2;
+	inds[5] = 3;
 
 	model->m_meshBuffers.push_back(meshBuffer);
 	newSprite->m_model = vAPI->CreateModel(model);

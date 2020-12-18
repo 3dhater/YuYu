@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{8d6af6c3-5294-4501-9d42-bc03c13be281}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Win32">
+      <UniqueIdentifier>{cccacf99-fcb6-4f9b-8385-ff9aa2db0eb2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="krgui">
+      <UniqueIdentifier>{2f7b21fd-8518-4733-9cea-384e22aa3976}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="worldEditor_main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\Win32\yy_window.cpp">
+      <Filter>src\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="Viewport.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiMenuBar.cpp">
+      <Filter>krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiNodeEditor.cpp">
+      <Filter>krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\krGuiOpenGL.cpp">
+      <Filter>krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiPictureBox.cpp">
+      <Filter>krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiPopupMenu.cpp">
+      <Filter>krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiRangeSlider.cpp">
+      <Filter>krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiRectangle.cpp">
+      <Filter>krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiText.cpp">
+      <Filter>krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiTextInput.cpp">
+      <Filter>krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiValueSelector.cpp">
+      <Filter>krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\krGui.cpp">
+      <Filter>krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiButton.cpp">
+      <Filter>krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiCheckbox.cpp">
+      <Filter>krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiFont.cpp">
+      <Filter>krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiFontCreation.cpp">
+      <Filter>krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiGroup.cpp">
+      <Filter>krgui</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Viewport.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

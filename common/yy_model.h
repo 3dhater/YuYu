@@ -24,17 +24,26 @@ enum class yyVertexType : u32
 	Model
 };
 
+enum class yyMeshIndexType : u32
+{
+	u16,
+	u32
+};
+
 struct yyMeshBuffer
 {
 	yyMeshBuffer()
 	:
 		m_vertices(nullptr),
 		m_indices(nullptr),
+		m_indexType(yyMeshIndexType::u16),
 		m_vCount(0),
 		m_iCount(0),
 		m_stride(0),
 		m_vertexType(yyVertexType::GUI)
-	{}
+	{
+	
+	}
 	~yyMeshBuffer()
 	{
 		if(m_vertices) yyMemFree( m_vertices );
@@ -42,7 +51,12 @@ struct yyMeshBuffer
 	}
 
 	u8* m_vertices;
-	u16* m_indices;
+	
+	//u32* m_indices;
+	u8* m_indices;
+
+	yyMeshIndexType m_indexType;
+
 	u32 m_vCount;
 	u32 m_iCount;
 	u32 m_stride;
@@ -72,56 +86,121 @@ struct yyMeshBuffer
 			binormal *= -1.0f;
 		}
 	}
+
+
+	void GenerateTangents_u16()
+	{
+		u16* idx = (u16*)m_indices;
+		yyVertexModel* v = (yyVertexModel*)m_vertices;
+
+		v3f localNormal;
+		for (u32 i = 0; i < m_iCount; i += 3)
+		{
+			calculateTangents(
+				localNormal,
+				v[idx[i + 0]].Tangent,
+				v[idx[i + 0]].Binormal,
+				v[idx[i + 0]].Position,
+				v[idx[i + 1]].Position,
+				v[idx[i + 2]].Position,
+				v[idx[i + 0]].TCoords,
+				v[idx[i + 1]].TCoords,
+				v[idx[i + 2]].TCoords);
+			//if (recalculateNormals)
+			//v[idx[i+0]].Normal=localNormal;
+
+			calculateTangents(
+				localNormal,
+				v[idx[i + 1]].Tangent,
+				v[idx[i + 1]].Binormal,
+				v[idx[i + 1]].Position,
+				v[idx[i + 2]].Position,
+				v[idx[i + 0]].Position,
+				v[idx[i + 1]].TCoords,
+				v[idx[i + 2]].TCoords,
+				v[idx[i + 0]].TCoords);
+			//if (recalculateNormals)
+			//v[idx[i+1]].Normal=localNormal;
+
+			calculateTangents(
+				localNormal,
+				v[idx[i + 2]].Tangent,
+				v[idx[i + 2]].Binormal,
+				v[idx[i + 2]].Position,
+				v[idx[i + 0]].Position,
+				v[idx[i + 1]].Position,
+				v[idx[i + 2]].TCoords,
+				v[idx[i + 0]].TCoords,
+				v[idx[i + 1]].TCoords);
+			//if (recalculateNormals)
+			//v[idx[i+2]].Normal=localNormal;
+		}
+	}
+	void GenerateTangents_u32()
+	{
+		u32* idx = (u32*)m_indices;
+		yyVertexModel* v = (yyVertexModel*)m_vertices;
+
+		v3f localNormal;
+		for (u32 i = 0; i < m_iCount; i += 3)
+		{
+			calculateTangents(
+				localNormal,
+				v[idx[i + 0]].Tangent,
+				v[idx[i + 0]].Binormal,
+				v[idx[i + 0]].Position,
+				v[idx[i + 1]].Position,
+				v[idx[i + 2]].Position,
+				v[idx[i + 0]].TCoords,
+				v[idx[i + 1]].TCoords,
+				v[idx[i + 2]].TCoords);
+			//if (recalculateNormals)
+			//v[idx[i+0]].Normal=localNormal;
+
+			calculateTangents(
+				localNormal,
+				v[idx[i + 1]].Tangent,
+				v[idx[i + 1]].Binormal,
+				v[idx[i + 1]].Position,
+				v[idx[i + 2]].Position,
+				v[idx[i + 0]].Position,
+				v[idx[i + 1]].TCoords,
+				v[idx[i + 2]].TCoords,
+				v[idx[i + 0]].TCoords);
+			//if (recalculateNormals)
+			//v[idx[i+1]].Normal=localNormal;
+
+			calculateTangents(
+				localNormal,
+				v[idx[i + 2]].Tangent,
+				v[idx[i + 2]].Binormal,
+				v[idx[i + 2]].Position,
+				v[idx[i + 0]].Position,
+				v[idx[i + 1]].Position,
+				v[idx[i + 2]].TCoords,
+				v[idx[i + 0]].TCoords,
+				v[idx[i + 1]].TCoords);
+			//if (recalculateNormals)
+			//v[idx[i+2]].Normal=localNormal;
+		}
+	}
 	void GenerateTangents()
 	{
 		if(m_vertexType != yyVertexType::Model)
 			return;
 
-		u16* idx = m_indices;
-		yyVertexModel* v = (yyVertexModel*)m_vertices;
-
-		v3f localNormal; 
-		for(u32 i = 0; i < m_iCount; i += 3)
+		switch (m_indexType)
 		{
-			calculateTangents(
-				localNormal,
-				v[idx[i+0]].Tangent,
-				v[idx[i+0]].Binormal,
-				v[idx[i+0]].Position,
-				v[idx[i+1]].Position,
-				v[idx[i+2]].Position,
-				v[idx[i+0]].TCoords,
-				v[idx[i+1]].TCoords,
-				v[idx[i+2]].TCoords);
-			//if (recalculateNormals)
-				//v[idx[i+0]].Normal=localNormal;
-
-			calculateTangents(
-				localNormal,
-				v[idx[i+1]].Tangent,
-				v[idx[i+1]].Binormal,
-				v[idx[i+1]].Position,
-				v[idx[i+2]].Position,
-				v[idx[i+0]].Position,
-				v[idx[i+1]].TCoords,
-				v[idx[i+2]].TCoords,
-				v[idx[i+0]].TCoords);
-			//if (recalculateNormals)
-				//v[idx[i+1]].Normal=localNormal;
-
-			calculateTangents(
-				localNormal,
-				v[idx[i+2]].Tangent,
-				v[idx[i+2]].Binormal,
-				v[idx[i+2]].Position,
-				v[idx[i+0]].Position,
-				v[idx[i+1]].Position,
-				v[idx[i+2]].TCoords,
-				v[idx[i+0]].TCoords,
-				v[idx[i+1]].TCoords);
-			//if (recalculateNormals)
-				//v[idx[i+2]].Normal=localNormal;
+		case yyMeshIndexType::u16:
+		default:
+			GenerateTangents_u16();
+			break;
+		case yyMeshIndexType::u32:
+			GenerateTangents_u32();
+			break;
 		}
+
+		
 	}
 };
 

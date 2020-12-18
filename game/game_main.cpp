@@ -136,14 +136,18 @@ int main()
 	yyLogSetInfoOutput(log_onInfo);
 	yyLogSetWarningOutput(log_onError);
 
-	yyPtr<yyWindow> window = new yyWindow;
+	yyPtr<yyWindow> window = yyCreate<yyWindow>();
 	auto p_window = window.m_data;
 
-	if(!p_window->init(800,600))
+	if(!p_window->init(800,600, 0))
 	{
 		YY_PRINT_FAILED;
 		return 1;
 	}
+
+	// save pointer
+	yySetMainWindow(window.m_data);
+	window.m_data = yyGetMainWindow(); 
 
 	p_window->m_onClose = window_onCLose;
 	p_window->m_onMouseButton = window_callbackMouse;
@@ -151,7 +155,7 @@ int main()
 
 	// init video driver
 	const char * videoDriverType = "opengl.yyvd"; // for example read name from .ini
-	//if( !yyInitVideoDriver(videoDriverType, p_window) )
+	if( !yyInitVideoDriver(videoDriverType, p_window) )
 	{
 		yyLogWriteWarning("Can't load video driver : %s\n", videoDriverType);
 

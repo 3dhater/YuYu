@@ -10,6 +10,7 @@ public:
 	GLuint m_vBuffer;
 	GLuint m_iBuffer;
 	GLsizei m_iCount;
+	GLenum m_indexType;
 };
 
 class OpenGLModel

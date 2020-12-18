@@ -111,7 +111,7 @@ wglDeleteContext_t gwglDeleteContext = nullptr;
 
 OpenGL::OpenGL()
 	:
-	m_window(nullptr),
+	//m_window(nullptr),
 	m_shader_gui(nullptr),
 	m_shader_sprite(nullptr),
 	m_shader_line3d(nullptr),
@@ -129,6 +129,7 @@ OpenGL::OpenGL()
 	{
 		m_currentTextures[i] = nullptr;
 	}
+	m_currentMaterial = nullptr;
 }
 
 OpenGL::~OpenGL()
@@ -168,15 +169,61 @@ void* OpenGL::get_proc(const char *proc)
 	if (!res)
 		res = GetProcAddress(m_OpenGL_lib, proc);
 #else
-#error For Windows
+#error Need implementation
 #endif
 	return res;
 }
 
+void OpenGL::SetActive(yyWindow* window)
+{
+#ifdef YY_PLATFORM_WINDOWS
+	m_windowDC = window->m_dc;
+	gwglMakeCurrent(m_windowDC, m_renderingContext);
+#else
+#error Need implementation
+#endif
+}
+void OpenGL::InitWindow(yyWindow* window)
+{
+#ifdef YY_PLATFORM_WINDOWS
+	auto dc = window->m_dc;
+	int attributeListInt[] =
+	{
+		WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+		WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+		WGL_ACCELERATION_ARB,   WGL_FULL_ACCELERATION_ARB,
+		WGL_COLOR_BITS_ARB,     32,
+		WGL_DEPTH_BITS_ARB,     24,
+		WGL_DOUBLE_BUFFER_ARB,  GL_TRUE,
+		WGL_SWAP_METHOD_ARB,    WGL_SWAP_EXCHANGE_ARB,
+		WGL_PIXEL_TYPE_ARB,     WGL_TYPE_RGBA_ARB,
+		WGL_STENCIL_BITS_ARB,   8,
+		0
+	};
+	int pixelFormat[1];
+	unsigned int formatCount;
+	auto result = gwglChoosePixelFormatARB(dc, attributeListInt, NULL, 1, pixelFormat, &formatCount);
+	if (result != 1)
+	{
+		YY_PRINT_FAILED;
+		return;
+	}
+
+	PIXELFORMATDESCRIPTOR pixelFormatDescriptor;
+	result = SetPixelFormat(dc, pixelFormat[0], &pixelFormatDescriptor);
+	if (result != 1)
+	{
+		YY_PRINT_FAILED;
+		return;
+	}
+#else
+#error Need implementation
+#endif
+}
 bool OpenGL::Init(yyWindow* window)
 {
 	yyLogWriteInfo("Init video driver - OpenGL...\n");
-	m_window = window;
+	//m_window = window;
 
 #ifdef YY_PLATFORM_WINDOWS
 	m_OpenGL_lib = LoadLibrary(L"OpenGL32.dll");
@@ -254,14 +301,14 @@ bool OpenGL::Init(yyWindow* window)
 	gwglDeleteContext(rc);
 	ReleaseDC(tmp_hwnd, dc);
 	DestroyWindow(tmp_hwnd);
-	m_windowDC   = m_window->m_dc;
+	m_windowDC   = window->m_dc;
 	if(!m_windowDC)
 	{
 		YY_PRINT_FAILED;
 		return false;
 	}
-
-	int attributeListInt[] = 
+	InitWindow(window);
+	/*int attributeListInt[] = 
 	{
 		WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
 		WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
@@ -273,9 +320,9 @@ bool OpenGL::Init(yyWindow* window)
 		WGL_PIXEL_TYPE_ARB,     WGL_TYPE_RGBA_ARB,
 		WGL_STENCIL_BITS_ARB,   8,
 		0
-	};
+	};*/
 
-	int pixelFormat[1];
+	/*int pixelFormat[1];
 	unsigned int formatCount;
 	auto result = gwglChoosePixelFormatARB(m_windowDC, attributeListInt, NULL, 1, pixelFormat, &formatCount);
 	if(result != 1)
@@ -290,8 +337,9 @@ bool OpenGL::Init(yyWindow* window)
 	{
 		YY_PRINT_FAILED;
 		return false;
-	}
+	}*/
 
+	int result = 0;
 	int v_maj = 3;
 	int v_min = 2;
 	while(true)
@@ -342,7 +390,7 @@ bool OpenGL::Init(yyWindow* window)
 	}
 
 #else
-#error For Windows
+#error Need implementation
 #endif
 
 	const GLubyte* vendor = gglGetString(GL_VENDOR);
@@ -354,9 +402,9 @@ bool OpenGL::Init(yyWindow* window)
 	gglClearDepth(1.0f);
 	gglEnable(GL_DEPTH_TEST);
 	gglFrontFace(GL_CW);
-	gglViewport(0, 0, m_window->m_size.x, m_window->m_size.y);
+	gglViewport(0, 0, window->m_size.x, window->m_size.y);
 
-	UpdateGUIProjectionMatrix(m_window->m_clientSize);
+	UpdateGUIProjectionMatrix(window->m_clientSize);
 
 	//yyImage whiteImage;
 	//whiteImage.m_width  = 2;
@@ -524,7 +572,16 @@ bool OpenGL::initModel(yyModel* model, OpenGLModel* openglModel)
 
 		gglGenBuffers(1, &openGLMEshBuffer->m_iBuffer);
 		gglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, openGLMEshBuffer->m_iBuffer);
-		gglBufferData(GL_ELEMENT_ARRAY_BUFFER, meshBuffer->m_iCount * sizeof(u16), meshBuffer->m_indices, GL_DYNAMIC_DRAW);
+
+		u32 index_sizeof = sizeof(u16);
+		openGLMEshBuffer->m_indexType = GL_UNSIGNED_SHORT;
+		if (meshBuffer->m_indexType == yyMeshIndexType::u32)
+		{
+			openGLMEshBuffer->m_indexType = GL_UNSIGNED_INT;
+			index_sizeof = sizeof(u32);
+		}
+
+		gglBufferData(GL_ELEMENT_ARRAY_BUFFER, meshBuffer->m_iCount * index_sizeof, meshBuffer->m_indices, GL_DYNAMIC_DRAW);
 
 		openGLMEshBuffer->m_iCount = meshBuffer->m_iCount;
 

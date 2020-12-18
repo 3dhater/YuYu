@@ -43,3 +43,14 @@ yuyu/x64/Release
 res/tr
 *.db
 *.opendb
+game/Debug
+game/Release
+*.yytr
+video/opengl/Debug
+video/opengl/Release
+worldEditor/Debug
+worldEditor/Release
+worldEditor/x64/Debug
+worldEditor/x64/Release
+yuyu/Debug
+yuyu/Release
