@@ -1,6 +1,8 @@
 ﻿#ifndef _YY_ARRAY_H_
 #define _YY_ARRAY_H_
 
+#include <new>
+
 #include "common/allocator.h"
 template<typename type, typename allocator = yyDefault_allocator>
 class yyArray

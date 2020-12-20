@@ -23,14 +23,9 @@ YY_API void YY_C_DECL yyLoadImageAsync(const char* fn, s32 id)
 YY_API yyImage* YY_C_DECL yyLoadImage(const char* fileName)
 {
 	assert(fileName);
-	/*std::filesystem::path p(fileName);
-	if( !std::filesystem::exists(p) )
-	{
-		YY_PRINT_FAILED;
-		return nullptr;
-	}*/
 	if(!yyFS::exists(fileName))
 	{
+		yyLogWriteWarning("File %s not found\n", fileName);
 		YY_PRINT_FAILED;
 		return nullptr;
 	}
@@ -57,13 +52,43 @@ YY_API void YY_C_DECL yyDeleteImage(yyImage* image)
 	yyDestroy( image );
 }
 
+YY_API yyModel* YY_C_DECL yyGetModel(const char* fileName)
+{
+	assert(fileName);
+	if (!yyFS::exists(fileName))
+	{
+		yyLogWriteWarning("File %s not found\n", fileName);
+		YY_PRINT_FAILED;
+		return nullptr;
+	}
+
+	yyFS::path p = fileName;
+	for (auto & node : g_engine->m_modelCache)
+	{
+		if (node.m_path == p)
+			return node.m_resource;
+	}
+
+	yyModel* model = yyLoadModel(fileName);
+	if (!model)
+	{
+		YY_PRINT_FAILED;
+		return nullptr;
+	}
+
+	CacheNode<yyModel> cache_node;
+	cache_node.m_resource = model;
+	cache_node.m_path = p;
+	g_engine->m_modelCache.push_back(cache_node);
+	return model;
+}
+
 YY_API yyModel* YY_C_DECL yyLoadModel(const char* fileName)
 {
 	assert(fileName);
-	//std::filesystem::path p(fileName);
-	//if( !std::filesystem::exists(p) )
 	if(!yyFS::exists(fileName))
 	{
+		yyLogWriteWarning("File %s not found\n", fileName);
 		YY_PRINT_FAILED;
 		return nullptr;
 	}
@@ -87,6 +112,17 @@ YY_API yyModel* YY_C_DECL yyLoadModel(const char* fileName)
 YY_API void YY_C_DECL yyDeleteModel(yyModel* m)
 {
 	assert(m);
+
+	for (size_t i = 0, sz = g_engine->m_modelCache.size(); i < sz; ++i)
+	{
+		auto & node = g_engine->m_modelCache[i];
+		if (m != node.m_resource)
+			continue;
+
+		g_engine->m_modelCache.erase(g_engine->m_modelCache.begin() + i);
+		break;
+	}
+
 	yyDestroy( m );
 }
 

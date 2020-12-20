@@ -68,15 +68,15 @@ struct BackgroundWorkerCommands
 	s32 m_id;
 };
 
+template<typename T>
 struct CacheNode
 {
 	CacheNode()
 		:
 		m_resource(nullptr)
 	{}
-	//std::filesystem::path m_path;
 	yyFS::path m_path;
-	yyResource* m_resource;
+	T* m_resource;
 };
 
 class Engine
@@ -113,8 +113,9 @@ public:
 	u8* compressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size);
 	u8* decompressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size);
 
-	std::vector<CacheNode> m_modelCache;
-	std::vector<CacheNode> m_textureCache;
+	std::vector<CacheNode<yyResource>> m_modelGPUCache;
+	std::vector<CacheNode<yyResource>> m_textureCache;
+	std::vector<CacheNode<yyModel>> m_modelCache;
 };
 
 #endif

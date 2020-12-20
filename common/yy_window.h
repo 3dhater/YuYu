@@ -107,6 +107,15 @@ public:
 #endif
 	}
 
+	void SetTitle(const char* title)
+	{
+#ifdef YY_PLATFORM_WINDOWS
+		SetWindowTextA(m_hWnd, title);
+#else
+#error Need implementation
+#endif
+	}
+
 	void* GetHandle()
 	{
 #ifdef YY_PLATFORM_WINDOWS

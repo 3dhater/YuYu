@@ -562,6 +562,32 @@ struct yyTerrain
 			}
 		}
 	}
+	yyTerrainSector* GetClosestIntersection(const yyRay& cursorRay, v4f& intersectionPoint, yyCamera* camera)
+	{
+		f32 len = FLT_MAX;
+		yyTerrainSector* sector = nullptr;
+		v4f ip;
+		for (u16 i = 0, sz = m_sectors.size(); i < sz; ++i)
+		{
+			auto s = m_sectors[i];
+			if (s->m_visible && s->m_modelGPU_forRender)
+			{
+				if (s->isRayIntersect(cursorRay, ip))
+				{
+						// !! если террейн планируется перемещать то скорее всего надо использовать m_globalPosition
+						//    и так везде
+					f32 distToCam = s->m_localPosition.distance(camera->m_objectBase.m_globalPosition);
+					if (distToCam < len)
+					{
+						intersectionPoint = ip;
+						sector = s;
+						len = distToCam;
+					}
+				}
+			}
+		}
+		return sector;
+	}
 	void SaveAfterEdit()
 	{
 		for (u32 i = 0, sz = m_updateSectors.size(); i < sz; ++i)

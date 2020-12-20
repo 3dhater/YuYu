@@ -45,7 +45,10 @@ extern "C"
 	YY_API void YY_C_DECL yyLoadImageAsync(const char*, s32 id); // after loading, you must call yyDestroyImage
 	YY_API void YY_C_DECL yyDeleteImage(yyImage*);
 	
-	YY_API yyModel* YY_C_DECL yyLoadModel(const char*); // after loading, you must call yyDeleteModel
+	// after loading, you must call yyDeleteModel
+	YY_API yyModel* YY_C_DECL yyLoadModel(const char*);
+	// загрузить модель и поместить её в кеш. следующий вызов - получить из кеша
+	YY_API yyModel* YY_C_DECL yyGetModel(const char*);
 	YY_API void YY_C_DECL yyDeleteModel(yyModel*);
 
 	YY_API void YY_C_DECL yyUpdateAsyncLoader();
@@ -59,8 +62,8 @@ extern "C"
 	YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& rect, yyResource* texture, bool pivotOnCenter);
 
 	// get from cache. if not found, create GPU resource, add to cache
-	YY_API yyResource* YY_C_DECL yyGetTexture(const char*, bool useFilter, bool load);
-	YY_API yyResource* YY_C_DECL yyGetModel(const char*, bool load);
+	YY_API yyResource* YY_C_DECL yyGetTextureResource(const char*, bool useFilter, bool load);
+	YY_API yyResource* YY_C_DECL yyGetModelResource(const char*, bool load);
 
 	YY_API void YY_C_DECL yyGetTextureSize(yyResource*, v2i*);
 

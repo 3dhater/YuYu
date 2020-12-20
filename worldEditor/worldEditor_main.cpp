@@ -18,6 +18,7 @@
 #include "yy_model.h"
 #include "yy_gui.h"
 #include "yy_input.h"
+#include "yy_gameInfo.h"
 
 #include "scene/common.h"
 #include "scene/camera.h"
@@ -160,6 +161,11 @@ int main()
 	yyLogSetWarningOutput(log_onError);
 
 	yyPtr<yyWindow> window = yyCreate<yyWindow>();
+	if (!window.m_data)
+	{
+		YY_PRINT_FAILED;
+		return 1;
+	}
 	auto p_window = window.m_data;
 
 	RECT rc;
@@ -176,9 +182,11 @@ int main()
 	p_window->m_onKeyboard = window_callbackKeyboard;
 
 	yyListFast<int> lf;
-	lf.push_front(1);
-	lf.push_front(2);
-	lf.push_front(3);
+	auto node_1 = lf.push_front(1);
+	auto node_2 = lf.push_front(2);
+	auto node_3 = lf.push_back(3);
+
+	lf.erase_node(node_2);
 
 	// init video driver
 	const char * videoDriverType = "opengl.yyvd"; // for example read name from .ini
@@ -241,10 +249,16 @@ vidOk:
 	te_sphere_material.m_cullBackFace = true;
 	te_sphere_material.m_wireframe = true;
 	auto te_sphere_modelGPU = g_videoDriver->CreateModelFromFile("../res/worldEditor/te_sphere.tr3d", true);
-	auto white_texture_GPU  = g_videoDriver->CreateTextureFromFile("../res/worldEditor/white.dds", true, true);
+	auto white_texture_GPU = g_videoDriver->CreateTextureFromFile("../res/worldEditor/white.dds", true, true);
+	auto red_texture_GPU  = g_videoDriver->CreateTextureFromFile("../res/worldEditor/red.dds", true, true);
 	auto grassGPU = g_videoDriver->CreateTextureFromFile("../res/tr/grass.dds", true, true);
 
 	yyPtr<Viewport> viewport = yyCreate<Viewport>();
+	if (!viewport.m_data)
+	{
+		YY_PRINT_FAILED;
+		return 1;
+	}
 	viewport.m_data->init(window.m_data);
 
 	Gui::GuiSystem* gui = Gui::CreateSystem(Gui::GraphicsSystemType::OpenGL3);
@@ -258,11 +272,25 @@ vidOk:
 		window.m_data );
 	g_videoDriver->InitWindow(terrainGeneratorWindow.m_data);
 	terrainGeneratorWindow.m_data->m_onClose = terrainGen_onCLose;
+	terrainGeneratorWindow.m_data->SetTitle("Terrain generator");
 	terrainGeneratorWindow.m_data->Hide();
 	Gui::Window guiWindow_terrainGenerator;
 	guiWindow_terrainGenerator.OSWindow = terrainGeneratorWindow.m_data->GetHandle();
 
+	yyPtr<yyWindow> entityListWindow = yyCreate<yyWindow>();
+	entityListWindow.m_data->init(400, 600,
+		yyWindowFlag_noMinimizeButton
+		| yyWindowFlag_hide,
+		window.m_data);
+	g_videoDriver->InitWindow(entityListWindow.m_data);
+	entityListWindow.m_data->m_onClose = terrainGen_onCLose;
+	entityListWindow.m_data->SetTitle("Entity list");
+	entityListWindow.m_data->Hide();
+	Gui::Window guiWindow_entityList;
+	guiWindow_entityList.OSWindow = entityListWindow.m_data->GetHandle();
+
 	bool showTerrainGeneratorWindow = false;
+	bool showEntityListWindow = false;
 
 	window.m_data->SetFocus();
 
@@ -284,9 +312,20 @@ vidOk:
 	enum EDITOR_MODE
 	{
 		EditorMode_DEFAULT,
-		EditorMode_TERRAIN
+		EditorMode_TERRAIN,
+		EditorMode_CREATE_ENTITY,
 	};
 	EDITOR_MODE editorMode = EditorMode_DEFAULT;
+
+	yyPtr<yyGameInfo> game_info = yyCreate<yyGameInfo>();
+	if (!game_info.m_data->Init())
+	{
+		YY_PRINT_FAILED;
+		return 1;
+	}
+
+	s32 newEntityID = -1;
+	yyListNode<yyGameEntity*>* pickedEntity = nullptr;
 
 	f32 mainMenuHeight = 0.f;
 	bool cursorInGUI = false;
@@ -378,7 +417,27 @@ vidOk:
 			g_videoDriver->SetActiveWindow(window.m_data);
 			g_videoDriver->BeginDrawClearAll();
 
-			
+			if (editorMode == EditorMode_DEFAULT && pickedEntity)
+			{
+				if (g_inputContex->isKeyHold(yyKey::K_ESCAPE))
+					pickedEntity = nullptr;
+			}
+			if (editorMode == EditorMode_CREATE_ENTITY)
+			{
+				if (g_inputContex->isKeyHold(yyKey::K_ESCAPE))
+				{
+					editorMode = EditorMode_DEFAULT;
+				}
+				else
+				{
+					if (g_inputContex->m_isLMBDown)
+					{
+						// add entity
+						editorMode = EditorMode_DEFAULT;
+						pickedEntity = game_info.m_data->addEntity(newEntityID, intersectionPoint);
+					}
+				}
+			}
 
 			g_videoDriver->UseDepth(true);
 
@@ -400,18 +459,31 @@ vidOk:
 			{
 				newTerrain->OptimizeView(viewport.m_data->m_activeCamera->m_camera);
 
+				auto inersectionSector = newTerrain->GetClosestIntersection(cursorRay, intersectionPoint, viewport.m_data->m_activeCamera->m_camera);
+
 				for (u16 i = 0, sz = newTerrain->m_sectors.size(); i < sz; ++i)
 				{
 					auto sector = newTerrain->m_sectors[i];
 					if (sector->m_visible && sector->m_modelGPU_forRender)
 					{
 						g_videoDriver->SetModel(sector->m_modelGPU_forRender);
-						g_videoDriver->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, grassGPU);
 						g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection, viewport.m_data->m_activeCamera->m_camera->m_projectionMatrix * viewport.m_data->m_activeCamera->m_camera->m_viewMatrix * Mat4());
-						//sector->m_material.m_wireframe = true;
+						
+						g_videoDriver->SetMaterial(&sector->m_material);
+
+						if (sector->m_material.m_wireframe && editorMode == EditorMode_TERRAIN)
+						{
+							g_videoDriver->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, white_texture_GPU);
+							g_videoDriver->Draw();
+						}
+
+						sector->m_material.m_wireframe = false;
 						sector->m_material.m_cullBackFace = true;
 						g_videoDriver->SetMaterial(&sector->m_material);
+
+						g_videoDriver->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, grassGPU);
 						g_videoDriver->Draw();
+
 
 						if (editorMode == EditorMode_TERRAIN)
 						{
@@ -422,7 +494,8 @@ vidOk:
 							}
 							if (!onEdit)
 							{
-								if (sector->isRayIntersect(cursorRay, intersectionPoint))
+								//if (sector->isRayIntersect(cursorRay, intersectionPoint))
+								if (inersectionSector == sector)
 								{
 									intersectionPoint2 = intersectionPoint;
 									if (g_inputContex->m_isLMBDown)
@@ -464,6 +537,58 @@ vidOk:
 				}
 			}
 
+			// draw ents
+			{
+				auto ent_head = game_info.m_data->m_ents_in_scene.head();
+				if (ent_head)
+				{
+					auto ent_last = ent_head->m_left;
+					while (true)
+					{
+						if (ent_head->m_data->m_modelForGPU)
+						{
+							Mat4 WorldMatrix;
+							WorldMatrix[3].x = ent_head->m_data->m_entityPosition.x;
+							WorldMatrix[3].y = ent_head->m_data->m_entityPosition.y;
+							WorldMatrix[3].z = ent_head->m_data->m_entityPosition.z;
+							g_videoDriver->SetModel(ent_head->m_data->m_modelForGPU);
+							g_videoDriver->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, red_texture_GPU);
+							g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection, viewport.m_data->m_activeCamera->m_camera->m_projectionMatrix * viewport.m_data->m_activeCamera->m_camera->m_viewMatrix * WorldMatrix);
+							yyMaterial material;
+							g_videoDriver->SetMaterial(&material);
+							g_videoDriver->Draw();
+
+							if (pickedEntity == ent_head)
+							{
+								material.m_wireframe = true;
+								g_videoDriver->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, white_texture_GPU);
+								g_videoDriver->SetMaterial(&material);
+								g_videoDriver->Draw();
+							}
+						}
+						if (ent_head == ent_last)
+						{
+							break;
+						}
+						ent_head = ent_head->m_right;
+					}
+				}
+			}
+
+			if (editorMode == EditorMode_CREATE_ENTITY)
+			{
+				intersectionPoint.w = 1.f;
+				te_sphere_matrix[3] = intersectionPoint;
+				te_sphere_matrix[0].x = te_sphere_radius;
+				te_sphere_matrix[1].y = te_sphere_radius;
+				te_sphere_matrix[2].z = te_sphere_radius;
+				g_videoDriver->SetModel(te_sphere_modelGPU);
+				g_videoDriver->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, white_texture_GPU);
+				g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection, viewport.m_data->m_activeCamera->m_camera->m_projectionMatrix * viewport.m_data->m_activeCamera->m_camera->m_viewMatrix * te_sphere_matrix);
+				g_videoDriver->SetMaterial(&te_sphere_material);
+				g_videoDriver->Draw();
+			}
+
 			g_videoDriver->UseDepth(false);
 
 
@@ -477,6 +602,10 @@ vidOk:
 					bool showMenu = true;
 					if (gui->popupMenuBegin(&showMenu))
 					{
+						if (gui->addMenuItem((const char16_t*)L"Save", 0, 0))
+						{
+							game_info.m_data->save();
+						}
 						gui->addSeparator();
 						if (gui->addMenuItem((const char16_t*)L"Exit", (const char16_t*)L"Alt+F4", 0))
 						{
@@ -498,6 +627,12 @@ vidOk:
 						{
 							showTerrainGeneratorWindow = true;
 							terrainGeneratorWindow.m_data->Show();
+						}
+						if (gui->addMenuItem((const char16_t*)L"Entity", 0, 0))
+						{
+							editorMode = EditorMode_DEFAULT;
+							showEntityListWindow = true;
+							entityListWindow.m_data->Show();
 						}
 						if (gui->isLastItemCursorHover() || gui->isLastItemCursorMove())
 							cursorInGUI = true;
@@ -568,6 +703,37 @@ vidOk:
 							newTerrain->Generate(g_terGen_sectorsX, g_terGen_sectorsY);
 						}
 					}
+				}
+				gui->render();
+				g_videoDriver->EndDraw();
+			}
+			if (showEntityListWindow && entityListWindow.m_data->m_visible)
+			{
+				g_videoDriver->SetActiveWindow(entityListWindow.m_data);
+				g_videoDriver->BeginDrawClearAll();
+				gui->switchWindow(&guiWindow_entityList);
+				{
+					if (gui->beginGroup(Gui::Vec2f(400.f, 550.f)))
+					{
+						for (u16 i = 0, sz = game_info.m_data->m_ent_list.size(); i < sz; ++i)
+						{
+							auto ent = game_info.m_data->m_ent_list[i];
+							if (gui->addButton(ent->m_name.c_str(), 0, Gui::Vec2f(400.f, 15.f)))
+							{
+								if (editorMode == EditorMode_DEFAULT)
+								{
+									newEntityID = i;
+									editorMode = EditorMode_CREATE_ENTITY;
+								}
+							}
+							gui->newLine();
+						}
+						gui->endGroup();
+					}
+					/*if (gui->beginButtonGroup((const char16_t*)L"ads", 0, Gui::Vec2f(400.f, 15.f)))
+					{
+						gui->endButtonGroup();
+					}*/
 				}
 				gui->render();
 				g_videoDriver->EndDraw();

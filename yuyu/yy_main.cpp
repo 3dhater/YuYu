@@ -99,7 +99,7 @@ EngineDestroyer g_engineDestroyer;
 extern "C"
 {
 
-YY_API yyResource* YY_C_DECL yyGetTexture(const char* fileName, bool useFilter, bool load)
+YY_API yyResource* YY_C_DECL yyGetTextureResource(const char* fileName, bool useFilter, bool load)
 {
 	assert(fileName);
 	//std::filesystem::path p(fileName);
@@ -117,7 +117,7 @@ YY_API yyResource* YY_C_DECL yyGetTexture(const char* fileName, bool useFilter, 
 	
 	if( res )
 	{
-		CacheNode cache_node;
+		CacheNode<yyResource> cache_node;
 		cache_node.m_resource = res;
 		cache_node.m_path    = p;
 		g_engine->m_textureCache.push_back(cache_node);
@@ -135,11 +135,11 @@ YY_API void YY_C_DECL yyGetTextureSize(yyResource* r, v2i* s)
 	return g_engine->m_videoAPI->GetTextureSize(r, s);
 }
 
-YY_API yyResource* YY_C_DECL yyGetModel(const char* fileName, bool load)
+YY_API yyResource* YY_C_DECL yyGetModelResource(const char* fileName, bool load)
 {
 	assert(fileName);
 	yyFS::path p = fileName;
-	for( auto & node : g_engine->m_modelCache )
+	for( auto & node : g_engine->m_modelGPUCache)
 	{
 		if (node.m_path == p)
 		{
@@ -152,10 +152,10 @@ YY_API yyResource* YY_C_DECL yyGetModel(const char* fileName, bool load)
 	
 	if( res )
 	{
-		CacheNode cache_node;
+		CacheNode<yyResource> cache_node;
 		cache_node.m_resource = res;
 		cache_node.m_path    = p;
-		g_engine->m_modelCache.push_back(cache_node);
+		g_engine->m_modelGPUCache.push_back(cache_node);
 	}
 	else
 	{
@@ -249,7 +249,7 @@ u8* Engine::compressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size
 		return nullptr;
 	}
 
-	yyMemRealloc(out_data,(u32)cSize);
+	//yyMemRealloc(out_data,(u32)cSize);
 	out_data_size = (u32)cSize;
 	return out_data;
 }

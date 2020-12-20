@@ -3,7 +3,7 @@
 #include "math\mat.h"
 #include "math\quat.h"
 
-#include "KrGui.h"
+//#include "KrGui.h"
 
 #include "yy_window.h"
 

@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "opengl", "..\video\opengl\o
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "worldEditor", "..\worldEditor\worldEditor.vcxproj", "{FB1D7699-F383-48EB-B13A-C7DE1CC86BE2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "d3d11", "..\video\d3d11\d3d11.vcxproj", "{31C59DD1-646A-49B5-A7D3-BB91362970BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -51,6 +53,14 @@ Global
 		{FB1D7699-F383-48EB-B13A-C7DE1CC86BE2}.Release|x64.Build.0 = Release|x64
 		{FB1D7699-F383-48EB-B13A-C7DE1CC86BE2}.Release|x86.ActiveCfg = Release|Win32
 		{FB1D7699-F383-48EB-B13A-C7DE1CC86BE2}.Release|x86.Build.0 = Release|Win32
+		{31C59DD1-646A-49B5-A7D3-BB91362970BA}.Debug|x64.ActiveCfg = Debug|x64
+		{31C59DD1-646A-49B5-A7D3-BB91362970BA}.Debug|x64.Build.0 = Debug|x64
+		{31C59DD1-646A-49B5-A7D3-BB91362970BA}.Debug|x86.ActiveCfg = Debug|Win32
+		{31C59DD1-646A-49B5-A7D3-BB91362970BA}.Debug|x86.Build.0 = Debug|Win32
+		{31C59DD1-646A-49B5-A7D3-BB91362970BA}.Release|x64.ActiveCfg = Release|x64
+		{31C59DD1-646A-49B5-A7D3-BB91362970BA}.Release|x64.Build.0 = Release|x64
+		{31C59DD1-646A-49B5-A7D3-BB91362970BA}.Release|x86.ActiveCfg = Release|Win32
+		{31C59DD1-646A-49B5-A7D3-BB91362970BA}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
