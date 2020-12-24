@@ -1,6 +1,19 @@
 ﻿#ifndef _YY_VID_H_
 #define _YY_VID_H_
 
+struct yyVideoDriverObjectOpenGL
+{
+	yyVideoDriverObjectOpenGL() {}
+};
+struct yyVideoDriverObjectD3D11
+{
+	yyVideoDriverObjectD3D11()
+	{
+
+	}
+	void * m_device;
+	void * m_context;
+};
 
 const u32 yyVideoDriverAPIVersion = 1;
 struct yyVideoDriverAPI
@@ -64,8 +77,8 @@ struct yyVideoDriverAPI
 	// Load... Прибавит счётчик на 1. Если будет 1 то нужно заново создать реализацию. Если будет
 	//   доступен resource->m_source то будет создано на основе него (если это текстура то m_source должен быть yyImage*)
 	//   иначе будет попытка загрузить реализацию из файла
-	yyResource* (*CreateTexture)(yyImage*, bool useLinearFilter);
-	yyResource* (*CreateTextureFromFile)(const char* fileName, bool useLinearFilter, bool load);
+	yyResource* (*CreateTexture)(yyImage*, bool useLinearFilter, bool useComparisonFilter);
+	yyResource* (*CreateTextureFromFile)(const char* fileName, bool useLinearFilter, bool useComparisonFilter, bool load);
 	void (*UnloadTexture)(yyResource*); // --m_refCount; or unload
 	void (*LoadTexture)(yyResource*); // ++m_refCount; or load
 
@@ -99,11 +112,11 @@ struct yyVideoDriverAPI
 	v2f* (*GetSpriteCameraScale)();
 
 	void (*GetTextureSize)(yyResource* r, v2i*);
-	void (*SetActiveWindow)(yyWindow*);
-	void (*InitWindow)(yyWindow*);
 
 	void (*MapModelForWriteVerts)(yyResource* r, u32 meshbufferIndex, u8** v_ptr);
-	void(*UnmapModelForWriteVerts)(yyResource* r);
+	void(*UnmapModelForWriteVerts)(yyResource* r, u32 meshbufferIndex);
+
+	void*(*GetVideoDriverObjects)();
 };
 
 #endif

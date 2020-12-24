@@ -62,7 +62,7 @@ extern "C"
 	YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& rect, yyResource* texture, bool pivotOnCenter);
 
 	// get from cache. if not found, create GPU resource, add to cache
-	YY_API yyResource* YY_C_DECL yyGetTextureResource(const char*, bool useFilter, bool load);
+	YY_API yyResource* YY_C_DECL yyGetTextureResource(const char*, bool useFilter, bool useComparisonFilter, bool load);
 	YY_API yyResource* YY_C_DECL yyGetModelResource(const char*, bool load);
 
 	YY_API void YY_C_DECL yyGetTextureSize(yyResource*, v2i*);

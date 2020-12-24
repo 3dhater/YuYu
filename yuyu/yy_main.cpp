@@ -99,21 +99,21 @@ EngineDestroyer g_engineDestroyer;
 extern "C"
 {
 
-YY_API yyResource* YY_C_DECL yyGetTextureResource(const char* fileName, bool useFilter, bool load)
+YY_API yyResource* YY_C_DECL yyGetTextureResource(const char* fileName, bool useFilter, bool useComparisonFilter, bool load)
 {
 	assert(fileName);
-	//std::filesystem::path p(fileName);
 	yyFS::path p = fileName;
 	for( auto & node : g_engine->m_textureCache )
 	{
 		if (node.m_path == p)
 		{
-			++node.m_resource->m_refCount;
+			if (node.m_resource->m_isLoaded)
+				++node.m_resource->m_refCount;
 			return node.m_resource;
 		}
 	}
 
-	auto res = g_engine->m_videoAPI->CreateTextureFromFile(fileName, useFilter, load);
+	auto res = g_engine->m_videoAPI->CreateTextureFromFile(fileName, useFilter, useComparisonFilter, load);
 	
 	if( res )
 	{
@@ -143,7 +143,8 @@ YY_API yyResource* YY_C_DECL yyGetModelResource(const char* fileName, bool load)
 	{
 		if (node.m_path == p)
 		{
-			++node.m_resource->m_refCount;
+			if(node.m_resource->m_isLoaded)
+				++node.m_resource->m_refCount; // надо прибавлять только в случае если ресурс загружен
 			return node.m_resource;
 		}
 	}

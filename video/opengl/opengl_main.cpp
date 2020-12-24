@@ -119,15 +119,19 @@ void UnloadTexture(yyResource* r)
 	--r->m_refCount;
 	if(!r->m_refCount)
 	{
-		yyDestroy(g_openGL->m_textures[r->m_index]);
-		g_openGL->m_textures[r->m_index] = nullptr;
+		r->m_isLoaded = false;
+		if (g_openGL->m_textures[r->m_index])
+		{
+			yyDestroy(g_openGL->m_textures[r->m_index]);
+			g_openGL->m_textures[r->m_index] = nullptr;
+		}
 	}
 }
-OpenGLTexture* CreateOpenGLTexture(yyImage* image, bool useLinearFilter)
+OpenGLTexture* CreateOpenGLTexture(yyImage* image, bool useLinearFilter, bool useComparisonFilter)
 {
 	assert(image);
 	auto newTexture = yyCreate<OpenGLTexture>();
-	if(g_openGL->initTexture(image, newTexture, useLinearFilter))
+	if(g_openGL->initTexture(image, newTexture, useLinearFilter, useComparisonFilter))
 		return newTexture;
 	yyDestroy(newTexture);
 	return nullptr;
@@ -142,12 +146,15 @@ void LoadTexture(yyResource* r)
 	}
 #endif
 	++r->m_refCount;
-	if(r->m_refCount == 1)
+	if(r->m_refCount==1)
 	{
+		r->m_isLoaded = true;
+
 		if(r->m_source)
 		{
 			g_openGL->m_textures[r->m_index] = CreateOpenGLTexture((yyImage*)r->m_source, 
-				r->m_flags & yyResource::flags::texture_useLinearFilter );
+				(r->m_flags & yyResource::flags::texture_useLinearFilter) == 1,
+				(r->m_flags & yyResource::flags::texture_useComparisonFilter) == 1);
 			return;
 		}
 
@@ -155,12 +162,13 @@ void LoadTexture(yyResource* r)
 		{
 			yyPtr<yyImage> image = yyLoadImage(r->m_file.c_str());
 			g_openGL->m_textures[r->m_index] = CreateOpenGLTexture(image.m_data, 
-				r->m_flags & yyResource::flags::texture_useLinearFilter );
+				(r->m_flags & yyResource::flags::texture_useLinearFilter) == 1,
+				(r->m_flags & yyResource::flags::texture_useComparisonFilter) == 1);
 			return;
 		} 
 	}
 }
-yyResource* CreateTextureFromFile(const char* fileName, bool useLinearFilter, bool load)
+yyResource* CreateTextureFromFile(const char* fileName, bool useLinearFilter, bool useComparisonFilter, bool load)
 {
 	assert(fileName);
 	yyResource * newRes = yyCreate<yyResource>();
@@ -168,8 +176,10 @@ yyResource* CreateTextureFromFile(const char* fileName, bool useLinearFilter, bo
 	newRes->m_source = nullptr;
 	newRes->m_index = g_openGL->m_textures.size();
 	newRes->m_refCount = 0;
-	if(useLinearFilter)
+	if (useLinearFilter)
 		newRes->m_flags |= yyResource::flags::texture_useLinearFilter;
+	if (useComparisonFilter)
+		newRes->m_flags |= yyResource::flags::texture_useComparisonFilter;
 	newRes->m_file = fileName;
 
 	g_openGL->m_textures.push_back(nullptr);
@@ -178,7 +188,7 @@ yyResource* CreateTextureFromFile(const char* fileName, bool useLinearFilter, bo
 		LoadTexture(newRes);
 	return newRes;
 }
-yyResource* CreateTexture(yyImage* image, bool useLinearFilter)
+yyResource* CreateTexture(yyImage* image, bool useLinearFilter, bool useComparisonFilter)
 {
 	assert(image);
 	yyResource * newRes = yyCreate<yyResource>();
@@ -188,11 +198,14 @@ yyResource* CreateTexture(yyImage* image, bool useLinearFilter)
 	newRes->m_refCount = 1;
 	if(useLinearFilter)
 		newRes->m_flags |= yyResource::flags::texture_useLinearFilter;
+	if (useComparisonFilter)
+		newRes->m_flags |= yyResource::flags::texture_useComparisonFilter;
 
-	auto newTexture = CreateOpenGLTexture(image, useLinearFilter);
+	auto newTexture = CreateOpenGLTexture(image, useLinearFilter, useComparisonFilter);
 	if(newTexture)
 	{
 		g_openGL->m_textures.push_back(newTexture);
+		newRes->m_isLoaded = true;
 		return newRes;
 	}
 
@@ -239,11 +252,13 @@ yyResource* CreateModel(yyModel* model)
 	newRes->m_index = g_openGL->m_models.size();
 	newRes->m_source = model;
 	newRes->m_refCount = 1;
+	newRes->m_aabb = model->m_aabb;
 
 	auto newModel = CreateOpenGLModel(model);
 	if(newModel)
 	{
 		g_openGL->m_models.push_back(newModel);
+		newRes->m_isLoaded = true;
 		return newRes;
 	}
 
@@ -266,8 +281,12 @@ void UnloadModel(yyResource* r)
 	--r->m_refCount;
 	if(!r->m_refCount)
 	{
-		yyDestroy(g_openGL->m_models[r->m_index]);
-		g_openGL->m_models[r->m_index] = nullptr;
+		r->m_isLoaded = false;
+		if (g_openGL->m_models[r->m_index])
+		{
+			yyDestroy(g_openGL->m_models[r->m_index]);
+			g_openGL->m_models[r->m_index] = nullptr;
+		}
 	}
 }
 void LoadModel(yyResource* r)
@@ -280,17 +299,19 @@ void LoadModel(yyResource* r)
 	}
 #endif
 	++r->m_refCount;
-	if(r->m_refCount == 1)
+	if (r->m_refCount == 1)
 	{
+		r->m_isLoaded = true;
 		if(r->m_source)
 		{
 			g_openGL->m_models[r->m_index] = CreateOpenGLModel((yyModel*)r->m_source );
 			return;
 		}
-
+		
 		if(r->m_file.size())
 		{
 			yyPtr<yyModel> model = yyLoadModel(r->m_file.c_str());
+			r->m_aabb = model.m_data->m_aabb;
 			g_openGL->m_models[r->m_index] = CreateOpenGLModel(model.m_data);
 			return;
 		}
@@ -387,11 +408,17 @@ void EndDrawGUI()
 
 void SetTexture(yyVideoDriverAPI::TextureSlot slot, yyResource* res)
 {
-	g_openGL->m_currentTextures[(u32)slot] = g_openGL->m_textures[ res->m_index ];
+	if(res)
+		g_openGL->m_currentTextures[(u32)slot] = g_openGL->m_textures[res->m_index];
+	else
+		g_openGL->m_currentTextures[(u32)slot] = nullptr;
 }
 void SetModel(yyResource* res)
 {
-	g_openGL->m_currentModel = g_openGL->m_models[res->m_index];
+	if (res)
+		g_openGL->m_currentModel = g_openGL->m_models[res->m_index];
+	else
+		g_openGL->m_currentModel = nullptr;
 }
 void Draw()
 {
@@ -402,8 +429,8 @@ void Draw()
 	{
 		if(g_openGL->m_currentTextures[0])
 		{
-			gglActiveTexture(GL_TEXTURE0);
-			gglBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);
 		}
 	}
 	else
@@ -437,8 +464,8 @@ void Draw()
 	for(u16 i = 0, sz = g_openGL->m_currentModel->m_meshBuffers.size(); i < sz; ++i)
 	{
 		auto meshBuffer = g_openGL->m_currentModel->m_meshBuffers[i];
-		gglBindVertexArray(meshBuffer->m_VAO);
-		gglDrawElements(GL_TRIANGLES, meshBuffer->m_iCount, meshBuffer->m_indexType, 0);
+		glBindVertexArray(meshBuffer->m_VAO);
+		glDrawElements(GL_TRIANGLES, meshBuffer->m_iCount, meshBuffer->m_indexType, 0);
 	}
 }
 void DrawSprite(yySprite* sprite)
@@ -466,13 +493,13 @@ void DrawSprite(yySprite* sprite)
 	if(sprite->m_texture)
 	{
 		SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, sprite->m_texture);
-		gglActiveTexture(GL_TEXTURE0);
-		gglBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);
 	}
 	SetModel(sprite->m_model);
 	auto meshBuffer = g_openGL->m_currentModel->m_meshBuffers[0];
-	gglBindVertexArray(meshBuffer->m_VAO);
-	gglDrawElements(GL_TRIANGLES, meshBuffer->m_iCount, GL_UNSIGNED_SHORT, 0);
+	glBindVertexArray(meshBuffer->m_VAO);
+	glDrawElements(GL_TRIANGLES, meshBuffer->m_iCount, GL_UNSIGNED_SHORT, 0);
 }
 void DrawLine3D(const v4f& _p1, const v4f& _p2, const yyColor& color)
 {
@@ -551,10 +578,16 @@ void MapModelForWriteVerts(yyResource* r, u32 meshbufferIndex, u8** v_ptr)
 	glBindBuffer(GL_ARRAY_BUFFER, mb->m_vBuffer);
 	*v_ptr = (u8*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 }
-void UnmapModelForWriteVerts(yyResource* r)
+void UnmapModelForWriteVerts(yyResource* r, u32 meshbufferIndex)
 {
 	glUnmapBuffer(GL_ARRAY_BUFFER);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+yyVideoDriverObjectOpenGL g_yyVideoDriverObjectOpenGL;
+void* GetVideoDriverObjects()
+{
+	return &g_yyVideoDriverObjectOpenGL;
 }
 
 extern "C"
@@ -599,12 +632,12 @@ extern "C"
 		g_api.GetSpriteCameraScale = GetSpriteCameraScale;
 
 		g_api.GetTextureSize = GetTextureSize;
-		g_api.SetActiveWindow = SetActiveWindow;
-		g_api.InitWindow = InitWindow;
 
 		g_api.SetMaterial = SetMaterial;
 		g_api.MapModelForWriteVerts = MapModelForWriteVerts;
 		g_api.UnmapModelForWriteVerts = UnmapModelForWriteVerts;
+
+		g_api.GetVideoDriverObjects = GetVideoDriverObjects;
 
 		return &g_api;
 	}

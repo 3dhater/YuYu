@@ -116,7 +116,6 @@ OpenGL::OpenGL()
 	m_shader_sprite(nullptr),
 	m_shader_line3d(nullptr),
 	m_shader_std(nullptr),
-	m_currentModel(nullptr),
 	m_isGUI(false),
 	m_spriteCameraScale(v2f(1.f,1.f))
 {
@@ -130,6 +129,7 @@ OpenGL::OpenGL()
 		m_currentTextures[i] = nullptr;
 	}
 	m_currentMaterial = nullptr;
+	m_currentModel = nullptr;
 }
 
 OpenGL::~OpenGL()
@@ -475,7 +475,7 @@ bool OpenGL::Init(yyWindow* window)
 	return true;
 }
 
-bool OpenGL::initTexture(yyImage* image, OpenGLTexture* newTexture, bool useLinearFilter)
+bool OpenGL::initTexture(yyImage* image, OpenGLTexture* newTexture, bool useLinearFilter, bool useComparisonFilter)
 {
 	newTexture->m_h = image->m_height;
 	newTexture->m_w = image->m_width;
@@ -517,7 +517,7 @@ bool OpenGL::initTexture(yyImage* image, OpenGLTexture* newTexture, bool useLine
 		{
 			u32 size = ((width+3)/4)*((height+3)/4)*blockSize;
 			gglCompressedTexImage2D(GL_TEXTURE_2D, level, format, width, height, 
-				0, size, image->m_data + offset);
+				0, size, image->m_data + image->m_bitDataOffset + offset);
 
 			offset += size;
 			width  /= 2;
@@ -527,6 +527,11 @@ bool OpenGL::initTexture(yyImage* image, OpenGLTexture* newTexture, bool useLine
 	gglGenerateMipmap(GL_TEXTURE_2D);
 	gglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	gglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	if (useComparisonFilter)
+	{
+		gglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+		gglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+	}
 	gglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, useLinearFilter ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST);
 	gglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, useLinearFilter ? GL_LINEAR : GL_NEAREST);
 	return true;
@@ -540,38 +545,47 @@ bool OpenGL::initModel(yyModel* model, OpenGLModel* openglModel)
 
 		OpenGLMeshBuffer* openGLMEshBuffer = yyCreate<OpenGLMeshBuffer>();
 
-		gglGenVertexArrays(1, &openGLMEshBuffer->m_VAO);
-		gglBindVertexArray(openGLMEshBuffer->m_VAO);
-		gglGenBuffers(1, &openGLMEshBuffer->m_vBuffer);
-		gglBindBuffer(GL_ARRAY_BUFFER, openGLMEshBuffer->m_vBuffer);
-		gglBufferData(GL_ARRAY_BUFFER, meshBuffer->m_vCount * meshBuffer->m_stride, meshBuffer->m_vertices, GL_DYNAMIC_DRAW);
+		glGenVertexArrays(1, &openGLMEshBuffer->m_VAO);
+		glBindVertexArray(openGLMEshBuffer->m_VAO);
+		glGenBuffers(1, &openGLMEshBuffer->m_vBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, openGLMEshBuffer->m_vBuffer);
+		glBufferData(GL_ARRAY_BUFFER, meshBuffer->m_vCount * meshBuffer->m_stride, meshBuffer->m_vertices, GL_DYNAMIC_DRAW);
 
-		// POSITION
-		gglEnableVertexAttribArray(0);
-		gglVertexAttribPointer(0, 3, GL_FLOAT, false, meshBuffer->m_stride, 0); 
+		if (meshBuffer->m_vertexType == yyVertexType::GUI)
+		{
+			// POSITION
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 2, GL_FLOAT, false, meshBuffer->m_stride, 0); 
 
-		// TexCoords
-		gglEnableVertexAttribArray(1);
-		gglBindBuffer(GL_ARRAY_BUFFER, openGLMEshBuffer->m_vBuffer);
-		gglVertexAttribPointer(1, 2, GL_FLOAT, false, meshBuffer->m_stride, (unsigned char*)NULL + (3 * sizeof(float)));
+			// TexCoords
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 2, GL_FLOAT, false, meshBuffer->m_stride, (unsigned char*)NULL + (2 * sizeof(float)));
+		}
+		else
+		{
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, false, meshBuffer->m_stride, 0);
+
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 2, GL_FLOAT, false, meshBuffer->m_stride, (unsigned char*)NULL + (3 * sizeof(float)));
+
+			// Normals
+			glEnableVertexAttribArray(2);
+			glVertexAttribPointer(2, 3, GL_FLOAT, false, meshBuffer->m_stride, (unsigned char*)NULL + (5 * sizeof(float)));
 	
-		//// Normals
-		//gglEnableVertexAttribArray(2);
-		//gglBindBuffer(GL_ARRAY_BUFFER, m_vBuffer);
-		//gglVertexAttribPointer(2, 3, GL_FLOAT, false, smesh->m_stride, (unsigned char*)NULL + (5 * sizeof(float)));
+			// binormal
+			glEnableVertexAttribArray(3);
+			glVertexAttribPointer(3, 3, GL_FLOAT, false, meshBuffer->m_stride, (unsigned char*)NULL + (8 * sizeof(float)));
+
+			// tangent
+			glEnableVertexAttribArray(4);
+			glVertexAttribPointer(4, 3, GL_FLOAT, false, meshBuffer->m_stride, (unsigned char*)NULL + (11 * sizeof(float)));
+		}
+
 	
-		//// binormal
-		//gglEnableVertexAttribArray(3);
-		//gglBindBuffer(GL_ARRAY_BUFFER, m_vBuffer);
-		//gglVertexAttribPointer(3, 3, GL_FLOAT, false, smesh->m_stride, (unsigned char*)NULL + (8 * sizeof(float)));
 
-		//// tangent
-		//gglEnableVertexAttribArray(4);
-		//gglBindBuffer(GL_ARRAY_BUFFER, m_vBuffer);
-		//gglVertexAttribPointer(4, 3, GL_FLOAT, false, smesh->m_stride, (unsigned char*)NULL + (11 * sizeof(float)));
-
-		gglGenBuffers(1, &openGLMEshBuffer->m_iBuffer);
-		gglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, openGLMEshBuffer->m_iBuffer);
+		glGenBuffers(1, &openGLMEshBuffer->m_iBuffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, openGLMEshBuffer->m_iBuffer);
 
 		u32 index_sizeof = sizeof(u16);
 		openGLMEshBuffer->m_indexType = GL_UNSIGNED_SHORT;
@@ -581,15 +595,15 @@ bool OpenGL::initModel(yyModel* model, OpenGLModel* openglModel)
 			index_sizeof = sizeof(u32);
 		}
 
-		gglBufferData(GL_ELEMENT_ARRAY_BUFFER, meshBuffer->m_iCount * index_sizeof, meshBuffer->m_indices, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, meshBuffer->m_iCount * index_sizeof, meshBuffer->m_indices, GL_DYNAMIC_DRAW);
 
 		openGLMEshBuffer->m_iCount = meshBuffer->m_iCount;
 
 		openglModel->m_meshBuffers.push_back(openGLMEshBuffer);
 
-		gglBindVertexArray(0);
-		gglBindBuffer(GL_ARRAY_BUFFER,0);
-		gglBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER,0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
 	}
 
 	return true;

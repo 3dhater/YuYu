@@ -110,7 +110,7 @@ yyModel* ModelLoader_TR3D(const char* p)
 		new_mesh.m_data->m_vCount = meshhead.m_vCount;
 		new_mesh.m_data->m_stride = meshhead.m_stride;
 
-		u8* compressed_v = nullptr;
+		/*u8* compressed_v = nullptr;
 		u8* compressed_i = nullptr;
 		if(!meshhead.m_dataComressSize_i)
 		{
@@ -121,19 +121,41 @@ yyModel* ModelLoader_TR3D(const char* p)
 		{
 			YY_PRINT_FAILED;
 			return nullptr;
+		}*/
+
+		//compressed_v = (u8*)yyMemAlloc(meshhead.m_dataComressSize_v);
+		//compressed_i = (u8*)yyMemAlloc(meshhead.m_dataComressSize_i);
+						
+		//in.read((char*)compressed_v, meshhead.m_dataComressSize_v);
+		//in.read((char*)compressed_i, meshhead.m_dataComressSize_i);
+		//u32 outsize = 0;
+		//new_mesh.m_data->m_vertices = yyDecompressData(compressed_v, meshhead.m_dataComressSize_v, outsize, yyCompressType::ZStd);
+		//new_mesh.m_data->m_indices = (u8*)yyDecompressData(compressed_i, meshhead.m_dataComressSize_i, outsize, yyCompressType::ZStd);
+
+		new_mesh.m_data->m_vertices = (u8*)yyMemAlloc(meshhead.m_dataDecomressSize_v);
+		new_mesh.m_data->m_indices = (u8*)yyMemAlloc(meshhead.m_dataDecomressSize_i);
+		in.read((char*)new_mesh.m_data->m_vertices, meshhead.m_dataDecomressSize_v);
+		in.read((char*)new_mesh.m_data->m_indices, meshhead.m_dataDecomressSize_i);
+		//u32 outsize = 0;
+		//new_mesh.m_data->m_vertices = yyDecompressData(compressed_v, meshhead.m_dataComressSize_v, outsize, yyCompressType::ZStd);
+		//new_mesh.m_data->m_indices = (u8*)yyDecompressData(compressed_i, meshhead.m_dataComressSize_i, outsize, yyCompressType::ZStd);
+
+		auto vertsPtr = new_mesh.m_data->m_vertices;
+		for (u32 o = 0; o < meshhead.m_vCount; ++o)
+		{
+			f32 * f32ptr = (f32*)vertsPtr;
+			
+			v3f v;
+			v.x = *f32ptr; ++f32ptr;
+			v.y = *f32ptr; ++f32ptr;
+			v.z = *f32ptr; ++f32ptr;
+			new_mesh.m_data->m_aabb.add(v);
+
+			vertsPtr += meshhead.m_stride;
 		}
 
-		compressed_v = (u8*)yyMemAlloc(meshhead.m_dataComressSize_v);
-		compressed_i = (u8*)yyMemAlloc(meshhead.m_dataComressSize_i);
-						
-		in.read((char*)compressed_v, meshhead.m_dataComressSize_v);
-		in.read((char*)compressed_i, meshhead.m_dataComressSize_i);
-		u32 outsize = 0;
-		new_mesh.m_data->m_vertices = yyDecompressData(compressed_v, meshhead.m_dataComressSize_v, outsize, yyCompressType::ZStd);
-		new_mesh.m_data->m_indices = (u8*)yyDecompressData(compressed_i, meshhead.m_dataComressSize_i, outsize, yyCompressType::ZStd);
-
-		yyMemFree(compressed_v);
-		yyMemFree(compressed_i);
+		//yyMemFree(compressed_v);
+		//yyMemFree(compressed_i);
 
 		if(!new_mesh.m_data->m_vertices)
 		{
@@ -147,6 +169,7 @@ yyModel* ModelLoader_TR3D(const char* p)
 		}
 
 		new_model.m_data->m_meshBuffers.push_back(new_mesh.m_data);
+		new_model.m_data->m_aabb.add(new_mesh.m_data->m_aabb);
 		new_mesh.m_data = nullptr;
 	}
 	if(new_model.m_data->m_meshBuffers.size())

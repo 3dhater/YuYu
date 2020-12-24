@@ -15,9 +15,11 @@ struct yyInputContext
 		{
 		memset(m_key_hold, 0, sizeof(u8) * 256);
 		m_isLMBUp = false;
+		m_isLMBDbl = false;
 	}
 
 	bool m_isLMBDown;
+	bool m_isLMBDbl;
 	bool m_isLMBHold;
 	bool m_isLMBUp;
 	bool m_isRMBDown;

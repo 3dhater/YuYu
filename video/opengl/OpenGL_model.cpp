@@ -15,12 +15,13 @@ OpenGLMeshBuffer::OpenGLMeshBuffer()
 
 OpenGLMeshBuffer::~OpenGLMeshBuffer()
 {
-	gglBindBuffer(GL_ARRAY_BUFFER, 0);
-	gglDeleteBuffers(1, &m_vBuffer);
-	gglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	gglDeleteBuffers(1, &m_iBuffer);
-	gglBindVertexArray(0);
-	gglDeleteVertexArrays(1,&m_VAO);
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	glDeleteBuffers(1, &m_vBuffer);
+	glDeleteBuffers(1, &m_iBuffer);
+	glDeleteVertexArrays(1,&m_VAO);
 }
 
 

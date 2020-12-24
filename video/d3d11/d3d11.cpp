@@ -1,13 +1,50 @@
 ﻿#include "yy.h"
 #include "yy_window.h"
+#include "yy_model.h"
+#include "yy_image.h"
 
-#include "d3d11.h"
+#include "vid_d3d11.h"
+#include "d3d11_model.h"
+#include "d3d11_texture.h"
+#include "d3d11_shader_GUI.h"
+
+#include "DDSTextureLoader.h"
+
+void D3D11::UpdateGUIProjectionMatrix(const v2i& windowSize)
+{
+//	gglViewport(0, 0, (GLsizei)windowSize.x, (GLsizei)windowSize.y);
+	float L = 0;
+	float R = (float)windowSize.x;
+	float T = 0;
+	float B = (float)windowSize.y;
+
+	m_guiProjectionMatrix.m_data[0] = v4f(2.0f / (R - L), 0.0f, 0.0f, 0.0f);
+	m_guiProjectionMatrix.m_data[1] = v4f(0.0f, 2.0f / (T - B), 0.0f, 0.0f);
+	m_guiProjectionMatrix.m_data[2] = v4f(0.0f, 0.0f, 0.5f, 0.0f);
+	m_guiProjectionMatrix.m_data[3] = v4f((R + L) / (L - R), (T + B) / (B - T), 0.5f, 1.0f);
+
+	////opengl
+	//m_guiProjectionMatrix.m_data[0] = v4f(2.0f / (R - L), 0.0f, 0.0f, 0.0f);
+	//m_guiProjectionMatrix.m_data[1] = v4f(0.0f, 2.0f / (T - B), 0.0f, 0.0f);
+	//m_guiProjectionMatrix.m_data[2] = v4f(0.0f, 0.0f, -1.0f, 0.0f);
+	//m_guiProjectionMatrix.m_data[3] = v4f((R + L) / (L - R), (T + B) / (B - T), 0.0f, 1.0f);
+}
 
 D3D11::D3D11()
 {
+	for (u32 i = 0; i < (u32)yyVideoDriverAPI::TextureSlot::Count; ++i)
+	{
+		m_currentTextures[i] = nullptr;
+	}
+	m_currentMaterial = nullptr;
+	m_currentModel = nullptr;
+
+	m_shaderGUI = nullptr;
+	m_isGUI = false;
 	m_vsync = false;
-	m_D3DLibrary = nullptr;
+	//m_D3DLibrary = nullptr;
 	m_SwapChain = nullptr;
+	//m_activeWindowGPUData = nullptr;
 	m_d3d11Device = nullptr;
 	m_d3d11DevCon = nullptr;
 	m_MainTargetView = nullptr;
@@ -25,6 +62,7 @@ D3D11::D3D11()
 }
 D3D11::~D3D11()
 {
+	if (m_shaderGUI) yyDestroy(m_shaderGUI);
 	if (m_blendStateAlphaDisabled)              m_blendStateAlphaDisabled->Release();
 	if (m_blendStateAlphaEnabledWithATC)        m_blendStateAlphaEnabledWithATC->Release();
 	if (m_blendStateAlphaEnabled)               m_blendStateAlphaEnabled->Release();
@@ -39,8 +77,12 @@ D3D11::~D3D11()
 	if (m_MainTargetView)                       m_MainTargetView->Release();
 	if (m_d3d11DevCon)                          m_d3d11DevCon->Release();
 	if (m_SwapChain)                            m_SwapChain->Release();
+	/*for (size_t i = 0, sz = m_windowGPUData.size(); i < sz; ++i)
+	{
+		m_windowGPUData[i]->m_SwapChain->Release();
+	}*/
 	if (m_d3d11Device)                          m_d3d11Device->Release();
-	if (m_D3DLibrary)							FreeLibrary(m_D3DLibrary);
+	//if (m_D3DLibrary)							FreeLibrary(m_D3DLibrary);
 }
 bool D3D11::Init(yyWindow* window)
 {
@@ -60,36 +102,6 @@ bool D3D11::Init(yyWindow* window)
 	bufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	bufferDesc.Scaling			= DXGI_MODE_SCALING_UNSPECIFIED;
 
-	wchar_t systemDir[256];
-
-	GetSystemDirectoryW(systemDir, 256);
-	yyString d3dlib_str = systemDir;
-	d3dlib_str += u"\\d3d11.dll";
-
-	m_D3DLibrary = LoadLibrary((wchar_t*)d3dlib_str.data());
-	if (!m_D3DLibrary) 
-	{
-		yyLogWriteError("Could not load d3d11.dll\n");
-		YY_PRINT_FAILED;
-		return false;
-	}
-
-	yyD3D11CreateDevice_t D3D11CreateDevice = (yyD3D11CreateDevice_t)GetProcAddress(m_D3DLibrary, "D3D11CreateDevice");
-	if (!D3D11CreateDevice) 
-	{
-		yyLogWriteError("Could not get proc adress of D3D11CreateDevice\n");
-		YY_PRINT_FAILED;
-		return false;
-	}
-
-	yyD3D11CreateDeviceAndSwapChain_t D3D11CreateDeviceAndSwapChain =
-		(yyD3D11CreateDeviceAndSwapChain_t)GetProcAddress(m_D3DLibrary, "D3D11CreateDeviceAndSwapChain");
-	if (!D3D11CreateDeviceAndSwapChain) 
-	{
-		yyLogWriteError("Could not get proc adress of D3D11CreateDeviceAndSwapChain");
-		YY_PRINT_FAILED;
-		return false;
-	}
 
 	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
 	auto hr = D3D11CreateDevice(
@@ -174,7 +186,6 @@ bool D3D11::Init(yyWindow* window)
 	}
 
 	dxgiFactory->MakeWindowAssociation(window->m_hWnd, DXGI_MWA_NO_ALT_ENTER);
-
 	dxgiDevice->Release();
 	dxgiAdapter->Release();
 	dxgiFactory->Release();
@@ -190,7 +201,6 @@ bool D3D11::Init(yyWindow* window)
 		return false;
 	}
 
-
 	if (FAILED(this->m_d3d11Device->CreateRenderTargetView(
 		BackBuffer, 0, &m_MainTargetView))) 
 	{
@@ -204,8 +214,8 @@ bool D3D11::Init(yyWindow* window)
 
 	D3D11_TEXTURE2D_DESC	DSD;
 	ZeroMemory(&DSD, sizeof(DSD));
-	DSD.Width = bufferDesc.Width;
-	DSD.Height = bufferDesc.Height;
+	DSD.Width = window->m_clientSize.x;
+	DSD.Height = window->m_clientSize.y;
 	DSD.MipLevels = 1;
 	DSD.ArraySize = 1;
 	DSD.Format = DXGI_FORMAT_D32_FLOAT;
@@ -344,13 +354,232 @@ bool D3D11::Init(yyWindow* window)
 	m_d3d11DevCon->OMSetBlendState(m_blendStateAlphaEnabled, blendFactor, 0xffffffff);
 
 	D3D11_VIEWPORT viewport;
-	viewport.Width = bufferDesc.Width;
-	viewport.Height = bufferDesc.Height;
+	viewport.Width = (f32)window->m_clientSize.x;
+	viewport.Height = (f32)window->m_clientSize.y;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	viewport.TopLeftX = 0.0f;
 	viewport.TopLeftY = 0.0f;
 	m_d3d11DevCon->RSSetViewports(1, &viewport);
+	
+	UpdateGUIProjectionMatrix(window->m_clientSize);
+
+	m_shaderGUI = yyCreate<D3D11ShaderGUI>();
+	if (!m_shaderGUI->init())
+	{
+		yyLogWriteError("Can't create GUI shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	return true;
+}
+
+HRESULT	D3D11::createSamplerState(
+	D3D11_FILTER filter,
+	D3D11_TEXTURE_ADDRESS_MODE addressMode,
+	u32 anisotropic_level,
+	ID3D11SamplerState** samplerState)
+{
+	D3D11_SAMPLER_DESC samplerDesc;
+	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
+	samplerDesc.Filter = filter;
+
+	samplerDesc.AddressU = addressMode;
+	samplerDesc.AddressV = addressMode;
+	samplerDesc.AddressW = addressMode;
+
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samplerDesc.MaxLOD = FLT_MAX;
+
+	samplerDesc.MaxAnisotropy = anisotropic_level;
+
+	return m_d3d11Device->CreateSamplerState(&samplerDesc, samplerState);
+}
+bool D3D11::initTexture(yyImage* image, D3D11Texture* newTexture, bool useLinearFilter, bool useComparedFilter)
+{
+	newTexture->m_h = image->m_height;
+	newTexture->m_w = image->m_width;
+
+	D3D11_TEXTURE2D_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.Width = image->m_width;
+	desc.Height = image->m_height;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+
+	switch (image->m_format)
+	{
+	case yyImageFormat::BC1:
+	case yyImageFormat::BC2:
+	case yyImageFormat::BC3:
+	{
+		auto hr = DirectX::CreateDDSTextureFromMemory(
+			m_d3d11Device,
+			m_d3d11DevCon,
+			(const uint8_t*)image->m_data,
+			(size_t)image->m_fileSize,
+			(ID3D11Resource**)&newTexture->m_texture,
+			&newTexture->m_textureResView);
+
+		if (FAILED(hr))
+		{
+			YY_PRINT_FAILED;
+			return false;
+		}
+	}break;
+	case yyImageFormat::R8G8B8A8:
+	{
+		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+		desc.MiscFlags = 0;
+		desc.ArraySize = 1;
+		desc.MipLevels = 1;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.CPUAccessFlags = 0;
+
+		D3D11_SUBRESOURCE_DATA initData;
+		ZeroMemory(&initData, sizeof(initData));
+		initData.pSysMem = image->m_data;
+		initData.SysMemPitch = image->m_pitch;
+		initData.SysMemSlicePitch = image->m_dataSize;
+		auto hr = m_d3d11Device->CreateTexture2D(&desc, &initData, &newTexture->m_texture);
+		if (FAILED(hr))
+		{
+			yyLogWriteError("Can't create 2D texture\n");
+			YY_PRINT_FAILED;
+			return false;
+		}
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc;
+		ZeroMemory(&SRVDesc, sizeof(SRVDesc));
+		SRVDesc.Format = desc.Format;
+		SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		SRVDesc.Texture2D.MostDetailedMip = 0;
+		SRVDesc.Texture2D.MipLevels = 1;
+
+		hr = m_d3d11Device->CreateShaderResourceView(newTexture->m_texture,
+			&SRVDesc, &newTexture->m_textureResView);
+		if (FAILED(hr))
+		{
+			yyLogWriteError("Can't create shader resource view\n");
+			YY_PRINT_FAILED;
+			return false;
+		}
+	}break;
+	default:
+		yyLogWriteWarning("Unsupported texture format\n");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	
+	//if (!is_RTT) 
+	{
+		D3D11_FILTER filter;
+
+		if (useLinearFilter)
+		{
+			filter = D3D11_FILTER::D3D11_FILTER_ANISOTROPIC;
+			if(useComparedFilter)
+				filter = D3D11_FILTER::D3D11_FILTER_COMPARISON_ANISOTROPIC;
+		}
+		else
+		{
+			filter = D3D11_FILTER::D3D11_FILTER_MIN_MAG_MIP_POINT;
+			if (useComparedFilter)
+				filter = D3D11_FILTER::D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
+		}
+
+		auto hr = this->createSamplerState( filter, D3D11_TEXTURE_ADDRESS_WRAP, 1, &newTexture->m_samplerState);
+		if (FAILED(hr)) 
+		{
+			yyLogWriteError("Can't create sampler state\n");
+			YY_PRINT_FAILED;
+			return false;
+		}
+	}
+
+	return true;
+}
+
+struct Vertex	//Overloaded Vertex Structure
+{
+	Vertex() {}
+	Vertex(float x, float y, float z)
+		: pos(x, y, z) {}
+
+	v3f pos;
+};
+bool D3D11::initModel(yyModel* model, D3D11Model* d3d11Model)
+{
+	Vertex v[] =
+	{
+		Vertex(0.0f, 0.5f, 0.5f),
+		Vertex(0.5f, -0.5f, 0.5f),
+		Vertex(-0.5f, -0.5f, 0.5f),
+	};
+	D3D11MeshBuffer* d3d11MeshBuffer = yyCreate<D3D11MeshBuffer>();
+	d3d11Model->m_meshBuffers.push_back(d3d11MeshBuffer);
+	//for (u16 i = 0, sz = model->m_meshBuffers.size(); i < sz; ++i)
+	//{
+	//	auto meshBuffer = model->m_meshBuffers.m_data[i];
+
+	//	D3D11MeshBuffer* d3d11MeshBuffer = yyCreate<D3D11MeshBuffer>();
+
+		D3D11_BUFFER_DESC	vbd, ibd;
+		ZeroMemory(&vbd, sizeof(D3D11_BUFFER_DESC));
+		vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		vbd.Usage = D3D11_USAGE_DYNAMIC;
+		vbd.Usage = D3D11_USAGE_DEFAULT;
+		vbd.CPUAccessFlags = 0;
+		vbd.ByteWidth = sizeof(Vertex) * 3;
+
+		ZeroMemory(&ibd, sizeof(D3D11_BUFFER_DESC));
+		ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		ibd.Usage = D3D11_USAGE_DYNAMIC;
+		//ibd.Usage = D3D11_USAGE_DEFAULT;
+		ibd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+		D3D11_SUBRESOURCE_DATA	vData, iData;
+		ZeroMemory(&vData, sizeof(D3D11_SUBRESOURCE_DATA));
+		ZeroMemory(&iData, sizeof(D3D11_SUBRESOURCE_DATA));
+		HRESULT	hr = 0;
+
+		d3d11MeshBuffer->m_stride = sizeof(Vertex);
+		vData.pSysMem = v;
+		hr = m_d3d11Device->CreateBuffer(&vbd, &vData, &d3d11MeshBuffer->m_vBuffer);
+		if (FAILED(hr)) 
+		{
+			yyLogWriteError("Can't create Direct3D 11 vertex buffer [%u]\n", hr);
+			YY_PRINT_FAILED;
+			return false;
+		}
+
+
+	//	u32 index_sizeof = sizeof(u16);
+	//	d3d11MeshBuffer->m_indexType = DXGI_FORMAT_R16_UINT;
+	//	if (meshBuffer->m_indexType == yyMeshIndexType::u32)
+	//	{
+	//		d3d11MeshBuffer->m_indexType = DXGI_FORMAT_R32_UINT;
+	//		index_sizeof = sizeof(u32);
+	//	}
+	//	ibd.ByteWidth = index_sizeof * meshBuffer->m_iCount;
+	//	iData.pSysMem = &meshBuffer->m_indices[0];
+
+	//	d3d11MeshBuffer->m_iCount = meshBuffer->m_iCount;
+	//	d3d11MeshBuffer->m_stride = meshBuffer->m_stride;
+
+	//	hr = m_d3d11Device->CreateBuffer(&ibd, &iData, &d3d11MeshBuffer->m_iBuffer);
+	//	if (FAILED(hr)) 
+	//	{
+	//		yyLogWriteError("Can't create Direct3D 11 index buffer [%u]\n", hr);
+	//		YY_PRINT_FAILED;
+	//		return false;
+	//	}
+
+	//	d3d11Model->m_meshBuffers.push_back(d3d11MeshBuffer);
+	//}
 
 	return true;
 }

@@ -66,7 +66,10 @@ YY_API yyModel* YY_C_DECL yyGetModel(const char* fileName)
 	for (auto & node : g_engine->m_modelCache)
 	{
 		if (node.m_path == p)
+		{
+			++node.m_resource->m_refCount;
 			return node.m_resource;
+		}
 	}
 
 	yyModel* model = yyLoadModel(fileName);
@@ -75,6 +78,8 @@ YY_API yyModel* YY_C_DECL yyGetModel(const char* fileName)
 		YY_PRINT_FAILED;
 		return nullptr;
 	}
+
+	++model->m_refCount;
 
 	CacheNode<yyModel> cache_node;
 	cache_node.m_resource = model;
@@ -123,7 +128,9 @@ YY_API void YY_C_DECL yyDeleteModel(yyModel* m)
 		break;
 	}
 
-	yyDestroy( m );
+	--m->m_refCount;
+	if(!m->m_refCount)
+		yyDestroy( m );
 }
 
 /*YY_API yyResource YY_C_DECL yyGetTextureFromFile(const char* fn)

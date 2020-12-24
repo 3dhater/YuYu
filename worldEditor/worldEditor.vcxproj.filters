@@ -7,8 +7,8 @@
     <Filter Include="src\Win32">
       <UniqueIdentifier>{cccacf99-fcb6-4f9b-8385-ff9aa2db0eb2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="krgui">
-      <UniqueIdentifier>{2f7b21fd-8518-4733-9cea-384e22aa3976}</UniqueIdentifier>
+    <Filter Include="src\krgui">
+      <UniqueIdentifier>{f9f62aad-047a-4f07-9a70-7323eb24cdba}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -21,57 +21,63 @@
     <ClCompile Include="Viewport.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\libs\krgui\src\KrGuiMenuBar.cpp">
-      <Filter>krgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libs\krgui\src\KrGuiNodeEditor.cpp">
-      <Filter>krgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libs\krgui\src\krGuiOpenGL.cpp">
-      <Filter>krgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libs\krgui\src\KrGuiPictureBox.cpp">
-      <Filter>krgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libs\krgui\src\KrGuiPopupMenu.cpp">
-      <Filter>krgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libs\krgui\src\KrGuiRangeSlider.cpp">
-      <Filter>krgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libs\krgui\src\KrGuiRectangle.cpp">
-      <Filter>krgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libs\krgui\src\KrGuiText.cpp">
-      <Filter>krgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libs\krgui\src\KrGuiTextInput.cpp">
-      <Filter>krgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libs\krgui\src\KrGuiValueSelector.cpp">
-      <Filter>krgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libs\krgui\src\krGui.cpp">
-      <Filter>krgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libs\krgui\src\KrGuiButton.cpp">
-      <Filter>krgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libs\krgui\src\KrGuiCheckbox.cpp">
-      <Filter>krgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libs\krgui\src\KrGuiFont.cpp">
-      <Filter>krgui</Filter>
+    <ClCompile Include="WindowParameters.cpp">
+      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\libs\krgui\src\KrGuiFontCreation.cpp">
-      <Filter>krgui</Filter>
+      <Filter>src\krgui</Filter>
     </ClCompile>
     <ClCompile Include="..\libs\krgui\src\KrGuiGroup.cpp">
-      <Filter>krgui</Filter>
+      <Filter>src\krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiMenuBar.cpp">
+      <Filter>src\krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiNodeEditor.cpp">
+      <Filter>src\krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\krGuiOpenGL.cpp">
+      <Filter>src\krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiPictureBox.cpp">
+      <Filter>src\krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiPopupMenu.cpp">
+      <Filter>src\krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiRangeSlider.cpp">
+      <Filter>src\krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiRectangle.cpp">
+      <Filter>src\krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiText.cpp">
+      <Filter>src\krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiTextInput.cpp">
+      <Filter>src\krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiValueSelector.cpp">
+      <Filter>src\krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\krGui.cpp">
+      <Filter>src\krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiButton.cpp">
+      <Filter>src\krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiCheckbox.cpp">
+      <Filter>src\krgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libs\krgui\src\KrGuiFont.cpp">
+      <Filter>src\krgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Viewport.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowParameters.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

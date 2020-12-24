@@ -29,12 +29,12 @@ bool OpenGLShaderGUI::init()
 {
 	const char * text_v = 
 		"#version 130\n"
-		"in vec3 Position;\n"
+		"in vec2 Position;\n"
 		"in vec2 UV;\n"
 		"uniform mat4 ProjMtx;\n"
 		"out vec2 out_UV;\n"
 		"void main(){\n"
-		"    gl_Position = ProjMtx * vec4(Position.xyz,1);\n"
+		"    gl_Position = ProjMtx * vec4(Position.xy,0,1);\n"
 		"    out_UV = UV;\n"
 		"}\n";
 	const char * text_f = 

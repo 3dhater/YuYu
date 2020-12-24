@@ -1264,7 +1264,7 @@ public:
 	std::vector<OpenGLTexture*> m_textures;
 	std::vector<OpenGLModel*> m_models;
 
-	bool initTexture(yyImage*, OpenGLTexture*, bool useLinearFilter);
+	bool initTexture(yyImage*, OpenGLTexture*, bool useLinearFilter, bool useComparisonFilter);
 	bool initModel(yyModel*, OpenGLModel*);
 
 	OpenGLShaderGUI* m_shader_gui;
@@ -1276,7 +1276,6 @@ public:
 
 	OpenGLTexture* m_currentTextures[(u32)yyVideoDriverAPI::TextureSlot::Count];
 	OpenGLModel*   m_currentModel;
-
 	yyMaterial * m_currentMaterial;
 
 #ifdef YY_PLATFORM_WINDOWS

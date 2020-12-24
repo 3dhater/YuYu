@@ -116,8 +116,22 @@ void window_callbackKeyboard(yyWindow*, bool isPress, u32 key, char16_t characte
 	}
 }
 
-int main()
+int main(int argc, char* argv[])
 {
+	const char * videoDriverType = "opengl.yyvd"; // for example read name from .ini
+	yyStringA videoDriverTypeStr = videoDriverType;
+	for (int i = 0; i < argc; ++i)
+	{
+		if (strcmp(argv[i],"-vid")==0)
+		{
+			++i;
+			if (i < argc)
+			{
+				videoDriverTypeStr = argv[i];
+			}
+		}
+	}
+
 	// I don't want to use stack memory, so for class\struct I will create new objects using heap
 	// use yyPtr if you want auto destroy objects
 	
@@ -153,11 +167,10 @@ int main()
 	p_window->m_onMouseButton = window_callbackMouse;
 	p_window->m_onKeyboard = window_callbackKeyboard;
 
-	// init video driver
-	const char * videoDriverType = "opengl.yyvd"; // for example read name from .ini
-	if( !yyInitVideoDriver(videoDriverType, p_window) )
+	// init video driver	
+	if( !yyInitVideoDriver(videoDriverTypeStr.c_str(), p_window) )
 	{
-		yyLogWriteWarning("Can't load video driver : %s\n", videoDriverType);
+		yyLogWriteWarning("Can't load video driver : %s\n", videoDriverTypeStr.c_str());
 
 		// if failed, try to init other type
 		std::vector<std::string> vidDrivers;
@@ -191,7 +204,7 @@ int main()
 vidOk:
 	
 	g_videoDriver = yyGetVideoDriverAPI();
-	g_videoDriver->SetClearColor(0.3f,0.3f,0.4f,1.f);
+	g_videoDriver->SetClearColor(0.3f,0.3f,0.74f,1.f);
 
 	// CAMERA
 	Mat4 proj;
@@ -212,11 +225,11 @@ vidOk:
 	g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::ViewProjection, camera->m_projectionMatrix * camera->m_viewMatrix);
 
 	auto modelGPU = g_videoDriver->CreateModelFromFile("../res/tr/map/map001.tr3d", true);
-	auto grassGPU = g_videoDriver->CreateTextureFromFile("../res/tr/grass.dds", true, true);
+	auto grassGPU = g_videoDriver->CreateTextureFromFile("../res/tr/grass.dds", true, false, true);
 
-	yySprite* spriteLevel = yyCreateSprite(v4f(0.f,0.f,1160.f,224.f), g_videoDriver->CreateTextureFromFile("../res/GA3E/level1_ground.png",false, true), false);
+	yySprite* spriteLevel = yyCreateSprite(v4f(0.f,0.f,1160.f,224.f), g_videoDriver->CreateTextureFromFile("../res/GA3E/level1_ground.png",false, false, true), false);
 	
-	yySprite* spriteHero = yyCreateSprite(v4f(0.f,0.f,50.f,76.f), g_videoDriver->CreateTextureFromFile("../res/GA3E/hero0.png",false, true), true);
+	yySprite* spriteHero = yyCreateSprite(v4f(0.f,0.f,50.f,76.f), g_videoDriver->CreateTextureFromFile("../res/GA3E/hero0.png",false, false, true), true);
 	spriteHero->SetMainFrame(123, 8, 174, 85);
 	spriteHero->m_objectBase.m_localPosition.set(10.f, 20.f, 0.f, 0.f);
 	auto stateIdleRight = spriteHero->AddState("IdleRight");
@@ -239,6 +252,8 @@ vidOk:
 	auto spriteCameraScale    = g_videoDriver->GetSpriteCameraScale();
 	spriteCameraScale->x = 1.7f;
 	spriteCameraScale->y = 1.7f;
+	
+	auto gui_pictureBox = yyGUICreatePictureBox(v4f(0.f, 0.f, 256.f, 256.f), yyGetTextureResource("../res/load.png", true, false, true), 1);
 	
 	f32 deltaTime = 0.f;
 	bool run = true;
@@ -349,19 +364,19 @@ vidOk:
 			
 			g_videoDriver->UseDepth(true);
 
-			g_videoDriver->DrawLine3D(v4f(-2.f, 0.f, 0.f, 0.f), v4f(2.f, 0.f, 0.f, 0.f), ColorRed);
-			
-			g_videoDriver->SetModel(modelGPU);
-			g_videoDriver->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, grassGPU);
-			g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection, camera->m_projectionMatrix * camera->m_viewMatrix * Mat4());
-			g_videoDriver->Draw();
+			//g_videoDriver->DrawLine3D(v4f(-2.f, 0.f, 0.f, 0.f), v4f(2.f, 0.f, 0.f, 0.f), ColorRed);
+			//
+			//g_videoDriver->SetModel(modelGPU);
+			//g_videoDriver->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, grassGPU);
+			//g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection, camera->m_projectionMatrix * camera->m_viewMatrix * Mat4());
+			//g_videoDriver->Draw();
 
-			g_videoDriver->UseDepth(false);
-			g_videoDriver->DrawSprite(spriteLevel);
-			spriteHero->m_objectBase.UpdateBase();
-			//spriteHero->m_objectBase.m_updateImplementation(spriteHero);
-			spriteHero->Update(deltaTime);
-			g_videoDriver->DrawSprite(spriteHero);
+			//g_videoDriver->UseDepth(false);
+			//g_videoDriver->DrawSprite(spriteLevel);
+			//spriteHero->m_objectBase.UpdateBase();
+			////spriteHero->m_objectBase.m_updateImplementation(spriteHero);
+			//spriteHero->Update(deltaTime);
+			//g_videoDriver->DrawSprite(spriteHero);
 			
 
 			//videoDriver->BeginDrawGUI();

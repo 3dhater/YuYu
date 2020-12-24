@@ -1,8 +1,3 @@
-/*
-	Данный файл создан для проекта `gost`.
-	В нём будут находиться только те объявления, которые будут использоваться
-	в плагинах.
-*/
 #ifndef __dxgi_h__
 #define __dxgi_h__
 
@@ -115,16 +110,16 @@
 #define _COM_Outptr_opt_result_maybenull_
 #endif
 
-typedef interface IDXGIObject IDXGIObject;
-typedef interface IDXGIDevice IDXGIDevice;
-typedef interface IDXGIAdapter IDXGIAdapter;
-typedef interface IDXGIAdapter1 IDXGIAdapter1;
-typedef interface IDXGIOutput IDXGIOutput;
-typedef interface IDXGISurface IDXGISurface;
-typedef interface IDXGIDeviceSubObject IDXGIDeviceSubObject;
-typedef interface IDXGISwapChain IDXGISwapChain;
-typedef interface IDXGIFactory IDXGIFactory;
-typedef interface IDXGIFactory1 IDXGIFactory1;
+//typedef interface IDXGIObject IDXGIObject;
+//typedef interface IDXGIDevice IDXGIDevice;
+//typedef interface IDXGIAdapter IDXGIAdapter;
+//typedef interface IDXGIAdapter1 IDXGIAdapter1;
+//typedef interface IDXGIOutput IDXGIOutput;
+//typedef interface IDXGISurface IDXGISurface;
+//typedef interface IDXGIDeviceSubObject IDXGIDeviceSubObject;
+//typedef interface IDXGISwapChain IDXGISwapChain;
+//typedef interface IDXGIFactory IDXGIFactory;
+//typedef interface IDXGIFactory1 IDXGIFactory1;
 
 #define DXGI_CPU_ACCESS_NONE    ( 0 )
 #define DXGI_CPU_ACCESS_DYNAMIC    ( 1 )
@@ -270,7 +265,7 @@ struct DXGI_SWAP_CHAIN_DESC{
 };
 	
 EXTERN_C const IID IID_IDXGIObject;    
-MIDL_INTERFACE("aec22fb8-76f3-4639-9be0-28eb43a67a2e")
+//MIDL_INTERFACE("aec22fb8-76f3-4639-9be0-28eb43a67a2e")
 IDXGIObject : public IUnknown{
 public:
 	virtual HRESULT STDMETHODCALLTYPE SetPrivateData( 

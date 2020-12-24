@@ -1,6 +1,7 @@
 ﻿#ifndef _GAME_RAY_H_
 #define _GAME_RAY_H_
 
+#include "Math/mat.h"
 #include "Math/vec.h"
 inline int max_dim(const v4f& v)
 {

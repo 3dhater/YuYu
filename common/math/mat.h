@@ -312,6 +312,93 @@ public:
 
 };
 
+class Mat3
+{
+public:
+	v3f m_data[3];
+
+	Mat3()
+	{
+		identity();
+	}
+
+	Mat3(const Mat3& m)
+	{
+		*this = m;
+	}
+
+	Mat3(const Quat& q)
+	{
+		setRotation(q);
+	}
+
+	Mat3(f32 v)
+	{
+		fill(v);
+	}
+
+	Mat3(const v3f& x, const v3f& y, const v3f& z) {
+		m_data[0u] = x;
+		m_data[1u] = y;
+		m_data[2u] = z;
+	}
+
+	void		fill(f32 v) {
+		m_data[0u].set(v);
+		m_data[1u].set(v);
+		m_data[2u].set(v);
+	}
+
+	void		zero() {
+		fill(0.f);
+	}
+
+
+	void		identity() {
+		auto * p = this->getPtr();
+		p[0] = 1.f;
+		p[1] = 0.f;
+		p[2] = 0.f;
+
+		p[3] = 0.f;
+		p[4] = 1.f;
+		p[5] = 0.f;
+
+		p[6] = 0.f;
+		p[7] = 0.f;
+		p[8] = 1.f;
+	}
+
+	void setValue(f32 xx, f32 xy, f32 xz,
+		f32 yx, f32 yy, f32 yz,
+		f32 zx, f32 zy, f32 zz)
+	{
+		m_data[0].set(xx, xy, xz);
+		m_data[1].set(yx, yy, yz);
+		m_data[2].set(zx, zy, zz);
+	}
+
+	void setRotation(const Quat& q)
+	{
+		f32 d = q.length2();
+		f32 s = 2.0f / d;
+		f32 xs = q.x * s, ys = q.y * s, zs = q.z * s;
+		f32 wx = q.w * xs, wy = q.w * ys, wz = q.w * zs;
+		f32 xx = q.x * xs, xy = q.x * ys, xz = q.x * zs;
+		f32 yy = q.y * ys, yz = q.y * zs, zz = q.z * zs;
+		setValue(
+			1.0f - (yy + zz), xy - wz, xz + wy,
+			xy + wz, 1.0f - (xx + zz), yz - wx,
+			xz - wy, yz + wx, 1.0f - (xx + yy));
+	}
+
+	f32 * getPtr() { return reinterpret_cast<f32*>(&m_data); }
+	f32 * getPtrConst()const { return (f32*)&m_data; }
+
+	v3f&       operator[](u32 i) { assert(i <= 3); return m_data[i]; }
+	const v3f& operator[](u32 i) const { assert(i <= 3); return m_data[i]; }
+};
+
 namespace math
 {
 

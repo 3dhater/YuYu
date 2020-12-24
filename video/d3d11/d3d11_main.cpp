@@ -7,13 +7,13 @@
 #include "yy_ptr.h"
 #include "yy_model.h"
 
-#include "d3d11.h"
-//#include "OpenGL_texture.h"
-//#include "OpenGL_model.h"
-//#include "OpenGL_shader_GUI.h"
-//#include "OpenGL_shader_sprite.h"
-//#include "OpenGL_shader_Line3D.h"
-//#include "OpenGL_shader_standart.h"
+#include "vid_d3d11.h"
+#include "d3d11_texture.h"
+#include "d3d11_model.h"
+#include "d3d11_shader_GUI.h"
+#include "d3d11_shader_sprite.h"
+#include "d3d11_shader_Line3D.h"
+#include "d3d11_shader_standart.h"
 
 #include "scene/common.h"
 #include "scene/sprite.h"
@@ -79,7 +79,8 @@ void BeginDrawNotClear()
 }
 void EndDraw()
 {
-	g_d3d11->m_vsync ? g_d3d11->m_SwapChain->Present(1, 0) : g_d3d11->m_SwapChain->Present(0, 0);
+	g_d3d11->m_vsync ? g_d3d11->m_SwapChain->Present(1, 0) 
+		: g_d3d11->m_SwapChain->Present(0, 0);
 }
 D3D11Model* CreateD3D11Model(yyModel* model)
 {
@@ -105,15 +106,15 @@ void UnloadTexture(yyResource* r)
 	--r->m_refCount;
 	if(!r->m_refCount)
 	{
-		yyDestroy(g_openGL->m_textures[r->m_index]);
-		g_openGL->m_textures[r->m_index] = nullptr;
+		yyDestroy(g_d3d11->m_textures[r->m_index]);
+		g_d3d11->m_textures[r->m_index] = nullptr;
 	}
 }
-D3D11Texture* CreateOpenGLTexture(yyImage* image, bool useLinearFilter)
+D3D11Texture* CreateD3D11Texture(yyImage* image, bool useLinearFilter, bool useComparisonFilter)
 {
 	assert(image);
-	auto newTexture = yyCreate<OpenGLTexture>();
-	if(g_openGL->initTexture(image, newTexture, useLinearFilter))
+	auto newTexture = yyCreate<D3D11Texture>();
+	if(g_d3d11->initTexture(image, newTexture, useLinearFilter, useComparisonFilter))
 		return newTexture;
 	yyDestroy(newTexture);
 	return nullptr;
@@ -132,53 +133,57 @@ void LoadTexture(yyResource* r)
 	{
 		if(r->m_source)
 		{
-			g_openGL->m_textures[r->m_index] = CreateOpenGLTexture((yyImage*)r->m_source, 
-				r->m_flags & yyResource::flags::texture_useLinearFilter );
+			g_d3d11->m_textures[r->m_index] = CreateD3D11Texture((yyImage*)r->m_source,
+				(r->m_flags & yyResource::flags::texture_useLinearFilter) == 1,
+				(r->m_flags & yyResource::flags::texture_useComparisonFilter) == 1);
 			return;
 		}
 
 		if(r->m_file.size())
 		{
 			yyPtr<yyImage> image = yyLoadImage(r->m_file.c_str());
-			g_openGL->m_textures[r->m_index] = CreateOpenGLTexture(image.m_data, 
-				r->m_flags & yyResource::flags::texture_useLinearFilter );
+			g_d3d11->m_textures[r->m_index] = CreateD3D11Texture(image.m_data,
+				(r->m_flags & yyResource::flags::texture_useLinearFilter) == 1,
+				(r->m_flags & yyResource::flags::texture_useComparisonFilter) == 1);
 			return;
 		} 
 	}
 }
-yyResource* CreateTextureFromFile(const char* fileName, bool useLinearFilter, bool load)
+yyResource* CreateTextureFromFile(const char* fileName, bool useLinearFilter, bool useComparisonFilter, bool load)
 {
 	assert(fileName);
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Texture;
 	newRes->m_source = nullptr;
-	newRes->m_index = g_openGL->m_textures.size();
+	newRes->m_index = g_d3d11->m_textures.size();
 	newRes->m_refCount = 0;
 	if(useLinearFilter)
 		newRes->m_flags |= yyResource::flags::texture_useLinearFilter;
+	if (useComparisonFilter)
+		newRes->m_flags |= yyResource::flags::texture_useComparisonFilter;
 	newRes->m_file = fileName;
 
-	g_openGL->m_textures.push_back(nullptr);
+	g_d3d11->m_textures.push_back(nullptr);
 
 	if(load)
 		LoadTexture(newRes);
 	return newRes;
 }
-yyResource* CreateTexture(yyImage* image, bool useLinearFilter)
+yyResource* CreateTexture(yyImage* image, bool useLinearFilter, bool useComparisonFilter)
 {
 	assert(image);
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Texture;
 	newRes->m_source = image;
-	newRes->m_index = g_openGL->m_textures.size();
+	newRes->m_index = g_d3d11->m_textures.size();
 	newRes->m_refCount = 1;
 	if(useLinearFilter)
 		newRes->m_flags |= yyResource::flags::texture_useLinearFilter;
 
-	auto newTexture = CreateOpenGLTexture(image, useLinearFilter);
+	auto newTexture = CreateD3D11Texture(image, useLinearFilter, useComparisonFilter);
 	if(newTexture)
 	{
-		g_openGL->m_textures.push_back(newTexture);
+		g_d3d11->m_textures.push_back(newTexture);
 		return newRes;
 	}
 
@@ -189,11 +194,7 @@ yyResource* CreateTexture(yyImage* image, bool useLinearFilter)
 
 void UseVSync(bool v)
 {
-#ifdef YY_PLATFORM_WINDOWS
-	gwglSwapIntervalEXT(v ? 1 : 0);
-#else
-#error For Windows
-#endif
+	g_d3d11->m_vsync = v;
 }
 void UseDepth(bool v)
 {
@@ -212,7 +213,7 @@ yyResource* CreateModelFromFile(const char* fileName, bool load)
 	newRes->m_refCount = 0;
 	newRes->m_file = fileName;
 
-	g_openGL->m_models.push_back(nullptr);
+	g_d3d11->m_models.push_back(nullptr);
 
 	if(load)
 		LoadModel(newRes);
@@ -223,14 +224,14 @@ yyResource* CreateModel(yyModel* model)
 	assert(model);
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Model;
-	newRes->m_index = g_openGL->m_models.size();
+	newRes->m_index = g_d3d11->m_models.size();
 	newRes->m_source = model;
 	newRes->m_refCount = 1;
 
-	auto newModel = CreateOpenGLModel(model);
+	auto newModel = CreateD3D11Model(model);
 	if(newModel)
 	{
-		g_openGL->m_models.push_back(newModel);
+		g_d3d11->m_models.push_back(newModel);
 		return newRes;
 	}
 
@@ -253,8 +254,8 @@ void UnloadModel(yyResource* r)
 	--r->m_refCount;
 	if(!r->m_refCount)
 	{
-		yyDestroy(g_openGL->m_models[r->m_index]);
-		g_openGL->m_models[r->m_index] = nullptr;
+		yyDestroy(g_d3d11->m_models[r->m_index]);
+		g_d3d11->m_models[r->m_index] = nullptr;
 	}
 }
 void LoadModel(yyResource* r)
@@ -271,147 +272,194 @@ void LoadModel(yyResource* r)
 	{
 		if(r->m_source)
 		{
-			g_openGL->m_models[r->m_index] = CreateOpenGLModel((yyModel*)r->m_source );
+			g_d3d11->m_models[r->m_index] = CreateD3D11Model((yyModel*)r->m_source );
 			return;
 		}
 
 		if(r->m_file.size())
 		{
 			yyPtr<yyModel> model = yyLoadModel(r->m_file.c_str());
-			g_openGL->m_models[r->m_index] = CreateOpenGLModel(model.m_data);
+			g_d3d11->m_models[r->m_index] = CreateD3D11Model(model.m_data);
 			return;
 		}
 	}
 }
 
-
+// `dear imgui`
+struct BACKUP_DX11_STATE
+{
+	UINT                        ScissorRectsCount, ViewportsCount;
+	D3D11_RECT                  ScissorRects[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
+	D3D11_VIEWPORT              Viewports[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
+	ID3D11RasterizerState*      RS;
+	ID3D11BlendState*           BlendState;
+	FLOAT                       BlendFactor[4];
+	UINT                        SampleMask;
+	UINT                        StencilRef;
+	ID3D11DepthStencilState*    DepthStencilState;
+	ID3D11ShaderResourceView*   PSShaderResource;
+	ID3D11SamplerState*         PSSampler;
+	ID3D11PixelShader*          PS;
+	ID3D11VertexShader*         VS;
+	ID3D11GeometryShader*       GS;
+	UINT                        PSInstancesCount, VSInstancesCount, GSInstancesCount;
+	ID3D11ClassInstance         *PSInstances[256], *VSInstances[256], *GSInstances[256];   // 256 is max according to PSSetShader documentation
+	D3D11_PRIMITIVE_TOPOLOGY    PrimitiveTopology;
+	ID3D11Buffer*               IndexBuffer, *VertexBuffer, *VSConstantBuffer;
+	UINT                        IndexBufferOffset, VertexBufferStride, VertexBufferOffset;
+	DXGI_FORMAT                 IndexBufferFormat;
+	ID3D11InputLayout*          InputLayout;
+};
+BACKUP_DX11_STATE old;
 void BeginDrawGUI()
 {
-	gglGetIntegerv(GL_ACTIVE_TEXTURE, (GLint*)&last_active_texture);
-	gglActiveTexture(GL_TEXTURE0);
-	gglGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
-	gglGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
-#ifdef GL_SAMPLER_BINDING
-	gglGetIntegerv(GL_SAMPLER_BINDING, &last_sampler);
-#endif
-	gglGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
-	gglGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array_object);
-#ifdef GL_POLYGON_MODE
-	gglGetIntegerv(GL_POLYGON_MODE, last_polygon_mode);
-#endif
-	gglGetIntegerv(GL_VIEWPORT, last_viewport);
-	gglGetIntegerv(GL_SCISSOR_BOX, last_scissor_box);
-	gglGetIntegerv(GL_BLEND_SRC_RGB, (GLint*)&last_blend_src_rgb);
-	gglGetIntegerv(GL_BLEND_DST_RGB, (GLint*)&last_blend_dst_rgb);
-	gglGetIntegerv(GL_BLEND_SRC_ALPHA, (GLint*)&last_blend_src_alpha);
-	gglGetIntegerv(GL_BLEND_DST_ALPHA, (GLint*)&last_blend_dst_alpha);
-	gglGetIntegerv(GL_BLEND_EQUATION_RGB, (GLint*)&last_blend_equation_rgb);
-	gglGetIntegerv(GL_BLEND_EQUATION_ALPHA, (GLint*)&last_blend_equation_alpha);
-	last_enable_blend = gglIsEnabled(GL_BLEND);
-	last_enable_cull_face = gglIsEnabled(GL_CULL_FACE);
-	last_enable_depth_test = gglIsEnabled(GL_DEPTH_TEST);
-	last_enable_scissor_test = gglIsEnabled(GL_SCISSOR_TEST);
+	old.ScissorRectsCount = old.ViewportsCount = D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
+	g_d3d11->m_d3d11DevCon->RSGetScissorRects(&old.ScissorRectsCount, old.ScissorRects);
+	g_d3d11->m_d3d11DevCon->RSGetViewports(&old.ViewportsCount, old.Viewports);
+	g_d3d11->m_d3d11DevCon->RSGetState(&old.RS);
+	g_d3d11->m_d3d11DevCon->OMGetBlendState(&old.BlendState, old.BlendFactor, &old.SampleMask);
+	g_d3d11->m_d3d11DevCon->OMGetDepthStencilState(&old.DepthStencilState, &old.StencilRef);
+	g_d3d11->m_d3d11DevCon->PSGetShaderResources(0, 1, &old.PSShaderResource);
+	g_d3d11->m_d3d11DevCon->PSGetSamplers(0, 1, &old.PSSampler);
+	old.PSInstancesCount = old.VSInstancesCount = old.GSInstancesCount = 256;
+	g_d3d11->m_d3d11DevCon->PSGetShader(&old.PS, old.PSInstances, &old.PSInstancesCount);
+	g_d3d11->m_d3d11DevCon->VSGetShader(&old.VS, old.VSInstances, &old.VSInstancesCount);
+	g_d3d11->m_d3d11DevCon->VSGetConstantBuffers(0, 1, &old.VSConstantBuffer);
+	g_d3d11->m_d3d11DevCon->GSGetShader(&old.GS, old.GSInstances, &old.GSInstancesCount);
 
-	glEnable(GL_BLEND);
-	glBlendEquation(GL_FUNC_ADD);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_SCISSOR_TEST);
-#ifdef GL_POLYGON_MODE
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-#endif
+	g_d3d11->m_d3d11DevCon->IAGetPrimitiveTopology(&old.PrimitiveTopology);
+	g_d3d11->m_d3d11DevCon->IAGetIndexBuffer(&old.IndexBuffer, &old.IndexBufferFormat, &old.IndexBufferOffset);
+	g_d3d11->m_d3d11DevCon->IAGetVertexBuffers(0, 1, &old.VertexBuffer, &old.VertexBufferStride, &old.VertexBufferOffset);
+	g_d3d11->m_d3d11DevCon->IAGetInputLayout(&old.InputLayout);
 
-	glUseProgram(g_openGL->m_shader_gui->m_program);
-	glUniformMatrix4fv(g_openGL->m_shader_gui->m_uniform_ProjMtx, 1, GL_FALSE, g_openGL->m_guiProjectionMatrix.getPtr() );
-	
-	g_openGL->m_isGUI = true;
+
+	//D3D11_MAPPED_SUBRESOURCE mappedResource;
+	//g_d3d11->m_d3d11DevCon->Map(g_d3d11->m_shaderGUI->m_cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	//D3D11_BUFFER_DESC d;
+	//g_d3d11->m_shaderGUI->m_cb->GetDesc(&d);
+	//memcpy(mappedResource.pData, g_d3d11->m_guiProjectionMatrix.getPtr(), d.ByteWidth);
+	//Mat4 m;
+	//m[0].x = 10.f;
+	//m[1].y = 10.f;
+	//m[2].z = 10.f;
+	////memcpy(mappedResource.pData, m.getPtr(), d.ByteWidth);
+	//g_d3d11->m_d3d11DevCon->Unmap(g_d3d11->m_shaderGUI->m_cb, 0);
+
+	g_d3d11->m_d3d11DevCon->IASetInputLayout(g_d3d11->m_shaderGUI->m_vLayout);
+	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	g_d3d11->m_d3d11DevCon->VSSetShader(g_d3d11->m_shaderGUI->m_vShader, 0, 0);
+	g_d3d11->m_d3d11DevCon->PSSetShader(g_d3d11->m_shaderGUI->m_pShader, 0, 0);
+	//g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &g_d3d11->m_shaderGUI->m_cb);
+
+	const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
+	g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaEnabled, blend_factor, 0xffffffff);
+	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
+	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
+
+	g_d3d11->m_isGUI = true;
 }
 void EndDrawGUI()
 {
-	g_openGL->m_isGUI = false;
+	g_d3d11->m_isGUI = false;
 
-	// Restore modified GL state
-	glUseProgram(last_program);
-	glBindTexture(GL_TEXTURE_2D, last_texture);
-#ifdef GL_SAMPLER_BINDING
-	glBindSampler(0, last_sampler);
-#endif
-	glActiveTexture(last_active_texture);
-	glBindVertexArray(last_vertex_array_object);
-	glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
-	glBlendEquationSeparate(last_blend_equation_rgb, last_blend_equation_alpha);
-	glBlendFuncSeparate(last_blend_src_rgb, last_blend_dst_rgb, last_blend_src_alpha, last_blend_dst_alpha);
-	if (last_enable_blend) gglEnable(GL_BLEND); else gglDisable(GL_BLEND);
-	if (last_enable_cull_face) gglEnable(GL_CULL_FACE); else gglDisable(GL_CULL_FACE);
-	if (last_enable_depth_test) gglEnable(GL_DEPTH_TEST); else gglDisable(GL_DEPTH_TEST);
-	if (last_enable_scissor_test) gglEnable(GL_SCISSOR_TEST); else gglDisable(GL_SCISSOR_TEST);
-#ifdef GL_POLYGON_MODE
-	glPolygonMode(GL_FRONT_AND_BACK, (GLenum)last_polygon_mode[0]);
-#endif
-	glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
-	glScissor(last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2], (GLsizei)last_scissor_box[3]);
+	//// Restore modified GL state
+	//g_d3d11->m_d3d11DevCon->RSSetScissorRects(old.ScissorRectsCount, old.ScissorRects);
+	//g_d3d11->m_d3d11DevCon->RSSetViewports(old.ViewportsCount, old.Viewports);
+	//g_d3d11->m_d3d11DevCon->RSSetState(old.RS); if (old.RS) old.RS->Release();
+	//g_d3d11->m_d3d11DevCon->OMSetBlendState(old.BlendState, old.BlendFactor, old.SampleMask); if (old.BlendState) old.BlendState->Release();
+	//g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(old.DepthStencilState, old.StencilRef); if (old.DepthStencilState) old.DepthStencilState->Release();
+	//g_d3d11->m_d3d11DevCon->PSSetShaderResources(0, 1, &old.PSShaderResource); if (old.PSShaderResource) old.PSShaderResource->Release();
+	//g_d3d11->m_d3d11DevCon->PSSetSamplers(0, 1, &old.PSSampler); if (old.PSSampler) old.PSSampler->Release();
+	//g_d3d11->m_d3d11DevCon->PSSetShader(old.PS, old.PSInstances, old.PSInstancesCount); if (old.PS) old.PS->Release();
+	//for (UINT i = 0; i < old.PSInstancesCount; i++) if (old.PSInstances[i]) old.PSInstances[i]->Release();
+	//g_d3d11->m_d3d11DevCon->VSSetShader(old.VS, old.VSInstances, old.VSInstancesCount); if (old.VS) old.VS->Release();
+	//g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &old.VSConstantBuffer); if (old.VSConstantBuffer) old.VSConstantBuffer->Release();
+	//g_d3d11->m_d3d11DevCon->GSSetShader(old.GS, old.GSInstances, old.GSInstancesCount); if (old.GS) old.GS->Release();
+	//for (UINT i = 0; i < old.VSInstancesCount; i++) if (old.VSInstances[i]) old.VSInstances[i]->Release();
+	//g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(old.PrimitiveTopology);
+	//g_d3d11->m_d3d11DevCon->IASetIndexBuffer(old.IndexBuffer, old.IndexBufferFormat, old.IndexBufferOffset); if (old.IndexBuffer) old.IndexBuffer->Release();
+	//g_d3d11->m_d3d11DevCon->IASetVertexBuffers(0, 1, &old.VertexBuffer, &old.VertexBufferStride, &old.VertexBufferOffset); if (old.VertexBuffer) old.VertexBuffer->Release();
+	//g_d3d11->m_d3d11DevCon->IASetInputLayout(old.InputLayout); if (old.InputLayout) old.InputLayout->Release();
 }
 
 void SetTexture(yyVideoDriverAPI::TextureSlot slot, yyResource* res)
 {
-	g_openGL->m_currentTextures[(u32)slot] = g_openGL->m_textures[ res->m_index ];
+	g_d3d11->m_currentTextures[(u32)slot] = g_d3d11->m_textures[ res->m_index ];
 }
 void SetModel(yyResource* res)
 {
-	g_openGL->m_currentModel = g_openGL->m_models[res->m_index];
+	g_d3d11->m_currentModel = g_d3d11->m_models[res->m_index];
 }
 void Draw()
 {
-	if( !g_openGL->m_currentModel )
+	if( !g_d3d11->m_currentModel )
 		return;
 
-	if(g_openGL->m_isGUI)
+	if(g_d3d11->m_isGUI)
 	{
-		if(g_openGL->m_currentTextures[0])
+		//g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
+		if(g_d3d11->m_currentTextures[0])
 		{
-			gglActiveTexture(GL_TEXTURE0);
-			gglBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);
+			/*gglActiveTexture(GL_TEXTURE0);
+			gglBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);*/
 		}
 	}
 	else
 	{
-		if (g_openGL->m_currentMaterial)
+		if (g_d3d11->m_currentMaterial)
 		{
-			if (g_openGL->m_currentMaterial->m_wireframe)
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			if (g_d3d11->m_currentMaterial->m_wireframe)
+			{
+				if (g_d3d11->m_currentMaterial->m_cullBackFace)
+					g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerWireframe);
+				else
+					g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerWireframeNoBackFaceCulling);
+			}
 			else
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			if (g_openGL->m_currentMaterial->m_cullBackFace)
-				glEnable(GL_CULL_FACE);
-			else
-				glDisable(GL_CULL_FACE);
+			{
+				if (g_d3d11->m_currentMaterial->m_cullBackFace)
+					g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolid);
+				else
+					g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
+			}
 		}
 		else
 		{
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			//gglEnable(GL_CULL_FACE); else gglDisable(GL_CULL_FACE);
-			glDisable(GL_CULL_FACE);
+			g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
 		}
-		glUseProgram( g_openGL->m_shader_std->m_program );
-		glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr() );
-		if(g_openGL->m_currentTextures[0])
+		//glUseProgram( g_openGL->m_shader_std->m_program );
+		//glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr() );
+		/*if(g_openGL->m_currentTextures[0])
 		{
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);
-		}
+		}*/
 	}
-
-	for(u16 i = 0, sz = g_openGL->m_currentModel->m_meshBuffers.size(); i < sz; ++i)
+	u32 offset = 0u;
+	for(u16 i = 0, sz = g_d3d11->m_currentModel->m_meshBuffers.size(); i < sz; ++i)
 	{
-		auto meshBuffer = g_openGL->m_currentModel->m_meshBuffers[i];
-		gglBindVertexArray(meshBuffer->m_VAO);
-		gglDrawElements(GL_TRIANGLES, meshBuffer->m_iCount, meshBuffer->m_indexType, 0);
+		auto mb = g_d3d11->m_currentModel->m_meshBuffers[i];
+
+		g_d3d11->m_d3d11DevCon->IASetInputLayout(g_d3d11->m_shaderGUI->m_vLayout);
+		g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			g_d3d11->m_d3d11DevCon->IASetVertexBuffers(0, 1, &mb->m_vBuffer, &mb->m_stride, &offset);
+	//		g_d3d11->m_d3d11DevCon->IASetIndexBuffer(mb->m_iBuffer, mb->m_indexType, 0);
+		g_d3d11->m_d3d11DevCon->VSSetShader(g_d3d11->m_shaderGUI->m_vShader, 0, 0);
+		g_d3d11->m_d3d11DevCon->PSSetShader(g_d3d11->m_shaderGUI->m_pShader, 0, 0);
+		//g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &g_d3d11->m_shaderGUI->m_cb);
+
+		const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
+		g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaEnabled, blend_factor, 0xffffffff);
+		g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
+		g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
+
+		g_d3d11->m_d3d11DevCon->Draw(3, 0);
+	//	g_d3d11->m_d3d11DevCon->DrawIndexed(mb->m_iCount, 0, 0);
 	}
 }
 void DrawSprite(yySprite* sprite)
 {
-	assert(sprite);
+	/*assert(sprite);
 	glUseProgram( g_openGL->m_shader_sprite->m_program );
 	glUniformMatrix4fv(g_openGL->m_shader_sprite->m_uniform_ProjMtx, 1, GL_FALSE, g_openGL->m_guiProjectionMatrix.getPtr() );
 	glUniformMatrix4fv(g_openGL->m_shader_sprite->m_uniform_WorldMtx, 1, GL_FALSE, sprite->m_objectBase.m_globalMatrix.getPtr() );
@@ -440,37 +488,37 @@ void DrawSprite(yySprite* sprite)
 	SetModel(sprite->m_model);
 	auto meshBuffer = g_openGL->m_currentModel->m_meshBuffers[0];
 	gglBindVertexArray(meshBuffer->m_VAO);
-	gglDrawElements(GL_TRIANGLES, meshBuffer->m_iCount, GL_UNSIGNED_SHORT, 0);
+	gglDrawElements(GL_TRIANGLES, meshBuffer->m_iCount, GL_UNSIGNED_SHORT, 0);*/
 }
 void DrawLine3D(const v4f& _p1, const v4f& _p2, const yyColor& color)
 {
-	glUseProgram( g_openGL->m_shader_line3d->m_program );
+	/*glUseProgram( g_openGL->m_shader_line3d->m_program );
 	glUniformMatrix4fv(g_openGL->m_shader_line3d->m_uniform_ProjMtx, 1, GL_FALSE, g_openGL->m_matrixViewProjection.getPtr() );
 	glUniform4fv(g_openGL->m_shader_line3d->m_uniform_P1, 1, _p1.cdata());
 	glUniform4fv(g_openGL->m_shader_line3d->m_uniform_P2, 1, _p2.cdata());
 	glUniform4fv(g_openGL->m_shader_line3d->m_uniform_Color, 1, color.data());
 
 	glBindVertexArray(g_openGL->m_shader_line3d->m_VAO);
-	glDrawArrays(GL_LINES, 0, 2);
+	glDrawArrays(GL_LINES, 0, 2);*/
 }
 void SetMatrix(yyVideoDriverAPI::MatrixType mt, const Mat4& mat)
 {
 	switch(mt)
 	{
 	case yyVideoDriverAPI::World:
-		g_openGL->m_matrixWorld = mat;
+		g_d3d11->m_matrixWorld = mat;
 		break;
 	case yyVideoDriverAPI::View:
-		g_openGL->m_matrixView = mat;
+		g_d3d11->m_matrixView = mat;
 		break;
 	case yyVideoDriverAPI::Projection:
-		g_openGL->m_matrixProjection = mat;
+		g_d3d11->m_matrixProjection = mat;
 		break;
 	case yyVideoDriverAPI::ViewProjection:
-		g_openGL->m_matrixViewProjection = mat;
+		g_d3d11->m_matrixViewProjection = mat;
 		break;
 	case yyVideoDriverAPI::WorldViewProjection:
-		g_openGL->m_matrixWorldViewProjection = mat;
+		g_d3d11->m_matrixWorldViewProjection = mat;
 		break;
 	default:
 		YY_PRINT_FAILED;
@@ -479,11 +527,11 @@ void SetMatrix(yyVideoDriverAPI::MatrixType mt, const Mat4& mat)
 }
 v2f* GetSpriteCameraPosition()
 {
-	return &g_openGL->m_spriteCameraPosition;
+	return &g_d3d11->m_spriteCameraPosition;
 }
 v2f* GetSpriteCameraScale()
 {
-	return &g_openGL->m_spriteCameraScale;
+	return &g_d3d11->m_spriteCameraScale;
 }
 
 void GetTextureSize(yyResource* r, v2i* s)
@@ -492,37 +540,63 @@ void GetTextureSize(yyResource* r, v2i* s)
 	assert(s);
 	if(r->m_type != yyResourceType::Texture)
 		return;
-	OpenGLTexture* t = g_openGL->m_textures[ r->m_index ];
+	D3D11Texture* t = g_d3d11->m_textures[ r->m_index ];
 	if(!t)
 		return;
 	s->x = t->m_w;
 	s->y = t->m_h;
 }
 
-void SetActiveWindow(yyWindow* w)
-{
-	g_openGL->SetActive(w);
-}
-void InitWindow(yyWindow* w)
-{
-	g_openGL->InitWindow(w);
-}
 void SetMaterial(yyMaterial* mat)
 {
-	g_openGL->m_currentMaterial = mat;
+	g_d3d11->m_currentMaterial = mat;
 }
 void MapModelForWriteVerts(yyResource* r, u32 meshbufferIndex, u8** v_ptr)
 {
 	assert(r);
-	OpenGLModel* m = g_openGL->m_models[r->m_index];
+	/*OpenGLModel* m = g_openGL->m_models[r->m_index];
 	auto mb = m->m_meshBuffers[meshbufferIndex];
 	glBindBuffer(GL_ARRAY_BUFFER, mb->m_vBuffer);
-	*v_ptr = (u8*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+	*v_ptr = (u8*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);*/
+	D3D11Model* m = g_d3d11->m_models[r->m_index];
+	auto mb = m->m_meshBuffers[meshbufferIndex];
+	ID3D11Buffer* d3dbuffer = nullptr;
+
+	d3dbuffer = mb->m_vBuffer;
+
+	static D3D11_MAPPED_SUBRESOURCE mapData;
+	auto hr = g_d3d11->m_d3d11DevCon->Map(
+		d3dbuffer,
+		0,
+		D3D11_MAP_WRITE_DISCARD,
+		0,
+		&mapData
+	);
+	if (FAILED(hr)) 
+	{
+		yyLogWriteError("Can not lock D3D11 render model buffer. Code : %u\n", hr);
+		return;
+	}
+	*v_ptr = (u8*)mapData.pData;
+	mb->m_lockedResource = d3dbuffer;
 }
-void UnmapModelForWriteVerts(yyResource* r)
+void UnmapModelForWriteVerts(yyResource* r, u32 meshbufferIndex)
 {
-	glUnmapBuffer(GL_ARRAY_BUFFER);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	D3D11Model* m = g_d3d11->m_models[r->m_index];
+	auto mb = m->m_meshBuffers[meshbufferIndex];
+	if (mb->m_lockedResource)
+	{
+		g_d3d11->m_d3d11DevCon->Unmap(mb->m_lockedResource, 0);
+		mb->m_lockedResource = nullptr;
+	}
+}
+
+yyVideoDriverObjectD3D11 g_yyVideoDriverObject;
+void* GetVideoDriverObjects()
+{
+	g_yyVideoDriverObject.m_context = g_d3d11->m_d3d11DevCon;
+	g_yyVideoDriverObject.m_device = g_d3d11->m_d3d11Device;
+	return &g_yyVideoDriverObject;
 }
 
 extern "C"
@@ -567,13 +641,11 @@ extern "C"
 		g_api.GetSpriteCameraScale = GetSpriteCameraScale;
 
 		g_api.GetTextureSize = GetTextureSize;
-		g_api.SetActiveWindow = SetActiveWindow;
-		g_api.InitWindow = InitWindow;
 
 		g_api.SetMaterial = SetMaterial;
 		g_api.MapModelForWriteVerts = MapModelForWriteVerts;
 		g_api.UnmapModelForWriteVerts = UnmapModelForWriteVerts;
-
+		g_api.GetVideoDriverObjects = GetVideoDriverObjects;
 		return &g_api;
 	}
 }

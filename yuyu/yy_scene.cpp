@@ -56,16 +56,16 @@ YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& r, yyResource* texture, boo
 	u16* inds = (u16*)meshBuffer->m_indices;
 
 	yyVertexGUI * vertex = (yyVertexGUI*)meshBuffer->m_vertices;
-	vertex->m_position.set(rect.x, rect.w, 0.f);
+	vertex->m_position.set(rect.x, rect.w);
 	vertex->m_tcoords.set(0.f,1.f);
 	vertex++;
-	vertex->m_position.set(rect.x, rect.y, 0.f);
+	vertex->m_position.set(rect.x, rect.y);
 	vertex->m_tcoords.set(0.f,0.f);
 	vertex++;
-	vertex->m_position.set(rect.z, rect.y, 0.f);
+	vertex->m_position.set(rect.z, rect.y);
 	vertex->m_tcoords.set(1.f,0.f);
 	vertex++;
-	vertex->m_position.set(rect.z, rect.w, 0.f);
+	vertex->m_position.set(rect.z, rect.w);
 	vertex->m_tcoords.set(1.f,1.f);
 	vertex++;
 

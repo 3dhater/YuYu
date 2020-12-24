@@ -54,3 +54,5 @@ worldEditor/x64/Debug
 worldEditor/x64/Release
 yuyu/Debug
 yuyu/Release
+video/d3d11/Debug
+video/d3d11/Release

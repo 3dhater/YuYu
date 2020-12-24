@@ -19,7 +19,9 @@ struct yyImage
 	yyImage()
 	:
 		m_data(nullptr),
+		m_bitDataOffset(0),
 		m_dataSize(0),
+		m_fileSize(0),
 		m_width(0),
 		m_height(0),
 		m_bits(32),
@@ -48,8 +50,13 @@ struct yyImage
 		}
 	}
 
+	// теперь m_data может хранить файл полностью. В случае DDS для DirectXTK.
+	// для доступа к массиву с пикселями нужен m_bitDataOffset
+	// если это обычные файлы (типа .PNG) то m_data указывает на обычный буфер а m_bitDataOffset = 0
 	u8 * m_data;
+	u32 m_bitDataOffset;
 	u32 m_dataSize;
+	u32 m_fileSize;
 	u32	m_width;
 	u32	m_height;
 	u32	m_bits;

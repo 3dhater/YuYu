@@ -47,14 +47,28 @@ yyImage* ImageLoader_DDS(const char* p)
 		return 0;
 	}
 
-	u8* file_data = new u8[(u32)file_size];
+	/*u8* file_data = new u8[(u32)file_size];
 	if(!file_data)
+	{
+		YY_PRINT_FAILED;
+		return 0;
+	}*/
+
+	//yyPtr<u8> _u8_destroyer(file_data);
+
+	yyPtr<yyImage> image = yyCreate<yyImage>();
+	if (!image.m_data)
 	{
 		YY_PRINT_FAILED;
 		return 0;
 	}
 
-	yyPtr<u8> _u8_destroyer(file_data);
+	image.m_data->m_data = (u8*)yyMemAlloc(file_size);
+	if (!image.m_data->m_data)
+	{
+		YY_PRINT_FAILED;
+		return 0;
+	}
 
 	std::ifstream in(p, std::ios::binary);
 	if(!in)
@@ -63,21 +77,22 @@ yyImage* ImageLoader_DDS(const char* p)
 		return 0;
 	}
 
-	in.read((char*)file_data, file_size);
+
+	in.read((char*)image.m_data->m_data, file_size);
 	if( in.gcount() < (std::streamsize)file_size )
 	{
 		YY_PRINT_FAILED;
 		return 0;
 	}
 
-	auto magic = *reinterpret_cast<const u32*>(file_data);
+	auto magic = *reinterpret_cast<const u32*>(image.m_data->m_data);
     if(magic != DDS_MAGIC)
     {
         YY_PRINT_FAILED;
 		return 0;
     }
 
-	auto hdr = reinterpret_cast<const DDS_HEADER*>(file_data + sizeof(u32));
+	auto hdr = reinterpret_cast<const DDS_HEADER*>(image.m_data->m_data + sizeof(u32));
 	if( hdr->size != sizeof(DDS_HEADER) )
     {
         YY_PRINT_FAILED;
@@ -98,9 +113,10 @@ yyImage* ImageLoader_DDS(const char* p)
 	}
 
 	auto offset = sizeof(u32) + sizeof(DDS_HEADER);
-    u8 * bitData = file_data + offset;
+    u8 * bitData = image.m_data->m_data + offset;
     u64 bitSize  = file_size - offset;
-
+	image.m_data->m_bitDataOffset = offset;
+	image.m_data->m_fileSize = file_size;
 
 	auto format = GetDDSImageFormat(hdr->ddspf);
 	if(format == yyImageFormat::Unknown)
@@ -121,12 +137,7 @@ yyImage* ImageLoader_DDS(const char* p)
 		return 0;
 	}
 
-	yyPtr<yyImage> image = yyCreate<yyImage>();
-	if(!image.m_data)
-	{
-		YY_PRINT_FAILED;
-		return 0;
-	}
+	// Дальше всё для OpenGL
 
 	image.m_data->m_mipCount = hdr->mipMapCount;
     if(0 == image.m_data->m_mipCount)
@@ -146,6 +157,8 @@ yyImage* ImageLoader_DDS(const char* p)
 		{
 			image.m_data->m_pitch  = 4 * image.m_data->m_width;
 			image.m_data->m_dataSize = image.m_data->m_pitch * image.m_data->m_height;
+		
+			std::memcpy(image.m_data->m_data, bitData, image.m_data->m_dataSize);
 		}
 		else
 		{
@@ -153,14 +166,8 @@ yyImage* ImageLoader_DDS(const char* p)
 		}
 	}
 
-	image.m_data->m_data = (u8*)yyMemAlloc(image.m_data->m_dataSize);
-	if(!image.m_data->m_data)
-	{
-		YY_PRINT_FAILED;
-		return 0;
-	}
+	
 
-	std::memcpy(image.m_data->m_data, bitData, image.m_data->m_dataSize);
 	image.m_data->m_format = format;
 
 	auto ret = image.m_data;

@@ -35,7 +35,7 @@ bool OpenGLShaderSprite::init()
 {
 	const char * text_v = 
 		"#version 130\n"
-		"in vec3 Position;\n"
+		"in vec2 Position;\n"
 		"in vec2 UV;\n"
 		"uniform mat4 ProjMtx;\n"
 		"uniform mat4 World;\n"
@@ -48,7 +48,7 @@ bool OpenGLShaderSprite::init()
 		"#define FLAG_INVERT_X 1\n"
 		"#define FLAG_INVERT_Y 2\n"
 		"void main(){\n"
-		"    gl_Position = (ProjMtx * World) * vec4(Position.x, Position.y, Position.z, 1.f);\n"
+		"    gl_Position = (ProjMtx * World) * vec4(Position.x, Position.y, 1.f, 1.f);\n"
 		"    vec4 camPos = ProjMtx * vec4(CameraPosition.x, CameraPosition.y, 1.f, 1.f);"
 		"    gl_Position.x -= camPos.x;\n"
 		"    gl_Position.y -= camPos.y;\n"

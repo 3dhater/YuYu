@@ -68,6 +68,10 @@ public:
 	v2i m_size;
 	v2i m_clientSize;
 
+	// for example for swapChain in d3d11
+	// delete it only in video driver
+	void * m_GPUData;
+
 #ifdef YY_PLATFORM_WINDOWS
 	HWND m_hWnd;
 	HDC  m_dc;
@@ -97,6 +101,15 @@ public:
 
 	bool m_visible;
 
+	bool IsInFocus()
+	{
+#ifdef YY_PLATFORM_WINDOWS
+		return GetActiveWindow() == m_hWnd;
+#else
+#error Need implementation
+#endif
+	}
+
 	void SetFocus()
 	{
 #ifdef YY_PLATFORM_WINDOWS
@@ -107,8 +120,10 @@ public:
 #endif
 	}
 
+	yyStringA m_title;
 	void SetTitle(const char* title)
 	{
+		m_title = title;
 #ifdef YY_PLATFORM_WINDOWS
 		SetWindowTextA(m_hWnd, title);
 #else

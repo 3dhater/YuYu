@@ -301,6 +301,7 @@ struct yyTerrainSector
 			m_modelGPU = nullptr;
 		} 
 		m_modelGPU = yyGetVideoDriverAPI()->CreateModel(m_model);
+//		printf("TERR CreateGPUResource id %u\n", (u32)m_modelGPU->m_index);
 		yyGetVideoDriverAPI()->UnloadModel(m_modelGPU);
 		m_modelGPU_forRender = m_modelGPU;
 	}
@@ -533,7 +534,7 @@ struct yyTerrain
 				u8* vptr = 0;
 				yyGetVideoDriverAPI()->MapModelForWriteVerts(sector->m_modelGPU, 0, &vptr);
 				memcpy(vptr, sector->m_meshBuffer->m_vertices, sector->m_vertsSizeInBytes);
-				yyGetVideoDriverAPI()->UnmapModelForWriteVerts(sector->m_modelGPU);
+				yyGetVideoDriverAPI()->UnmapModelForWriteVerts(sector->m_modelGPU, 0);
 			}
 		}
 	}
@@ -627,9 +628,7 @@ struct yyTerrain
 		f32 half_len_x = full_len_x * 0.5f;
 		f32 half_len_y = full_len_y * 0.5f;
 
-		v3f point(-half_len_x, 0.f, -half_len_y);
-
-		
+		v3f point(-half_len_x, 0.f, -half_len_y);		
 
 
 		for (s32 Y = 0; Y < sectorsY; ++Y)
@@ -726,6 +725,7 @@ struct yyTerrain
 					if (!sector->m_visible)
 					{
 						sector->Load();
+			//			printf("TERR load model id %u\n", (u32)sector->m_modelGPU->m_index);
 						yyGetVideoDriverAPI()->LoadModel(sector->m_modelGPU);
 					}
 					sector->m_visible = true;
@@ -736,6 +736,7 @@ struct yyTerrain
 					if (!sector->m_visible)
 					{
 						sector->Load();
+				//		printf("TERR load model id %u\n", (u32)sector->m_modelGPU->m_index);
 						yyGetVideoDriverAPI()->LoadModel(sector->m_modelGPU);
 					}
 					sector->m_visible = true;
@@ -745,6 +746,7 @@ struct yyTerrain
 				{
 					if (sector->m_visible)
 					{
+				//		printf("TERR UNload model id %u\n", (u32)sector->m_modelGPU->m_index);
 						yyGetVideoDriverAPI()->UnloadModel(sector->m_modelGPU);
 						sector->Unload();
 					}

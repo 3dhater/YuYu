@@ -15,9 +15,11 @@ struct v4i
 	s32 x, y, z, w;
 };
 
+struct v3f;
 struct v4f
 {
 	v4f():x(0.f),y(0.f),z(0.f),w(0.f){}
+	v4f(const v3f& v);
 	v4f(f32 _v):x(_v),y(_v),z(_v),w(_v){}
 	v4f(f32 _x, f32 _y, f32 _z, f32 _w):x(_x),y(_y),z(_z),w(_w){}
 	f32 x, y, z, w;
@@ -40,6 +42,9 @@ struct v4f
 	v4f operator/(const v4f& v)const{v4f r;r.x=x/v.x;r.y=y/v.y;r.z=z/v.z;r.w=w/v.w;return r;}
 
 	v4f operator-()const{v4f r;r.x=-x;r.y=-y;r.z=-z;r.w=-w;return r;}
+
+	v4f& operator=(const v3f& v);
+
 
 	f32	dot(const v4f& V2)const{return (x*V2.x)+(y*V2.y)+(z*V2.z)+(w*V2.w);}
 	f32	dot()const{return (x*x)+(y*y)+(z*z)+(w*w);}
@@ -93,6 +98,7 @@ struct v3f
 	v3f(f32 _x, f32 _y, f32 _z):x(_x),y(_y),z(_z){}
 	f32 x,y,z;
 	void set(f32 _x, f32 _y, f32 _z){x=_x;y=_y;z=_z;}
+	void set(f32 val) { x = y = z = val; }
 	f32* data(){return &x;}
 	void operator+=( const v3f& v ){x += v.x;y += v.y;z += v.z;}
 	void operator-=( const v3f& v ){x -= v.x;y -= v.y;z -= v.z;}
@@ -104,6 +110,9 @@ struct v3f
 	v3f operator-(const v3f& v)const{v3f r;r.x=x-v.x;r.y=y-v.y;r.z=z-v.z;return r;}
 	v3f operator*(const v3f& v)const{v3f r;r.x=x*v.x;r.y=y*v.y;r.z=z*v.z;return r;}
 	v3f operator/(const v3f& v)const{v3f r;r.x=x/v.x;r.y=y/v.y;r.z=z/v.z;return r;}
+	v3f operator+(const v4f& v)const { v3f r; r.x = x + v.x; r.y = y + v.y; r.z = z + v.z; return r; }
+	v3f& operator=(const v4f& v) { x = v.x; y = v.y; z = v.z; return *this; }
+	void operator+=(const v4f& v) { x += v.x; y += v.y; z += v.z; }
 	v3f cross( const v3f& a )const{
 		v3f out;
 		out.x = (y * a.z) - (z * a.y);
@@ -129,6 +138,10 @@ struct v3f
 	f32 length() const { return std::sqrt(length2()); }
 	f32 length2() const { return dot(*this); }
 };
+
+YY_FORCE_INLINE v4f& v4f::operator=(const v3f& v) { this->x = v.x; this->y = v.y; this->z = v.z; this->w = 1.f; return *this; }
+YY_FORCE_INLINE v4f::v4f(const v3f& v):x(v.x), y(v.y), z(v.z),w(0.f) {}
+
 
 
 

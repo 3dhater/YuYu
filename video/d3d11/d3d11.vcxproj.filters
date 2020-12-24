@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="d3d11.cpp" />
+    <ClCompile Include="d3d11_main.cpp" />
+    <ClCompile Include="..\..\libs\DirectXTK\Src\DDSTextureLoader.cpp">
+      <Filter>DirectXTK</Filter>
+    </ClCompile>
+    <ClCompile Include="d3d11_model.cpp" />
+    <ClCompile Include="d3d11_shader.cpp" />
+    <ClCompile Include="d3d11_shader_GUI.cpp" />
+    <ClCompile Include="d3d11_shader_Line3D.cpp" />
+    <ClCompile Include="d3d11_shader_sprite.cpp" />
+    <ClCompile Include="d3d11_shader_standart.cpp" />
+    <ClCompile Include="d3d11_texture.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="vid_d3d11.h" />
+    <ClInclude Include="d3d11_shader.h" />
+    <ClInclude Include="d3d11_model.h" />
+    <ClInclude Include="d3d11_shader_GUI.h" />
+    <ClInclude Include="d3d11_shader_Line3D.h" />
+    <ClInclude Include="d3d11_shader_sprite.h" />
+    <ClInclude Include="d3d11_shader_standart.h" />
+    <ClInclude Include="d3d11_texture.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="DirectXTK">
+      <UniqueIdentifier>{536fa358-fdbb-49fb-be33-9f8d24b61c4c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
