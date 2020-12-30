@@ -14,6 +14,7 @@ struct yyInputContext
 		m_isRMBHold(false)
 		{
 		memset(m_key_hold, 0, sizeof(u8) * 256);
+		memset(m_key_pressed, 0, sizeof(u8) * 256);
 		m_isLMBUp = false;
 		m_isLMBDbl = false;
 	}
@@ -32,6 +33,12 @@ struct yyInputContext
 	bool isKeyHold(yyKey key)
 	{
 		return m_key_hold[(u32)key] != 0;
+	}
+
+	u8 m_key_pressed[256];
+	bool isKeyPressed(yyKey key)
+	{
+		return m_key_pressed[(u32)key] != 0;
 	}
 };
 

@@ -11,6 +11,9 @@
 #include "OpenGL_shader_sprite.h"
 #include "OpenGL_shader_Line3D.h"
 #include "OpenGL_shader_standart.h"
+#include "OpenGL_shader_terrain.h"
+#include "OpenGL_shader_depth.h"
+#include "OpenGL_shader_simple.h"
 
 #include "math/mat.h"
 
@@ -116,6 +119,10 @@ OpenGL::OpenGL()
 	m_shader_sprite(nullptr),
 	m_shader_line3d(nullptr),
 	m_shader_std(nullptr),
+	m_shader_terrain(nullptr),
+	m_shader_depth(nullptr),
+	m_shader_simple(nullptr),
+
 	m_isGUI(false),
 	m_spriteCameraScale(v2f(1.f,1.f))
 {
@@ -136,9 +143,13 @@ OpenGL::~OpenGL()
 {
 	yyLogWriteInfo("Destroy video driver...\n");
 
-	if(m_shader_gui) yyDestroy(m_shader_gui);
-	if(m_shader_sprite) yyDestroy(m_shader_sprite);
-	if(m_shader_line3d) yyDestroy(m_shader_line3d);
+	if (m_shader_gui) yyDestroy(m_shader_gui);
+	if (m_shader_sprite) yyDestroy(m_shader_sprite);
+	if (m_shader_line3d) yyDestroy(m_shader_line3d);
+	if (m_shader_std) yyDestroy(m_shader_std);
+	if (m_shader_terrain) yyDestroy(m_shader_terrain);
+	if (m_shader_depth) yyDestroy(m_shader_depth);
+	if (m_shader_simple) yyDestroy(m_shader_simple);
 
 	for(size_t i = 0, sz = m_textures.size(); i < sz; ++i)
 	{
@@ -459,6 +470,30 @@ bool OpenGL::Init(yyWindow* window)
 		return false;
 	}
 
+	m_shader_terrain = yyCreate<OpenGLShaderTerrain>();
+	if (!m_shader_terrain->init())
+	{
+		yyLogWriteError("Can't create terrain shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	m_shader_depth = yyCreate<OpenGLShaderDepth>();
+	if (!m_shader_depth->init())
+	{
+		yyLogWriteError("Can't create depth shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	m_shader_simple = yyCreate<OpenGLShaderSimple>();
+	if (!m_shader_simple->init())
+	{
+		yyLogWriteError("Can't create simple shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
 	/*m_forwardPlus = Game_Create<RendererForwardPlus>();
 	if(!m_forwardPlus->Init())
 	{
@@ -475,6 +510,36 @@ bool OpenGL::Init(yyWindow* window)
 	return true;
 }
 
+bool OpenGL::initFBO(OpenGLTexture* new_texture, const v2f& size, bool useLinearFilter, bool useComparisonFilter)
+{
+	new_texture->m_w = size.x;
+	new_texture->m_h = size.y;
+	glGenFramebuffers(1, &new_texture->m_FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, new_texture->m_FBO);
+
+	glGenTextures(1, &new_texture->m_texture);
+	glBindTexture(GL_TEXTURE_2D, new_texture->m_texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	if (useComparisonFilter)
+	{
+		gglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+		gglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+	}
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, useLinearFilter ? GL_LINEAR : GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, useLinearFilter ? GL_LINEAR : GL_NEAREST);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glGenRenderbuffers(1, &new_texture->m_depthRBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, new_texture->m_depthRBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, size.x, size.y);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, new_texture->m_depthRBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, new_texture->m_texture, 0);
+	//gglFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, new_texture->m_depth, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	return true;
+}
 bool OpenGL::initTexture(yyImage* image, OpenGLTexture* newTexture, bool useLinearFilter, bool useComparisonFilter)
 {
 	newTexture->m_h = image->m_height;
@@ -531,6 +596,7 @@ bool OpenGL::initTexture(yyImage* image, OpenGLTexture* newTexture, bool useLine
 	{
 		gglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 		gglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+		gglTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
 	}
 	gglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, useLinearFilter ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST);
 	gglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, useLinearFilter ? GL_LINEAR : GL_NEAREST);

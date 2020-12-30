@@ -337,24 +337,24 @@ typedef struct XMA2PACKET
 // the bitfields cannot be read directly on little-endian architectures such as
 // the Intel x86, as they are laid out in big-endian form.)
 
-GT_FORCE_INLINE DWORD GetXmaPacketFrameCount( const BYTE* pPacket)
+YY_FORCE_INLINE DWORD GetXmaPacketFrameCount( const BYTE* pPacket)
 {
     return (DWORD)(pPacket[0] >> 2);
 }
 
-GT_FORCE_INLINE DWORD GetXmaPacketFirstFrameOffsetInBits( const BYTE* pPacket)
+YY_FORCE_INLINE DWORD GetXmaPacketFirstFrameOffsetInBits( const BYTE* pPacket)
 {
     return ((DWORD)(pPacket[0] & 0x3) << 13) |
            ((DWORD)(pPacket[1]) << 5) |
            ((DWORD)(pPacket[2]) >> 3);
 }
 
-GT_FORCE_INLINE DWORD GetXmaPacketMetadata( const BYTE* pPacket)
+YY_FORCE_INLINE DWORD GetXmaPacketMetadata( const BYTE* pPacket)
 {
     return (DWORD)(pPacket[2] & 0x7);
 }
 
-GT_FORCE_INLINE DWORD GetXmaPacketSkipCount( const BYTE* pPacket)
+YY_FORCE_INLINE DWORD GetXmaPacketSkipCount( const BYTE* pPacket)
 {
     return (DWORD)(pPacket[3]);
 }
@@ -403,7 +403,7 @@ GT_FORCE_INLINE DWORD GetXmaPacketSkipCount( const BYTE* pPacket)
 // XMA file are stored in big-endian form and may need to be converted prior
 // to calling this function.
 
-GT_FORCE_INLINE HRESULT GetXmaBlockContainingSample
+YY_FORCE_INLINE HRESULT GetXmaBlockContainingSample
 (
     DWORD nBlockCount,                      // Blocks in the file (= seek table entries)
     const DWORD* pSeekTable,  // Pointer to the seek table data
@@ -438,7 +438,7 @@ GT_FORCE_INLINE HRESULT GetXmaBlockContainingSample
 
 // GetXmaFrameLengthInBits: Reads a given frame's LengthInBits field.
 
-GT_FORCE_INLINE DWORD GetXmaFrameLengthInBits
+YY_FORCE_INLINE DWORD GetXmaFrameLengthInBits
 (
     
     const BYTE* pPacket,  // Pointer to XMA packet[s] containing the frame
@@ -468,7 +468,7 @@ GT_FORCE_INLINE DWORD GetXmaFrameLengthInBits
 // GetXmaFrameBitPosition: Calculates the bit offset of a given frame within
 // an XMA block or set of blocks.  Returns 0 on failure.
 
-GT_FORCE_INLINE DWORD GetXmaFrameBitPosition
+YY_FORCE_INLINE DWORD GetXmaFrameBitPosition
 (
     const BYTE* pXmaData,  // Pointer to XMA block[s]
     DWORD nXmaDataBytes,                              // Size of pXmaData in bytes
@@ -532,7 +532,7 @@ GT_FORCE_INLINE DWORD GetXmaFrameBitPosition
 // GetLastXmaFrameBitPosition: Calculates the bit offset of the last complete
 // frame in an XMA block or set of blocks.
 
-GT_FORCE_INLINE DWORD GetLastXmaFrameBitPosition
+YY_FORCE_INLINE DWORD GetLastXmaFrameBitPosition
 (
     const BYTE* pXmaData,  // Pointer to XMA block[s]
     DWORD nXmaDataBytes,                              // Size of pXmaData in bytes
@@ -594,7 +594,7 @@ GT_FORCE_INLINE DWORD GetLastXmaFrameBitPosition
 // and the right subframe within that frame.  This data can be passed directly
 // to the XMAPlaybackSetDecodePosition function.
 
-GT_FORCE_INLINE HRESULT GetXmaDecodePositionForSample
+YY_FORCE_INLINE HRESULT GetXmaDecodePositionForSample
 (
     const BYTE* pXmaData,  // Pointer to XMA block[s]
     DWORD nXmaDataBytes,                              // Size of pXmaData in bytes
@@ -628,7 +628,7 @@ GT_FORCE_INLINE HRESULT GetXmaDecodePositionForSample
 // GetXmaSampleRate: Obtains the legal XMA sample rate (24, 32, 44.1 or 48Khz)
 // corresponding to a generic sample rate.
 
-GT_FORCE_INLINE DWORD GetXmaSampleRate(DWORD dwGeneralRate)
+YY_FORCE_INLINE DWORD GetXmaSampleRate(DWORD dwGeneralRate)
 {
     DWORD dwXmaRate = 48000; // Default XMA rate for all rates above 44100Hz
 
@@ -645,7 +645,7 @@ GT_FORCE_INLINE DWORD GetXmaSampleRate(DWORD dwGeneralRate)
 // are limited to eight possible speaker positions: left, right, center, low
 // frequency, side left, side right, back left and back right).
 
-GT_FORCE_INLINE DWORD GetStandardChannelMaskFromXmaMask(BYTE bXmaMask)
+YY_FORCE_INLINE DWORD GetStandardChannelMaskFromXmaMask(BYTE bXmaMask)
 {
     DWORD dwStandardMask = 0;
 
@@ -661,7 +661,7 @@ GT_FORCE_INLINE DWORD GetStandardChannelMaskFromXmaMask(BYTE bXmaMask)
     return dwStandardMask;
 }
 
-GT_FORCE_INLINE BYTE GetXmaChannelMaskFromStandardMask(DWORD dwStandardMask)
+YY_FORCE_INLINE BYTE GetXmaChannelMaskFromStandardMask(DWORD dwStandardMask)
 {
     BYTE bXmaMask = 0;
 
@@ -681,7 +681,7 @@ GT_FORCE_INLINE BYTE GetXmaChannelMaskFromStandardMask(DWORD dwStandardMask)
 // LocalizeXma2Format: Modifies a XMA2WAVEFORMATEX structure in place to comply
 // with the current platform's byte-ordering rules (little- or big-endian).
 
-GT_FORCE_INLINE HRESULT LocalizeXma2Format(XMA2WAVEFORMATEX* pXma2Format)
+YY_FORCE_INLINE HRESULT LocalizeXma2Format(XMA2WAVEFORMATEX* pXma2Format)
 {
     #define XMASWAP2BYTES(n) ((WORD)(((n) >> 8) | (((n) & 0xff) << 8)))
     #define XMASWAP4BYTES(n) ((DWORD)((n) >> 24 | (n) << 24 | ((n) & 0xff00) << 8 | ((n) & 0xff0000) >> 8))

@@ -43,6 +43,7 @@ enum class yyResourceType : u16
 {
 	None,
 	Texture,
+	RenderTargetTexture,
 	Model,
 };
 struct yyResource

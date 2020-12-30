@@ -89,6 +89,7 @@ struct v2f
 	v2f(f32 _x, f32 _y):x(_x),y(_y){}
 	f32 x, y;
 	void set(f32 _x, f32 _y){x=_x;y=_y;}
+	v2f operator*(const v2f& v)const { v2f r; r.x = x * v.x; r.y = y * v.y; return r; }
 };
 
 struct v3f
@@ -113,6 +114,12 @@ struct v3f
 	v3f operator+(const v4f& v)const { v3f r; r.x = x + v.x; r.y = y + v.y; r.z = z + v.z; return r; }
 	v3f& operator=(const v4f& v) { x = v.x; y = v.y; z = v.z; return *this; }
 	void operator+=(const v4f& v) { x += v.x; y += v.y; z += v.z; }
+	bool operator==(const v3f& v)const {
+		if (x != v.x)return false;
+		if (y != v.y)return false;
+		if (z != v.z)return false;
+		return true;
+	}
 	v3f cross( const v3f& a )const{
 		v3f out;
 		out.x = (y * a.z) - (z * a.y);

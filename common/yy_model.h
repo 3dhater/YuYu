@@ -72,17 +72,17 @@ struct yyMeshBuffer
 		const v3f& vt1, const v3f& vt2, const v3f& vt3, // vertices
 		const v2f& tc1, const v2f& tc2, const v2f& tc3) // texture coords
 	{
-		v3f v1 = vt1 - vt2;
-		v3f v2 = vt3 - vt1;
-		normal = v2.cross(v1);
+		v3f e1 = vt2 - vt1;
+		v3f e2 = vt3 - vt1;
+		normal = e1.cross(e2);
 		normal.normalize2();
 		f32 deltaX1 = tc1.x - tc2.x;
 		f32 deltaX2 = tc3.x - tc1.x;
-		binormal = (v1 * deltaX2) - (v2 * deltaX1);
+		binormal = (e1 * deltaX2) - (e2 * deltaX1);
 		binormal.normalize2();
 		f32 deltaY1 = tc1.y - tc2.y;
 		f32 deltaY2 = tc3.y - tc1.y;
-		tangent = (v1 * deltaY2) - (v2 * deltaY1);
+		tangent = (e1 * deltaY2) - (e2 * deltaY1);
 		tangent.normalize2();
 		v3f txb = tangent.cross(binormal);
 		if(txb.dot(normal) < 0.0f)

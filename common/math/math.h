@@ -4,6 +4,7 @@
 namespace math
 {
 	const f32 PI = static_cast<f32>(3.14159265358979323846);
+	const f32 PIPI = 6.2831853f;
 
 	YY_FORCE_INLINE f32 degToRad(f32 degrees)
 	{

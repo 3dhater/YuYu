@@ -69,6 +69,9 @@ extern "C"
 
 	YY_API void YY_C_DECL yySetMainWindow(yyWindow*);
 	YY_API yyWindow* YY_C_DECL yyGetMainWindow();
+
+	// загрузить аудио но без инициализации m_implementation
+	//YY_API yyAudioSource* YY_C_DECL	yyLoadAudioRaw(const char*);
 }
 
 

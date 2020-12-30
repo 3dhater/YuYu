@@ -200,10 +200,12 @@ struct yyTerrainSector
 
 		m_meshBuffer->m_stride = sizeof(yyVertexModel);
 		m_meshBuffer->m_vertexType = yyVertexType::Model;
-		m_meshBuffer->m_vCount = m_meshBuffer->m_iCount;
 
+		/*m_meshBuffer->m_stride = sizeof(yyVertexModel);
+		m_meshBuffer->m_vertexType = yyVertexType::Model;
+		m_meshBuffer->m_vCount = m_meshBuffer->m_iCount;
 		m_vertsSizeInBytes = m_meshBuffer->m_vCount * m_meshBuffer->m_stride;
-		m_meshBuffer->m_vertices = (u8*)yyMemAlloc(m_vertsSizeInBytes);
+		m_meshBuffer->m_vertices = (u8*)yyMemAlloc(m_vertsSizeInBytes);*/
 
 		m_model->m_meshBuffers.push_back(m_meshBuffer);
 
@@ -211,88 +213,154 @@ struct yyTerrainSector
 		m_sectorY = 0;
 
 		m_physicsData = nullptr;
+
+		m_material.m_type = yyMaterialType::Terrain;
 	}
 
 	~yyTerrainSector()
 	{
 		if (m_physicsData)
-		{
 			yyDestroy(m_physicsData);
-		}
 		if (m_model)
-		{
 			yyDestroy(m_model);
-		}
 	}
 
 	u32 m_currentIndex;
+	
+	yyArray<yyTerrainVertex> m_terrVerts;
+	yyArray<u32> m_terrInds;
+	void Build()
+	{
+		if (m_meshBuffer->m_vertices)
+			yyMemFree(m_meshBuffer->m_vertices);
+		
+		m_meshBuffer->m_vCount = m_terrVerts.size();
 
+		m_vertsSizeInBytes = m_meshBuffer->m_vCount * m_meshBuffer->m_stride;
+		m_meshBuffer->m_vertices = (u8*)yyMemAlloc(m_vertsSizeInBytes);
+		yyVertexModel * vertsPtr = (yyVertexModel *)m_meshBuffer->m_vertices;
+		u16* indsPtr = (u16*)m_meshBuffer->m_indices;
+
+		u32 maxindex = 0;
+		for (u32 i = 0, sz = m_terrInds.size(); i < sz; ++i)
+		{
+			u32 index = m_terrInds[i];
+			if (index > maxindex)
+				maxindex = index;
+			indsPtr[i] = index;
+			vertsPtr[index].Position = m_terrVerts[index].m_position;
+			vertsPtr[index].TCoords = m_terrVerts[index].m_tcoords;
+			vertsPtr[index].Normal.set(0.f, 1.f, 0.f);
+		}
+
+		m_terrVerts.clear();
+		m_terrInds.clear();
+
+		RecalculateNormals();
+	}
 	void AddPiece(
-		const yyTerrainVertex& _v1,
-		const yyTerrainVertex& _v2,
-		const yyTerrainVertex& _v3,
-		const yyTerrainVertex& _v4,
+		yyTerrainVertex* _v1,
+		yyTerrainVertex* _v2,
+		yyTerrainVertex* _v3,
+		yyTerrainVertex* _v4,
 		u8 type // type==0 ? v1,v2,v3\v1,v3,v4 : v2,v3,v4\v2,v4,v1
 	)
 	{
-		auto verts = (yyVertexModel*)m_meshBuffer->m_vertices;
-		auto inds = (u16*)m_meshBuffer->m_indices;
+		yyTerrainVertex* v1 = _v1;
+		yyTerrainVertex* v2 = _v2;
+		yyTerrainVertex* v3 = _v3;
+		yyTerrainVertex* v4 = _v4;
+		u32 i1 = 0xffffffff;
+		u32 i2 = 0xffffffff;
+		u32 i3 = 0xffffffff;
+		u32 i4 = 0xffffffff;
+		for (u32 i = 0, sz = m_terrVerts.size(); i < sz; ++i)
+		{
+			auto tv = &m_terrVerts[i];
+			if (tv->m_position == v1->m_position) { v1 = tv; i1 = i; }
+			if (tv->m_position == v2->m_position) { v2 = tv; i2 = i; }
+			if (tv->m_position == v3->m_position) { v3 = tv; i3 = i; }
+			if (tv->m_position == v4->m_position) { v4 = tv; i4 = i; }
+		}
+		if (i1 == 0xffffffff) { i1 = m_terrVerts.size(); m_terrVerts.push_back(*v1); }
+		if (i2 == 0xffffffff) { i2 = m_terrVerts.size(); m_terrVerts.push_back(*v2); }
+		if (i3 == 0xffffffff) { i3 = m_terrVerts.size(); m_terrVerts.push_back(*v3); }
+		if (i4 == 0xffffffff) { i4 = m_terrVerts.size(); m_terrVerts.push_back(*v4); }
 
-		u32 vertexIndex = m_currentIndex;
-
-		inds[m_currentIndex] = m_currentIndex; ++m_currentIndex;
-		inds[m_currentIndex] = m_currentIndex; ++m_currentIndex;
-		inds[m_currentIndex] = m_currentIndex; ++m_currentIndex;
-		inds[m_currentIndex] = m_currentIndex; ++m_currentIndex;
-		inds[m_currentIndex] = m_currentIndex; ++m_currentIndex;
-		inds[m_currentIndex] = m_currentIndex; ++m_currentIndex;
 
 		if (type == 0)
 		{
-			verts[vertexIndex].Normal.set(0.f, 1.f, 0.f);
-			verts[vertexIndex].TCoords = _v1.m_tcoords;
-			verts[vertexIndex].Position = _v1.m_position; ++vertexIndex;
-			verts[vertexIndex].Normal.set(0.f, 1.f, 0.f);
-			verts[vertexIndex].TCoords = _v3.m_tcoords;
-			verts[vertexIndex].Position = _v3.m_position; ++vertexIndex;
-			verts[vertexIndex].Normal.set(0.f, 1.f, 0.f);
-			verts[vertexIndex].TCoords = _v2.m_tcoords;
-			verts[vertexIndex].Position = _v2.m_position; ++vertexIndex;
-
-			verts[vertexIndex].Normal.set(0.f, 1.f, 0.f);
-			verts[vertexIndex].TCoords = _v1.m_tcoords;
-			verts[vertexIndex].Position = _v1.m_position; ++vertexIndex;
-			verts[vertexIndex].Normal.set(0.f, 1.f, 0.f);
-			verts[vertexIndex].TCoords = _v4.m_tcoords;
-			verts[vertexIndex].Position = _v4.m_position; ++vertexIndex;
-			verts[vertexIndex].Normal.set(0.f, 1.f, 0.f);
-			verts[vertexIndex].TCoords = _v3.m_tcoords;
-			verts[vertexIndex].Position = _v3.m_position; ++vertexIndex;
+			m_terrInds.push_back(i1);
+			m_terrInds.push_back(i3);
+			m_terrInds.push_back(i2);
+			m_terrInds.push_back(i1);
+			m_terrInds.push_back(i4);
+			m_terrInds.push_back(i3);
 		}
 		else
 		{
-			verts[vertexIndex].Normal.set(0.f, 1.f, 0.f);
-			verts[vertexIndex].TCoords = _v2.m_tcoords;
-			verts[vertexIndex].Position = _v2.m_position; ++vertexIndex;
-			verts[vertexIndex].Normal.set(0.f, 1.f, 0.f);
-			verts[vertexIndex].TCoords = _v1.m_tcoords;
-			verts[vertexIndex].Position = _v1.m_position; ++vertexIndex;
-			verts[vertexIndex].Normal.set(0.f, 1.f, 0.f);
-			verts[vertexIndex].TCoords = _v4.m_tcoords;
-			verts[vertexIndex].Position = _v4.m_position; ++vertexIndex;
-
-			verts[vertexIndex].Normal.set(0.f, 1.f, 0.f);
-			verts[vertexIndex].TCoords = _v2.m_tcoords;
-			verts[vertexIndex].Position = _v2.m_position; ++vertexIndex;
-			verts[vertexIndex].Normal.set(0.f, 1.f, 0.f);
-			verts[vertexIndex].TCoords = _v4.m_tcoords;
-			verts[vertexIndex].Position = _v4.m_position; ++vertexIndex;
-			verts[vertexIndex].Normal.set(0.f, 1.f, 0.f);
-			verts[vertexIndex].TCoords = _v3.m_tcoords;
-			verts[vertexIndex].Position = _v3.m_position; ++vertexIndex;
+			m_terrInds.push_back(i2);
+			m_terrInds.push_back(i1);
+			m_terrInds.push_back(i4);
+			m_terrInds.push_back(i2);
+			m_terrInds.push_back(i4);
+			m_terrInds.push_back(i3);
 		}
 	}
+	void RecalculateNormals()
+	{
+		struct _s
+		{
+			_s() :d(0.f), vertex(0) {}
+			v3f normal;
+			f32 d;
+			yyVertexModel * vertex;
+		};
+		_s* s = new _s[m_meshBuffer->m_vCount];
 
+		u32 maxindex = 0;
+		u16* inds = (u16*)m_meshBuffer->m_indices;
+		yyVertexModel* verts = (yyVertexModel*)m_meshBuffer->m_vertices;
+		for (u32 i = 0; i < m_meshBuffer->m_iCount; i += 3)
+		{
+			u16 i1 = inds[i];
+			u16 i2 = inds[i+1];
+			u16 i3 = inds[i+2];
+			if (i1 > maxindex)maxindex = i1;
+			if (i2 > maxindex)maxindex = i2;
+			if (i3 > maxindex)maxindex = i3;
+			auto v1 = &verts[i1];
+			auto v2 = &verts[i2];
+			auto v3 = &verts[i3];
+
+			v3f e1 = v2->Position - v1->Position;
+			v3f e2 = v3->Position - v1->Position;
+			auto triNormal = e2.cross(e1);
+			triNormal.normalize2();
+
+			s[i1].d += 1.f;
+			s[i1].normal += triNormal;
+			s[i1].vertex = v1;
+
+			s[i2].d += 1.f;
+			s[i2].normal += triNormal;
+			s[i2].vertex = v2;
+
+			s[i3].d += 1.f;
+			s[i3].normal += triNormal;
+			s[i3].vertex = v3;
+		}
+
+		for (u32 i = 0; i < m_meshBuffer->m_vCount; ++i)
+		{
+			if (s[i].d == 0.f) s[i].d = 1.f;
+			s[i].normal = s[i].normal / s[i].d;
+			s[i].normal.normalize2();
+			s[i].vertex->Normal = s[i].normal;
+		}
+		delete[] s;
+		m_meshBuffer->GenerateTangents();
+	}
 	void CreateGPUResource()
 	{
 		if (m_modelGPU)
@@ -305,8 +373,15 @@ struct yyTerrainSector
 		yyGetVideoDriverAPI()->UnloadModel(m_modelGPU);
 		m_modelGPU_forRender = m_modelGPU;
 	}
-	yyModel* m_model;
-	yyMeshBuffer* m_meshBuffer;
+	void RemapGPUBuffers()
+	{
+		u8* vptr = 0;
+		yyGetVideoDriverAPI()->MapModelForWriteVerts(m_modelGPU, 0, &vptr);
+		memcpy(vptr, m_meshBuffer->m_vertices, m_vertsSizeInBytes);
+		yyGetVideoDriverAPI()->UnmapModelForWriteVerts(m_modelGPU, 0);
+	}
+	yyModel* m_model; // отдельно yyModel и отдельно yyMeshBuffer для того, чтобы yyResource всегда имел адрес m_model
+	yyMeshBuffer* m_meshBuffer; // удаляем и пересоздаём только m_meshBuffer->m_vertices m_meshBuffer->m_indices
 	yyResource* m_modelGPU;
 	yyResource* m_modelGPU_forRender;
 	yyMaterial m_material;
@@ -324,11 +399,22 @@ struct yyTerrainSector
 
 	struct meshbuffer_info
 	{
+		meshbuffer_info()
+		{
+			m_flags = 0;
+			m_compressedVBufferSize = 0;
+			m_compressedIBufferSize = 0;
+		}
 		u32 m_vertsCount;
 		u32 m_vertsStride;
 		u32 m_indsCount;
 
-		u32 m_compressedBufferSize;
+		u32 m_compressedVBufferSize;
+		u32 m_compressedIBufferSize;
+		u32 m_VBufferSize;
+		u32 m_IBufferSize;
+
+		u32 m_flags;
 	};
 
 	void SaveToFile()
@@ -344,7 +430,18 @@ struct yyTerrainSector
 		yyFileIO f;
 		f.open(fn.c_str(), "wb");
 
-		u32 buffer_size = m_vertsSizeInBytes + m_indsSizeInBytes;
+		meshbuffer_info mbi;
+		mbi.m_vertsCount	= m_meshBuffer->m_vCount;
+		mbi.m_vertsStride	= m_meshBuffer->m_stride;
+		mbi.m_indsCount		= m_meshBuffer->m_iCount;
+		mbi.m_VBufferSize   = m_meshBuffer->m_vCount * m_meshBuffer->m_stride;
+		mbi.m_IBufferSize = m_meshBuffer->m_iCount * sizeof(u16);
+		f.writeBytes(&mbi, sizeof(meshbuffer_info));
+		f.writeBytes(m_meshBuffer->m_vertices, mbi.m_VBufferSize);
+		f.writeBytes(m_meshBuffer->m_indices, mbi.m_IBufferSize);
+
+
+		/*u32 buffer_size = m_vertsSizeInBytes + m_indsSizeInBytes;
 		u8 * buffer = (u8*)yyMemAlloc(buffer_size);
 		memcpy(&buffer[0], &m_meshBuffer->m_vertices[0], m_vertsSizeInBytes);
 		memcpy(&buffer[m_vertsSizeInBytes], &m_meshBuffer->m_indices[0], m_indsSizeInBytes);
@@ -362,7 +459,7 @@ struct yyTerrainSector
 		f.writeBytes(compressedBuffer, compressedBufferSize);
 
 		yyMemFree(compressedBuffer);
-		yyMemFree(buffer);
+		yyMemFree(buffer);*/
 
 		//yyDecompressData()
 	}
@@ -389,6 +486,7 @@ struct yyTerrainSector
 			m_aabb.add(verts[i].Position);
 		}
 		m_aabb.center(m_localPosition);
+		m_model->m_aabb = m_aabb;
 	}
 	void Load()
 	{
@@ -406,26 +504,30 @@ struct yyTerrainSector
 		meshbuffer_info bufInfo;
 		f.readBytes(&bufInfo, sizeof(meshbuffer_info));
 
-		if (!m_meshBuffer->m_indices)
-		{
-			m_meshBuffer->m_indices = (u8*)yyMemAlloc(m_indsSizeInBytes);
-		}
-		if (!m_meshBuffer->m_vertices)
-		{
-			m_meshBuffer->m_vertices = (u8*)yyMemAlloc(m_vertsSizeInBytes);
-		}
+		if (m_meshBuffer->m_vertices) yyMemFree(m_meshBuffer->m_vertices);
+		if (m_meshBuffer->m_indices)  yyMemFree(m_meshBuffer->m_indices);
+		m_vertsSizeInBytes	= bufInfo.m_VBufferSize;
 
+		m_meshBuffer->m_vertices = (u8*)yyMemAlloc(bufInfo.m_VBufferSize);
+		m_meshBuffer->m_indices = (u8*)yyMemAlloc(m_indsSizeInBytes);
+		m_meshBuffer->m_iCount = bufInfo.m_indsCount;
+		m_meshBuffer->m_vCount = bufInfo.m_vertsCount;
+
+		f.readBytes(m_meshBuffer->m_vertices, m_vertsSizeInBytes);
+		f.readBytes(m_meshBuffer->m_indices, m_indsSizeInBytes);
+
+		/*if (!m_meshBuffer->m_indices)
+			m_meshBuffer->m_indices = (u8*)yyMemAlloc(m_indsSizeInBytes);
+		if (!m_meshBuffer->m_vertices)
+			m_meshBuffer->m_vertices = (u8*)yyMemAlloc(m_vertsSizeInBytes);
 		u8 * compressedBuffer = (u8*)yyMemAlloc(bufInfo.m_compressedBufferSize);
 		f.readBytes(compressedBuffer, bufInfo.m_compressedBufferSize);
 		u32 outSize = 0;
 		auto decompressedBuffer = yyDecompressData(compressedBuffer, bufInfo.m_compressedBufferSize, outSize, yyCompressType::ZStd);
-		
 		yyMemFree(compressedBuffer);
-
 		memcpy(m_meshBuffer->m_vertices, &decompressedBuffer[0], m_vertsSizeInBytes);
 		memcpy(m_meshBuffer->m_indices, &decompressedBuffer[m_vertsSizeInBytes], m_indsSizeInBytes);
-	
-		yyMemFree(decompressedBuffer);
+		yyMemFree(decompressedBuffer);*/
 	}
 
 	bool isRayIntersect(const yyRay& ray, v4f& ip)
@@ -518,23 +620,21 @@ struct yyTerrain
 		}
 		printf("EDIT %u verts\n", m_editableVerts.size());
 	}
-	void EditMove(f32 mouseDelta_y, f32 deltaTime)
+	void EditMove(f32 mouseDelta_y, f32 deltaTime, bool isAlt)
 	{
-		f32 speed = mouseDelta_y * deltaTime;
+		f32 speed = mouseDelta_y ;
+		if (isAlt)
+			speed *= 0.01;
 		if (m_editableVerts.size())
 		{
 			for (u32 i = 0, sz = m_editableVerts.size(); i < sz; ++i)
 			{
 				auto & ev = m_editableVerts[i];
-				ev.m_vertex->Position.y -= speed * ev.m_weight;
+				ev.m_vertex->Position.y -= speed * ev.m_weight * deltaTime;
 			}
 			for (u32 i = 0, sz = m_updateSectors.size(); i < sz; ++i)
 			{
-				auto sector = m_updateSectors[i];
-				u8* vptr = 0;
-				yyGetVideoDriverAPI()->MapModelForWriteVerts(sector->m_modelGPU, 0, &vptr);
-				memcpy(vptr, sector->m_meshBuffer->m_vertices, sector->m_vertsSizeInBytes);
-				yyGetVideoDriverAPI()->UnmapModelForWriteVerts(sector->m_modelGPU, 0);
+				m_updateSectors[i]->RemapGPUBuffers();
 			}
 		}
 	}
@@ -594,6 +694,8 @@ struct yyTerrain
 		for (u32 i = 0, sz = m_updateSectors.size(); i < sz; ++i)
 		{
 			auto sector = m_updateSectors[i];
+			sector->RecalculateNormals();
+			sector->RemapGPUBuffers();
 			sector->SaveToFile();
 		}
 		m_updateSectors.clear();
@@ -672,7 +774,7 @@ struct yyTerrain
 
 						uv_begin_x += uv_segment_size_w;
 
-						newSector->AddPiece(v1, v2, v3, v4, t);
+						newSector->AddPiece(&v1, &v2, &v3, &v4, t);
 						point.x += yyTerrainQuadSize;
 						row_aabb.add(point);
 
@@ -691,6 +793,7 @@ struct yyTerrain
 				}
 
 				newSector->m_aabb.center(newSector->m_localPosition);
+				newSector->Build();
 				newSector->SaveToFile();
 				newSector->CreateGPUResource();
 				newSector->Unload();
@@ -710,6 +813,8 @@ struct yyTerrain
 		for (u16 i = 0, sz = m_sectors.size(); i < sz; ++i)
 		{
 			auto sector = m_sectors[i];
+			sector->m_material.m_wireframe = true;
+
 			if (camera->m_frustum.sphereInFrustum(sector->m_aabb.m_min.distance(sector->m_aabb.m_max) * 0.5f, 
 				sector->m_localPosition
 			))
@@ -717,34 +822,36 @@ struct yyTerrain
 				sector->m_material.m_wireframe = false;
 				
 				const f32 dist_1 = 200.f;
-				const f32 dist_2 = 1500.f;
+				const f32 dist_2 = 5000.f;
 
 				f32 distToCam = sector->m_localPosition.distance(camera->m_objectBase.m_globalPosition);
 				if (distToCam < dist_1)
 				{
-					if (!sector->m_visible)
+					if (!sector->m_visible )
 					{
 						sector->Load();
 			//			printf("TERR load model id %u\n", (u32)sector->m_modelGPU->m_index);
 						yyGetVideoDriverAPI()->LoadModel(sector->m_modelGPU);
+						//sector->Unload();
 					}
 					sector->m_visible = true;
 					sector->m_modelGPU_forRender = sector->m_modelGPU;
 				}
 				else if (distToCam < dist_2)
 				{
-					if (!sector->m_visible)
+					if (!sector->m_visible )
 					{
 						sector->Load();
 				//		printf("TERR load model id %u\n", (u32)sector->m_modelGPU->m_index);
 						yyGetVideoDriverAPI()->LoadModel(sector->m_modelGPU);
+						//sector->Unload();
 					}
 					sector->m_visible = true;
 					sector->m_modelGPU_forRender = sector->m_modelGPU;
 				}
 				else
 				{
-					if (sector->m_visible)
+					if (sector->m_visible )
 					{
 				//		printf("TERR UNload model id %u\n", (u32)sector->m_modelGPU->m_index);
 						yyGetVideoDriverAPI()->UnloadModel(sector->m_modelGPU);
@@ -768,6 +875,8 @@ struct yyTerrain
 				sector->m_visible = false;
 			}
 
+
+			//sector->m_visible = true;
 		}
 	}
 

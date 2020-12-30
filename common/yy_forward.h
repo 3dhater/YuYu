@@ -5,6 +5,7 @@ class yyColor;
 class yyGUIElement;
 class yyWindow;
 class Mat4;
+//class yyAudioSource;
 
 struct yyMaterial;
 struct yyModel;

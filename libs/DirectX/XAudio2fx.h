@@ -107,19 +107,19 @@ DEFINE_CLSID(AudioReverb_Debug, c4f82dd4, cb4e, 4ce1, 8b, db, ee, 32, d4, 19, 82
     STDAPI CreateAudioVolumeMeter(IUnknown** ppApo);
     STDAPI CreateAudioReverb(IUnknown** ppApo);
 
-    GT_FORCE_INLINE HRESULT XAudio2CreateVolumeMeter(IUnknown** ppApo, UINT32 /*Flags*/ DEFAULT(0))
+    YY_FORCE_INLINE HRESULT XAudio2CreateVolumeMeter(IUnknown** ppApo, UINT32 /*Flags*/ DEFAULT(0))
     {
         return CreateAudioVolumeMeter(ppApo);
     }
 
-    GT_FORCE_INLINE HRESULT XAudio2CreateReverb(IUnknown** ppApo, UINT32 /*Flags*/ DEFAULT(0))
+    YY_FORCE_INLINE HRESULT XAudio2CreateReverb(IUnknown** ppApo, UINT32 /*Flags*/ DEFAULT(0))
     {
         return CreateAudioReverb(ppApo);
     }
 
 #else // Windows
 
-    GT_FORCE_INLINE HRESULT XAudio2CreateVolumeMeter(IUnknown** ppApo, UINT32 Flags DEFAULT(0))
+    YY_FORCE_INLINE HRESULT XAudio2CreateVolumeMeter(IUnknown** ppApo, UINT32 Flags DEFAULT(0))
     {
         #ifdef __cplusplus
             return CoCreateInstance((Flags & XAUDIO2FX_DEBUG) ? CLSID_AudioVolumeMeter_Debug
@@ -132,7 +132,7 @@ DEFINE_CLSID(AudioReverb_Debug, c4f82dd4, cb4e, 4ce1, 8b, db, ee, 32, d4, 19, 82
         #endif
     }
 
-    GT_FORCE_INLINE HRESULT XAudio2CreateReverb(IUnknown** ppApo, UINT32 Flags DEFAULT(0))
+    YY_FORCE_INLINE HRESULT XAudio2CreateReverb(IUnknown** ppApo, UINT32 Flags DEFAULT(0))
     {
         #ifdef __cplusplus
             return CoCreateInstance((Flags & XAUDIO2FX_DEBUG) ? CLSID_AudioReverb_Debug
@@ -315,7 +315,7 @@ typedef struct XAUDIO2FX_REVERB_I3DL2_PARAMETERS
 
 // ReverbConvertI3DL2ToNative: Utility function to map from I3DL2 to native parameters
 
-GT_FORCE_INLINE void ReverbConvertI3DL2ToNative
+YY_FORCE_INLINE void ReverbConvertI3DL2ToNative
 (
     const XAUDIO2FX_REVERB_I3DL2_PARAMETERS* pI3DL2,
     XAUDIO2FX_REVERB_PARAMETERS* pNative

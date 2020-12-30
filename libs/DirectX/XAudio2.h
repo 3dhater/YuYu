@@ -1207,13 +1207,13 @@ DECLARE_INTERFACE(IXAudio2VoiceCallback)
 #include <math.h>           // For powf, log10f, sinf and asinf
 
 // Calculate the argument to SetVolume from a decibel value
-GT_FORCE_INLINE float XAudio2DecibelsToAmplitudeRatio(float Decibels)
+YY_FORCE_INLINE float XAudio2DecibelsToAmplitudeRatio(float Decibels)
 {
     return powf(10.0f, Decibels / 20.0f);
 }
 
 // Recover a volume in decibels from an amplitude factor
-GT_FORCE_INLINE float XAudio2AmplitudeRatioToDecibels(float Volume)
+YY_FORCE_INLINE float XAudio2AmplitudeRatioToDecibels(float Volume)
 {
     if (Volume == 0)
     {
@@ -1223,7 +1223,7 @@ GT_FORCE_INLINE float XAudio2AmplitudeRatioToDecibels(float Volume)
 }
 
 // Calculate the argument to SetFrequencyRatio from a semitone value
-GT_FORCE_INLINE float XAudio2SemitonesToFrequencyRatio(float Semitones)
+YY_FORCE_INLINE float XAudio2SemitonesToFrequencyRatio(float Semitones)
 {
     // FrequencyRatio = 2 ^ Octaves
     //                = 2 ^ (Semitones / 12)
@@ -1231,7 +1231,7 @@ GT_FORCE_INLINE float XAudio2SemitonesToFrequencyRatio(float Semitones)
 }
 
 // Recover a pitch in semitones from a frequency ratio
-GT_FORCE_INLINE float XAudio2FrequencyRatioToSemitones(float FrequencyRatio)
+YY_FORCE_INLINE float XAudio2FrequencyRatioToSemitones(float FrequencyRatio)
 {
     // Semitones = 12 * log2(FrequencyRatio)
     //           = 12 * log2(10) * log10(FrequencyRatio)
@@ -1242,7 +1242,7 @@ GT_FORCE_INLINE float XAudio2FrequencyRatioToSemitones(float FrequencyRatio)
 // frequency values used in XAUDIO2_FILTER_PARAMETERS.Frequency.  Note that
 // the highest CutoffFrequency supported is SampleRate/6.  Higher values of
 // CutoffFrequency will return XAUDIO2_MAX_FILTER_FREQUENCY.
-GT_FORCE_INLINE float XAudio2CutoffFrequencyToRadians(float CutoffFrequency, UINT32 SampleRate)
+YY_FORCE_INLINE float XAudio2CutoffFrequencyToRadians(float CutoffFrequency, UINT32 SampleRate)
 {
     if ((UINT32)(CutoffFrequency * 6.0f) >= SampleRate)
     {
@@ -1252,7 +1252,7 @@ GT_FORCE_INLINE float XAudio2CutoffFrequencyToRadians(float CutoffFrequency, UIN
 }
 
 // Convert from radian frequencies back to absolute frequencies in Hertz
-GT_FORCE_INLINE float XAudio2RadiansToCutoffFrequency(float Radians, float SampleRate)
+YY_FORCE_INLINE float XAudio2RadiansToCutoffFrequency(float Radians, float SampleRate)
 {
     return SampleRate * asinf(Radians / 2.0f) / (float)M_PI;
 }
@@ -1281,7 +1281,7 @@ STDAPI XAudio2Create(IXAudio2** ppXAudio2, UINT32 Flags X2DEFAULT(0),
 
 #else // Windows
 
-GT_FORCE_INLINE HRESULT XAudio2Create(IXAudio2** ppXAudio2, UINT32 Flags X2DEFAULT(0),
+YY_FORCE_INLINE HRESULT XAudio2Create(IXAudio2** ppXAudio2, UINT32 Flags X2DEFAULT(0),
                                XAUDIO2_PROCESSOR XAudio2Processor X2DEFAULT(XAUDIO2_DEFAULT_PROCESSOR))
 {
     // Instantiate the appropriate XAudio2 engine

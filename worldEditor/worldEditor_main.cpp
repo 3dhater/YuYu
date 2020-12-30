@@ -389,7 +389,7 @@ int main()
 
 				viewport.m_data->m_activeCamera->rotate(g_inputContex->m_mouseDelta, deltaTime);
 				if (g_inputContex->isKeyHold(yyKey::K_LSHIFT) || g_inputContex->isKeyHold(yyKey::K_RSHIFT))
-					viewport.m_data->m_activeCamera->m_moveSpeed = viewport.m_data->m_activeCamera->m_moveSpeedDefault * 5.f;
+					viewport.m_data->m_activeCamera->m_moveSpeed = viewport.m_data->m_activeCamera->m_moveSpeedDefault * 15.f;
 				else
 					viewport.m_data->m_activeCamera->m_moveSpeed = viewport.m_data->m_activeCamera->m_moveSpeedDefault;
 
@@ -472,34 +472,37 @@ int main()
 					if (g_inputContex->isKeyHold(yyKey::K_PGUP))
 						pickedEntity->m_data->m_entityPosition.y += sp;
 
+					sp = 30.f * deltaTime;
+					if (g_inputContex->isKeyHold(yyKey::K_LALT))
+						sp *= 0.01f;
 					if (g_inputContex->isKeyHold(yyKey::K_NUM_7))
 					{
-						pickedEntity->m_data->m_base.SetRotation(pickedEntity->m_data->m_base.m_rotation + v4f(sp * 0.1, 0.f, 0.f, 0.f));
+						pickedEntity->m_data->m_base.SetRotation(pickedEntity->m_data->m_base.m_rotation + v4f(sp * 0.01, 0.f, 0.f, 0.f));
 						pickedEntity->m_data->m_base.UpdateBase();
 					}
 					if (g_inputContex->isKeyHold(yyKey::K_NUM_4))
 					{
-						pickedEntity->m_data->m_base.SetRotation(pickedEntity->m_data->m_base.m_rotation - v4f(sp * 0.1, 0.f, 0.f, 0.f));
+						pickedEntity->m_data->m_base.SetRotation(pickedEntity->m_data->m_base.m_rotation - v4f(sp * 0.01, 0.f, 0.f, 0.f));
 						pickedEntity->m_data->m_base.UpdateBase();
 					}
 					if (g_inputContex->isKeyHold(yyKey::K_NUM_8))
 					{
-						pickedEntity->m_data->m_base.SetRotation(pickedEntity->m_data->m_base.m_rotation + v4f(0.f, sp * 0.1, 0.f, 0.f));
+						pickedEntity->m_data->m_base.SetRotation(pickedEntity->m_data->m_base.m_rotation + v4f(0.f, sp * 0.01, 0.f, 0.f));
 						pickedEntity->m_data->m_base.UpdateBase();
 					}
 					if (g_inputContex->isKeyHold(yyKey::K_NUM_5))
 					{
-						pickedEntity->m_data->m_base.SetRotation(pickedEntity->m_data->m_base.m_rotation - v4f(0.f, sp * 0.1, 0.f, 0.f));
+						pickedEntity->m_data->m_base.SetRotation(pickedEntity->m_data->m_base.m_rotation - v4f(0.f, sp * 0.01, 0.f, 0.f));
 						pickedEntity->m_data->m_base.UpdateBase();
 					}
 					if (g_inputContex->isKeyHold(yyKey::K_NUM_9))
 					{
-						pickedEntity->m_data->m_base.SetRotation(pickedEntity->m_data->m_base.m_rotation + v4f(0.f, 0.f, sp * 0.1, 0.f));
+						pickedEntity->m_data->m_base.SetRotation(pickedEntity->m_data->m_base.m_rotation + v4f(0.f, 0.f, sp * 0.01, 0.f));
 						pickedEntity->m_data->m_base.UpdateBase();
 					}
 					if (g_inputContex->isKeyHold(yyKey::K_NUM_6))
 					{
-						pickedEntity->m_data->m_base.SetRotation(pickedEntity->m_data->m_base.m_rotation - v4f(0.f, 0.f, sp * 0.1, 0.f));
+						pickedEntity->m_data->m_base.SetRotation(pickedEntity->m_data->m_base.m_rotation - v4f(0.f, 0.f, sp * 0.01, 0.f));
 						pickedEntity->m_data->m_base.UpdateBase();
 					}
 
@@ -607,7 +610,8 @@ int main()
 							{
 								if (g_inputContex->m_mouseDelta.y != 0.f)
 								{
-									newTerrain->EditMove(g_inputContex->m_mouseDelta.y, deltaTime);
+									newTerrain->EditMove(g_inputContex->m_mouseDelta.y, deltaTime,
+										g_inputContex->isKeyHold(yyKey::K_LALT) || g_inputContex->isKeyHold(yyKey::K_RALT));
 								}
 								intersectionPoint2.y -= g_inputContex->m_mouseDelta.y * deltaTime;
 								g_videoDriver->DrawLine3D(intersectionPoint, intersectionPoint2,ColorRed);

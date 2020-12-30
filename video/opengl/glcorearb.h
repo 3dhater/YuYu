@@ -457,6 +457,8 @@ typedef void GLvoid;
 #define GL_TEXTURE_COMPARE_MODE           0x884C
 #define GL_TEXTURE_COMPARE_FUNC           0x884D
 #endif
+#define GL_DEPTH_TEXTURE_MODE            0x884B
+#define GL_INTENSITY             0x8049
 
 #ifndef GL_VERSION_1_5
 #define GL_BUFFER_SIZE                    0x8764

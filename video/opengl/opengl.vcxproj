@@ -184,6 +184,8 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <Optimization>MaxSpeed</Optimization>
       <WholeProgramOptimization>true</WholeProgramOptimization>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -250,6 +252,8 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <Optimization>MaxSpeed</Optimization>
       <WholeProgramOptimization>true</WholeProgramOptimization>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -266,19 +270,25 @@
     <ClCompile Include="opengl_main.cpp" />
     <ClCompile Include="OpenGL_model.cpp" />
     <ClCompile Include="OpenGL_shader.cpp" />
+    <ClCompile Include="OpenGL_shader_depth.cpp" />
+    <ClCompile Include="OpenGL_shader_simple.cpp" />
     <ClCompile Include="OpenGL_shader_standart.cpp" />
     <ClCompile Include="OpenGL_shader_GUI.cpp" />
     <ClCompile Include="OpenGL_shader_Line3D.cpp" />
     <ClCompile Include="OpenGL_shader_sprite.cpp" />
+    <ClCompile Include="OpenGL_shader_terrain.cpp" />
     <ClCompile Include="OpenGL_texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="OpenGL_model.h" />
     <ClInclude Include="OpenGL_shader.h" />
+    <ClInclude Include="OpenGL_shader_depth.h" />
+    <ClInclude Include="OpenGL_shader_simple.h" />
     <ClInclude Include="OpenGL_shader_standart.h" />
     <ClInclude Include="OpenGL_shader_GUI.h" />
     <ClInclude Include="OpenGL_shader_Line3D.h" />
     <ClInclude Include="OpenGL_shader_sprite.h" />
+    <ClInclude Include="OpenGL_shader_terrain.h" />
     <ClInclude Include="OpenGL_texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -44,6 +44,7 @@ struct yyGameEntity
 		m_entityPosition = other->m_entityPosition;
 		m_visualAttrValue = other->m_visualAttrValue;
 		m_tdAttrValue = other->m_tdAttrValue;
+		m_base = other->m_base;
 
 		m_modelForGPU = other->m_modelForGPU;
 		if (m_modelForGPU) ++m_modelForGPU->m_refCount; // m_refCount уменьшается при удалении энтити

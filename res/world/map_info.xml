@@ -1,8 +1,0 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
-<map_info>
-	<ent position="-97.1051 18.0390 -87.5146" matrix="0.0520 -0.0002 -0.9986 0.9857 0.1607 0.0513 0.1605 -0.9870 0.0086 " name="m_rd_str_10m" visual="rd_str1.tr3d" td="road_d.dds"/>
-	<ent position="-108.6210 27.1171 -87.5146" matrix="-0.0071 -0.0160 0.9998 -0.0724 0.9973 0.0154 -0.9973 -0.0723 -0.0083 " name="m_rd_str_10m" visual="rd_str1.tr3d" td="road_d.dds"/>
-	<ent position="-121.0580 26.4811 -87.5146" matrix="1.0000 0.0000 0.0000 0.0000 1.0000 0.0000 0.0000 0.0000 1.0000 " name="m_rd_str_10m" visual="rd_str1.tr3d" td="road_d.dds"/>
-	<ent position="-128.3579 26.4811 -87.5146" matrix="1.0000 0.0000 0.0000 0.0000 1.0000 0.0000 0.0000 0.0000 1.0000 " name="m_rd_str_10m" visual="rd_str1.tr3d" td="road_d.dds"/>
-	<ent position="-135.6583 26.4811 -87.5146" matrix="1.0000 0.0000 0.0000 0.0000 1.0000 0.0000 0.0000 0.0000 1.0000 " name="m_rd_str_10m" visual="rd_str1.tr3d" td="road_d.dds"/>
-</map_info>

@@ -1239,6 +1239,9 @@ class OpenGLShaderGUI;
 class OpenGLShaderSprite;
 class OpenGLShaderLine3D;
 class OpenGLShaderStd;
+class OpenGLShaderTerrain;
+class OpenGLShaderDepth;
+class OpenGLShaderSimple;
 
 class OpenGLTexture;
 class OpenGLMeshBuffer;
@@ -1265,12 +1268,16 @@ public:
 	std::vector<OpenGLModel*> m_models;
 
 	bool initTexture(yyImage*, OpenGLTexture*, bool useLinearFilter, bool useComparisonFilter);
+	bool initFBO(OpenGLTexture*, const v2f& size, bool useLinearFilter, bool useComparisonFilter);
 	bool initModel(yyModel*, OpenGLModel*);
 
 	OpenGLShaderGUI* m_shader_gui;
 	OpenGLShaderSprite* m_shader_sprite;
 	OpenGLShaderLine3D* m_shader_line3d;
 	OpenGLShaderStd* m_shader_std;
+	OpenGLShaderTerrain* m_shader_terrain;
+	OpenGLShaderDepth* m_shader_depth;
+	OpenGLShaderSimple* m_shader_simple;
 
 	Mat4 m_guiProjectionMatrix;
 
@@ -1291,7 +1298,9 @@ public:
 	Mat4 m_matrixProjection;
 	Mat4 m_matrixViewProjection;
 	Mat4 m_matrixWorldViewProjection;
-	
+	Mat4 m_matrixLightView;
+	Mat4 m_matrixLightProjection;
+
 	v2f m_spriteCameraPosition;
 	v2f m_spriteCameraScale;
 };

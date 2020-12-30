@@ -325,6 +325,7 @@ YY_API void YY_C_DECL yyUpdateAsyncLoader()
 	}
 }
 
+
 YY_API yyVideoDriverAPI* YY_C_DECL yyGetVideoDriverAPI()
 {
 	return g_engine->m_videoAPI;

@@ -45,6 +45,15 @@
     <ClCompile Include="OpenGL_shader_standart.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="OpenGL_shader_terrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGL_shader_depth.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGL_shader_simple.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="OpenGL_texture.h">
@@ -66,6 +75,15 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="OpenGL_shader_standart.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGL_shader_terrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGL_shader_depth.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGL_shader_simple.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

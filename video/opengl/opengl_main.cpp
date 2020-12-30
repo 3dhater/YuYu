@@ -14,12 +14,15 @@
 #include "OpenGL_shader_sprite.h"
 #include "OpenGL_shader_Line3D.h"
 #include "OpenGL_shader_standart.h"
+#include "OpenGL_shader_terrain.h"
+#include "OpenGL_shader_depth.h"
+#include "OpenGL_shader_simple.h"
 
 #include "scene/common.h"
 #include "scene/sprite.h"
 
 yyVideoDriverAPI g_api;
-
+bool g_useDepth = true;
 void LoadModel(yyResource* r);
 
 //yyResource g_defaultRes;
@@ -224,9 +227,37 @@ void UseVSync(bool v)
 }
 void UseDepth(bool v)
 {
+	if (g_useDepth == v)
+		return;
+	g_useDepth = v;
 	v ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
 }
 
+yyResource* CreateRenderTargetTexture(const v2f& size, bool useLinearFilter, bool useComparisonFilter)
+{
+	yyResource * newRes = yyCreate<yyResource>();
+	newRes->m_type = yyResourceType::RenderTargetTexture;
+	newRes->m_source = 0;
+	newRes->m_index = g_openGL->m_textures.size();
+	newRes->m_refCount = 1;
+	if (useLinearFilter)
+		newRes->m_flags |= yyResource::flags::texture_useLinearFilter;
+	if (useComparisonFilter)
+		newRes->m_flags |= yyResource::flags::texture_useComparisonFilter;
+
+	auto newTexture = yyCreate<OpenGLTexture>();
+	g_openGL->initFBO(newTexture, size, useLinearFilter, useComparisonFilter);
+	if (newTexture)
+	{
+		g_openGL->m_textures.push_back(newTexture);
+		newRes->m_isLoaded = true;
+		return newRes;
+	}
+
+	if (newRes)
+		yyDestroy(newRes);
+	return nullptr;
+}
 
 yyResource* CreateModelFromFile(const char* fileName, bool load)
 {
@@ -405,7 +436,24 @@ void EndDrawGUI()
 	glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
 	glScissor(last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2], (GLsizei)last_scissor_box[3]);
 }
-
+void SetRenderTarget(yyResource* rtt)
+{
+	if (rtt)
+	{
+		if (rtt->m_type == yyResourceType::RenderTargetTexture)
+			glBindFramebuffer(GL_FRAMEBUFFER, g_openGL->m_textures[rtt->m_index]->m_FBO);
+		else
+			yyLogWriteWarning("SetRenderTarget: yyResourceType is not RenderTargetTexture");
+	}
+	else
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+}
+void SetViewport(f32 x, f32 y, f32 width, f32 height)
+{
+	glViewport(x, y, width, height);
+}
 void SetTexture(yyVideoDriverAPI::TextureSlot slot, yyResource* res)
 {
 	if(res)
@@ -433,32 +481,94 @@ void Draw()
 			glBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);
 		}
 	}
-	else
+	else if(g_openGL->m_currentMaterial)
 	{
-		if (g_openGL->m_currentMaterial)
-		{
-			if (g_openGL->m_currentMaterial->m_wireframe)
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			else
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			if (g_openGL->m_currentMaterial->m_cullBackFace)
-				glEnable(GL_CULL_FACE);
-			else
-				glDisable(GL_CULL_FACE);
-		}
+		if (g_openGL->m_currentMaterial->m_wireframe)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		else
-		{
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			//gglEnable(GL_CULL_FACE); else gglDisable(GL_CULL_FACE);
+		if (g_openGL->m_currentMaterial->m_cullBackFace)
+			glEnable(GL_CULL_FACE);
+		else
 			glDisable(GL_CULL_FACE);
-		}
-		glUseProgram( g_openGL->m_shader_std->m_program );
-		glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr() );
-		if(g_openGL->m_currentTextures[0])
+
+		
+		switch (g_openGL->m_currentMaterial->m_type)
 		{
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);
+		case yyMaterialType::Terrain:
+			glUseProgram(g_openGL->m_shader_terrain->m_program);
+			glUniformMatrix4fv(g_openGL->m_shader_terrain->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr());
+			glUniformMatrix4fv(g_openGL->m_shader_terrain->m_uniform_W, 1, GL_FALSE, g_openGL->m_matrixWorld.getPtr());
+			glUniformMatrix4fv(g_openGL->m_shader_terrain->m_uniform_LightView, 1, GL_FALSE, g_openGL->m_matrixLightView.getPtr());
+			glUniformMatrix4fv(g_openGL->m_shader_terrain->m_uniform_LightProjection, 1, GL_FALSE, g_openGL->m_matrixLightProjection.getPtr());
+			glUniform3fv(g_openGL->m_shader_terrain->m_uniform_sunDir, 1, g_openGL->m_currentMaterial->m_sunDir.data());
+			glUniform3fv(g_openGL->m_shader_terrain->m_uniform_ambientColor, 1, g_openGL->m_currentMaterial->m_ambientColor.data());
+			glUniform1f(g_openGL->m_shader_terrain->m_uniform_selfLight, g_openGL->m_currentMaterial->m_selfLight);
+			if (g_openGL->m_currentTextures[0]) {
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, g_openGL->m_currentTextures[0]->m_texture);
+			}
+			if (g_openGL->m_currentTextures[1]) {
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, g_openGL->m_currentTextures[1]->m_texture);
+			}
+			break;
+		case yyMaterialType::Simple:
+			glUseProgram(g_openGL->m_shader_simple->m_program);
+			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr());
+			if (g_openGL->m_currentTextures[0]) {
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, g_openGL->m_currentTextures[0]->m_texture);
+			}
+			break;
+		case yyMaterialType::Default:
+			glUseProgram(g_openGL->m_shader_std->m_program);
+			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr());
+			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_W, 1, GL_FALSE, g_openGL->m_matrixWorld.getPtr());
+			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_LightView, 1, GL_FALSE, g_openGL->m_matrixLightView.getPtr());
+			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_LightProjection, 1, GL_FALSE, g_openGL->m_matrixLightProjection.getPtr());
+			glUniform3fv(g_openGL->m_shader_std->m_uniform_sunDir, 1, g_openGL->m_currentMaterial->m_sunDir.data());
+			glUniform3fv(g_openGL->m_shader_std->m_uniform_ambientColor, 1, g_openGL->m_currentMaterial->m_ambientColor.data());
+			glUniform1f(g_openGL->m_shader_std->m_uniform_selfLight, g_openGL->m_currentMaterial->m_selfLight);
+			if (g_openGL->m_currentTextures[0]) {
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, g_openGL->m_currentTextures[0]->m_texture);
+			}
+			if (g_openGL->m_currentTextures[1]) {
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, g_openGL->m_currentTextures[1]->m_texture);
+			}
+			break;
+		case yyMaterialType::Depth:
+			glUseProgram(g_openGL->m_shader_depth->m_program);
+			glUniformMatrix4fv(g_openGL->m_shader_depth->m_uniform_World, 1, GL_FALSE, g_openGL->m_matrixWorld.getPtr());
+			glUniformMatrix4fv(g_openGL->m_shader_depth->m_uniform_LightView, 1, GL_FALSE, g_openGL->m_matrixLightView.getPtr());
+			glUniformMatrix4fv(g_openGL->m_shader_depth->m_uniform_LightProjection, 1, GL_FALSE, g_openGL->m_matrixLightProjection.getPtr());
+			if (g_openGL->m_currentTextures[0]) {
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, g_openGL->m_currentTextures[0]->m_texture);
+			}
+			break;
+		default:
+			glUseProgram( g_openGL->m_shader_std->m_program );
+			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr() );
+			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_W, 1, GL_FALSE, g_openGL->m_matrixWorld.getPtr());
+			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_LightView, 1, GL_FALSE, g_openGL->m_matrixLightView.getPtr());
+			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_LightProjection, 1, GL_FALSE, g_openGL->m_matrixLightProjection.getPtr());
+			glUniform3fv(g_openGL->m_shader_std->m_uniform_sunDir, 1, g_openGL->m_currentMaterial->m_sunDir.data());
+			glUniform3fv(g_openGL->m_shader_std->m_uniform_ambientColor, 1, g_openGL->m_currentMaterial->m_ambientColor.data());
+			glUniform1f(g_openGL->m_shader_std->m_uniform_selfLight, g_openGL->m_currentMaterial->m_selfLight);
+			if (g_openGL->m_currentTextures[0]) {
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, g_openGL->m_currentTextures[0]->m_texture);
+			}
+			if (g_openGL->m_currentTextures[1]) {
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, g_openGL->m_currentTextures[1]->m_texture);
+			}
+			break;
 		}
+
 	}
 
 	for(u16 i = 0, sz = g_openGL->m_currentModel->m_meshBuffers.size(); i < sz; ++i)
@@ -530,6 +640,12 @@ void SetMatrix(yyVideoDriverAPI::MatrixType mt, const Mat4& mat)
 		break;
 	case yyVideoDriverAPI::WorldViewProjection:
 		g_openGL->m_matrixWorldViewProjection = mat;
+		break;
+	case yyVideoDriverAPI::LightView:
+		g_openGL->m_matrixLightView = mat;
+		break;
+	case yyVideoDriverAPI::LightProjection:
+		g_openGL->m_matrixLightProjection = mat;
 		break;
 	default:
 		YY_PRINT_FAILED;
@@ -636,6 +752,9 @@ extern "C"
 		g_api.SetMaterial = SetMaterial;
 		g_api.MapModelForWriteVerts = MapModelForWriteVerts;
 		g_api.UnmapModelForWriteVerts = UnmapModelForWriteVerts;
+		g_api.CreateRenderTargetTexture = CreateRenderTargetTexture;
+		g_api.SetRenderTarget = SetRenderTarget;
+		g_api.SetViewport = SetViewport;
 
 		g_api.GetVideoDriverObjects = GetVideoDriverObjects;
 

@@ -454,6 +454,32 @@ namespace math
 		out[ 2u ] = v4f( 0.f, 0.f, 1.f / (Near - Far), 0.f );
 		out[ 3u ] = v4f( 0.f, 0.f, out[ 2u ].z * Near, 1.f );
 	}
+
+	// based on XNA math library
+	YY_FORCE_INLINE void makeMatrixOrthographicOffCenterRH(
+		Mat4& out,
+		f32 ViewLeft,
+		f32 ViewRight,
+		f32 ViewBottom,
+		f32 ViewTop,
+		f32 NearZ,
+		f32 FarZ
+	)
+	{
+		f32    ReciprocalWidth;
+		f32    ReciprocalHeight;
+
+		ReciprocalWidth = 1.0f / (ViewRight - ViewLeft);
+		ReciprocalHeight = 1.0f / (ViewTop - ViewBottom);
+
+		out.m_data[0].set(ReciprocalWidth + ReciprocalWidth, 0.0f, 0.0f, 0.0f);
+		out.m_data[1].set(0.0f, ReciprocalHeight + ReciprocalHeight, 0.0f, 0.0f);
+		out.m_data[2].set(0.0f, 0.0f, 1.0f / (NearZ - FarZ), 0.0f);
+		out.m_data[3].set(-(ViewLeft + ViewRight) * ReciprocalWidth,
+			-(ViewTop + ViewBottom) * ReciprocalHeight,
+			out.m_data[2].z * NearZ,
+			1.0f);
+	}
 		
 		//	create \a look \a at matrix for right hand coordinate system
 		// \param in_out: view matrix

@@ -56,3 +56,9 @@ yuyu/Debug
 yuyu/Release
 video/d3d11/Debug
 video/d3d11/Release
+game/Production
+res/cars
+video/d3d11/Production
+video/opengl/Production
+worldEditor/Production
+yuyu/Production

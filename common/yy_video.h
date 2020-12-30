@@ -105,6 +105,8 @@ struct yyVideoDriverAPI
 		Projection,
 		ViewProjection, //For 3d line
 		WorldViewProjection,
+		LightView,
+		LightProjection,
 	};
 	void(*SetMatrix)(MatrixType, const Mat4&);
 	
@@ -116,7 +118,14 @@ struct yyVideoDriverAPI
 	void (*MapModelForWriteVerts)(yyResource* r, u32 meshbufferIndex, u8** v_ptr);
 	void(*UnmapModelForWriteVerts)(yyResource* r, u32 meshbufferIndex);
 
+	yyResource* (*CreateRenderTargetTexture)(const v2f& size, bool useLinearFilter, bool useComparisonFilter);
+	void(*SetRenderTarget)(yyResource*);
+	void(*SetViewport)(f32 x, f32 y, f32 width, f32 height);
+
+
 	void*(*GetVideoDriverObjects)();
+
+
 };
 
 #endif
