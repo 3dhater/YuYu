@@ -13,6 +13,20 @@
 
 #include <thread>
 
+#define CHECK(cond, ...)                        \
+    do {                                        \
+        if (!(cond)) {                          \
+            yyLogWriteError(					\
+                    "%s:%d CHECK(%s) failed: ", \
+                    __FILE__,                   \
+                    __LINE__,                   \
+                    #cond);                     \
+            yyLogWriteError("" __VA_ARGS__);    \
+            yyLogWriteError("\n");              \
+            exit(1);                            \
+        }                                       \
+    } while (0)
+
 Engine * g_engine = nullptr;
 yyWindow* g_mainWindow = nullptr;
 
@@ -258,6 +272,9 @@ u8* Engine::compressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size
 u8* Engine::decompressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size)
 {
 	unsigned long long const rSize = ZSTD_getFrameContentSize(in_data, in_data_size);
+	CHECK(rSize != ZSTD_CONTENTSIZE_ERROR, "%s: not compressed by zstd!");
+	CHECK(rSize != ZSTD_CONTENTSIZE_UNKNOWN, "%s: original size unknown!");
+
 	u8* out_data = (u8*)yyMemAlloc((u32)rSize);
 	if( !out_data )
 	{

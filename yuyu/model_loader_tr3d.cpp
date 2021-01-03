@@ -97,18 +97,18 @@ yyModel* ModelLoader_TR3D(const char* p)
 		return nullptr;
 	}
 
-	for( u32 i = 0; i < main_header.m_meshCount; ++i )
+	for( u32 i = 0; i < 1; ++i )
 	{
 		Game_TR3DHeaderMeshHeader meshhead;
-		yyPtr<yyMeshBuffer> new_mesh = yyCreate<yyMeshBuffer>();
+		yyModel * newModel = yyCreate<yyModel>();
 		
-		new_mesh.m_data->m_vertexType = yyVertexType::Model;
+		newModel->m_vertexType = yyVertexType::Model;
 
 		in.read((char*)&meshhead, sizeof(Game_TR3DHeaderMeshHeader));
 
-		new_mesh.m_data->m_iCount = meshhead.m_iCount;
-		new_mesh.m_data->m_vCount = meshhead.m_vCount;
-		new_mesh.m_data->m_stride = meshhead.m_stride;
+		newModel->m_iCount = meshhead.m_iCount;
+		newModel->m_vCount = meshhead.m_vCount;
+		newModel->m_stride = meshhead.m_stride;
 
 		/*u8* compressed_v = nullptr;
 		u8* compressed_i = nullptr;
@@ -132,15 +132,15 @@ yyModel* ModelLoader_TR3D(const char* p)
 		//new_mesh.m_data->m_vertices = yyDecompressData(compressed_v, meshhead.m_dataComressSize_v, outsize, yyCompressType::ZStd);
 		//new_mesh.m_data->m_indices = (u8*)yyDecompressData(compressed_i, meshhead.m_dataComressSize_i, outsize, yyCompressType::ZStd);
 
-		new_mesh.m_data->m_vertices = (u8*)yyMemAlloc(meshhead.m_dataDecomressSize_v);
-		new_mesh.m_data->m_indices = (u8*)yyMemAlloc(meshhead.m_dataDecomressSize_i);
-		in.read((char*)new_mesh.m_data->m_vertices, meshhead.m_dataDecomressSize_v);
-		in.read((char*)new_mesh.m_data->m_indices, meshhead.m_dataDecomressSize_i);
+		newModel->m_vertices = (u8*)yyMemAlloc(meshhead.m_dataDecomressSize_v);
+		newModel->m_indices = (u8*)yyMemAlloc(meshhead.m_dataDecomressSize_i);
+		in.read((char*)newModel->m_vertices, meshhead.m_dataDecomressSize_v);
+		in.read((char*)newModel->m_indices, meshhead.m_dataDecomressSize_i);
 		//u32 outsize = 0;
 		//new_mesh.m_data->m_vertices = yyDecompressData(compressed_v, meshhead.m_dataComressSize_v, outsize, yyCompressType::ZStd);
 		//new_mesh.m_data->m_indices = (u8*)yyDecompressData(compressed_i, meshhead.m_dataComressSize_i, outsize, yyCompressType::ZStd);
 
-		auto vertsPtr = new_mesh.m_data->m_vertices;
+		auto vertsPtr = newModel->m_vertices;
 		for (u32 o = 0; o < meshhead.m_vCount; ++o)
 		{
 			f32 * f32ptr = (f32*)vertsPtr;
@@ -149,7 +149,7 @@ yyModel* ModelLoader_TR3D(const char* p)
 			v.x = *f32ptr; ++f32ptr;
 			v.y = *f32ptr; ++f32ptr;
 			v.z = *f32ptr; ++f32ptr;
-			new_mesh.m_data->m_aabb.add(v);
+			newModel->m_aabb.add(v);
 
 			vertsPtr += meshhead.m_stride;
 		}
@@ -157,26 +157,18 @@ yyModel* ModelLoader_TR3D(const char* p)
 		//yyMemFree(compressed_v);
 		//yyMemFree(compressed_i);
 
-		if(!new_mesh.m_data->m_vertices)
+		if(!newModel->m_vertices)
 		{
 			YY_PRINT_FAILED;
 			return nullptr;
 		}
-		if(!new_mesh.m_data->m_indices)
+		if(!newModel->m_indices)
 		{
 			YY_PRINT_FAILED;
 			return nullptr;
 		}
 
-		new_model.m_data->m_meshBuffers.push_back(new_mesh.m_data);
-		new_model.m_data->m_aabb.add(new_mesh.m_data->m_aabb);
-		new_mesh.m_data = nullptr;
-	}
-	if(new_model.m_data->m_meshBuffers.size())
-	{
-		auto ret = new_model.m_data;
-		new_model.m_data = nullptr;
-		return ret;
+		return newModel;
 	}
 
 	return nullptr;

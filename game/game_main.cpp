@@ -282,7 +282,7 @@ vidOk:
 #endif
 
 
-		yyGUIUpdate(1.f);
+		yyGUIUpdate(deltaTime);
 		yyUpdateAsyncLoader();
 
 		switch(*p_engineContext->m_state)

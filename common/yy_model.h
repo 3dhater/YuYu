@@ -6,6 +6,7 @@
 #include "math/ray.h"
 #include "math\triangle.h"
 #include "math\aabb.h"
+#include "yy_material.h"
 
 struct yyVertexGUI
 {
@@ -21,21 +22,27 @@ struct yyVertexModel
 	v3f Tangent;
 };
 
+// тип
+// ещё надо будет добавить для анимированных моделей
 enum class yyVertexType : u32
 {
-	GUI,
-	Model
+	GUI,   // yyVertexGUI
+	Model  // yyVertexModel
 };
 
+// предпологается что при создании MDL индекс будет устанавливаться автоматически, в зависимости от количества треугольников 
+//  пока не протестировано. условие такое if (modelInds.size() / 3 > 21845) newModel->m_indexType = yyMeshIndexType::u32; 
 enum class yyMeshIndexType : u32
 {
 	u16,
 	u32
 };
 
-struct yyMeshBuffer
+
+// описание одного буфера для рисования
+struct yyModel
 {
-	yyMeshBuffer()
+	yyModel()
 	:
 		m_vertices(nullptr),
 		m_indices(nullptr),
@@ -43,11 +50,11 @@ struct yyMeshBuffer
 		m_vCount(0),
 		m_iCount(0),
 		m_stride(0),
-		m_vertexType(yyVertexType::GUI)
+		m_vertexType(yyVertexType::GUI),
+		m_refCount(0)
 	{
-	
 	}
-	~yyMeshBuffer()
+	~yyModel()
 	{
 		if(m_vertices) yyMemFree( m_vertices );
 		if(m_indices) yyMemFree( m_indices ); 
@@ -56,10 +63,7 @@ struct yyMeshBuffer
 	Aabb m_aabb;
 
 	u8* m_vertices;
-	
-	//u32* m_indices;
 	u8* m_indices;
-
 	yyMeshIndexType m_indexType;
 
 	u32 m_vCount;
@@ -67,6 +71,14 @@ struct yyMeshBuffer
 	u32 m_stride;
 
 	yyVertexType m_vertexType;
+
+	yyMaterial m_material;
+	yyStringW m_name;
+
+		// используется в yyGetModel и yyDeleteModel
+		// если вызван yyGetModel то ++m_refCount
+		// если вызван yyDeleteModel то --m_refCount
+	u32 m_refCount;
 
 	void calculateTangents( v3f& normal, v3f& tangent, v3f& binormal,
 		const v3f& vt1, const v3f& vt2, const v3f& vt3, // vertices
@@ -209,64 +221,161 @@ struct yyMeshBuffer
 	}
 };
 
-struct yyModel
+//struct yyModel
+//{
+//	yyModel():
+//		m_refCount(0)
+//	{}
+//	~yyModel()
+//	{
+//		for(u16 i = 0, sz = m_meshBuffers.size(); i < sz; ++i)
+//		{
+//			yyDestroy( m_meshBuffers[i] );
+//		}
+//	}
+//
+//	yyArraySmall<yyMeshBuffer*> m_meshBuffers;
+//
+//	bool isRayIntersect(const yyRay& ray, v4f& ip, f32& len, const v4f& position, Mat4* matrix = nullptr)
+//	{
+//		yyTriangle triangle;
+//		for (u16 imb = 0, szmb = m_meshBuffers.size(); imb < szmb; ++imb)
+//		{
+//			auto mb = m_meshBuffers[imb];
+//			yyVertexModel* verts = (yyVertexModel*)mb->m_vertices;
+//			u16* inds = (u16*)mb->m_indices;
+//			for (u32 i = 0; i < mb->m_iCount; i += 3)
+//			{
+//				triangle.v1 = verts[inds[i]].Position;
+//				if (matrix) 
+//					triangle.v1 = math::mul(triangle.v1, *matrix);
+//				triangle.v1 += position;
+//
+//				triangle.v2 = verts[inds[i + 1]].Position;
+//				if (matrix)
+//					triangle.v2 = math::mul(triangle.v2, *matrix);
+//				triangle.v2 += position;
+//
+//				triangle.v3 = verts[inds[i + 2]].Position;
+//				if (matrix)
+//					triangle.v3 = math::mul(triangle.v3, *matrix);
+//				triangle.v3 += position;
+//
+//				triangle.update();
+//
+//				f32 U, V, W = 0.f;
+//				if (triangle.rayTest_MT(ray, false, len, U, V, W))
+//				{
+//					ip = ray.m_origin + (ray.m_direction * len);
+//					return true;
+//				}
+//			}
+//		}
+//
+//		return false;
+//	}
+//
+//	// используется в yyGetModel и yyDeleteModel
+//	// если вызван yyGetModel то ++m_refCount
+//	// если вызван yyDeleteModel то --m_refCount
+//	u32 m_refCount;
+//
+//	Aabb m_aabb;
+//};
+
+// Идея такая - MDL это оболочка к yyModel
+struct yyMDLLayer
 {
-	yyModel():
-		m_refCount(0)
-	{}
-	~yyModel()
+	yyMDLLayer() {
+		m_model = 0;
+		m_textureGPU1 = 0;
+		m_textureGPU2 = 0;
+		m_textureGPU3 = 0;
+		m_textureGPU4 = 0;
+		m_meshGPU = 0;
+		m_gpu = yyGetVideoDriverAPI();
+	}
+	~yyMDLLayer() {
+		if (m_model) yyDestroy(m_model);
+		Unload();
+	}
+
+	yyVideoDriverAPI * m_gpu;
+
+	yyModel * m_model;
+
+	yyStringA m_texture1Path;
+	yyStringA m_texture2Path;
+	yyStringA m_texture3Path;
+	yyStringA m_texture4Path;
+
+	yyResource* m_textureGPU1;
+	yyResource* m_textureGPU2;
+	yyResource* m_textureGPU3;
+	yyResource* m_textureGPU4;
+
+	yyResource* m_meshGPU;
+
+	void Load()
 	{
-		for(u16 i = 0, sz = m_meshBuffers.size(); i < sz; ++i)
+		if (m_textureGPU1) m_gpu->LoadTexture(m_textureGPU1);
+		if (m_textureGPU2) m_gpu->LoadTexture(m_textureGPU2);
+		if (m_textureGPU3) m_gpu->LoadTexture(m_textureGPU3);
+		if (m_textureGPU4) m_gpu->LoadTexture(m_textureGPU4);
+
+		if (m_meshGPU) m_gpu->LoadModel(m_meshGPU);
+	}
+	void Unload()
+	{
+		if (m_textureGPU1) m_gpu->UnloadTexture(m_textureGPU1);
+		if (m_textureGPU2) m_gpu->UnloadTexture(m_textureGPU2);
+		if (m_textureGPU3) m_gpu->UnloadTexture(m_textureGPU3);
+		if (m_textureGPU4) m_gpu->UnloadTexture(m_textureGPU4);
+
+		if (m_meshGPU) m_gpu->UnloadModel(m_meshGPU);
+	}
+};
+
+struct yyMDLFile
+{
+	yyMDLFile()
+	{
+	}
+
+	~yyMDLFile()
+	{
+		for (u16 i = 0, sz = m_layers.size(); i < sz; ++i)
 		{
-			yyDestroy( m_meshBuffers[i] );
+			yyDestroy(m_layers[i]);
 		}
 	}
 
-	yyArraySmall<yyMeshBuffer*> m_meshBuffers;
-
-	bool isRayIntersect(const yyRay& ray, v4f& ip, f32& len, const v4f& position, Mat4* matrix = nullptr)
+	struct header
 	{
-		yyTriangle triangle;
-		for (u16 imb = 0, szmb = m_meshBuffers.size(); imb < szmb; ++imb)
+
+	};
+
+	yyArraySmall<yyMDLLayer*> m_layers;
+
+	// Я планирую использовать yyMDLFile везде и всегда
+	// Так-же изначально была идея о выгрузке ресурсов как это было ранее
+	// По этому нужно сделать так-же, методы Unload и Load
+	// Где-то отдельной функцией при загурзке файла надо дать возможность выбора, 
+	//  загружать ли ресурс сразу или отложить загрузку на потом.
+	void Load()
+	{
+		for (u16 i = 0, sz = m_layers.size(); i < sz; ++i)
 		{
-			auto mb = m_meshBuffers[imb];
-			yyVertexModel* verts = (yyVertexModel*)mb->m_vertices;
-			u16* inds = (u16*)mb->m_indices;
-			for (u32 i = 0; i < mb->m_iCount; i += 3)
-			{
-				triangle.v1 = verts[inds[i]].Position;
-				if (matrix) 
-					triangle.v1 = math::mul(triangle.v1, *matrix);
-				triangle.v1 += position;
-
-				triangle.v2 = verts[inds[i + 1]].Position;
-				if (matrix)
-					triangle.v2 = math::mul(triangle.v2, *matrix);
-				triangle.v2 += position;
-
-				triangle.v3 = verts[inds[i + 2]].Position;
-				if (matrix)
-					triangle.v3 = math::mul(triangle.v3, *matrix);
-				triangle.v3 += position;
-
-				triangle.update();
-
-				f32 U, V, W = 0.f;
-				if (triangle.rayTest_MT(ray, false, len, U, V, W))
-				{
-					ip = ray.m_origin + (ray.m_direction * len);
-					return true;
-				}
-			}
+			m_layers[i]->Load();
 		}
-
-		return false;
 	}
-
-	// используется в yyGetModel и yyDeleteModel
-	// если вызван yyGetModel то ++m_refCount
-	// если вызван yyDeleteModel то --m_refCount
-	u32 m_refCount;
+	void Unload()
+	{
+		for (u16 i = 0, sz = m_layers.size(); i < sz; ++i)
+		{
+			m_layers[i]->Unload();
+		}
+	}
 
 	Aabb m_aabb;
 };

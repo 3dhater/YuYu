@@ -86,6 +86,8 @@ struct yyVideoDriverAPI
 	yyResource* (*CreateModelFromFile)(const char* fileName, bool load);
 	void (*UnloadModel)(yyResource*);
 	void (*LoadModel)(yyResource*);
+	void(*DeleteModel)(yyResource* r);
+	void(*DeleteTexture)(yyResource* r);
 
 	// yyResource::m_type MUST BE yyResourceType::Texture
 	void (*SetTexture)(yyVideoDriverAPI::TextureSlot, yyResource*);

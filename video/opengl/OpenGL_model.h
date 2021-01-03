@@ -1,24 +1,20 @@
 ﻿#ifndef YY_OPENGL_MODEL_H__
 #define YY_OPENGL_MODEL_H__
 
-class OpenGLMeshBuffer
-{
-public:
-	OpenGLMeshBuffer();
-	~OpenGLMeshBuffer();
-	GLuint m_VAO;
-	GLuint m_vBuffer;
-	GLuint m_iBuffer;
-	GLsizei m_iCount;
-	GLenum m_indexType;
-};
+#include "yy_material.h"
 
 class OpenGLModel
 {
 public:
 	OpenGLModel();
 	~OpenGLModel();
-	yyArraySmall<OpenGLMeshBuffer*> m_meshBuffers;
+	GLuint m_VAO;
+	GLuint m_vBuffer;
+	GLuint m_iBuffer;
+	GLsizei m_iCount;
+	GLenum m_indexType;
+
+	yyMaterial m_material;
 };
 
 #endif

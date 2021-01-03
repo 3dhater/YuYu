@@ -107,14 +107,18 @@ OpenGLModel* CreateOpenGLModel(yyModel* model)
 	yyDestroy(newModel);
 	return nullptr;
 }
+void DeleteTexture(yyResource* r)
+{
+	yyDestroy(g_openGL->m_textures[r->m_index]);
+	g_openGL->m_textures[r->m_index] = nullptr;
+	g_openGL->m_freeTextureResourceIndex.push_back(r->m_index);
+	yyDestroy(r);
+}
 void UnloadTexture(yyResource* r)
 {
 	assert(r);
 #ifdef YY_DEBUG
-	if(r->m_type != yyResourceType::Texture)
-	{
-		YY_PRINT_FAILED;
-	}
+	if(r->m_type != yyResourceType::Texture) YY_PRINT_FAILED;
 #endif
 	if(r->m_refCount == 0)
 		return;
@@ -177,7 +181,6 @@ yyResource* CreateTextureFromFile(const char* fileName, bool useLinearFilter, bo
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Texture;
 	newRes->m_source = nullptr;
-	newRes->m_index = g_openGL->m_textures.size();
 	newRes->m_refCount = 0;
 	if (useLinearFilter)
 		newRes->m_flags |= yyResource::flags::texture_useLinearFilter;
@@ -185,7 +188,17 @@ yyResource* CreateTextureFromFile(const char* fileName, bool useLinearFilter, bo
 		newRes->m_flags |= yyResource::flags::texture_useComparisonFilter;
 	newRes->m_file = fileName;
 
-	g_openGL->m_textures.push_back(nullptr);
+	if (g_openGL->m_freeTextureResourceIndex.head())
+	{
+		newRes->m_index = g_openGL->m_freeTextureResourceIndex.head()->m_data;
+		g_openGL->m_freeTextureResourceIndex.erase_node(g_openGL->m_freeTextureResourceIndex.head());
+	}
+	else
+	{
+		newRes->m_index = g_openGL->m_textures.size();
+		g_openGL->m_textures.push_back(nullptr);
+	}
+
 
 	if(load)
 		LoadTexture(newRes);
@@ -197,17 +210,33 @@ yyResource* CreateTexture(yyImage* image, bool useLinearFilter, bool useComparis
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Texture;
 	newRes->m_source = image;
-	newRes->m_index = g_openGL->m_textures.size();
 	newRes->m_refCount = 1;
 	if(useLinearFilter)
 		newRes->m_flags |= yyResource::flags::texture_useLinearFilter;
 	if (useComparisonFilter)
 		newRes->m_flags |= yyResource::flags::texture_useComparisonFilter;
+	
+	bool isNewIndex = false;
+	if (g_openGL->m_freeTextureResourceIndex.head())
+	{
+		newRes->m_index = g_openGL->m_freeTextureResourceIndex.head()->m_data;
+		g_openGL->m_freeTextureResourceIndex.erase_node(g_openGL->m_freeTextureResourceIndex.head());
+	}
+	else
+	{
+		newRes->m_index = g_openGL->m_textures.size();
+		isNewIndex = true;
+	}
+
 
 	auto newTexture = CreateOpenGLTexture(image, useLinearFilter, useComparisonFilter);
 	if(newTexture)
 	{
-		g_openGL->m_textures.push_back(newTexture);
+		if (isNewIndex)
+			g_openGL->m_textures.push_back(newTexture);
+		else
+			g_openGL->m_textures[newRes->m_index] = newTexture;
+
 		newRes->m_isLoaded = true;
 		return newRes;
 	}
@@ -265,11 +294,20 @@ yyResource* CreateModelFromFile(const char* fileName, bool load)
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Model;
 	newRes->m_source = nullptr;
-	newRes->m_index = g_openGL->m_models.size();
 	newRes->m_refCount = 0;
 	newRes->m_file = fileName;
+	
+	if (g_openGL->m_freeModelResourceIndex.head())
+	{
+		newRes->m_index = g_openGL->m_freeModelResourceIndex.head()->m_data;
+		g_openGL->m_freeModelResourceIndex.erase_node(g_openGL->m_freeModelResourceIndex.head());
+	}
+	else
+	{
+		newRes->m_index = g_openGL->m_models.size();
+		g_openGL->m_models.push_back(nullptr);
+	}
 
-	g_openGL->m_models.push_back(nullptr);
 
 	if(load)
 		LoadModel(newRes);
@@ -280,15 +318,30 @@ yyResource* CreateModel(yyModel* model)
 	assert(model);
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Model;
-	newRes->m_index = g_openGL->m_models.size();
 	newRes->m_source = model;
 	newRes->m_refCount = 1;
 	newRes->m_aabb = model->m_aabb;
 
+	bool isNewIndex = false;
+	if (g_openGL->m_freeModelResourceIndex.head())
+	{
+		newRes->m_index = g_openGL->m_freeModelResourceIndex.head()->m_data;
+		g_openGL->m_freeModelResourceIndex.erase_node(g_openGL->m_freeModelResourceIndex.head());
+	}
+	else
+	{
+		newRes->m_index = g_openGL->m_models.size();
+		isNewIndex = true;
+	}
+
 	auto newModel = CreateOpenGLModel(model);
 	if(newModel)
 	{
-		g_openGL->m_models.push_back(newModel);
+		if (isNewIndex)
+			g_openGL->m_models.push_back(newModel);
+		else
+			g_openGL->m_models[newRes->m_index] = newModel;
+
 		newRes->m_isLoaded = true;
 		return newRes;
 	}
@@ -301,10 +354,7 @@ void UnloadModel(yyResource* r)
 {
 	assert(r);
 #ifdef YY_DEBUG
-	if(r->m_type != yyResourceType::Model)
-	{
-		YY_PRINT_FAILED;
-	}
+	if(r->m_type != yyResourceType::Model) YY_PRINT_FAILED;
 #endif
 	if(r->m_refCount == 0)
 		return;
@@ -317,17 +367,45 @@ void UnloadModel(yyResource* r)
 		{
 			yyDestroy(g_openGL->m_models[r->m_index]);
 			g_openGL->m_models[r->m_index] = nullptr;
+			// ресурс создаётся один на модель и на всегда
+			// для полного удаления вместе с ресурсом нужна другая функция - DeleteModel
 		}
 	}
+}
+void DeleteModel(yyResource* r)
+{
+	assert(r);
+#ifdef YY_DEBUG
+	if (r->m_type != yyResourceType::Model) YY_PRINT_FAILED;
+#endif
+
+	// нужно ли использовать это в таком случае? m_refCount 
+	// если нужно удалить, то надо удалить, иначе надо вызывать UnloadModel
+	//if (r->m_refCount == 0) return;
+	/*--r->m_refCount;
+	if (!r->m_refCount)
+	{
+		r->m_isLoaded = false;
+		if (g_openGL->m_models[r->m_index])
+		{
+			yyDestroy(g_openGL->m_models[r->m_index]);
+			g_openGL->m_models[r->m_index] = nullptr;
+		}
+	}*/
+	yyDestroy(g_openGL->m_models[r->m_index]);
+	g_openGL->m_models[r->m_index] = nullptr;
+	// чтобы не переполнять g_openGL->m_models при создании новых ресурсов,
+	// лучше вставлять их в свободные ячейки.
+	// чтобы не перебирать их, наверно, лучше иметь список свободных ячеек
+	// соответственно, при создании ресурса, перед указанием индекса, нужно проверить этот список
+	g_openGL->m_freeModelResourceIndex.push_back(r->m_index);
+	yyDestroy(r); // удаление ресурса
 }
 void LoadModel(yyResource* r)
 {
 	assert(r);
 #ifdef YY_DEBUG
-	if(r->m_type != yyResourceType::Model)
-	{
-		YY_PRINT_FAILED;
-	}
+	if(r->m_type != yyResourceType::Model)		YY_PRINT_FAILED;
 #endif
 	++r->m_refCount;
 	if (r->m_refCount == 1)
@@ -481,19 +559,23 @@ void Draw()
 			glBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);
 		}
 	}
-	else if(g_openGL->m_currentMaterial)
+	else
 	{
-		if (g_openGL->m_currentMaterial->m_wireframe)
+		auto material = g_openGL->m_currentMaterial;
+		if (!material)
+			material = &g_openGL->m_currentModel->m_material;
+
+		if (material->m_wireframe)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		else
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		if (g_openGL->m_currentMaterial->m_cullBackFace)
+		if (material->m_cullBackFace)
 			glEnable(GL_CULL_FACE);
 		else
 			glDisable(GL_CULL_FACE);
 
-		
-		switch (g_openGL->m_currentMaterial->m_type)
+
+		switch (material->m_type)
 		{
 		case yyMaterialType::Terrain:
 			glUseProgram(g_openGL->m_shader_terrain->m_program);
@@ -501,9 +583,9 @@ void Draw()
 			glUniformMatrix4fv(g_openGL->m_shader_terrain->m_uniform_W, 1, GL_FALSE, g_openGL->m_matrixWorld.getPtr());
 			glUniformMatrix4fv(g_openGL->m_shader_terrain->m_uniform_LightView, 1, GL_FALSE, g_openGL->m_matrixLightView.getPtr());
 			glUniformMatrix4fv(g_openGL->m_shader_terrain->m_uniform_LightProjection, 1, GL_FALSE, g_openGL->m_matrixLightProjection.getPtr());
-			glUniform3fv(g_openGL->m_shader_terrain->m_uniform_sunDir, 1, g_openGL->m_currentMaterial->m_sunDir.data());
-			glUniform3fv(g_openGL->m_shader_terrain->m_uniform_ambientColor, 1, g_openGL->m_currentMaterial->m_ambientColor.data());
-			glUniform1f(g_openGL->m_shader_terrain->m_uniform_selfLight, g_openGL->m_currentMaterial->m_selfLight);
+			glUniform3fv(g_openGL->m_shader_terrain->m_uniform_sunDir, 1, material->m_sunDir.data());
+			glUniform3fv(g_openGL->m_shader_terrain->m_uniform_ambientColor, 1, material->m_ambientColor.data());
+			glUniform1f(g_openGL->m_shader_terrain->m_uniform_selfLight, material->m_selfLight);
 			if (g_openGL->m_currentTextures[0]) {
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, g_openGL->m_currentTextures[0]->m_texture);
@@ -527,9 +609,9 @@ void Draw()
 			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_W, 1, GL_FALSE, g_openGL->m_matrixWorld.getPtr());
 			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_LightView, 1, GL_FALSE, g_openGL->m_matrixLightView.getPtr());
 			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_LightProjection, 1, GL_FALSE, g_openGL->m_matrixLightProjection.getPtr());
-			glUniform3fv(g_openGL->m_shader_std->m_uniform_sunDir, 1, g_openGL->m_currentMaterial->m_sunDir.data());
-			glUniform3fv(g_openGL->m_shader_std->m_uniform_ambientColor, 1, g_openGL->m_currentMaterial->m_ambientColor.data());
-			glUniform1f(g_openGL->m_shader_std->m_uniform_selfLight, g_openGL->m_currentMaterial->m_selfLight);
+			glUniform3fv(g_openGL->m_shader_std->m_uniform_sunDir, 1, material->m_sunDir.data());
+			glUniform3fv(g_openGL->m_shader_std->m_uniform_ambientColor, 1, material->m_ambientColor.data());
+			glUniform1f(g_openGL->m_shader_std->m_uniform_selfLight, material->m_selfLight);
 			if (g_openGL->m_currentTextures[0]) {
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, g_openGL->m_currentTextures[0]->m_texture);
@@ -550,14 +632,14 @@ void Draw()
 			}
 			break;
 		default:
-			glUseProgram( g_openGL->m_shader_std->m_program );
-			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr() );
+			glUseProgram(g_openGL->m_shader_std->m_program);
+			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr());
 			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_W, 1, GL_FALSE, g_openGL->m_matrixWorld.getPtr());
 			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_LightView, 1, GL_FALSE, g_openGL->m_matrixLightView.getPtr());
 			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_LightProjection, 1, GL_FALSE, g_openGL->m_matrixLightProjection.getPtr());
-			glUniform3fv(g_openGL->m_shader_std->m_uniform_sunDir, 1, g_openGL->m_currentMaterial->m_sunDir.data());
-			glUniform3fv(g_openGL->m_shader_std->m_uniform_ambientColor, 1, g_openGL->m_currentMaterial->m_ambientColor.data());
-			glUniform1f(g_openGL->m_shader_std->m_uniform_selfLight, g_openGL->m_currentMaterial->m_selfLight);
+			glUniform3fv(g_openGL->m_shader_std->m_uniform_sunDir, 1, material->m_sunDir.data());
+			glUniform3fv(g_openGL->m_shader_std->m_uniform_ambientColor, 1, material->m_ambientColor.data());
+			glUniform1f(g_openGL->m_shader_std->m_uniform_selfLight, material->m_selfLight);
 			if (g_openGL->m_currentTextures[0]) {
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, g_openGL->m_currentTextures[0]->m_texture);
@@ -569,13 +651,8 @@ void Draw()
 			break;
 		}
 
-	}
-
-	for(u16 i = 0, sz = g_openGL->m_currentModel->m_meshBuffers.size(); i < sz; ++i)
-	{
-		auto meshBuffer = g_openGL->m_currentModel->m_meshBuffers[i];
-		glBindVertexArray(meshBuffer->m_VAO);
-		glDrawElements(GL_TRIANGLES, meshBuffer->m_iCount, meshBuffer->m_indexType, 0);
+		glBindVertexArray(g_openGL->m_currentModel->m_VAO);
+		glDrawElements(GL_TRIANGLES, g_openGL->m_currentModel->m_iCount, g_openGL->m_currentModel->m_indexType, 0);
 	}
 }
 void DrawSprite(yySprite* sprite)
@@ -607,9 +684,8 @@ void DrawSprite(yySprite* sprite)
 		glBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);
 	}
 	SetModel(sprite->m_model);
-	auto meshBuffer = g_openGL->m_currentModel->m_meshBuffers[0];
-	glBindVertexArray(meshBuffer->m_VAO);
-	glDrawElements(GL_TRIANGLES, meshBuffer->m_iCount, GL_UNSIGNED_SHORT, 0);
+	glBindVertexArray(g_openGL->m_currentModel->m_VAO);
+	glDrawElements(GL_TRIANGLES, g_openGL->m_currentModel->m_iCount, GL_UNSIGNED_SHORT, 0);
 }
 void DrawLine3D(const v4f& _p1, const v4f& _p2, const yyColor& color)
 {
@@ -690,8 +766,7 @@ void MapModelForWriteVerts(yyResource* r, u32 meshbufferIndex, u8** v_ptr)
 {
 	assert(r);
 	OpenGLModel* m = g_openGL->m_models[r->m_index];
-	auto mb = m->m_meshBuffers[meshbufferIndex];
-	glBindBuffer(GL_ARRAY_BUFFER, mb->m_vBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, m->m_vBuffer);
 	*v_ptr = (u8*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 }
 void UnmapModelForWriteVerts(yyResource* r, u32 meshbufferIndex)
@@ -757,6 +832,9 @@ extern "C"
 		g_api.SetViewport = SetViewport;
 
 		g_api.GetVideoDriverObjects = GetVideoDriverObjects;
+
+		g_api.DeleteModel = DeleteModel;
+		g_api.DeleteTexture = DeleteTexture;
 
 		return &g_api;
 	}

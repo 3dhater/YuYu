@@ -62,3 +62,8 @@ video/d3d11/Production
 video/opengl/Production
 worldEditor/Production
 yuyu/Production
+*.tmp
+modelCreator/Debug
+modelCreator/Release
+*.ipch
+todo.txt

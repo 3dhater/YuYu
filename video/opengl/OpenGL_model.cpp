@@ -4,7 +4,7 @@
 
 #include "OpenGL_model.h"
 
-OpenGLMeshBuffer::OpenGLMeshBuffer()
+OpenGLModel::OpenGLModel()
 	:
 	m_VAO(0),
 	m_vBuffer(0),
@@ -13,7 +13,7 @@ OpenGLMeshBuffer::OpenGLMeshBuffer()
 {
 }
 
-OpenGLMeshBuffer::~OpenGLMeshBuffer()
+OpenGLModel::~OpenGLModel()
 {
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -24,15 +24,3 @@ OpenGLMeshBuffer::~OpenGLMeshBuffer()
 	glDeleteVertexArrays(1,&m_VAO);
 }
 
-
-OpenGLModel::OpenGLModel()
-{
-}
-
-OpenGLModel::~OpenGLModel()
-{
-	for(u16 i = 0, sz = m_meshBuffers.size(); i < sz; ++i)
-	{
-		yyDestroy( m_meshBuffers[i] );
-	}
-}

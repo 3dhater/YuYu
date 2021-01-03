@@ -1,0 +1,17 @@
+every shader must be unique
+
+do not use `if` in shader when you want enable something
+for example, do not do this
+
+	if(useLight)
+		color *= lightIntensity;
+
+instead of this, create 2 shaders, with light and without light
+
+____________________________________________
+DEFAULT SHADERS:
+
+	yyMaterialType::Simple - only with texture
+		"void main(){\n"
+			"color = texture(diffuseTexture, texCoord);\n"
+		"}\n";

@@ -1244,7 +1244,6 @@ class OpenGLShaderDepth;
 class OpenGLShaderSimple;
 
 class OpenGLTexture;
-class OpenGLMeshBuffer;
 class OpenGLModel;
 
 
@@ -1303,6 +1302,9 @@ public:
 
 	v2f m_spriteCameraPosition;
 	v2f m_spriteCameraScale;
+
+	yyListFast<size_t> m_freeModelResourceIndex;
+	yyListFast<size_t> m_freeTextureResourceIndex;
 };
 
 #endif

@@ -74,17 +74,16 @@ YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResou
 
 	auto model = yyCreate<yyModel>();
 	
-	auto meshBuffer = yyCreate<yyMeshBuffer>();
 
-	meshBuffer->m_iCount = 6;
-	meshBuffer->m_vCount = 4;
-	meshBuffer->m_stride = sizeof(yyVertexGUI);
-	meshBuffer->m_vertexType = yyVertexType::GUI;
-	meshBuffer->m_vertices = (u8*)yyMemAlloc(meshBuffer->m_vCount * meshBuffer->m_stride);
-	meshBuffer->m_indices  = (u8*)yyMemAlloc(meshBuffer->m_iCount * sizeof(u16));
-	u16* inds = (u16*)meshBuffer->m_indices;
+	model->m_iCount = 6;
+	model->m_vCount = 4;
+	model->m_stride = sizeof(yyVertexGUI);
+	model->m_vertexType = yyVertexType::GUI;
+	model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
+	model->m_indices  = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+	u16* inds = (u16*)model->m_indices;
 
-	yyVertexGUI * vertex = (yyVertexGUI*)meshBuffer->m_vertices;
+	yyVertexGUI * vertex = (yyVertexGUI*)model->m_vertices;
 	vertex->m_position.set(rect.x, rect.w);
 	vertex->m_tcoords.set(0.f,1.f);
 	vertex++;
@@ -105,13 +104,10 @@ YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResou
 	inds[4] = 2;
 	inds[5] = 3;
 
-	model->m_meshBuffers.push_back(meshBuffer);
 	element->m_pictureBoxModel = vAPI->CreateModel(model);
-
 	yyDestroy(model);
 
 	g_engine->addGuiElement(element);
-	//g_engine->m_videoAPI->CreateMesh();
 
 	return element;
 }

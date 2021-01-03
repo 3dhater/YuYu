@@ -90,6 +90,7 @@ struct v2f
 	f32 x, y;
 	void set(f32 _x, f32 _y){x=_x;y=_y;}
 	v2f operator*(const v2f& v)const { v2f r; r.x = x * v.x; r.y = y * v.y; return r; }
+	bool operator==(const v2f& v)const {if (x != v.x)return false;if (y != v.y)return false;return true;}
 };
 
 struct v3f

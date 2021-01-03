@@ -132,11 +132,6 @@ namespace yyFS
 #else
 #error Need implement
 #endif
-
-#ifdef YY_PLATFORM_WINDOWS
-#else
-#error Need implement
-#endif
 		return false;
 	}
 
@@ -153,7 +148,6 @@ namespace yyFS
 		TCHAR szFileName[MAX_PATH];
 		GetModuleFileName( NULL, szFileName, MAX_PATH );
 		result.m_data = szFileName;
-		//util::stringFlipSlash(result.m_data);
 		util::stringPopBackBefore(result.m_data, '\\' );
 #else
 #error Need implement
@@ -174,7 +168,6 @@ namespace yyFS
 		return false;
 	}
 
-//	class directory_iterator;
 	class directory_entry
 	{
 		void _check()
@@ -192,7 +185,6 @@ namespace yyFS
 	public:
 		directory_entry()
 		{
-	//		m_dirIt = nullptr;
 			m_endSearch = false;
 		}
 		~directory_entry(){}
