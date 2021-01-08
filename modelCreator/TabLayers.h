@@ -1,9 +1,12 @@
 #pragma once
 #include "afxwin.h"
 
+#include "EditFloat.h"
+#include "afxcmn.h"
 
 // TabLayers dialog
 class CSetTextDialog;
+struct LayerInfo;
 
 class TabLayers : public CDialog
 {
@@ -12,6 +15,8 @@ class TabLayers : public CDialog
 public:
 	TabLayers(CWnd* pParent = NULL);   // standard constructor
 	virtual ~TabLayers();
+
+	void addLayer(const wchar_t*);
 
 // Dialog Data
 #ifdef AFX_DESIGN_TIME
@@ -32,6 +37,7 @@ public:
 	CListBox m_listBox;
 	afx_msg void OnBnClickedButton2();
 	virtual void OnCancel();
+	virtual void OnOK();
 	CSetTextDialog* renameDialog;
 
 	void HideRenameDialog();
@@ -42,4 +48,15 @@ public:
 
 	void UpdateLayerParameters();
 	CButton m_texture1Button;
+	CEditFloat m_editPositionX;
+	afx_msg void OnDeltaposSpin1(NMHDR *pNMHDR, LRESULT *pResult);
+	CSpinButtonCtrl m_spinPositionX;
+
+	void _updateEditPositionText(const LayerInfo&);
+	CEditFloat m_editPositionY;
+	CEditFloat m_editPositionZ;
+	CSpinButtonCtrl m_spinPositionY;
+	CSpinButtonCtrl m_spinPositionZ;
+	afx_msg void OnDeltaposSpin2(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnDeltaposSpin3(NMHDR *pNMHDR, LRESULT *pResult);
 };

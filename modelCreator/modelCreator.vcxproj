@@ -94,13 +94,15 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../common/</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions);FBXSDK_SHARED</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../common/;E:\Program Files\Autodesk\FBX\FBX SDK\2020.0.1\include</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>yuyu_debug.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);E:\Program Files\Autodesk\FBX\FBX SDK\2020.0.1\lib\vs2015\x86\release</AdditionalLibraryDirectories>
+      <AdditionalDependencies>yuyu_debug.lib;libfbxsdk.lib</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -118,8 +120,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../common/</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WINDOWS;_DEBUG;%(PreprocessorDefinitions);FBXSDK_SHARED</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../common/;E:\Program Files\Autodesk\FBX\FBX SDK\2020.0.1\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -141,18 +143,22 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../common/</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions);FBXSDK_SHARED</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../common/;E:\Program Files\Autodesk\FBX\FBX SDK\2020.0.1\include</AdditionalIncludeDirectories>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>yuyu.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);E:\Program Files\Autodesk\FBX\FBX SDK\2020.0.1\lib\vs2015\x86\release</AdditionalLibraryDirectories>
+      <AdditionalDependencies>yuyu.lib;libfbxsdk.lib</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -169,11 +175,14 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../common/</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WINDOWS;NDEBUG;%(PreprocessorDefinitions);FBXSDK_SHARED</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../common/;E:\Program Files\Autodesk\FBX\FBX SDK\2020.0.1\include</AdditionalIncludeDirectories>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -198,6 +207,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChildView.h" />
+    <ClInclude Include="EditFloat.h" />
     <ClInclude Include="InfoPannel.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MainSplitter.h" />
@@ -206,6 +216,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SetTextDialog.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="TabAnimations.h" />
     <ClInclude Include="TabLayers.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Viewport.h" />
@@ -213,6 +224,7 @@
   <ItemGroup>
     <ClCompile Include="..\common\Win32\yy_window.cpp" />
     <ClCompile Include="ChildView.cpp" />
+    <ClCompile Include="EditFloat.cpp" />
     <ClCompile Include="ImportFBX.cpp" />
     <ClCompile Include="ImportOBJ.cpp" />
     <ClCompile Include="InfoPannel.cpp" />
@@ -227,6 +239,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TabAnimations.cpp" />
     <ClCompile Include="TabLayers.cpp" />
     <ClCompile Include="Viewport.cpp" />
   </ItemGroup>

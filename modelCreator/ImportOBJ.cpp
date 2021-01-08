@@ -1,10 +1,10 @@
 #include "stdafx.h"
+#include "yy.h"
 #include "modelCreator.h"
 
 #include "MainFrm.h"
 
 #include <cmath>
-#include "yy.h"
 #include "yy_fs.h"
 #include "yy_window.h"
 #include "yy_model.h"
@@ -308,6 +308,7 @@ yyModel* CMainFrame::_importOBJ(const wchar_t* filePath, CString& outName)
 	newModel->m_vCount = modelVerts.size();
 	newModel->m_iCount = modelInds.size();
 	newModel->m_stride = sizeof(yyVertexModel);
+	newModel->m_vertexType = yyVertexType::Model;
 
 	return newModel;
 }

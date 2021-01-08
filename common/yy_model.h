@@ -38,6 +38,46 @@ enum class yyMeshIndexType : u32
 	u32
 };
 
+struct yyJoint
+{
+	yyJoint()
+	{
+		m_parent = nullptr;
+	}
+
+	yyJoint*				m_parent;
+	yyArraySmall<yyJoint*>	m_children;
+
+	Mat4					m_matrixBind;
+
+	v4f						m_position; // позиция
+	Quat					m_rotation; // вращение
+	Mat4					m_matrix;   // финальная матрица с учётом предков
+
+	yyStringA				m_name;
+
+	void toBind()
+	{
+		m_position = m_matrixBind[3];
+		m_rotation = math::matToQuat(m_matrixBind);
+	}
+	void updateMatrix()
+	{
+		math::makeRotationMatrix(m_matrix, m_rotation);
+
+		if (m_parent)
+			m_matrix = m_matrix * m_parent->m_matrix;
+
+		for (u16 i = 0, sz = m_children.size(); i < sz; ++i)
+		{
+			m_children[i]->updateMatrix();
+		}
+		
+		m_matrix[3] = m_position;
+		m_matrix[3].w = 1.f;
+	}
+};
+
 
 // описание одного буфера для рисования
 struct yyModel
@@ -58,6 +98,7 @@ struct yyModel
 	{
 		if(m_vertices) yyMemFree( m_vertices );
 		if(m_indices) yyMemFree( m_indices ); 
+		
 	}
 
 	Aabb m_aabb;
@@ -74,6 +115,8 @@ struct yyModel
 
 	yyMaterial m_material;
 	yyStringW m_name;
+
+	
 
 		// используется в yyGetModel и yyDeleteModel
 		// если вызван yyGetModel то ++m_refCount
@@ -336,17 +379,111 @@ struct yyMDLLayer
 	}
 };
 
-struct yyMDLFile
+struct yyMDLAnimationKeyFrame
 {
-	yyMDLFile()
+	yyMDLAnimationKeyFrame() :m_time(0) {}
+	yyMDLAnimationKeyFrame(s32 time) :m_time(time) {}
+	s32 m_time;
+	v4f m_position;
+	Quat m_rotation;
+};
+struct yyMDLAnimationLayer
+{
+	yyArraySmall<yyMDLAnimationKeyFrame> m_keyFrames;
+
+	yyMDLAnimationKeyFrame* getKeyFrame(s32 time)
+	{
+		for (u16 i = 0, sz = m_keyFrames.size(); i < sz; ++i)
+		{
+			if (m_keyFrames[i].m_time == time)
+				return &m_keyFrames[i];
+		}
+		return nullptr;
+	}
+	void insertPosition(s32 time, f32 value, yyVectorComponent vc)
+	{
+		auto keyFrame = getKeyFrame(time);
+		if (!keyFrame)
+			keyFrame = insertKeyFrame(time);
+		switch (vc)
+		{
+		case yyVectorComponent::x:
+			keyFrame->m_position.x = value;
+			break;
+		case yyVectorComponent::y:
+			keyFrame->m_position.y = value;
+			break;
+		case yyVectorComponent::z:
+			keyFrame->m_position.z = value;
+			break;
+		case yyVectorComponent::w:
+			keyFrame->m_position.w = value;
+			break;
+		default:
+			break;
+		}
+	}
+	yyMDLAnimationKeyFrame* insertKeyFrame(s32 time)
+	{
+		for (u16 i = 0, sz = m_keyFrames.size(); i < sz; ++i)
+		{
+			if (time < m_keyFrames[i].m_time)
+			{
+				m_keyFrames.insert(i, yyMDLAnimationKeyFrame());
+				return &m_keyFrames[i];
+			}
+		}
+
+		m_keyFrames.push_back(yyMDLAnimationKeyFrame(time));
+		return &m_keyFrames[m_keyFrames.size()-1];
+	}
+};
+struct yyMDLAnimation
+{
+	yyMDLAnimation() :m_len(0.f) {}
+	yyStringA m_name;
+
+
+	// анимация это список джоинтов которые задействованны в анимации
+	// вычисление анимации должно происходить раз за кадр, результат
+	//  должен быть сохранён где-то, например надо создать 
+	//   дополнительную структуру
+	struct _joint_info
+	{
+		s32  m_jointID;     // индекс yyMDL::m_joints
+		Mat4 m_matrixFinal; // финальная матрица, которая пойдёт в шейдер
+		
+		// фреймы анимации для конкретного джоинта
+		yyMDLAnimationLayer m_animationLayer;
+	};
+	yyArraySmall<_joint_info> m_animatedJoints;
+
+	// длинна анимации
+	f32 m_len;
+};
+
+struct yyMDL
+{
+	yyMDL()
+		:
+		m_skeleton(0)
 	{
 	}
 
-	~yyMDLFile()
+	~yyMDL()
 	{
 		for (u16 i = 0, sz = m_layers.size(); i < sz; ++i)
 		{
 			yyDestroy(m_layers[i]);
+		}
+
+		for (u16 i = 0, sz = m_joints.size(); i < sz; ++i)
+		{
+			yyDestroy(m_joints[i]);
+		}
+		for (u16 i = 0, sz = m_animations.size(); i < sz; ++i)
+		{
+			yyDestroy(m_animations[i]);
 		}
 	}
 
@@ -357,7 +494,19 @@ struct yyMDLFile
 
 	yyArraySmall<yyMDLLayer*> m_layers;
 
-	// Я планирую использовать yyMDLFile везде и всегда
+	// так как yyModel может быть множество, и все они могут использовать
+	// один набор костей, то нужно хранить эти кости в одном экземпляре
+	// и не создавать лишние ссылки.
+	// пока получается так, что для анимированных моделей обязательно 
+	// нужно использовать yyMDL (другого-то способа и нет)
+	// скорее всего при рисовании нужно будет передавать что-то
+	// ещё, чтобы работал нужный шейдер и т.д.
+	yyArraySmall<yyJoint*> m_joints;
+	yyJoint* m_skeleton; // иерархия
+	
+	yyArraySmall<yyMDLAnimation*> m_animations;
+
+	// Я планирую использовать yyMDL везде и всегда
 	// Так-же изначально была идея о выгрузке ресурсов как это было ранее
 	// По этому нужно сделать так-же, методы Unload и Load
 	// Где-то отдельной функцией при загурзке файла надо дать возможность выбора, 

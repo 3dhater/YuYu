@@ -3,6 +3,7 @@
 #include "MyTabControl.h"
 
 class TabLayers;
+class TabAnimations;
 
 // CInfoPannel form view
 class CInfoPannel : public CFormView
@@ -42,6 +43,7 @@ public:
 	
 	CWnd *		 m_activeTab;
 	TabLayers *	 m_layersTab;
+	TabAnimations* m_animationsTab;
 
 	void InitTabControl();
 };

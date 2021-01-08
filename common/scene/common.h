@@ -97,6 +97,7 @@ struct yySceneObjectBase
 		Dummy,
 		Camera,
 		Sprite,
+		MDL,
 	};
 	ObjectType m_objectType;
 	void(*m_updateImplementation)(void*implementation);

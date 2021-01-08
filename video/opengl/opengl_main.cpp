@@ -598,6 +598,8 @@ void Draw()
 		case yyMaterialType::Simple:
 			glUseProgram(g_openGL->m_shader_simple->m_program);
 			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr());
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, 0);
 			if (g_openGL->m_currentTextures[0]) {
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, g_openGL->m_currentTextures[0]->m_texture);
@@ -653,6 +655,7 @@ void Draw()
 
 		glBindVertexArray(g_openGL->m_currentModel->m_VAO);
 		glDrawElements(GL_TRIANGLES, g_openGL->m_currentModel->m_iCount, g_openGL->m_currentModel->m_indexType, 0);
+		
 	}
 }
 void DrawSprite(yySprite* sprite)

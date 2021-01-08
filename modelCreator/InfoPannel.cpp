@@ -2,10 +2,12 @@
 //
 
 #include "stdafx.h"
+#include "yy.h"
 #include "modelCreator.h"
 #include "InfoPannel.h"
 #include "MainFrm.h"
 #include "TabLayers.h"
+#include "TabAnimations.h"
 
 extern CMainFrame * g_mainFrame;
 
@@ -17,35 +19,22 @@ CInfoPannel::CInfoPannel()
 	: CFormView(IDD_FORMVIEW)
 {
 	m_layersTab = 0;
+	m_animationsTab = 0;
 }
 
-CInfoPannel::~CInfoPannel()
-{
-}
+CInfoPannel::~CInfoPannel(){}
+void CInfoPannel::OnInitialUpdate(){}
 
-void CInfoPannel::OnInitialUpdate()
-{
-	
-}
 afx_msg int CInfoPannel::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	//if (CView::OnCreate(lpCreateStruct) == -1)
-	//	return -1;
-	
-	
 	return 0;
 }
 BOOL CInfoPannel::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 {
-
 	return TRUE;
 }
 
-void CInfoPannel::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
-{
-	
-
-}
+void CInfoPannel::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint){}
 
 void CInfoPannel::InitTabControl()
 {
@@ -61,6 +50,11 @@ void CInfoPannel::InitTabControl()
 	m_layersTab->InitShaderSelector();
 	m_activeTab = m_layersTab;
 	m_activeTab->ShowWindow(SW_SHOWNORMAL);
+
+	m_animationsTab = new TabAnimations(this);
+	newItem.lParam = 1;
+	newTab = tabs->InsertItem(tabs->GetItemCount(), L"Animations");
+	tabs->SetItem(newTab, &newItem);
 }
 void CInfoPannel::DoDataExchange(CDataExchange* pDX)
 {
@@ -106,9 +100,9 @@ afx_msg void CInfoPannel::OnSize(UINT nType, int cx, int cy)
 	::MoveWindow(hwnd, rc.left, rc.top, rc.right, mainFrameRc.bottom-50, TRUE);
 
 	if (m_layersTab)
-	{
 		::MoveWindow(m_layersTab->GetSafeHwnd(), 7, 24, rc.right-14, mainFrameRc.bottom - 80, TRUE);
-	}
+	if (m_animationsTab)
+		::MoveWindow(m_animationsTab->GetSafeHwnd(), 7, 24, rc.right - 14, mainFrameRc.bottom - 80, TRUE);
 }
 
 void CInfoPannel::OnTcnSelchangeTab1(NMHDR *pNMHDR, LRESULT *pResult)
@@ -117,6 +111,23 @@ void CInfoPannel::OnTcnSelchangeTab1(NMHDR *pNMHDR, LRESULT *pResult)
 	*pResult = 0;
 
 	if (m_activeTab != NULL) {
-		//activeTab->ShowWindow(SW_HIDE);
+		m_activeTab->ShowWindow(SW_HIDE);
 	}
+
+	auto tabs = (CTabCtrl*)GetDlgItem(IDC_TAB1);
+
+	switch (tabs->GetCurSel())
+	{
+	case 0:
+		m_activeTab = m_layersTab;
+	break;
+	case 1:
+		m_activeTab = m_animationsTab;
+		break;
+	default:
+		break;
+	}
+
+
+	m_activeTab->ShowWindow(SW_SHOWNORMAL);
 }

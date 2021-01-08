@@ -1,6 +1,6 @@
 #pragma once
 
-
+#include "math\vec.h"
 
 // CViewport form view
 struct yyVideoDriverAPI;
@@ -28,12 +28,23 @@ public:
 #endif
 
 	void InitForGPUDraw();
+	void Draw();
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 	DECLARE_MESSAGE_MAP()
 	virtual void OnDraw(CDC* pDC);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
+	afx_msg void OnMouseLeave();
+	afx_msg void OnKillFocus(CWnd* pNewWnd);
+	afx_msg void OnSetFocus(CWnd* pOldWnd);
+	void _updateCamera();
+	v4f m_cameraRotation;
+	v4f m_cameraPosition;
+	CPoint m_old_point;
+
 };
 
 

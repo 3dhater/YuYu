@@ -1,10 +1,11 @@
 #include "stdafx.h"
+#include "yy.h"
+
 #include "modelCreator.h"
 
 #include "MainFrm.h"
 
 #include <cmath>
-#include "yy.h"
 #include "yy_window.h"
 #include "yy_model.h"
 
@@ -71,7 +72,6 @@ CMainFrame::CMainFrame()
 CMainFrame::~CMainFrame()
 {
 	MDLDelete();
-
 	if (g_engineContext)
 		yyDestroy(g_engineContext);
 }
@@ -83,18 +83,25 @@ CString CMainFrame::MDLNewLayer(const wchar_t* filePath)
 
 	auto slen = wcslen(filePath);
 	if (filePath[slen - 1] == L'j')
+	{
 		newModel = _importOBJ(filePath, name);
+
+		yyMDLLayer * newLayer = yyCreate<yyMDLLayer>();
+		newLayer->m_model = newModel;
+
+		m_mdlFile->m_layers.push_back(newLayer);
+		
+		MDLUpdateAABB();
+
+		newLayer->m_meshGPU = yyGetVideoDriverAPI()->CreateModel(newLayer->m_model);
+		m_layerInfo.push_back(LayerInfo());
+	}
 	else
-		newModel = _importFBX(filePath, name);
-	newModel->m_vertexType = yyVertexType::Model;
-
-	yyMDLLayer * newLayer = yyCreate<yyMDLLayer>();
-	newLayer->m_model = newModel;
-
-	m_mdlFile->m_layers.push_back(newLayer);
-	MDLUpdateAABB();
-
-	newLayer->m_meshGPU = yyGetVideoDriverAPI()->CreateModel(newLayer->m_model);
+	{
+		_importFBX(filePath, name);
+		name.Empty();
+		return name;
+	}
 
 	return name;
 }
@@ -110,6 +117,7 @@ void CMainFrame::MDLDeleteLayer(int layerIndex)
 {
 	auto layer = m_mdlFile->m_layers[layerIndex];
 	m_mdlFile->m_layers.erase(layerIndex);
+	m_layerInfo.erase(layerIndex);
 	if (layer->m_meshGPU)
 	{
 		yyGetVideoDriverAPI()->DeleteModel(layer->m_meshGPU);
@@ -133,7 +141,7 @@ void CMainFrame::MDLDelete()
 void CMainFrame::MDLCreateNew()
 {
 	MDLDelete();
-	m_mdlFile = yyCreate<yyMDLFile>();
+	m_mdlFile = yyCreate<yyMDL>();
 }
 void CMainFrame::MDLLoadTexture(int layerIndex, int textureSlot, const wchar_t* name)
 {
@@ -219,6 +227,7 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 	}
 	((CInfoPannel*)(m_mainSplitter.GetPane(0, 1)))->InitTabControl();
 
+	m_infoPanel = (CInfoPannel*)(m_mainSplitter.GetPane(0, 1));
 	//((CInfoPannel*)(m_mainSplitter.GetPane(0, 1)))->m_viewports = &m_viewportSplitter;
 
 	f32 fv = 410.1245f;

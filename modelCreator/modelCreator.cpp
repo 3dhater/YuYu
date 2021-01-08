@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "afxwinappex.h"
 #include "afxdialogex.h"
+#include "yy.h"
 #include "modelCreator.h"
 #include "MainFrm.h"
 

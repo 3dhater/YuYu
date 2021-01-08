@@ -239,7 +239,7 @@ public:
 	{
 		yyString_base<char16_t,allocator> ret;
 		ret.reserve(m_size);
-		this->copy(ret.data(),m_data);
+		ret = m_data;
 		return ret;
 	}
 

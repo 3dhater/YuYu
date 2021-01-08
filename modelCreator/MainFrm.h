@@ -7,8 +7,14 @@
 #include "InfoPannel.h"
 #include "MainSplitter.h"
 #include "Viewport.h"
+#include "containers\array.h"
 
-struct yyMDLFile;
+struct LayerInfo
+{
+	v3f m_offset;
+};
+
+struct yyMDL;
 struct yyResource;
 struct yyModel;
 class CMainFrame : public CFrameWnd
@@ -42,7 +48,8 @@ public:
 
 	int m_RIGHT_TAB_SIZE;
 	
-	yyMDLFile* m_mdlFile;
+	yyMDL* m_mdlFile;
+	yyArraySmall<LayerInfo> m_layerInfo;
 
 	void MDLCreateNew();
 	void MDLDelete();
@@ -52,21 +59,21 @@ public:
 	CString MDLNewLayer(const wchar_t* filePath);
 	void MDLLoadTexture(int layerIndex, int textureSlot, const wchar_t* name);
 
+	CInfoPannel*	m_infoPanel;
 
 protected:  // control bar embedded members
-	CStatusBar        m_wndStatusBar;
-	CChildView    m_wndView;
-	CToolBar m_wndToolBar;
+	CStatusBar  m_wndStatusBar;
+	CChildView  m_wndView;
+	CToolBar    m_wndToolBar;
 
 	virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
 	CMainSplitter m_mainSplitter;
-	CInfoPannel*	m_infoPanel;
-	CViewport*		m_viewport;
+	CViewport*    m_viewport;
 
 	void OnToolbarButton();
 
 	yyModel* _importOBJ(const wchar_t* filePath, CString& outName);
-	yyModel* _importFBX(const wchar_t* filePath, CString& outName);
+	void _importFBX(const wchar_t* filePath, CString& outName);
 
 // Generated message map functions
 protected:

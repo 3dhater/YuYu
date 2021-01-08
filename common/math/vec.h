@@ -8,6 +8,11 @@
 #define Infinity std::numeric_limits<f32>::infinity()
 #define Epsilon std::numeric_limits<f32>::epsilon()
 
+enum class yyVectorComponent
+{
+	x,y,z,w
+};
+
 struct v4i
 {
 	v4i():x(0),y(0),z(0),w(0){}
