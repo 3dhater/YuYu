@@ -67,3 +67,5 @@ modelCreator/Debug
 modelCreator/Release
 *.ipch
 todo.txt
+*.sdf
+*.suo

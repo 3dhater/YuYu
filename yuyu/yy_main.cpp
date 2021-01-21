@@ -395,7 +395,14 @@ YY_API bool YY_C_DECL yyInitVideoDriver(const char* dl, yyWindow* window)
 
 		//g_engine->m_resourceManager->m_videoDriverAPI = g_engine->m_videoAPI;
 
-		return g_engine->m_videoAPI->Init(window);
+		auto result = g_engine->m_videoAPI->Init(window);
+		if (!result)
+		{
+			yyFreeLybrary(g_engine->m_videoDriverLib);
+			g_engine->m_videoDriverLib = nullptr;
+			return false;
+		}
+		return result;
 	}
 	return false;
 }

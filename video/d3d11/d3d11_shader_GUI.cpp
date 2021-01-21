@@ -27,37 +27,36 @@ D3D11ShaderGUI::~D3D11ShaderGUI()
 bool D3D11ShaderGUI::init()
 {
 	const char * text = 
-		//"Texture2D tex2d_1;\n"
-		//"SamplerState tex2D_sampler_1;\n"
+		"Texture2D tex2d_1;\n"
+		"SamplerState tex2D_sampler_1;\n"
 		"struct VSIn{\n"
-		"   float3 position : POSITION;\n"
-		//"	float2 uv : TEXCOORD;\n"
+		"   float2 position : POSITION;\n"
+		"	float2 uv : TEXCOORD;\n"
 		"};\n"
-		//"cbuffer cbVertex  : register(b0) {\n"
-		//"	float4x4 ProjMtx;\n"
-		//"};\n"
+		"cbuffer cbVertex  : register(b0) {\n"
+		"	float4x4 ProjMtx;\n"
+		"};\n"
 		"struct VSOut{\n"
 		"   float4 pos : SV_POSITION;\n"
-		//"	float2 uv : TEXCOORD0;\n"
+		"	float2 uv : TEXCOORD0;\n"
 		"};\n"
 		"struct PSOut{\n"
 		"    float4 color : SV_Target;\n"
 		"};\n"
 		"VSOut VSMain(VSIn input){\n"
 		"   VSOut output;\n"
-		"	output.pos   = float4(input.position.xyz, 1.f);\n"
-		//"	output.uv    = input.uv;\n"
+		"	output.pos   = mul(ProjMtx, float4(input.position.x, input.position.y, 0.0f, 1.f));\n"
+		"	output.uv    = input.uv;\n"
 		"	return output;\n"
 		"}\n"
 		"PSOut PSMain(VSOut input){\n" 
 		"    PSOut output;\n"
-		//"    output.color = tex2d_1.Sample(tex2D_sampler_1, input.uv);\n"
-		"    output.color = float4(1.f,0,0,1.f);\n"
+		"    output.color = tex2d_1.Sample(tex2D_sampler_1, input.uv);\n"
 		"    return output;\n"
 		"}\n";
 	if (!D3D11_createShaders(
-		"vs_5_0",
-		"ps_5_0",
+		"vs_4_0",
+		"ps_4_0",
 		text,
 		text,
 		"VSMain",
@@ -71,11 +70,11 @@ bool D3D11ShaderGUI::init()
 		return false;
 	}
 
-	/*if (!D3D11_createConstantBuffer(sizeof(Mat4), &m_cb))
+	if (!D3D11_createConstantBuffer(sizeof(Mat4), &m_cb))
 	{
 		YY_PRINT_FAILED;
 		return false;
-	}*/
+	}
 
 	return true;
 }

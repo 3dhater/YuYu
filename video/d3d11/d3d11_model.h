@@ -3,11 +3,11 @@
 
 #include "containers\array.h"
 
-class D3D11MeshBuffer
+class D3D11Model
 {
 public:
-	D3D11MeshBuffer();
-	~D3D11MeshBuffer();
+	D3D11Model();
+	~D3D11Model();
 
 	ID3D11Buffer*   m_lockedResource;
 	ID3D11Buffer*   m_vBuffer;
@@ -18,12 +18,5 @@ public:
 	DXGI_FORMAT m_indexType;
 };
 
-class D3D11Model
-{
-public:
-	D3D11Model();
-	~D3D11Model();
-	yyArraySmall<D3D11MeshBuffer*> m_meshBuffers;
-};
 
 #endif

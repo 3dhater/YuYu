@@ -165,16 +165,16 @@ namespace DirectX
                 case DXGI_FORMAT_BC7_UNORM_SRGB:
                     return 8;
 
-            #if (_WIN32_WINNT >= _WIN32_WINNT_WIN10)
+            //#if (_WIN32_WINNT >= _WIN32_WINNT_WIN10)
 
-                case DXGI_FORMAT_V408:
-                    return 24;
+            //    case DXGI_FORMAT_V408:
+            //        return 24;
 
-                case DXGI_FORMAT_P208:
-                case DXGI_FORMAT_V208:
-                    return 16;
+            //    case DXGI_FORMAT_P208:
+            //    case DXGI_FORMAT_V208:
+            //        return 16;
 
-            #endif // (_WIN32_WINNT >= _WIN32_WINNT_WIN10)
+            //#endif // (_WIN32_WINNT >= _WIN32_WINNT_WIN10)
 
             #if defined(_XBOX_ONE) && defined(_TITLE)
 
@@ -540,9 +540,9 @@ namespace DirectX
 
             case DXGI_FORMAT_NV12:
             case DXGI_FORMAT_420_OPAQUE:
-        #if (_WIN32_WINNT >= _WIN32_WINNT_WIN10)
+       /* #if (_WIN32_WINNT >= _WIN32_WINNT_WIN10)
             case DXGI_FORMAT_P208:
-        #endif
+        #endif*/
                 planar = true;
                 bpe = 2;
                 break;

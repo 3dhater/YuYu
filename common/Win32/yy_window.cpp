@@ -1,6 +1,4 @@
-﻿#include "stdafx.h"
-
-#include "yy.h"
+﻿#include "yy.h"
 
 #ifdef YY_PLATFORM_WINDOWS
 

@@ -117,8 +117,8 @@ struct yyVideoDriverAPI
 
 	void (*GetTextureSize)(yyResource* r, v2i*);
 
-	void (*MapModelForWriteVerts)(yyResource* r, u32 meshbufferIndex, u8** v_ptr);
-	void(*UnmapModelForWriteVerts)(yyResource* r, u32 meshbufferIndex);
+	void (*MapModelForWriteVerts)(yyResource* r, u8** v_ptr);
+	void(*UnmapModelForWriteVerts)(yyResource* r);
 
 	yyResource* (*CreateRenderTargetTexture)(const v2f& size, bool useLinearFilter, bool useComparisonFilter);
 	void(*SetRenderTarget)(yyResource*);
@@ -127,6 +127,9 @@ struct yyVideoDriverAPI
 
 	void*(*GetVideoDriverObjects)();
 
+	void(*test_draw)();
+	
+	const char* (*GetVideoDriverName)();
 
 };
 

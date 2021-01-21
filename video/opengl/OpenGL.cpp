@@ -352,7 +352,7 @@ bool OpenGL::Init(yyWindow* window)
 
 	int result = 0;
 	int v_maj = 3;
-	int v_min = 2;
+	int v_min = 3;
 	while(true)
 	{
 		int attributeList[5];

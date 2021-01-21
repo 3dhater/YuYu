@@ -34,9 +34,9 @@ OpenGLShaderSprite::~OpenGLShaderSprite()
 bool OpenGLShaderSprite::init()
 {
 	const char * text_v = 
-		"#version 130\n"
-		"in vec2 Position;\n"
-		"in vec2 UV;\n"
+		"#version 330\n"
+		"layout(location = 0) in vec2 Position;\n"
+		"layout(location = 1) in vec2 UV;\n"
 		"uniform mat4 ProjMtx;\n"
 		"uniform mat4 World;\n"
 		"uniform vec2 CameraPosition;\n"
@@ -136,7 +136,7 @@ bool OpenGLShaderSprite::init()
 		"    }\n"
 		"}\n";
 	const char * text_f = 
-		"#version 130\n" 
+		"#version 330\n" 
 		"in vec2 out_UV;\n"
 		"uniform sampler2D Texture;\n"
 		"out vec4 Out_Color;\n"

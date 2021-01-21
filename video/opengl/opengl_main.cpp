@@ -117,9 +117,7 @@ void DeleteTexture(yyResource* r)
 void UnloadTexture(yyResource* r)
 {
 	assert(r);
-#ifdef YY_DEBUG
-	if(r->m_type != yyResourceType::Texture) YY_PRINT_FAILED;
-#endif
+	assert((r->m_type == yyResourceType::Texture) || (r->m_type == yyResourceType::RenderTargetTexture));
 	if(r->m_refCount == 0)
 		return;
 
@@ -146,12 +144,7 @@ OpenGLTexture* CreateOpenGLTexture(yyImage* image, bool useLinearFilter, bool us
 void LoadTexture(yyResource* r)
 {
 	assert(r);
-#ifdef YY_DEBUG
-	if(r->m_type != yyResourceType::Texture)
-	{
-		YY_PRINT_FAILED;
-	}
-#endif
+	assert((r->m_type == yyResourceType::Texture)|| (r->m_type == yyResourceType::RenderTargetTexture));
 	++r->m_refCount;
 	if(r->m_refCount==1)
 	{
@@ -653,10 +646,9 @@ void Draw()
 			break;
 		}
 
-		glBindVertexArray(g_openGL->m_currentModel->m_VAO);
-		glDrawElements(GL_TRIANGLES, g_openGL->m_currentModel->m_iCount, g_openGL->m_currentModel->m_indexType, 0);
-		
 	}
+	glBindVertexArray(g_openGL->m_currentModel->m_VAO);
+	glDrawElements(GL_TRIANGLES, g_openGL->m_currentModel->m_iCount, g_openGL->m_currentModel->m_indexType, 0);
 }
 void DrawSprite(yySprite* sprite)
 {
@@ -765,14 +757,14 @@ void SetMaterial(yyMaterial* mat)
 {
 	g_openGL->m_currentMaterial = mat;
 }
-void MapModelForWriteVerts(yyResource* r, u32 meshbufferIndex, u8** v_ptr)
+void MapModelForWriteVerts(yyResource* r, u8** v_ptr)
 {
 	assert(r);
 	OpenGLModel* m = g_openGL->m_models[r->m_index];
 	glBindBuffer(GL_ARRAY_BUFFER, m->m_vBuffer);
 	*v_ptr = (u8*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 }
-void UnmapModelForWriteVerts(yyResource* r, u32 meshbufferIndex)
+void UnmapModelForWriteVerts(yyResource* r)
 {
 	glUnmapBuffer(GL_ARRAY_BUFFER);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -782,6 +774,11 @@ yyVideoDriverObjectOpenGL g_yyVideoDriverObjectOpenGL;
 void* GetVideoDriverObjects()
 {
 	return &g_yyVideoDriverObjectOpenGL;
+}
+
+const char* GetVideoDriverName()
+{
+	return "OpenGL 3.3";
 }
 
 extern "C"
@@ -838,6 +835,8 @@ extern "C"
 
 		g_api.DeleteModel = DeleteModel;
 		g_api.DeleteTexture = DeleteTexture;
+
+		g_api.GetVideoDriverName = GetVideoDriverName;
 
 		return &g_api;
 	}

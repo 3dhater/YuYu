@@ -4,7 +4,7 @@
 
 #include "D3D11_model.h"
 
-D3D11MeshBuffer::D3D11MeshBuffer()
+D3D11Model::D3D11Model()
 	:
 	m_lockedResource(0),
 	m_vBuffer(0),
@@ -15,21 +15,9 @@ D3D11MeshBuffer::D3D11MeshBuffer()
 {
 }
 
-D3D11MeshBuffer::~D3D11MeshBuffer()
+D3D11Model::~D3D11Model()
 {
 	if (m_vBuffer) m_vBuffer->Release();
 	if (m_iBuffer) m_iBuffer->Release();
 }
 
-
-D3D11Model::D3D11Model()
-{
-}
-
-D3D11Model::~D3D11Model()
-{
-	for(u16 i = 0, sz = m_meshBuffers.size(); i < sz; ++i)
-	{
-		yyDestroy( m_meshBuffers[i] );
-	}
-}

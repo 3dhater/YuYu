@@ -25,12 +25,12 @@ OpenGLShaderSimple::~OpenGLShaderSimple()
 bool OpenGLShaderSimple::init()
 {
 	const char * text_v = 
-		"#version 130\n"
-		"in vec3 inputPosition;\n"
-		"in vec2 inputTexCoord;\n"
-		"in vec3 inputNormal;\n"
-		"in vec3 inputBinormal;\n"
-		"in vec3 inputTangent;\n"
+		"#version 330\n"
+		"layout(location = 0) in vec3 inputPosition;\n"
+		"layout(location = 1) in vec2 inputTexCoord;\n"
+		"layout(location = 2) in vec3 inputNormal;\n"
+		"layout(location = 3) in vec3 inputBinormal;\n"
+		"layout(location = 4) in vec3 inputTangent;\n"
 		"out vec2 texCoord;\n"
 		"uniform mat4 WVP;\n"
 		"void main(){\n"
@@ -39,7 +39,7 @@ bool OpenGLShaderSimple::init()
 		"texCoord.y = (1.f - inputTexCoord.y);\n"
 		"}\n";
 	const char * text_f =
-		"#version 130\n"
+		"#version 330\n"
 		"in vec2 texCoord;\n"
 		"uniform sampler2D diffuseTexture;\n"
 		"out vec4 color;\n"

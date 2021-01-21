@@ -23,11 +23,11 @@ void D3D11::UpdateGUIProjectionMatrix(const v2i& windowSize)
 	m_guiProjectionMatrix.m_data[2] = v4f(0.0f, 0.0f, 0.5f, 0.0f);
 	m_guiProjectionMatrix.m_data[3] = v4f((R + L) / (L - R), (T + B) / (B - T), 0.5f, 1.0f);
 
-	////opengl
-	//m_guiProjectionMatrix.m_data[0] = v4f(2.0f / (R - L), 0.0f, 0.0f, 0.0f);
-	//m_guiProjectionMatrix.m_data[1] = v4f(0.0f, 2.0f / (T - B), 0.0f, 0.0f);
-	//m_guiProjectionMatrix.m_data[2] = v4f(0.0f, 0.0f, -1.0f, 0.0f);
-	//m_guiProjectionMatrix.m_data[3] = v4f((R + L) / (L - R), (T + B) / (B - T), 0.0f, 1.0f);
+	//opengl
+	/*m_guiProjectionMatrix.m_data[0] = v4f(2.0f / (R - L), 0.0f, 0.0f, 0.0f);
+	m_guiProjectionMatrix.m_data[1] = v4f(0.0f, 2.0f / (T - B), 0.0f, 0.0f);
+	m_guiProjectionMatrix.m_data[2] = v4f(0.0f, 0.0f, -1.0f, 0.0f);
+	m_guiProjectionMatrix.m_data[3] = v4f((R + L) / (L - R), (T + B) / (B - T), 0.0f, 1.0f);*/
 }
 
 D3D11::D3D11()
@@ -353,6 +353,13 @@ bool D3D11::Init(yyWindow* window)
 		//	m_d3d11DevCon->OMSetBlendState(m_blendStateAlphaEnabledWithATC, blendFactor, 0xffffffff);
 	m_d3d11DevCon->OMSetBlendState(m_blendStateAlphaEnabled, blendFactor, 0xffffffff);
 
+	D3D11_RECT sr;
+	sr.left = 0;
+	sr.top = 0;
+	sr.right = window->m_clientSize.x;
+	sr.bottom = window->m_clientSize.y;
+	m_d3d11DevCon->RSSetScissorRects(1, &sr);
+
 	D3D11_VIEWPORT viewport;
 	viewport.Width = (f32)window->m_clientSize.x;
 	viewport.Height = (f32)window->m_clientSize.y;
@@ -503,83 +510,63 @@ bool D3D11::initTexture(yyImage* image, D3D11Texture* newTexture, bool useLinear
 	return true;
 }
 
-struct Vertex	//Overloaded Vertex Structure
-{
-	Vertex() {}
-	Vertex(float x, float y, float z)
-		: pos(x, y, z) {}
-
-	v3f pos;
-};
 bool D3D11::initModel(yyModel* model, D3D11Model* d3d11Model)
 {
-	Vertex v[] =
+	D3D11_BUFFER_DESC	vbd, ibd;
+
+	ZeroMemory(&vbd, sizeof(D3D11_BUFFER_DESC));
+	ZeroMemory(&ibd, sizeof(D3D11_BUFFER_DESC));
+
+	vbd.Usage = D3D11_USAGE_DEFAULT;
+	//vbd.Usage = D3D11_USAGE_DYNAMIC;
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+	ibd.Usage = D3D11_USAGE_DEFAULT;
+	//ibd.Usage = D3D11_USAGE_DYNAMIC;
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+	//vbd.CPUAccessFlags = 0;
+	//ibd.CPUAccessFlags = 0; //D3D11_CPU_ACCESS_WRITE
+
+	D3D11_SUBRESOURCE_DATA	vData, iData;
+	ZeroMemory(&vData, sizeof(D3D11_SUBRESOURCE_DATA));
+	ZeroMemory(&iData, sizeof(D3D11_SUBRESOURCE_DATA));
+	HRESULT	hr = 0;
+
+	d3d11Model->m_stride = model->m_stride;
+
+	vbd.ByteWidth = model->m_stride * model->m_vCount;
+	vData.pSysMem = &model->m_vertices[0];
+
+	hr = m_d3d11Device->CreateBuffer(&vbd, &vData, &d3d11Model->m_vBuffer);
+	if (FAILED(hr)) 
 	{
-		Vertex(0.0f, 0.5f, 0.5f),
-		Vertex(0.5f, -0.5f, 0.5f),
-		Vertex(-0.5f, -0.5f, 0.5f),
-	};
-	D3D11MeshBuffer* d3d11MeshBuffer = yyCreate<D3D11MeshBuffer>();
-	d3d11Model->m_meshBuffers.push_back(d3d11MeshBuffer);
-	//for (u16 i = 0, sz = model->m_meshBuffers.size(); i < sz; ++i)
-	//{
-	//	auto meshBuffer = model->m_meshBuffers.m_data[i];
-
-	//	D3D11MeshBuffer* d3d11MeshBuffer = yyCreate<D3D11MeshBuffer>();
-
-		D3D11_BUFFER_DESC	vbd, ibd;
-		ZeroMemory(&vbd, sizeof(D3D11_BUFFER_DESC));
-		vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		vbd.Usage = D3D11_USAGE_DYNAMIC;
-		vbd.Usage = D3D11_USAGE_DEFAULT;
-		vbd.CPUAccessFlags = 0;
-		vbd.ByteWidth = sizeof(Vertex) * 3;
-
-		ZeroMemory(&ibd, sizeof(D3D11_BUFFER_DESC));
-		ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-		ibd.Usage = D3D11_USAGE_DYNAMIC;
-		//ibd.Usage = D3D11_USAGE_DEFAULT;
-		ibd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-		D3D11_SUBRESOURCE_DATA	vData, iData;
-		ZeroMemory(&vData, sizeof(D3D11_SUBRESOURCE_DATA));
-		ZeroMemory(&iData, sizeof(D3D11_SUBRESOURCE_DATA));
-		HRESULT	hr = 0;
-
-		d3d11MeshBuffer->m_stride = sizeof(Vertex);
-		vData.pSysMem = v;
-		hr = m_d3d11Device->CreateBuffer(&vbd, &vData, &d3d11MeshBuffer->m_vBuffer);
-		if (FAILED(hr)) 
-		{
-			yyLogWriteError("Can't create Direct3D 11 vertex buffer [%u]\n", hr);
-			YY_PRINT_FAILED;
-			return false;
-		}
+		yyLogWriteError("Can't create Direct3D 11 vertex buffer [%u]\n", hr);
+		YY_PRINT_FAILED;
+		return false;
+	}
 
 
-	//	u32 index_sizeof = sizeof(u16);
-	//	d3d11MeshBuffer->m_indexType = DXGI_FORMAT_R16_UINT;
-	//	if (meshBuffer->m_indexType == yyMeshIndexType::u32)
-	//	{
-	//		d3d11MeshBuffer->m_indexType = DXGI_FORMAT_R32_UINT;
-	//		index_sizeof = sizeof(u32);
-	//	}
-	//	ibd.ByteWidth = index_sizeof * meshBuffer->m_iCount;
-	//	iData.pSysMem = &meshBuffer->m_indices[0];
+	u32 index_sizeof = sizeof(u16);
+	d3d11Model->m_indexType = DXGI_FORMAT_R16_UINT;
+	if (model->m_indexType == yyMeshIndexType::u32)
+	{
+		d3d11Model->m_indexType = DXGI_FORMAT_R32_UINT;
+		index_sizeof = sizeof(u32);
+	}
+	ibd.ByteWidth = index_sizeof * model->m_iCount;
+	iData.pSysMem = &model->m_indices[0];
 
-	//	d3d11MeshBuffer->m_iCount = meshBuffer->m_iCount;
-	//	d3d11MeshBuffer->m_stride = meshBuffer->m_stride;
+	d3d11Model->m_iCount = model->m_iCount;
+	d3d11Model->m_stride = model->m_stride;
 
-	//	hr = m_d3d11Device->CreateBuffer(&ibd, &iData, &d3d11MeshBuffer->m_iBuffer);
-	//	if (FAILED(hr)) 
-	//	{
-	//		yyLogWriteError("Can't create Direct3D 11 index buffer [%u]\n", hr);
-	//		YY_PRINT_FAILED;
-	//		return false;
-	//	}
-
-	//	d3d11Model->m_meshBuffers.push_back(d3d11MeshBuffer);
-	//}
+	hr = m_d3d11Device->CreateBuffer(&ibd, &iData, &d3d11Model->m_iBuffer);
+	if (FAILED(hr)) 
+	{
+		yyLogWriteError("Can't create Direct3D 11 index buffer [%u]\n", hr);
+		YY_PRINT_FAILED;
+		return false;
+	}
 
 	return true;
 }

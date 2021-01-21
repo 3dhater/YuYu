@@ -333,28 +333,22 @@ void BeginDrawGUI()
 	g_d3d11->m_d3d11DevCon->IAGetInputLayout(&old.InputLayout);
 
 
-	//D3D11_MAPPED_SUBRESOURCE mappedResource;
-	//g_d3d11->m_d3d11DevCon->Map(g_d3d11->m_shaderGUI->m_cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	//D3D11_BUFFER_DESC d;
-	//g_d3d11->m_shaderGUI->m_cb->GetDesc(&d);
-	//memcpy(mappedResource.pData, g_d3d11->m_guiProjectionMatrix.getPtr(), d.ByteWidth);
-	//Mat4 m;
-	//m[0].x = 10.f;
-	//m[1].y = 10.f;
-	//m[2].z = 10.f;
-	////memcpy(mappedResource.pData, m.getPtr(), d.ByteWidth);
-	//g_d3d11->m_d3d11DevCon->Unmap(g_d3d11->m_shaderGUI->m_cb, 0);
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	g_d3d11->m_d3d11DevCon->Map(g_d3d11->m_shaderGUI->m_cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	D3D11_BUFFER_DESC d;
+	g_d3d11->m_shaderGUI->m_cb->GetDesc(&d);
+	memcpy(mappedResource.pData, g_d3d11->m_guiProjectionMatrix.getPtr(), d.ByteWidth);
+	g_d3d11->m_d3d11DevCon->Unmap(g_d3d11->m_shaderGUI->m_cb, 0);
 
 	g_d3d11->m_d3d11DevCon->IASetInputLayout(g_d3d11->m_shaderGUI->m_vLayout);
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	g_d3d11->m_d3d11DevCon->VSSetShader(g_d3d11->m_shaderGUI->m_vShader, 0, 0);
-	g_d3d11->m_d3d11DevCon->PSSetShader(g_d3d11->m_shaderGUI->m_pShader, 0, 0);
-	//g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &g_d3d11->m_shaderGUI->m_cb);
-
-	const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
+	const float blend_factor[4] = { 1.f, 1.f, 1.f, 1.f };
 	g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaEnabled, blend_factor, 0xffffffff);
 	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
 	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
+	g_d3d11->m_d3d11DevCon->VSSetShader(g_d3d11->m_shaderGUI->m_vShader, 0, 0);
+	g_d3d11->m_d3d11DevCon->PSSetShader(g_d3d11->m_shaderGUI->m_pShader, 0, 0);
+	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &g_d3d11->m_shaderGUI->m_cb);
 
 	g_d3d11->m_isGUI = true;
 }
@@ -362,24 +356,24 @@ void EndDrawGUI()
 {
 	g_d3d11->m_isGUI = false;
 
-	//// Restore modified GL state
-	//g_d3d11->m_d3d11DevCon->RSSetScissorRects(old.ScissorRectsCount, old.ScissorRects);
-	//g_d3d11->m_d3d11DevCon->RSSetViewports(old.ViewportsCount, old.Viewports);
-	//g_d3d11->m_d3d11DevCon->RSSetState(old.RS); if (old.RS) old.RS->Release();
-	//g_d3d11->m_d3d11DevCon->OMSetBlendState(old.BlendState, old.BlendFactor, old.SampleMask); if (old.BlendState) old.BlendState->Release();
-	//g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(old.DepthStencilState, old.StencilRef); if (old.DepthStencilState) old.DepthStencilState->Release();
-	//g_d3d11->m_d3d11DevCon->PSSetShaderResources(0, 1, &old.PSShaderResource); if (old.PSShaderResource) old.PSShaderResource->Release();
-	//g_d3d11->m_d3d11DevCon->PSSetSamplers(0, 1, &old.PSSampler); if (old.PSSampler) old.PSSampler->Release();
-	//g_d3d11->m_d3d11DevCon->PSSetShader(old.PS, old.PSInstances, old.PSInstancesCount); if (old.PS) old.PS->Release();
-	//for (UINT i = 0; i < old.PSInstancesCount; i++) if (old.PSInstances[i]) old.PSInstances[i]->Release();
-	//g_d3d11->m_d3d11DevCon->VSSetShader(old.VS, old.VSInstances, old.VSInstancesCount); if (old.VS) old.VS->Release();
-	//g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &old.VSConstantBuffer); if (old.VSConstantBuffer) old.VSConstantBuffer->Release();
-	//g_d3d11->m_d3d11DevCon->GSSetShader(old.GS, old.GSInstances, old.GSInstancesCount); if (old.GS) old.GS->Release();
-	//for (UINT i = 0; i < old.VSInstancesCount; i++) if (old.VSInstances[i]) old.VSInstances[i]->Release();
-	//g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(old.PrimitiveTopology);
-	//g_d3d11->m_d3d11DevCon->IASetIndexBuffer(old.IndexBuffer, old.IndexBufferFormat, old.IndexBufferOffset); if (old.IndexBuffer) old.IndexBuffer->Release();
-	//g_d3d11->m_d3d11DevCon->IASetVertexBuffers(0, 1, &old.VertexBuffer, &old.VertexBufferStride, &old.VertexBufferOffset); if (old.VertexBuffer) old.VertexBuffer->Release();
-	//g_d3d11->m_d3d11DevCon->IASetInputLayout(old.InputLayout); if (old.InputLayout) old.InputLayout->Release();
+	// Restore modified GL state
+	g_d3d11->m_d3d11DevCon->RSSetScissorRects(old.ScissorRectsCount, old.ScissorRects);
+	g_d3d11->m_d3d11DevCon->RSSetViewports(old.ViewportsCount, old.Viewports);
+	g_d3d11->m_d3d11DevCon->RSSetState(old.RS); if (old.RS) old.RS->Release();
+	g_d3d11->m_d3d11DevCon->OMSetBlendState(old.BlendState, old.BlendFactor, old.SampleMask); if (old.BlendState) old.BlendState->Release();
+	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(old.DepthStencilState, old.StencilRef); if (old.DepthStencilState) old.DepthStencilState->Release();
+	g_d3d11->m_d3d11DevCon->PSSetShaderResources(0, 1, &old.PSShaderResource); if (old.PSShaderResource) old.PSShaderResource->Release();
+	g_d3d11->m_d3d11DevCon->PSSetSamplers(0, 1, &old.PSSampler); if (old.PSSampler) old.PSSampler->Release();
+	g_d3d11->m_d3d11DevCon->PSSetShader(old.PS, old.PSInstances, old.PSInstancesCount); if (old.PS) old.PS->Release();
+	for (UINT i = 0; i < old.PSInstancesCount; i++) if (old.PSInstances[i]) old.PSInstances[i]->Release();
+	g_d3d11->m_d3d11DevCon->VSSetShader(old.VS, old.VSInstances, old.VSInstancesCount); if (old.VS) old.VS->Release();
+	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &old.VSConstantBuffer); if (old.VSConstantBuffer) old.VSConstantBuffer->Release();
+	g_d3d11->m_d3d11DevCon->GSSetShader(old.GS, old.GSInstances, old.GSInstancesCount); if (old.GS) old.GS->Release();
+	for (UINT i = 0; i < old.VSInstancesCount; i++) if (old.VSInstances[i]) old.VSInstances[i]->Release();
+	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(old.PrimitiveTopology);
+	g_d3d11->m_d3d11DevCon->IASetIndexBuffer(old.IndexBuffer, old.IndexBufferFormat, old.IndexBufferOffset); if (old.IndexBuffer) old.IndexBuffer->Release();
+	g_d3d11->m_d3d11DevCon->IASetVertexBuffers(0, 1, &old.VertexBuffer, &old.VertexBufferStride, &old.VertexBufferOffset); if (old.VertexBuffer) old.VertexBuffer->Release();
+	g_d3d11->m_d3d11DevCon->IASetInputLayout(old.InputLayout); if (old.InputLayout) old.InputLayout->Release();
 }
 
 void SetTexture(yyVideoDriverAPI::TextureSlot slot, yyResource* res)
@@ -400,8 +394,8 @@ void Draw()
 		//g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
 		if(g_d3d11->m_currentTextures[0])
 		{
-			/*gglActiveTexture(GL_TEXTURE0);
-			gglBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);*/
+			g_d3d11->m_d3d11DevCon->PSSetShaderResources(0, 1, &g_d3d11->m_currentTextures[0]->m_textureResView);
+			g_d3d11->m_d3d11DevCon->PSSetSamplers(0, 1, &g_d3d11->m_currentTextures[0]->m_samplerState);
 		}
 	}
 	else
@@ -436,26 +430,9 @@ void Draw()
 		}*/
 	}
 	u32 offset = 0u;
-	for(u16 i = 0, sz = g_d3d11->m_currentModel->m_meshBuffers.size(); i < sz; ++i)
-	{
-		auto mb = g_d3d11->m_currentModel->m_meshBuffers[i];
-
-		g_d3d11->m_d3d11DevCon->IASetInputLayout(g_d3d11->m_shaderGUI->m_vLayout);
-		g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			g_d3d11->m_d3d11DevCon->IASetVertexBuffers(0, 1, &mb->m_vBuffer, &mb->m_stride, &offset);
-	//		g_d3d11->m_d3d11DevCon->IASetIndexBuffer(mb->m_iBuffer, mb->m_indexType, 0);
-		g_d3d11->m_d3d11DevCon->VSSetShader(g_d3d11->m_shaderGUI->m_vShader, 0, 0);
-		g_d3d11->m_d3d11DevCon->PSSetShader(g_d3d11->m_shaderGUI->m_pShader, 0, 0);
-		//g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &g_d3d11->m_shaderGUI->m_cb);
-
-		const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
-		g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaEnabled, blend_factor, 0xffffffff);
-		g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
-		g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
-
-		g_d3d11->m_d3d11DevCon->Draw(3, 0);
-	//	g_d3d11->m_d3d11DevCon->DrawIndexed(mb->m_iCount, 0, 0);
-	}
+	g_d3d11->m_d3d11DevCon->IASetVertexBuffers(0, 1, &g_d3d11->m_currentModel->m_vBuffer, &g_d3d11->m_currentModel->m_stride, &offset);
+	g_d3d11->m_d3d11DevCon->IASetIndexBuffer(g_d3d11->m_currentModel->m_iBuffer, g_d3d11->m_currentModel->m_indexType, 0);
+	g_d3d11->m_d3d11DevCon->DrawIndexed(g_d3d11->m_currentModel->m_iCount, 0, 0);
 }
 void DrawSprite(yySprite* sprite)
 {
@@ -551,18 +528,12 @@ void SetMaterial(yyMaterial* mat)
 {
 	g_d3d11->m_currentMaterial = mat;
 }
-void MapModelForWriteVerts(yyResource* r, u32 meshbufferIndex, u8** v_ptr)
+void MapModelForWriteVerts(yyResource* r, u8** v_ptr)
 {
 	assert(r);
-	/*OpenGLModel* m = g_openGL->m_models[r->m_index];
-	auto mb = m->m_meshBuffers[meshbufferIndex];
-	glBindBuffer(GL_ARRAY_BUFFER, mb->m_vBuffer);
-	*v_ptr = (u8*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);*/
 	D3D11Model* m = g_d3d11->m_models[r->m_index];
-	auto mb = m->m_meshBuffers[meshbufferIndex];
 	ID3D11Buffer* d3dbuffer = nullptr;
-
-	d3dbuffer = mb->m_vBuffer;
+	d3dbuffer = m->m_vBuffer;
 
 	static D3D11_MAPPED_SUBRESOURCE mapData;
 	auto hr = g_d3d11->m_d3d11DevCon->Map(
@@ -578,17 +549,13 @@ void MapModelForWriteVerts(yyResource* r, u32 meshbufferIndex, u8** v_ptr)
 		return;
 	}
 	*v_ptr = (u8*)mapData.pData;
-	mb->m_lockedResource = d3dbuffer;
+	m->m_lockedResource = d3dbuffer;
 }
-void UnmapModelForWriteVerts(yyResource* r, u32 meshbufferIndex)
+void UnmapModelForWriteVerts(yyResource* r)
 {
 	D3D11Model* m = g_d3d11->m_models[r->m_index];
-	auto mb = m->m_meshBuffers[meshbufferIndex];
-	if (mb->m_lockedResource)
-	{
-		g_d3d11->m_d3d11DevCon->Unmap(mb->m_lockedResource, 0);
-		mb->m_lockedResource = nullptr;
-	}
+	g_d3d11->m_d3d11DevCon->Unmap(m->m_lockedResource, 0);
+	m->m_lockedResource = nullptr;
 }
 
 yyVideoDriverObjectD3D11 g_yyVideoDriverObject;
@@ -597,6 +564,11 @@ void* GetVideoDriverObjects()
 	g_yyVideoDriverObject.m_context = g_d3d11->m_d3d11DevCon;
 	g_yyVideoDriverObject.m_device = g_d3d11->m_d3d11Device;
 	return &g_yyVideoDriverObject;
+}
+
+const char* GetVideoDriverName()
+{
+	return "Direct3D 11";
 }
 
 extern "C"
@@ -646,6 +618,11 @@ extern "C"
 		g_api.MapModelForWriteVerts = MapModelForWriteVerts;
 		g_api.UnmapModelForWriteVerts = UnmapModelForWriteVerts;
 		g_api.GetVideoDriverObjects = GetVideoDriverObjects;
+		
+		g_api.test_draw = 0;
+
+		g_api.GetVideoDriverName = GetVideoDriverName;
+
 		return &g_api;
 	}
 }

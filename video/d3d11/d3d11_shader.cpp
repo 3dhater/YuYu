@@ -120,10 +120,10 @@ bool D3D11_createShaders(
 	switch (vertexType)
 	{
 	case yyVertexType::GUI:
-		vertexLayoutSize = 1;
+		vertexLayoutSize = 2;
 		vertexLayout[0].SemanticName = "POSITION";
 		vertexLayout[0].SemanticIndex = 0;
-		vertexLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		vertexLayout[0].Format = DXGI_FORMAT_R32G32_FLOAT;
 		vertexLayout[0].InputSlot = 0;
 		vertexLayout[0].AlignedByteOffset = 0;
 		vertexLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
