@@ -111,6 +111,8 @@ bool D3D11::Init(yyWindow* window)
 	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
 	bufferDesc.Width = window->m_currentSize.x;
 	bufferDesc.Height = window->m_currentSize.y;
+	m_swapChainSize.x = window->m_currentSize.x;
+	m_swapChainSize.y = window->m_currentSize.y;
 	//if (m_params.m_vSync)
 	bufferDesc.RefreshRate.Numerator = 60;
 	//else bufferDesc.RefreshRate.Numerator = 0;
@@ -208,7 +210,8 @@ bool D3D11::Init(yyWindow* window)
 	dxgiAdapter->Release();
 	dxgiFactory->Release();
 
-	ID3D11Texture2D* BackBuffer;
+	_createBackBuffer(window->m_currentSize.x, window->m_currentSize.y);
+	/*ID3D11Texture2D* BackBuffer;
 	if (FAILED(m_SwapChain->GetBuffer(
 		0,
 		IID_ID3D11Texture2D,
@@ -217,20 +220,20 @@ bool D3D11::Init(yyWindow* window)
 		yyLogWriteError("Can't create Direct3D 11 back buffer\n");
 		YY_PRINT_FAILED;
 		return false;
-	}
+	}*/
 
-	if (FAILED(this->m_d3d11Device->CreateRenderTargetView(
+	/*if (FAILED(this->m_d3d11Device->CreateRenderTargetView(
 		BackBuffer, 0, &m_MainTargetView))) 
 	{
 		yyLogWriteError("Can't create Direct3D 11 render target\n");
 		if (BackBuffer) BackBuffer->Release();
 		YY_PRINT_FAILED;
 		return false;
-	}
+	}*/
 
-	if (BackBuffer) BackBuffer->Release();
+//	if (BackBuffer) BackBuffer->Release();
 
-	D3D11_TEXTURE2D_DESC	DSD;
+	/*D3D11_TEXTURE2D_DESC	DSD;
 	ZeroMemory(&DSD, sizeof(DSD));
 	DSD.Width = window->m_currentSize.x;
 	DSD.Height = window->m_currentSize.y;
@@ -248,7 +251,7 @@ bool D3D11::Init(yyWindow* window)
 		yyLogWriteError("Can't create Direct3D 11 depth stencil buffer\n");
 		YY_PRINT_FAILED;
 		return false;
-	}
+	}*/
 
 	D3D11_DEPTH_STENCIL_DESC	depthStencilDesc;
 	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
@@ -286,7 +289,7 @@ bool D3D11::Init(yyWindow* window)
 		return false;
 	}
 
-	ZeroMemory(&m_depthStencilViewDesc, sizeof(m_depthStencilViewDesc));
+	/*ZeroMemory(&m_depthStencilViewDesc, sizeof(m_depthStencilViewDesc));
 	m_depthStencilViewDesc.Format = DXGI_FORMAT_D32_FLOAT;
 	m_depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	m_depthStencilViewDesc.Texture2D.MipSlice = 0;
@@ -296,8 +299,7 @@ bool D3D11::Init(yyWindow* window)
 		YY_PRINT_FAILED;
 		return false;
 	}
-
-	m_d3d11DevCon->OMSetRenderTargets(1, &m_MainTargetView, m_depthStencilView);
+	m_d3d11DevCon->OMSetRenderTargets(1, &m_MainTargetView, m_depthStencilView);*/
 
 	D3D11_RASTERIZER_DESC	rasterDesc;
 	ZeroMemory(&rasterDesc, sizeof(D3D11_RASTERIZER_DESC));
@@ -478,6 +480,96 @@ bool D3D11::updateMainTarget()
 		return false;
 	}
 	yyDestroy(model);
+
+	/*if (m_depthStencilBuffer)
+	{
+		m_depthStencilBuffer->Release();
+		m_depthStencilBuffer = 0;
+	}
+	if (m_depthStencilView)
+	{
+		m_depthStencilView->Release();
+		m_depthStencilView = 0;
+	}
+	if (m_MainTargetView)
+	{
+		m_MainTargetView->Release();
+		m_MainTargetView = 0;
+	}*/
+	
+	//m_SwapChain->ResizeBuffers(0, m_windowSize.x, m_windowSize.y, DXGI_FORMAT_UNKNOWN, 0);
+	//_createBackBuffer(m_windowSize.x, m_windowSize.y);
+
+	return true;
+}
+
+bool D3D11::_createBackBuffer(int x, int y)
+{
+	if (m_depthStencilBuffer)
+	{
+		m_depthStencilBuffer->Release();
+		m_depthStencilBuffer = 0;
+	}
+	if (m_depthStencilView)
+	{
+		m_depthStencilView->Release();
+		m_depthStencilView = 0;
+	}
+	if (m_MainTargetView)
+	{
+		m_MainTargetView->Release();
+		m_MainTargetView = 0;
+	}
+
+	ID3D11Texture2D* BackBuffer;
+	if (FAILED(m_SwapChain->GetBuffer(
+		0,
+		IID_ID3D11Texture2D,
+		(void**)&BackBuffer)))
+	{
+		yyLogWriteError("Can't create Direct3D 11 back buffer\n");
+		YY_PRINT_FAILED;
+		return false;
+	}
+	if (FAILED(this->m_d3d11Device->CreateRenderTargetView(
+		BackBuffer, 0, &m_MainTargetView)))
+	{
+		yyLogWriteError("Can't create Direct3D 11 render target\n");
+		if (BackBuffer) BackBuffer->Release();
+		YY_PRINT_FAILED;
+		return false;
+	}
+	if (BackBuffer) BackBuffer->Release();
+	D3D11_TEXTURE2D_DESC	DSD;
+	ZeroMemory(&DSD, sizeof(DSD));
+	DSD.Width = x;
+	DSD.Height = y;
+	DSD.MipLevels = 1;
+	DSD.ArraySize = 1;
+	DSD.Format = DXGI_FORMAT_D32_FLOAT;
+	DSD.SampleDesc.Count = 1;
+	DSD.SampleDesc.Quality = 0;
+	DSD.Usage = D3D11_USAGE_DEFAULT;
+	DSD.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	DSD.CPUAccessFlags = 0;
+	DSD.MiscFlags = 0;
+	if (FAILED(m_d3d11Device->CreateTexture2D(&DSD, 0, &m_depthStencilBuffer)))
+	{
+		yyLogWriteError("Can't create Direct3D 11 depth stencil buffer\n");
+		YY_PRINT_FAILED;
+		return false;
+	}
+	ZeroMemory(&m_depthStencilViewDesc, sizeof(m_depthStencilViewDesc));
+	m_depthStencilViewDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	m_depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	m_depthStencilViewDesc.Texture2D.MipSlice = 0;
+	if (FAILED(m_d3d11Device->CreateDepthStencilView(m_depthStencilBuffer, &m_depthStencilViewDesc, &m_depthStencilView)))
+	{
+		yyLogWriteError("Can't create Direct3D 11 depth stencil view\n");
+		YY_PRINT_FAILED;
+		return false;
+	}
+	m_d3d11DevCon->OMSetRenderTargets(1, &m_MainTargetView, m_depthStencilView);
 	return true;
 }
 

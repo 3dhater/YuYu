@@ -76,7 +76,7 @@ class D3D11ShaderSprite;
 class D3D11ShaderScreenQuad;
 class D3D11
 {
-
+	bool _createBackBuffer(int x, int y);
 public:
 	D3D11();
 	~D3D11();
@@ -126,6 +126,7 @@ public:
 
 	v2f m_mainTargetSize;
 	v2i m_windowSize;
+	v2i m_swapChainSize;
 	D3D11Texture* m_mainTarget;
 	D3D11Model*   m_mainTargetSurface;
 	bool updateMainTarget();

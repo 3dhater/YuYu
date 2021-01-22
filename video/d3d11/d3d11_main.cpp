@@ -597,7 +597,7 @@ void EndDraw()
 	g_d3d11->m_d3d11DevCon->OMSetRenderTargets(1, &g_d3d11->m_MainTargetView, g_d3d11->m_depthStencilView);
 	g_d3d11->m_currentTargetView = g_d3d11->m_MainTargetView;
 	ClearColor();
-	SetViewport(0, 0, g_d3d11->m_windowSize.x, g_d3d11->m_windowSize.y);
+	SetViewport(0, 0, g_d3d11->m_swapChainSize.x, g_d3d11->m_swapChainSize.y);
 
 	g_d3d11->m_d3d11DevCon->IASetInputLayout(g_d3d11->m_shaderScreenQuad->m_vLayout);
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
