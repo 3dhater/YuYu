@@ -7,142 +7,188 @@
 
 #include "math/mat.h"
 extern Mat4 g_guiProjectionMatrix;
+extern D3D11 * g_d3d11;
+
 
 D3D11ShaderSprite::D3D11ShaderSprite()
+	:
+	m_cb(0)
 {
 }
 
 D3D11ShaderSprite::~D3D11ShaderSprite()
 {
+	if (m_cb) m_cb->Release();
+}
+
+void D3D11ShaderSprite::updateConstantBuffer()
+{
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	g_d3d11->m_d3d11DevCon->Map(m_cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	D3D11_BUFFER_DESC d;
+	m_cb->GetDesc(&d);
+	memcpy(mappedResource.pData, &m_structCB, d.ByteWidth);
+	g_d3d11->m_d3d11DevCon->Unmap(m_cb, 0);
 }
 
 bool D3D11ShaderSprite::init()
 {
-	/*const char * text_v = 
-		"#version 130\n"
-		"in vec3 Position;\n"
-		"in vec2 UV;\n"
-		"uniform mat4 ProjMtx;\n"
-		"uniform mat4 World;\n"
-		"uniform vec2 CameraPosition;\n"
-		"uniform vec2 CameraScale;\n"
-		"uniform vec2 uv1;\n"
-		"uniform vec2 uv2;\n"
-		"uniform int flags;\n"
-		"out vec2 out_UV;\n"
-		"#define FLAG_INVERT_X 1\n"
-		"#define FLAG_INVERT_Y 2\n"
-		"void main(){\n"
-		"    gl_Position = (ProjMtx * World) * vec4(Position.x, Position.y, Position.z, 1.f);\n"
-		"    vec4 camPos = ProjMtx * vec4(CameraPosition.x, CameraPosition.y, 1.f, 1.f);"
-		"    gl_Position.x -= camPos.x;\n"
-		"    gl_Position.y -= camPos.y;\n"
-		"    gl_Position.x *= CameraScale.x;\n"
-		"    gl_Position.y *= CameraScale.y;\n"
-		"    out_UV = UV;\n"
+	const char * text =
+		"Texture2D tex2d_1;\n"
+		"SamplerState tex2D_sampler_1;\n"
+		"struct VSIn{\n"
+		"   float2 position : POSITION;\n"
+		"	float2 uv : TEXCOORD;\n"
+		"	uint vertex_id : SV_VertexID;"
+		"};\n"
+
+
+		//	"struct VSIn2{\n"
+		//	"	uint vertex_id : SV_VertexID;"
+		//	"};\n"
+
+		"cbuffer cbVertex{\n"
+		"	float4x4 ProjMtx;\n"
+		"	float4x4 World;\n"
+		"	float4 CameraPositionScale;\n"
+		"	float2 uv1;\n"
+		"	float2 uv2;\n"
+		"	uint flags;\n"
+		"	uint padding[3];\n"
+		"};\n"
+		"struct VSOut{\n"
+		"   float4 pos : SV_POSITION;\n"
+		"	float2 uv : TEXCOORD0;\n"
+		"};\n"
+		"struct PSOut{\n"
+		"    float4 color : SV_Target;\n"
+		"};\n"
+
+			"#define FLAG_INVERT_X 1\n"
+			"#define FLAG_INVERT_Y 2\n"
+
+		"VSOut VSMain(VSIn input){\n"
+		"   VSOut output;\n"
+		"	output.pos   = mul(World, float4(input.position.x, input.position.y, 0.0f, 1.f));\n"
+		"	output.pos   = mul(ProjMtx, output.pos);\n"
+		"   float4 camPos = mul(ProjMtx, float4(CameraPositionScale.x, CameraPositionScale.y, 0.f, 1.f));"
+
+		"   output.pos.x -= camPos.x;\n"
+		"   output.pos.y -= camPos.y;\n"
+		"   output.pos.x *= CameraPositionScale.z;\n"
+		"   output.pos.y *= CameraPositionScale.w;\n"
+		"	output.uv    = input.uv;\n"
+
 		"    if((flags & FLAG_INVERT_X) == FLAG_INVERT_X){\n"
 		"	    if((flags & FLAG_INVERT_Y) == FLAG_INVERT_Y){\n"
-		"		   switch(gl_VertexID){\n"
+		"		   switch(input.vertex_id){\n"
 		"			 case 2:\n"
-		"				out_UV.x = uv1.x;\n"
-		"				out_UV.y = uv2.y;\n"
+		"				output.uv.x = uv1.x;\n"
+		"				output.uv.y = uv2.y;\n"
 		"			 break;\n"
 		"			case 3:\n"
-		"				out_UV.x = uv1.x;\n"
-		"				out_UV.y = uv1.y;\n"
+		"				output.uv.x = uv1.x;\n"
+		"				output.uv.y = uv1.y;\n"
 		"		    break;\n"
 		"			case 0:\n"
-		"				out_UV.x = uv2.x;\n"
-		"				out_UV.y = uv1.y;\n"
+		"				output.uv.x = uv2.x;\n"
+		"				output.uv.y = uv1.y;\n"
 		"			 break;\n"
 		"			case 1:\n"
-		"				out_UV.x = uv2.x;\n"
-		"				out_UV.y = uv2.y;\n"
+		"				output.uv.x = uv2.x;\n"
+		"				output.uv.y = uv2.y;\n"
 		"		    break;\n"
 		"			}\n"
 		"		}else{\n"
-		"			switch(gl_VertexID){\n"
+		"			switch(input.vertex_id){\n"
 		"			 case 3:\n"
-		"				out_UV.x = uv1.x;\n"
-		"				out_UV.y = uv2.y;\n"
+		"				output.uv.x = uv1.x;\n"
+		"				output.uv.y = uv2.y;\n"
 		"			 break;\n"
 		"		    case 2:\n"
-		"				out_UV.x = uv1.x;\n"
-		"				out_UV.y = uv1.y;\n"
+		"				output.uv.x = uv1.x;\n"
+		"				output.uv.y = uv1.y;\n"
 		"		    break;\n"
 		"			 case 1:\n"
-		"				out_UV.x = uv2.x;\n"
-		"				out_UV.y = uv1.y;\n"
+		"				output.uv.x = uv2.x;\n"
+		"				output.uv.y = uv1.y;\n"
 		"			 break;\n"
 		"		    case 0:\n"
-		"				out_UV.x = uv2.x;\n"
-		"				out_UV.y = uv2.y;\n"
+		"				output.uv.x = uv2.x;\n"
+		"				output.uv.y = uv2.y;\n"
 		"		    break;\n"
 		"			}\n"
 		"		}\n"
 		"    }else if((flags & FLAG_INVERT_Y) == FLAG_INVERT_Y){\n"
-		"	   switch(gl_VertexID){\n"
+		"	   switch(input.vertex_id){\n"
 		"		 case 1:\n"
-		"			out_UV.x = uv1.x;\n"
-		"			out_UV.y = uv2.y;\n"
+		"			output.uv.x = uv1.x;\n"
+		"			output.uv.y = uv2.y;\n"
 		"		 break;\n"
 		"	    case 0:\n"
-		"			out_UV.x = uv1.x;\n"
-		"			out_UV.y = uv1.y;\n"
+		"			output.uv.x = uv1.x;\n"
+		"			output.uv.y = uv1.y;\n"
 		"	    break;\n"
 		"		case 3:\n"
-		"			out_UV.x = uv2.x;\n"
-		"			out_UV.y = uv1.y;\n"
+		"			output.uv.x = uv2.x;\n"
+		"			output.uv.y = uv1.y;\n"
 		"		 break;\n"
 		"	    case 2:\n"
-		"			out_UV.x = uv2.x;\n"
-		"			out_UV.y = uv2.y;\n"
+		"			output.uv.x = uv2.x;\n"
+		"			output.uv.y = uv2.y;\n"
 		"	    break;\n"
 		"		}\n"
 		"    }else{\n"
-		"	   switch(gl_VertexID){\n"
+		"	   switch(input.vertex_id){\n"
 		"		 case 0:\n"
-		"			out_UV.x = uv1.x;\n"
-		"			out_UV.y = uv2.y;\n"
+		"			output.uv.x = uv1.x;\n"
+		"			output.uv.y = uv2.y;\n"
 		"		 break;\n"
 		"	    case 1:\n"
-		"			out_UV.x = uv1.x;\n"
-		"			out_UV.y = uv1.y;\n"
+		"			output.uv.x = uv1.x;\n"
+		"			output.uv.y = uv1.y;\n"
 		"	    break;\n"
 		"		 case 2:\n"
-		"			out_UV.x = uv2.x;\n"
-		"			out_UV.y = uv1.y;\n"
+		"			output.uv.x = uv2.x;\n"
+		"			output.uv.y = uv1.y;\n"
 		"		 break;\n"
 		"	    case 3:\n"
-		"			out_UV.x = uv2.x;\n"
-		"			out_UV.y = uv2.y;\n"
+		"			output.uv.x = uv2.x;\n"
+		"			output.uv.y = uv2.y;\n"
 		"	    break;\n"
 		"		}\n"
 		"    }\n"
-		"}\n";
-	const char * text_f = 
-		"#version 130\n" 
-		"in vec2 out_UV;\n"
-		"uniform sampler2D Texture;\n"
-		"out vec4 Out_Color;\n"
-		"void main(){\n"
-		"    Out_Color = texture(Texture,out_UV) * vec4(1.f,1.f,1.f,1.f);\n"
-		"}\n";
-	if( !createShader(text_v, text_f, nullptr, m_program) )
-		return false;
 
-	glUseProgram(m_program);
-	m_uniform_ProjMtx = glGetUniformLocation(m_program, "ProjMtx");
-	m_uniform_WorldMtx = glGetUniformLocation(m_program, "World");
-	m_uniform_CameraPosition = glGetUniformLocation(m_program, "CameraPosition");
-	m_uniform_CameraScale = glGetUniformLocation(m_program, "CameraScale");
-	m_uniform_uv1 = glGetUniformLocation(m_program, "uv1");
-	m_uniform_uv2 = glGetUniformLocation(m_program, "uv2");
-	m_uniform_flags = glGetUniformLocation(m_program, "flags");
-	
-	glUniform1i(glGetUniformLocation(m_program, "Texture"), 0); 
+		"	return output;\n"		
+		"}\n"
+			
+		"PSOut PSMain(VSOut input){\n"
+		"    PSOut output;\n"
+		"    output.color = tex2d_1.Sample(tex2D_sampler_1, input.uv);\n"
+		"    return output;\n"
+		"}\n";
 
-	glGenVertexArrays(1, &m_VAO);*/
+		if (!D3D11_createShaders(
+			"vs_4_0",
+			"ps_4_0",
+			text,
+			text,
+			"VSMain",
+			"PSMain",
+			yyVertexType::GUI,
+			&this->m_vShader,
+			&this->m_pShader,
+			&this->m_vLayout))
+		{
+			YY_PRINT_FAILED;
+			return false;
+		}
+
+		if (!D3D11_createConstantBuffer(sizeof(D3D11ShaderSprite::cbVertex), &m_cb))
+		{
+			YY_PRINT_FAILED;
+			return false;
+		}
 
 	return true;
 }

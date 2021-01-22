@@ -246,7 +246,6 @@ vidOk:
 	stateIdleLeft->AddAnimationFrame(0,0, 38,84);
 	stateIdleLeft->AddAnimationFrame(41,0, 79,84);
 	stateIdleLeft->SetFPS(2.f);
-	
 	spriteHero->SetState(stateIdleRight);
 
 	auto spriteCameraPosition = g_videoDriver->GetSpriteCameraPosition();
@@ -389,7 +388,6 @@ vidOk:
 			g_videoDriver->UseDepth(false);
 			g_videoDriver->DrawSprite(spriteLevel);
 			spriteHero->m_objectBase.UpdateBase();
-			//spriteHero->m_objectBase.m_updateImplementation(spriteHero);
 			spriteHero->Update(deltaTime);
 
 			g_videoDriver->DrawSprite(spriteHero);

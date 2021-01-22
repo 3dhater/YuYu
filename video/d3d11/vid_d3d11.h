@@ -72,6 +72,7 @@
 class D3D11Texture;
 class D3D11Model;
 class D3D11ShaderGUI;
+class D3D11ShaderSprite;
 class D3D11
 {
 
@@ -118,6 +119,7 @@ public:
 	v2f m_spriteCameraScale;
 
 	D3D11ShaderGUI* m_shaderGUI;
+	D3D11ShaderSprite* m_shaderSprite;
 
 	bool m_isGUI;
 

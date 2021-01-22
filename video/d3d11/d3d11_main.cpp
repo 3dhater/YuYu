@@ -421,13 +421,6 @@ void Draw()
 		{
 			g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
 		}
-		//glUseProgram( g_openGL->m_shader_std->m_program );
-		//glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr() );
-		/*if(g_openGL->m_currentTextures[0])
-		{
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);
-		}*/
 	}
 	u32 offset = 0u;
 	g_d3d11->m_d3d11DevCon->IASetVertexBuffers(0, 1, &g_d3d11->m_currentModel->m_vBuffer, &g_d3d11->m_currentModel->m_stride, &offset);
@@ -436,36 +429,47 @@ void Draw()
 }
 void DrawSprite(yySprite* sprite)
 {
-	/*assert(sprite);
-	glUseProgram( g_openGL->m_shader_sprite->m_program );
-	glUniformMatrix4fv(g_openGL->m_shader_sprite->m_uniform_ProjMtx, 1, GL_FALSE, g_openGL->m_guiProjectionMatrix.getPtr() );
-	glUniformMatrix4fv(g_openGL->m_shader_sprite->m_uniform_WorldMtx, 1, GL_FALSE, sprite->m_objectBase.m_globalMatrix.getPtr() );
-	glUniform2fv(g_openGL->m_shader_sprite->m_uniform_CameraPosition, 1, &g_openGL->m_spriteCameraPosition.x);
-	glUniform2fv(g_openGL->m_shader_sprite->m_uniform_CameraScale, 1, &g_openGL->m_spriteCameraScale.x);
-	glUniform2fv(g_openGL->m_shader_sprite->m_uniform_uv1, 1, &sprite->m_tcoords_1.x);
-	glUniform2fv(g_openGL->m_shader_sprite->m_uniform_uv2, 1, &sprite->m_tcoords_2.x);
-
-	int flags = 0;
+	assert(sprite);
+	g_d3d11->m_shaderSprite->m_structCB.ProjMtx = g_d3d11->m_guiProjectionMatrix;
+	g_d3d11->m_shaderSprite->m_structCB.World = sprite->m_objectBase.m_globalMatrix;
+	g_d3d11->m_shaderSprite->m_structCB.flags = 0;
 	if(sprite->m_currentState)
 	{
 		if(sprite->m_currentState->m_invertX)
-			flags |= 1;
+			g_d3d11->m_shaderSprite->m_structCB.flags |= 1;
 		if(sprite->m_currentState->m_invertY)
-			flags |= 2;
+			g_d3d11->m_shaderSprite->m_structCB.flags |= 2;
 	}
-	
-	glUniform1i(g_openGL->m_shader_sprite->m_uniform_flags, flags);
+	g_d3d11->m_shaderSprite->m_structCB.uv1 = sprite->m_tcoords_1;
+	g_d3d11->m_shaderSprite->m_structCB.uv2 = sprite->m_tcoords_2;
+	g_d3d11->m_shaderSprite->m_structCB.CameraPositionScale.x = g_d3d11->m_spriteCameraPosition.x;
+	g_d3d11->m_shaderSprite->m_structCB.CameraPositionScale.y = g_d3d11->m_spriteCameraPosition.y;
+	g_d3d11->m_shaderSprite->m_structCB.CameraPositionScale.z = g_d3d11->m_spriteCameraScale.x;
+	g_d3d11->m_shaderSprite->m_structCB.CameraPositionScale.w = g_d3d11->m_spriteCameraScale.y;
+	g_d3d11->m_shaderSprite->updateConstantBuffer();
+
+	g_d3d11->m_d3d11DevCon->IASetInputLayout(g_d3d11->m_shaderSprite->m_vLayout);
+	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	const float blend_factor[4] = { 1.f, 1.f, 1.f, 1.f };
+	g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaEnabled, blend_factor, 0xffffffff);
+	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
+	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
+	g_d3d11->m_d3d11DevCon->VSSetShader(g_d3d11->m_shaderSprite->m_vShader, 0, 0);
+	g_d3d11->m_d3d11DevCon->PSSetShader(g_d3d11->m_shaderSprite->m_pShader, 0, 0);
+	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &g_d3d11->m_shaderSprite->m_cb);
+
 
 	if(sprite->m_texture)
 	{
 		SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, sprite->m_texture);
-		gglActiveTexture(GL_TEXTURE0);
-		gglBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);
+		g_d3d11->m_d3d11DevCon->PSSetShaderResources(0, 1, &g_d3d11->m_currentTextures[0]->m_textureResView);
+		g_d3d11->m_d3d11DevCon->PSSetSamplers(0, 1, &g_d3d11->m_currentTextures[0]->m_samplerState);
 	}
 	SetModel(sprite->m_model);
-	auto meshBuffer = g_openGL->m_currentModel->m_meshBuffers[0];
-	gglBindVertexArray(meshBuffer->m_VAO);
-	gglDrawElements(GL_TRIANGLES, meshBuffer->m_iCount, GL_UNSIGNED_SHORT, 0);*/
+	u32 offset = 0u;
+	g_d3d11->m_d3d11DevCon->IASetVertexBuffers(0, 1, &g_d3d11->m_currentModel->m_vBuffer, &g_d3d11->m_currentModel->m_stride, &offset);
+	g_d3d11->m_d3d11DevCon->IASetIndexBuffer(g_d3d11->m_currentModel->m_iBuffer, g_d3d11->m_currentModel->m_indexType, 0);
+	g_d3d11->m_d3d11DevCon->DrawIndexed(g_d3d11->m_currentModel->m_iCount, 0, 0);
 }
 void DrawLine3D(const v4f& _p1, const v4f& _p2, const yyColor& color)
 {

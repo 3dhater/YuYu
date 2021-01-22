@@ -4,6 +4,7 @@
 #include "strings\string.h"
 #include "yy_model.h"
 
+
 bool D3D11_createShaders(
 	const char* vertexTarget,
 	const char* pixelTarget,

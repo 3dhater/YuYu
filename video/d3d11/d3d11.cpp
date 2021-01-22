@@ -7,6 +7,7 @@
 #include "d3d11_model.h"
 #include "d3d11_texture.h"
 #include "d3d11_shader_GUI.h"
+#include "d3d11_shader_sprite.h"
 
 #include "DDSTextureLoader.h"
 
@@ -40,6 +41,7 @@ D3D11::D3D11()
 	m_currentModel = nullptr;
 
 	m_shaderGUI = nullptr;
+	m_shaderSprite = nullptr;
 	m_isGUI = false;
 	m_vsync = false;
 	//m_D3DLibrary = nullptr;
@@ -62,6 +64,7 @@ D3D11::D3D11()
 }
 D3D11::~D3D11()
 {
+	if (m_shaderSprite)yyDestroy(m_shaderSprite);
 	if (m_shaderGUI) yyDestroy(m_shaderGUI);
 	if (m_blendStateAlphaDisabled)              m_blendStateAlphaDisabled->Release();
 	if (m_blendStateAlphaEnabledWithATC)        m_blendStateAlphaEnabledWithATC->Release();
@@ -375,6 +378,14 @@ bool D3D11::Init(yyWindow* window)
 	if (!m_shaderGUI->init())
 	{
 		yyLogWriteError("Can't create GUI shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	m_shaderSprite = yyCreate<D3D11ShaderSprite>();
+	if (!m_shaderSprite->init())
+	{
+		yyLogWriteError("Can't create sprite shader...");
 		YY_PRINT_FAILED;
 		return false;
 	}

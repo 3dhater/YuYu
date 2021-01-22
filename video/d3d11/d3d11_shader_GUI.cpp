@@ -9,9 +9,6 @@ extern Mat4 g_guiProjectionMatrix;
 
 D3D11ShaderGUI::D3D11ShaderGUI()
 	:
-	m_vShader(0),
-	m_pShader(0),
-	m_vLayout(0),
 	m_cb(0)
 {
 }
@@ -19,9 +16,6 @@ D3D11ShaderGUI::D3D11ShaderGUI()
 D3D11ShaderGUI::~D3D11ShaderGUI()
 {
 	if (m_cb) m_cb->Release();
-	if (m_vLayout) m_vLayout->Release();
-	if (m_vShader) m_vShader->Release();
-	if (m_pShader) m_pShader->Release();
 }
 
 bool D3D11ShaderGUI::init()
