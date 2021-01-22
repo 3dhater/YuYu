@@ -17,6 +17,7 @@
 #include "OpenGL_shader_terrain.h"
 #include "OpenGL_shader_depth.h"
 #include "OpenGL_shader_simple.h"
+#include "OpenGL_shader_ScreenQuad.h"
 
 #include "scene/common.h"
 #include "scene/sprite.h"
@@ -67,37 +68,7 @@ void SetClearColor(f32 r, f32 g, f32 b, f32 a)
 	gglClearColor( r, g, b, a );
 }
 
-//void BeginDraw()
-//{
-//	GLbitfield mask = 0; //GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT;
-//	if(g_openGL->m_useClearColor) mask |= GL_COLOR_BUFFER_BIT;
-//	if(g_openGL->m_useClearDepth) mask |= GL_DEPTH_BUFFER_BIT;
-//	if( mask ) gglClear(mask);
-//}
-// `if` is really expensive instruction...
-void BeginDrawClearAll()
-{
-	gglClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-}
-void BeginDrawClearColor()
-{
-	gglClear(GL_COLOR_BUFFER_BIT);
-}
-void BeginDrawClearDepth()
-{
-	gglClear(GL_DEPTH_BUFFER_BIT);
-}
-void BeginDrawNotClear()
-{
-}
-void EndDraw()
-{
-#ifdef YY_PLATFORM_WINDOWS
-	SwapBuffers( g_openGL->m_windowDC );
-#else
-#error For Windows
-#endif
-}
+
 OpenGLModel* CreateOpenGLModel(yyModel* model)
 {
 	assert(model);
@@ -518,7 +489,7 @@ void SetRenderTarget(yyResource* rtt)
 	}
 	else
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, g_openGL->m_mainTarget->m_FBO);
 	}
 }
 void SetViewport(f32 x, f32 y, f32 width, f32 height)
@@ -781,6 +752,48 @@ const char* GetVideoDriverName()
 	return "OpenGL 3.3";
 }
 
+void BeginDraw()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, g_openGL->m_mainTarget->m_FBO);
+	glViewport(0, 0, g_openGL->m_mainTargetSize.x, g_openGL->m_mainTargetSize.y);
+}
+void ClearAll()
+{
+	gglClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+}
+void ClearColor()
+{
+	gglClear(GL_COLOR_BUFFER_BIT);
+}
+void ClearDepth()
+{
+	gglClear(GL_DEPTH_BUFFER_BIT);
+}
+void EndDraw()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, 0); // window
+	glViewport(0, 0, g_openGL->m_windowSize.x, g_openGL->m_windowSize.y);
+
+	glUseProgram(g_openGL->m_shader_screenQuad->m_program);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, g_openGL->m_mainTarget->m_texture);
+	glBindVertexArray(g_openGL->m_mainTargetSurface->m_VAO);
+	glDrawElements(GL_TRIANGLES, g_openGL->m_mainTargetSurface->m_iCount, g_openGL->m_mainTargetSurface->m_indexType, 0);
+
+#ifdef YY_PLATFORM_WINDOWS
+	SwapBuffers(g_openGL->m_windowDC);
+#else
+#error For Windows
+#endif
+}
+
+void UpdateMainRenderTarget(const v2i& windowsSize, const v2f& bufferSize)
+{
+	g_openGL->m_windowSize = windowsSize;
+	g_openGL->m_mainTargetSize = bufferSize;
+	g_openGL->updateMainTarget();
+}
+
 extern "C"
 {
 	YY_API yyVideoDriverAPI* YY_C_DECL GetAPI()
@@ -790,12 +803,12 @@ extern "C"
 		g_api.Destroy       = Destroy;
 	
 		g_api.SetClearColor = SetClearColor;
-		//g_api.BeginDraw		= BeginDraw;
-		g_api.BeginDrawClearAll	= BeginDrawClearAll;
-		g_api.BeginDrawClearColor	= BeginDrawClearColor;
-		g_api.BeginDrawClearDepth	= BeginDrawClearDepth;
-		g_api.BeginDrawNotClear	= BeginDrawNotClear;
+		g_api.BeginDraw		= BeginDraw;
+		g_api.ClearDepth	= ClearDepth;
+		g_api.ClearColor	= ClearColor;
+		g_api.ClearAll		= ClearAll;
 		g_api.EndDraw		= EndDraw;
+		g_api.UpdateMainRenderTarget = UpdateMainRenderTarget;
 
 		g_api.CreateTexture = CreateTexture;
 		g_api.CreateTextureFromFile = CreateTextureFromFile;

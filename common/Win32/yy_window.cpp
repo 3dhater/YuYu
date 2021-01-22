@@ -25,8 +25,10 @@ yyWindow::yyWindow()
 	m_onKeyboard(nullptr)
 {
 	m_GPUData = 0;
+	m_isFullscreen = false;
 	m_hWnd = nullptr;
 	m_dc = nullptr;
+	m_oldStyle = 0;
 	wsprintfW(m_class_name, L"Window%i", g_window_counter++);
 	m_visible = false;
 	m_title = "Window";
@@ -46,14 +48,47 @@ yyWindow::~yyWindow()
 	}
 }
 
+void yyWindow::ToFullscreenMode()
+{
+	if (m_isFullscreen) return;
+	DWORD dwStyle = GetWindowLong(m_hWnd, GWL_STYLE);
+	m_oldStyle = dwStyle;
+	MONITORINFO mi = { sizeof(mi) };
+	if (GetWindowPlacement(m_hWnd, &m_wndPlcmnt) &&
+		GetMonitorInfo(MonitorFromWindow(m_hWnd, MONITOR_DEFAULTTOPRIMARY), &mi)) 
+	{
+		m_currentSize.x = mi.rcMonitor.right - mi.rcMonitor.left;
+		m_currentSize.y = mi.rcMonitor.bottom - mi.rcMonitor.top;
+		SetWindowLong(m_hWnd, GWL_STYLE, dwStyle & ~WS_OVERLAPPEDWINDOW);
+		SetWindowPos(m_hWnd, HWND_TOP,
+			mi.rcMonitor.left, mi.rcMonitor.top,
+			mi.rcMonitor.right - mi.rcMonitor.left,
+			mi.rcMonitor.bottom - mi.rcMonitor.top,
+			SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+		m_isFullscreen = true;
+	}
+}
+void yyWindow::ToWindowMode()
+{
+	if (!m_isFullscreen) return;
+	SetWindowLong(m_hWnd, GWL_STYLE, m_oldStyle);
+	m_currentSize = m_creationSize;
+	SetWindowPlacement(m_hWnd, &m_wndPlcmnt);
+	SetWindowPos(m_hWnd, NULL, 0, 0, 0, 0,
+		SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER |
+		SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+	m_isFullscreen = false;
+}
+
 bool yyWindow::init(int size_x, int size_y, u32 flags, yyWindow* parent)
 {
 	yyLogWriteInfo("Init window...\n");
 
-	m_size.x = size_x;
-	m_size.y = size_y;
+	m_creationSize.x = size_x;
+	m_creationSize.y = size_y;
 
-	m_clientSize = m_size;
+	//m_clientSize = m_creationSize;
+	m_currentSize = m_creationSize;
 
 	DWORD style = WS_BORDER | WS_CAPTION | WS_CLIPCHILDREN 
 		| WS_CLIPSIBLINGS | WS_SYSMENU;
@@ -101,12 +136,29 @@ bool yyWindow::init(int size_x, int size_y, u32 flags, yyWindow* parent)
 		this->Show();
 	}
 
+	MoveWindow(m_hWnd, 0, 0, size_x, size_y, FALSE);
+
 	SetForegroundWindow( m_hWnd );
 	::SetFocus( m_hWnd );
 	UpdateWindow( m_hWnd );
 	m_dc = GetDC(m_hWnd);
 
 	return true;
+}
+
+v2i ClientResize(HWND hWnd, int nWidth, int nHeight)
+{
+	v2i size;
+	RECT rcClient, rcWind;
+	POINT ptDiff;
+	GetClientRect(hWnd, &rcClient);
+	GetWindowRect(hWnd, &rcWind);
+	ptDiff.x = (rcWind.right - rcWind.left) - rcClient.right;
+	ptDiff.y = (rcWind.bottom - rcWind.top) - rcClient.bottom;
+	MoveWindow(hWnd, rcWind.left, rcWind.top, nWidth + ptDiff.x, nHeight + ptDiff.y, TRUE);
+	size.x = nWidth + ptDiff.x;
+	size.y = nHeight + ptDiff.y;
+	return size;
 }
 
 static unsigned int LocaleIdToCodepage(unsigned int lcid);
@@ -243,10 +295,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		if( pD )
 		{
-			RECT rc;
-			GetClientRect( hWnd, &rc );
-			pD->m_clientSize.x = rc.right - rc.left;
-			pD->m_clientSize.y = rc.bottom - rc.top;
+			//RECT rc;
+			//GetClientRect( hWnd, &rc );
+		//	pD->m_clientSize.x = rc.right - rc.left;
+			//pD->m_clientSize.y = rc.bottom - rc.top;
+			ClientResize(hWnd, pD->m_currentSize.x, pD->m_currentSize.y);
+
 			/*pD->m_client_rect.x = rc.left;
 			pD->m_client_rect.y = rc.top;
 			pD->m_client_rect.z = rc.right;
@@ -269,10 +323,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		if( pD )
 		{
-			RECT rc;
+			/*RECT rc;
 			GetClientRect( hWnd, &rc );
 			pD->m_clientSize.x = rc.right - rc.left;
-			pD->m_clientSize.y = rc.bottom - rc.top;
+			pD->m_clientSize.y = rc.bottom - rc.top;*/
+			ClientResize(hWnd, pD->m_currentSize.x, pD->m_currentSize.y);
 			/*GetClientRect( hWnd, &rc );
 			pD->m_client_rect.x = rc.left;
 			pD->m_client_rect.y = rc.top;

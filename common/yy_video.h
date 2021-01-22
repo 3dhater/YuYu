@@ -58,11 +58,13 @@ struct yyVideoDriverAPI
 	
 	void (*SetClearColor)(f32 r, f32 g, f32 b, f32 a);
 	
-	void (*BeginDrawClearDepth)();
-	void (*BeginDrawClearColor)();
-	void (*BeginDrawClearAll)();
-	void (*BeginDrawNotClear)();
-	void (*EndDraw)();
+	// Вызвать перед началом рисования. После рисования обязательно нужно вызвать EndDraw
+	void (*BeginDraw)();
+	void (*ClearDepth)();  // очистить буфер глубины
+	void (*ClearColor)();  // закрасить фон
+	void (*ClearAll)();    // ClearDepth и ClearColor
+	void (*EndDraw)();     // завершение рисования
+	void(*UpdateMainRenderTarget)(const v2i& windowsSize, const v2f& bufferSize);
 
 	void (*BeginDrawGUI)();
 	void (*EndDrawGUI)();

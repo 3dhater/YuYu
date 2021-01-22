@@ -65,16 +65,23 @@ public:
 
 	yyWindow_callbackKeyboard m_onKeyboard;
 
-	v2i m_size;
-	v2i m_clientSize;
+	v2i m_currentSize;
+	v2i m_creationSize;
+	//v2i m_clientSize;
 
 	// for example for swapChain in d3d11
 	// delete it only in video driver
 	void * m_GPUData;
 
+	bool m_isFullscreen;
+	void ToFullscreenMode();
+	void ToWindowMode();
+
 #ifdef YY_PLATFORM_WINDOWS
 	HWND m_hWnd;
+	WINDOWPLACEMENT m_wndPlcmnt;
 	HDC  m_dc;
+	DWORD m_oldStyle;
 	wchar_t m_class_name[32];
 	friend LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 #endif

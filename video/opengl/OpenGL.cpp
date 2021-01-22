@@ -14,6 +14,7 @@
 #include "OpenGL_shader_terrain.h"
 #include "OpenGL_shader_depth.h"
 #include "OpenGL_shader_simple.h"
+#include "OpenGL_shader_ScreenQuad.h"
 
 #include "math/mat.h"
 
@@ -122,6 +123,7 @@ OpenGL::OpenGL()
 	m_shader_terrain(nullptr),
 	m_shader_depth(nullptr),
 	m_shader_simple(nullptr),
+	m_shader_screenQuad(nullptr),
 
 	m_isGUI(false),
 	m_spriteCameraScale(v2f(1.f,1.f))
@@ -137,12 +139,19 @@ OpenGL::OpenGL()
 	}
 	m_currentMaterial = nullptr;
 	m_currentModel = nullptr;
+	m_mainTarget = 0;
+	m_mainTargetSurface = 0;
 }
 
 OpenGL::~OpenGL()
 {
 	yyLogWriteInfo("Destroy video driver...\n");
 
+	if (m_mainTarget) yyDestroy(m_mainTarget);
+	if (m_mainTargetSurface) yyDestroy(m_mainTargetSurface);
+
+	
+	if (m_shader_screenQuad) yyDestroy(m_shader_screenQuad);
 	if (m_shader_gui) yyDestroy(m_shader_gui);
 	if (m_shader_sprite) yyDestroy(m_shader_sprite);
 	if (m_shader_line3d) yyDestroy(m_shader_line3d);
@@ -235,6 +244,11 @@ bool OpenGL::Init(yyWindow* window)
 {
 	yyLogWriteInfo("Init video driver - OpenGL...\n");
 	//m_window = window;
+
+	m_windowSize.x = window->m_currentSize.x;
+	m_windowSize.y = window->m_currentSize.y;
+	m_mainTargetSize.x = window->m_currentSize.x;
+	m_mainTargetSize.y = window->m_currentSize.y;
 
 #ifdef YY_PLATFORM_WINDOWS
 	m_OpenGL_lib = LoadLibrary(L"OpenGL32.dll");
@@ -413,9 +427,9 @@ bool OpenGL::Init(yyWindow* window)
 	gglClearDepth(1.0f);
 	gglEnable(GL_DEPTH_TEST);
 	gglFrontFace(GL_CW);
-	gglViewport(0, 0, window->m_size.x, window->m_size.y);
+	gglViewport(0, 0, window->m_currentSize.x, window->m_currentSize.y);
 
-	UpdateGUIProjectionMatrix(window->m_clientSize);
+	UpdateGUIProjectionMatrix(window->m_currentSize);
 
 	//yyImage whiteImage;
 	//whiteImage.m_width  = 2;
@@ -494,6 +508,14 @@ bool OpenGL::Init(yyWindow* window)
 		return false;
 	}
 
+	m_shader_screenQuad = yyCreate<OpenGLShaderScreenQuad>();
+	if (!m_shader_screenQuad->init())
+	{
+		yyLogWriteError("Can't create screen quad shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
 	/*m_forwardPlus = Game_Create<RendererForwardPlus>();
 	if(!m_forwardPlus->Init())
 	{
@@ -507,6 +529,67 @@ bool OpenGL::Init(yyWindow* window)
 	int windowH = cr.w - cr.y;
 	OnWindowSizeChange(windowW, windowH);*/
 
+	if (!updateMainTarget())
+	{
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	return true;
+}
+
+bool OpenGL::updateMainTarget()
+{
+	if (m_mainTarget) yyDestroy(m_mainTarget);
+	if (m_mainTargetSurface) yyDestroy(m_mainTargetSurface);
+
+	m_mainTarget = yyCreate<OpenGLTexture>();
+	if (!initFBO(m_mainTarget, m_mainTargetSize, false, false))
+	{
+		yyLogWriteError("Can't create main render target...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	auto model = yyCreate<yyModel>();
+	model->m_iCount = 6;
+	model->m_vCount = 4;
+	model->m_stride = sizeof(yyVertexGUI);
+	model->m_vertexType = yyVertexType::GUI;
+	model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
+	model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+	u16* inds = (u16*)model->m_indices;
+
+	yyVertexGUI * vertex = (yyVertexGUI*)model->m_vertices;
+	vertex->m_position.set(-1.f, 1.f);
+	vertex->m_tcoords.set(0.f, 1.f);
+	vertex++;
+	vertex->m_position.set(-1.f, -1.f);
+	vertex->m_tcoords.set(0.f, 0.f);
+	vertex++;
+	vertex->m_position.set(1.f, -1.f);
+	vertex->m_tcoords.set(1.f, 0.f);
+	vertex++;
+	vertex->m_position.set(1.f, 1.f);
+	vertex->m_tcoords.set(1.f, 1.f);
+	vertex++;
+
+	inds[0] = 0;
+	inds[1] = 1;
+	inds[2] = 2;
+	inds[3] = 0;
+	inds[4] = 2;
+	inds[5] = 3;
+
+	m_mainTargetSurface = yyCreate<OpenGLModel>();
+	if (!initModel(model, m_mainTargetSurface))
+	{
+		yyDestroy(model);
+		yyLogWriteError("Can't create main render target surface...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+	yyDestroy(model);
 	return true;
 }
 

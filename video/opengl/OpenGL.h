@@ -1242,6 +1242,7 @@ class OpenGLShaderStd;
 class OpenGLShaderTerrain;
 class OpenGLShaderDepth;
 class OpenGLShaderSimple;
+class OpenGLShaderScreenQuad;
 
 class OpenGLTexture;
 class OpenGLModel;
@@ -1277,6 +1278,7 @@ public:
 	OpenGLShaderTerrain* m_shader_terrain;
 	OpenGLShaderDepth* m_shader_depth;
 	OpenGLShaderSimple* m_shader_simple;
+	OpenGLShaderScreenQuad* m_shader_screenQuad;
 
 	Mat4 m_guiProjectionMatrix;
 
@@ -1289,6 +1291,12 @@ public:
 	HDC m_windowDC;
 	HGLRC m_renderingContext;
 #endif
+
+	v2f m_mainTargetSize;
+	v2i m_windowSize;
+	OpenGLTexture* m_mainTarget;
+	OpenGLModel*   m_mainTargetSurface;
+	bool updateMainTarget();
 
 	bool m_isGUI;
 
