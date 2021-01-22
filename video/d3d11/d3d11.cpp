@@ -8,6 +8,7 @@
 #include "d3d11_texture.h"
 #include "d3d11_shader_GUI.h"
 #include "d3d11_shader_sprite.h"
+#include "d3d11_shader_ScreenQuad.h"
 
 #include "DDSTextureLoader.h"
 
@@ -33,6 +34,8 @@ void D3D11::UpdateGUIProjectionMatrix(const v2i& windowSize)
 
 D3D11::D3D11()
 {
+	m_mainTarget = 0;
+	m_mainTargetSurface = 0;
 	for (u32 i = 0; i < (u32)yyVideoDriverAPI::TextureSlot::Count; ++i)
 	{
 		m_currentTextures[i] = nullptr;
@@ -40,8 +43,10 @@ D3D11::D3D11()
 	m_currentMaterial = nullptr;
 	m_currentModel = nullptr;
 
+	m_shaderScreenQuad = 0;
 	m_shaderGUI = nullptr;
 	m_shaderSprite = nullptr;
+
 	m_isGUI = false;
 	m_vsync = false;
 	//m_D3DLibrary = nullptr;
@@ -64,6 +69,11 @@ D3D11::D3D11()
 }
 D3D11::~D3D11()
 {
+	if (m_mainTarget) yyDestroy(m_mainTarget);
+	if (m_mainTargetSurface) yyDestroy(m_mainTargetSurface);
+
+	
+	if (m_shaderScreenQuad)yyDestroy(m_shaderScreenQuad);
 	if (m_shaderSprite)yyDestroy(m_shaderSprite);
 	if (m_shaderGUI) yyDestroy(m_shaderGUI);
 	if (m_blendStateAlphaDisabled)              m_blendStateAlphaDisabled->Release();
@@ -92,10 +102,15 @@ bool D3D11::Init(yyWindow* window)
 	assert(window);
 	yyLogWriteInfo("Init video driver - D3D11...\n");
 
+	m_windowSize.x = window->m_currentSize.x;
+	m_windowSize.y = window->m_currentSize.y;
+	m_mainTargetSize.x = window->m_currentSize.x;
+	m_mainTargetSize.y = window->m_currentSize.y;
+
 	DXGI_MODE_DESC	bufferDesc;
 	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
-	bufferDesc.Width = window->m_clientSize.x;
-	bufferDesc.Height = window->m_clientSize.y;
+	bufferDesc.Width = window->m_currentSize.x;
+	bufferDesc.Height = window->m_currentSize.y;
 	//if (m_params.m_vSync)
 	bufferDesc.RefreshRate.Numerator = 60;
 	//else bufferDesc.RefreshRate.Numerator = 0;
@@ -217,8 +232,8 @@ bool D3D11::Init(yyWindow* window)
 
 	D3D11_TEXTURE2D_DESC	DSD;
 	ZeroMemory(&DSD, sizeof(DSD));
-	DSD.Width = window->m_clientSize.x;
-	DSD.Height = window->m_clientSize.y;
+	DSD.Width = window->m_currentSize.x;
+	DSD.Height = window->m_currentSize.y;
 	DSD.MipLevels = 1;
 	DSD.ArraySize = 1;
 	DSD.Format = DXGI_FORMAT_D32_FLOAT;
@@ -239,7 +254,7 @@ bool D3D11::Init(yyWindow* window)
 	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
 	depthStencilDesc.DepthEnable = true;
 	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 	depthStencilDesc.StencilEnable = true;
 	depthStencilDesc.StencilReadMask = 0xFF;
 	depthStencilDesc.StencilWriteMask = 0xFF;
@@ -261,6 +276,8 @@ bool D3D11::Init(yyWindow* window)
 
 	m_d3d11DevCon->OMSetDepthStencilState(this->m_depthStencilStateEnabled, 0);
 
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_ALWAYS;
+	depthStencilDesc.StencilEnable = false;
 	depthStencilDesc.DepthEnable = false;
 	if (FAILED(m_d3d11Device->CreateDepthStencilState(&depthStencilDesc, &this->m_depthStencilStateDisabled))) 
 	{
@@ -318,8 +335,8 @@ bool D3D11::Init(yyWindow* window)
 	bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
 	bd.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
 	bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-	bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
+	bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
 	bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
@@ -340,7 +357,7 @@ bool D3D11::Init(yyWindow* window)
 
 
 	bd.RenderTarget[0].BlendEnable = FALSE;
-	if (FAILED(m_d3d11Device->CreateBlendState(&bd, &m_blendStateAlphaDisabled))) 
+	if (FAILED(m_d3d11Device->CreateBlendState(&bd, &m_blendStateAlphaDisabled)))
 	{
 		yyLogWriteError("Can't create Direct3D 11 blend state\n");
 		YY_PRINT_FAILED;
@@ -348,10 +365,10 @@ bool D3D11::Init(yyWindow* window)
 	}
 
 	float blendFactor[4];
-	blendFactor[0] = 1.0f;
-	blendFactor[1] = 1.0f;
-	blendFactor[2] = 1.0f;
-	blendFactor[3] = 1.0f;
+	blendFactor[0] = 0.0f;
+	blendFactor[1] = 0.0f;
+	blendFactor[2] = 0.0f;
+	blendFactor[3] = 0.0f;
 	//	if (atc)
 		//	m_d3d11DevCon->OMSetBlendState(m_blendStateAlphaEnabledWithATC, blendFactor, 0xffffffff);
 	m_d3d11DevCon->OMSetBlendState(m_blendStateAlphaEnabled, blendFactor, 0xffffffff);
@@ -359,20 +376,20 @@ bool D3D11::Init(yyWindow* window)
 	D3D11_RECT sr;
 	sr.left = 0;
 	sr.top = 0;
-	sr.right = window->m_clientSize.x;
-	sr.bottom = window->m_clientSize.y;
+	sr.right = window->m_currentSize.x;
+	sr.bottom = window->m_currentSize.y;
 	m_d3d11DevCon->RSSetScissorRects(1, &sr);
 
 	D3D11_VIEWPORT viewport;
-	viewport.Width = (f32)window->m_clientSize.x;
-	viewport.Height = (f32)window->m_clientSize.y;
+	viewport.Width = (f32)window->m_currentSize.x;
+	viewport.Height = (f32)window->m_currentSize.y;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	viewport.TopLeftX = 0.0f;
 	viewport.TopLeftY = 0.0f;
 	m_d3d11DevCon->RSSetViewports(1, &viewport);
 	
-	UpdateGUIProjectionMatrix(window->m_clientSize);
+	UpdateGUIProjectionMatrix(window->m_currentSize);
 
 	m_shaderGUI = yyCreate<D3D11ShaderGUI>();
 	if (!m_shaderGUI->init())
@@ -390,6 +407,77 @@ bool D3D11::Init(yyWindow* window)
 		return false;
 	}
 
+	m_shaderScreenQuad = yyCreate<D3D11ShaderScreenQuad>();
+	if (!m_shaderScreenQuad->init())
+	{
+		yyLogWriteError("Can't create screen quad shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	 
+
+	if (!updateMainTarget())
+	{
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	return true;
+}
+
+bool D3D11::updateMainTarget()
+{
+	if (m_mainTarget) yyDestroy(m_mainTarget);
+	if (m_mainTargetSurface) yyDestroy(m_mainTargetSurface);
+
+	m_mainTarget = yyCreate<D3D11Texture>();
+	if (!this->initRTT(m_mainTarget, m_mainTargetSize, false, false))
+	{
+		yyLogWriteError("Can't create main render target...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	auto model = yyCreate<yyModel>();
+	model->m_iCount = 6;
+	model->m_vCount = 4;
+	model->m_stride = sizeof(yyVertexGUI);
+	model->m_vertexType = yyVertexType::GUI;
+	model->m_vertices = (u8*)yyMemAlloc(model->m_vCount * model->m_stride);
+	model->m_indices = (u8*)yyMemAlloc(model->m_iCount * sizeof(u16));
+	u16* inds = (u16*)model->m_indices;
+
+	yyVertexGUI * vertex = (yyVertexGUI*)model->m_vertices;
+	vertex->m_position.set(-1.f, 1.f);
+	vertex->m_tcoords.set(0.f, 0.f);
+	vertex++;
+	vertex->m_position.set(-1.f, -1.f);
+	vertex->m_tcoords.set(0.f, 1.f);
+	vertex++;
+	vertex->m_position.set(1.f, -1.f);
+	vertex->m_tcoords.set(1.f, 1.f);
+	vertex++;
+	vertex->m_position.set(1.f, 1.f);
+	vertex->m_tcoords.set(1.f, 0.f);
+	vertex++;
+
+	inds[0] = 0;
+	inds[1] = 1;
+	inds[2] = 2;
+	inds[3] = 0;
+	inds[4] = 2;
+	inds[5] = 3;
+
+	m_mainTargetSurface = yyCreate<D3D11Model>();
+	if (!initModel(model, m_mainTargetSurface))
+	{
+		yyDestroy(model);
+		yyLogWriteError("Can't create main render target surface...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+	yyDestroy(model);
 	return true;
 }
 
@@ -413,6 +501,90 @@ HRESULT	D3D11::createSamplerState(
 	samplerDesc.MaxAnisotropy = anisotropic_level;
 
 	return m_d3d11Device->CreateSamplerState(&samplerDesc, samplerState);
+}
+bool D3D11::initRTT(D3D11Texture* newTexture, const v2f& size, bool useLinearFilter, bool useComparisonFilter)
+{
+	newTexture->m_h = size.x;
+	newTexture->m_w = size.y;
+
+	D3D11_TEXTURE2D_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.Width = newTexture->m_h;
+	desc.Height = newTexture->m_w;
+	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	desc.MiscFlags = 0;
+	desc.ArraySize = 1;
+	desc.MipLevels = 1;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.CPUAccessFlags = 0;
+
+	auto hr = m_d3d11Device->CreateTexture2D(&desc, NULL, &newTexture->m_texture);
+	if (FAILED(hr)) 
+	{
+		yyLogWriteError("Can't create render target texture\n");
+		YY_PRINT_FAILED;
+		return false;
+	}
+	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
+	renderTargetViewDesc.Format = desc.Format;
+	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	renderTargetViewDesc.Texture2D.MipSlice = 0;
+	hr = m_d3d11Device->CreateRenderTargetView(newTexture->m_texture, &renderTargetViewDesc, &newTexture->m_RTV);
+	if (FAILED(hr)) 
+	{
+		yyLogWriteError("Can't create render target view\n");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc;
+	ZeroMemory(&SRVDesc, sizeof(SRVDesc));
+	SRVDesc.Format = desc.Format;
+	SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	SRVDesc.Texture2D.MostDetailedMip = 0;
+	SRVDesc.Texture2D.MipLevels = 1;
+
+	hr = m_d3d11Device->CreateShaderResourceView(newTexture->m_texture,
+		&SRVDesc, &newTexture->m_textureResView);
+	if (FAILED(hr))
+	{
+		yyLogWriteError("Can't create shader resource view\n");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	//if (!is_RTT) 
+	{
+		D3D11_FILTER filter;
+
+		if (useLinearFilter)
+		{
+			filter = D3D11_FILTER::D3D11_FILTER_ANISOTROPIC;
+			if (useComparisonFilter)
+				filter = D3D11_FILTER::D3D11_FILTER_COMPARISON_ANISOTROPIC;
+		}
+		else
+		{
+			filter = D3D11_FILTER::D3D11_FILTER_MIN_MAG_MIP_POINT;
+			if (useComparisonFilter)
+				filter = D3D11_FILTER::D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
+		}
+
+		auto hr = this->createSamplerState(filter, D3D11_TEXTURE_ADDRESS_WRAP, 1, &newTexture->m_samplerState);
+		if (FAILED(hr))
+		{
+			yyLogWriteError("Can't create sampler state\n");
+			YY_PRINT_FAILED;
+			return false;
+		}
+	}
+
+	return true;
 }
 bool D3D11::initTexture(yyImage* image, D3D11Texture* newTexture, bool useLinearFilter, bool useComparedFilter)
 {

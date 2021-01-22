@@ -225,6 +225,19 @@ void UseDepth(bool v)
 	g_useDepth = v;
 	v ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
 }
+void UseBlend(bool v)
+{
+	if (v)
+	{
+		glEnable(GL_BLEND);
+		glBlendEquation(GL_FUNC_ADD);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+	else
+	{
+		glDisable(GL_BLEND);
+	}
+}
 
 yyResource* CreateRenderTargetTexture(const v2f& size, bool useLinearFilter, bool useComparisonFilter)
 {
@@ -817,6 +830,7 @@ extern "C"
 
 		g_api.UseVSync = UseVSync;
 		g_api.UseDepth = UseDepth;
+		g_api.UseBlend = UseBlend;
 
 		g_api.CreateModel = CreateModel;
 		g_api.CreateModelFromFile = CreateModelFromFile;
@@ -840,6 +854,7 @@ extern "C"
 		g_api.SetMaterial = SetMaterial;
 		g_api.MapModelForWriteVerts = MapModelForWriteVerts;
 		g_api.UnmapModelForWriteVerts = UnmapModelForWriteVerts;
+		
 		g_api.CreateRenderTargetTexture = CreateRenderTargetTexture;
 		g_api.SetRenderTarget = SetRenderTarget;
 		g_api.SetViewport = SetViewport;

@@ -50,11 +50,9 @@ struct yyVideoDriverAPI
 	bool (*Init)(yyWindow*);
 	void (*Destroy)();
 	
-	//void (*UseClearColor)(bool);
-	//void (*UseClearDepth)(bool);
-
 	void (*UseVSync)(bool);
-	void (*UseDepth)(bool);
+	void(*UseDepth)(bool);
+	void (*UseBlend)(bool);
 	
 	void (*SetClearColor)(f32 r, f32 g, f32 b, f32 a);
 	

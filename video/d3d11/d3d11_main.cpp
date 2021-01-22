@@ -12,6 +12,8 @@
 #include "d3d11_model.h"
 #include "d3d11_shader_GUI.h"
 #include "d3d11_shader_sprite.h"
+#include "d3d11_shader_ScreenQuad.h"
+
 #include "d3d11_shader_Line3D.h"
 #include "d3d11_shader_standart.h"
 
@@ -21,8 +23,10 @@
 yyVideoDriverAPI g_api;
 
 void LoadModel(yyResource* r);
-
 //yyResource g_defaultRes;
+
+
+void SetViewport(f32 x, f32 y, f32 width, f32 height);
 
 u32 GetAPIVersion()
 {
@@ -60,28 +64,7 @@ void SetClearColor(f32 r, f32 g, f32 b, f32 a)
 	g_d3d11->m_clearColor.set(r, g, b, a);
 }
 
-// `if` is really expensive instruction...
-void BeginDrawClearAll()
-{
-	g_d3d11->m_d3d11DevCon->ClearRenderTargetView(g_d3d11->m_MainTargetView, g_d3d11->m_clearColor.data());
-	g_d3d11->m_d3d11DevCon->ClearDepthStencilView(g_d3d11->m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-}
-void BeginDrawClearColor()
-{
-	g_d3d11->m_d3d11DevCon->ClearRenderTargetView(g_d3d11->m_MainTargetView, g_d3d11->m_clearColor.data());
-}
-void BeginDrawClearDepth()
-{
-	g_d3d11->m_d3d11DevCon->ClearDepthStencilView(g_d3d11->m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-}
-void BeginDrawNotClear()
-{
-}
-void EndDraw()
-{
-	g_d3d11->m_vsync ? g_d3d11->m_SwapChain->Present(1, 0) 
-		: g_d3d11->m_SwapChain->Present(0, 0);
-}
+
 D3D11Model* CreateD3D11Model(yyModel* model)
 {
 	assert(model);
@@ -201,7 +184,18 @@ void UseDepth(bool v)
 	v ? g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateEnabled, 0)
 		: g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
 }
-
+void UseBlend(bool v)
+{
+	if (v)
+	{
+		const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
+		g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaEnabled, blend_factor, 0xffffffff);
+	}
+	else
+	{
+		g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaDisabled, 0, 0xffffffff);
+	}
+}
 
 yyResource* CreateModelFromFile(const char* fileName, bool load)
 {
@@ -342,8 +336,10 @@ void BeginDrawGUI()
 
 	g_d3d11->m_d3d11DevCon->IASetInputLayout(g_d3d11->m_shaderGUI->m_vLayout);
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	const float blend_factor[4] = { 1.f, 1.f, 1.f, 1.f };
+
+	const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
 	g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaEnabled, blend_factor, 0xffffffff);
+
 	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
 	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
 	g_d3d11->m_d3d11DevCon->VSSetShader(g_d3d11->m_shaderGUI->m_vShader, 0, 0);
@@ -450,10 +446,12 @@ void DrawSprite(yySprite* sprite)
 
 	g_d3d11->m_d3d11DevCon->IASetInputLayout(g_d3d11->m_shaderSprite->m_vLayout);
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	const float blend_factor[4] = { 1.f, 1.f, 1.f, 1.f };
-	g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaEnabled, blend_factor, 0xffffffff);
+
+//	const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
+//	g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaEnabled, blend_factor, 0xffffffff);
 	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
 	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
+
 	g_d3d11->m_d3d11DevCon->VSSetShader(g_d3d11->m_shaderSprite->m_vShader, 0, 0);
 	g_d3d11->m_d3d11DevCon->PSSetShader(g_d3d11->m_shaderSprite->m_pShader, 0, 0);
 	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &g_d3d11->m_shaderSprite->m_cb);
@@ -574,6 +572,114 @@ const char* GetVideoDriverName()
 {
 	return "Direct3D 11";
 }
+void ClearAll()
+{
+	g_d3d11->m_d3d11DevCon->ClearRenderTargetView(g_d3d11->m_currentTargetView, g_d3d11->m_clearColor.data());
+	g_d3d11->m_d3d11DevCon->ClearDepthStencilView(g_d3d11->m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+}
+void ClearColor()
+{
+	g_d3d11->m_d3d11DevCon->ClearRenderTargetView(g_d3d11->m_currentTargetView, g_d3d11->m_clearColor.data());
+}
+void ClearDepth()
+{
+	g_d3d11->m_d3d11DevCon->ClearDepthStencilView(g_d3d11->m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+}
+void BeginDraw()
+{
+	 // !!! ??? m_depthStencilView должен быть свой на каждый RTT ???
+	g_d3d11->m_d3d11DevCon->OMSetRenderTargets(1, &g_d3d11->m_mainTarget->m_RTV, g_d3d11->m_depthStencilView);
+	SetViewport(0, 0, g_d3d11->m_mainTargetSize.x, g_d3d11->m_mainTargetSize.y);
+	g_d3d11->m_currentTargetView = g_d3d11->m_mainTarget->m_RTV;
+}
+void EndDraw()
+{
+	g_d3d11->m_d3d11DevCon->OMSetRenderTargets(1, &g_d3d11->m_MainTargetView, g_d3d11->m_depthStencilView);
+	g_d3d11->m_currentTargetView = g_d3d11->m_MainTargetView;
+	ClearColor();
+	SetViewport(0, 0, g_d3d11->m_windowSize.x, g_d3d11->m_windowSize.y);
+
+	g_d3d11->m_d3d11DevCon->IASetInputLayout(g_d3d11->m_shaderScreenQuad->m_vLayout);
+	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	
+//	const float blend_factor[4] = { 0.f, 0.f, 0.f, 1.f };
+//	g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaEnabled, blend_factor, 0xffffffff);
+	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
+
+	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
+	g_d3d11->m_d3d11DevCon->VSSetShader(g_d3d11->m_shaderScreenQuad->m_vShader, 0, 0);
+	g_d3d11->m_d3d11DevCon->PSSetShader(g_d3d11->m_shaderScreenQuad->m_pShader, 0, 0);
+	g_d3d11->m_d3d11DevCon->PSSetShaderResources(0, 1, &g_d3d11->m_mainTarget->m_textureResView);
+	g_d3d11->m_d3d11DevCon->PSSetSamplers(0, 1, &g_d3d11->m_mainTarget->m_samplerState);
+	u32 offset = 0u;
+	g_d3d11->m_d3d11DevCon->IASetVertexBuffers(0, 1, &g_d3d11->m_mainTargetSurface->m_vBuffer, &g_d3d11->m_mainTargetSurface->m_stride, &offset);
+	g_d3d11->m_d3d11DevCon->IASetIndexBuffer(g_d3d11->m_mainTargetSurface->m_iBuffer, g_d3d11->m_mainTargetSurface->m_indexType, 0);
+	g_d3d11->m_d3d11DevCon->DrawIndexed(g_d3d11->m_mainTargetSurface->m_iCount, 0, 0);
+
+	g_d3d11->m_vsync ? g_d3d11->m_SwapChain->Present(1, 0)
+		: g_d3d11->m_SwapChain->Present(0, 0);
+}
+void UpdateMainRenderTarget(const v2i& windowsSize, const v2f& bufferSize)
+{
+	g_d3d11->m_windowSize = windowsSize;
+	g_d3d11->m_mainTargetSize = bufferSize;
+	g_d3d11->updateMainTarget();
+}
+
+yyResource* CreateRenderTargetTexture(const v2f& size, bool useLinearFilter, bool useComparisonFilter)
+{
+	yyResource * newRes = yyCreate<yyResource>();
+	newRes->m_type = yyResourceType::RenderTargetTexture;
+	newRes->m_source = 0;
+	newRes->m_index = g_d3d11->m_textures.size();
+	newRes->m_refCount = 1;
+	if (useLinearFilter)
+		newRes->m_flags |= yyResource::flags::texture_useLinearFilter;
+	if (useComparisonFilter)
+		newRes->m_flags |= yyResource::flags::texture_useComparisonFilter;
+
+	auto newTexture = yyCreate<D3D11Texture>();
+	g_d3d11->initRTT(newTexture, size, useLinearFilter, useComparisonFilter);
+	if (newTexture)
+	{
+		g_d3d11->m_textures.push_back(newTexture);
+		newRes->m_isLoaded = true;
+		return newRes;
+	}
+
+	if (newRes)
+		yyDestroy(newRes);
+	return nullptr;
+}
+void SetRenderTarget(yyResource* rtt)
+{
+	if (rtt)
+	{
+		if (rtt->m_type == yyResourceType::RenderTargetTexture)
+		{
+			g_d3d11->m_d3d11DevCon->OMSetRenderTargets(1, &g_d3d11->m_textures[rtt->m_index]->m_RTV, g_d3d11->m_depthStencilView);
+			g_d3d11->m_currentTargetView = g_d3d11->m_textures[rtt->m_index]->m_RTV;
+		}
+		else
+			yyLogWriteWarning("SetRenderTarget: yyResourceType is not RenderTargetTexture");
+	}
+	else
+	{
+		g_d3d11->m_d3d11DevCon->OMSetRenderTargets(1, &g_d3d11->m_MainTargetView, g_d3d11->m_depthStencilView);
+		g_d3d11->m_currentTargetView = g_d3d11->m_MainTargetView;
+	}
+}
+void SetViewport(f32 x, f32 y, f32 width, f32 height)
+{
+	D3D11_VIEWPORT viewport;
+	viewport.Width = (f32)width;
+	viewport.Height = (f32)height;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	viewport.TopLeftX = x;
+	viewport.TopLeftY = y;
+	g_d3d11->m_d3d11DevCon->RSSetViewports(1, &viewport);
+}
 
 extern "C"
 {
@@ -584,12 +690,12 @@ extern "C"
 		g_api.Destroy       = Destroy;
 	
 		g_api.SetClearColor = SetClearColor;
-		//g_api.BeginDraw		= BeginDraw;
-		g_api.BeginDrawClearAll	= BeginDrawClearAll;
-		g_api.BeginDrawClearColor	= BeginDrawClearColor;
-		g_api.BeginDrawClearDepth	= BeginDrawClearDepth;
-		g_api.BeginDrawNotClear	= BeginDrawNotClear;
-		g_api.EndDraw		= EndDraw;
+		g_api.BeginDraw = BeginDraw;
+		g_api.ClearDepth = ClearDepth;
+		g_api.ClearColor = ClearColor;
+		g_api.ClearAll = ClearAll;
+		g_api.EndDraw = EndDraw;
+		g_api.UpdateMainRenderTarget = UpdateMainRenderTarget;
 
 		g_api.CreateTexture = CreateTexture;
 		g_api.CreateTextureFromFile = CreateTextureFromFile;
@@ -598,6 +704,7 @@ extern "C"
 
 		g_api.UseVSync = UseVSync;
 		g_api.UseDepth = UseDepth;
+		g_api.UseBlend = UseBlend;
 
 		g_api.CreateModel = CreateModel;
 		g_api.CreateModelFromFile = CreateModelFromFile;
@@ -621,6 +728,11 @@ extern "C"
 		g_api.SetMaterial = SetMaterial;
 		g_api.MapModelForWriteVerts = MapModelForWriteVerts;
 		g_api.UnmapModelForWriteVerts = UnmapModelForWriteVerts;
+
+		g_api.CreateRenderTargetTexture = CreateRenderTargetTexture;
+		g_api.SetRenderTarget = SetRenderTarget;
+		g_api.SetViewport = SetViewport;
+
 		g_api.GetVideoDriverObjects = GetVideoDriverObjects;
 		
 		g_api.test_draw = 0;

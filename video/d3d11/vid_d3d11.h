@@ -73,6 +73,7 @@ class D3D11Texture;
 class D3D11Model;
 class D3D11ShaderGUI;
 class D3D11ShaderSprite;
+class D3D11ShaderScreenQuad;
 class D3D11
 {
 
@@ -85,6 +86,7 @@ public:
 	ID3D11Device*			m_d3d11Device;
 	ID3D11DeviceContext*	m_d3d11DevCon;
 	ID3D11RenderTargetView* m_MainTargetView;
+	ID3D11RenderTargetView* m_currentTargetView;
 	ID3D11Texture2D*		m_depthStencilBuffer;
 	ID3D11DepthStencilState*m_depthStencilStateEnabled;
 	ID3D11DepthStencilState*m_depthStencilStateDisabled;
@@ -120,6 +122,13 @@ public:
 
 	D3D11ShaderGUI* m_shaderGUI;
 	D3D11ShaderSprite* m_shaderSprite;
+	D3D11ShaderScreenQuad* m_shaderScreenQuad;
+
+	v2f m_mainTargetSize;
+	v2i m_windowSize;
+	D3D11Texture* m_mainTarget;
+	D3D11Model*   m_mainTargetSurface;
+	bool updateMainTarget();
 
 	bool m_isGUI;
 
@@ -129,6 +138,7 @@ public:
 	bool Init(yyWindow* window);
 	bool initModel(yyModel* model, D3D11Model* openglModel);
 	bool initTexture(yyImage* image, D3D11Texture* newTexture, bool useLinearFilter, bool useComparedFilter);
+	bool initRTT(D3D11Texture*, const v2f& size, bool useLinearFilter, bool useComparisonFilter);
 	HRESULT	createSamplerState(D3D11_FILTER filter,
 		D3D11_TEXTURE_ADDRESS_MODE addressMode,
 		u32 anisotropic_level,
