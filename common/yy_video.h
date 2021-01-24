@@ -61,7 +61,12 @@ struct yyVideoDriverAPI
 	void (*ClearDepth)();  // очистить буфер глубины
 	void (*ClearColor)();  // закрасить фон
 	void (*ClearAll)();    // ClearDepth и ClearColor
-	void (*EndDraw)();     // завершение рисования
+	// завершение рисования
+	// драйвер должен установить render target окна
+	void (*EndDraw)();    
+	// вывести всё на экран
+	// imgui рисуется между EndDraw и SwapBuffers
+	void (*SwapBuffers)();       // Present\swapbuffers
 	void(*UpdateMainRenderTarget)(const v2i& windowsSize, const v2f& bufferSize);
 
 	void (*BeginDrawGUI)();

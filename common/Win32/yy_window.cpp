@@ -8,6 +8,10 @@
 s32 g_window_counter = 0;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
+#ifdef IMGUI_API
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#endif
+
 yyWindow::yyWindow()
 	:
 	m_onClose(nullptr),
@@ -164,6 +168,10 @@ v2i ClientResize(HWND hWnd, int nWidth, int nHeight)
 static unsigned int LocaleIdToCodepage(unsigned int lcid);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+#ifdef IMGUI_API
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+		return true;
+#endif
 
 	yyWindow* pD = nullptr;
 	s32 wmId    = LOWORD(wParam);

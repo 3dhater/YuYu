@@ -69,3 +69,7 @@ modelCreator/Release
 todo.txt
 *.sdf
 *.suo
+MDLCreator/Debug
+MDLCreator/Release
+MDLCreator/Production
+*.idb

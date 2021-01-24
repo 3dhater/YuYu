@@ -616,8 +616,7 @@ void EndDraw()
 	g_d3d11->m_d3d11DevCon->IASetIndexBuffer(g_d3d11->m_mainTargetSurface->m_iBuffer, g_d3d11->m_mainTargetSurface->m_indexType, 0);
 	g_d3d11->m_d3d11DevCon->DrawIndexed(g_d3d11->m_mainTargetSurface->m_iCount, 0, 0);
 
-	g_d3d11->m_vsync ? g_d3d11->m_SwapChain->Present(1, 0)
-		: g_d3d11->m_SwapChain->Present(0, 0);
+	
 }
 void UpdateMainRenderTarget(const v2i& windowsSize, const v2f& bufferSize)
 {
@@ -680,6 +679,11 @@ void SetViewport(f32 x, f32 y, f32 width, f32 height)
 	viewport.TopLeftY = y;
 	g_d3d11->m_d3d11DevCon->RSSetViewports(1, &viewport);
 }
+void SwapBuffers()
+{
+	g_d3d11->m_vsync ? g_d3d11->m_SwapChain->Present(1, 0)
+		: g_d3d11->m_SwapChain->Present(0, 0);
+}
 
 extern "C"
 {
@@ -738,6 +742,7 @@ extern "C"
 		g_api.test_draw = 0;
 
 		g_api.GetVideoDriverName = GetVideoDriverName;
+		g_api.SwapBuffers = SwapBuffers;
 
 		return &g_api;
 	}

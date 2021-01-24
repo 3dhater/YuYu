@@ -792,7 +792,10 @@ void EndDraw()
 	glBindTexture(GL_TEXTURE_2D, g_openGL->m_mainTarget->m_texture);
 	glBindVertexArray(g_openGL->m_mainTargetSurface->m_VAO);
 	glDrawElements(GL_TRIANGLES, g_openGL->m_mainTargetSurface->m_iCount, g_openGL->m_mainTargetSurface->m_indexType, 0);
+}
 
+void SwapBuffers()
+{
 #ifdef YY_PLATFORM_WINDOWS
 	SwapBuffers(g_openGL->m_windowDC);
 #else
@@ -865,6 +868,7 @@ extern "C"
 		g_api.DeleteTexture = DeleteTexture;
 
 		g_api.GetVideoDriverName = GetVideoDriverName;
+		g_api.SwapBuffers = SwapBuffers;
 
 		return &g_api;
 	}
