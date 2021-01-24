@@ -11,6 +11,7 @@ public:
 
 
 	bool init();
+	virtual void SetConstants(yyMaterial* material) {}
 };
 
 #endif

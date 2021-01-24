@@ -162,11 +162,11 @@ void CViewport::_updateCamera()
 {
 	Quat Qy(0.f, m_cameraRotation.y, 0.f);
 	Mat4 Ry;
-	math::makeRotationMatrix(Ry, Qy);
+	Ry.setRotation(Qy);
 
 	Quat Qx(m_cameraRotation.x, 0.f, 0.f);
 	Mat4 Rx;
-	math::makeRotationMatrix(Rx, Qx);
+	Rx.setRotation(Qx);
 
 	m_camera->m_objectBase.m_localPosition = math::mul(m_cameraPosition, Ry * Rx);
 
@@ -183,81 +183,82 @@ void CViewport::OnDraw(CDC* pDC)
 		rc.top = 0;
 		rc.right -= g_mainFrame->m_RIGHT_TAB_SIZE;
 		//rc.bottom = 600;
-		m_gpu->SetViewport(rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
-		m_camera->m_aspect = (f32)(rc.right - rc.left) / (f32)(rc.bottom - rc.top);
+	//	m_gpu->SetViewport(rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+	//	m_camera->m_aspect = (f32)(rc.right - rc.left) / (f32)(rc.bottom - rc.top);
 		m_camera->m_objectBase.UpdateBase();
 		m_camera->Update();
 
-		m_gpu->BeginDrawClearAll();
+		m_gpu->BeginDraw();
+		m_gpu->ClearAll();
 		m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::ViewProjection, m_camera->m_viewProjectionMatrix);
-		m_gpu->DrawLine3D(v4f(-100.f, 0.f, 0.f, 0.f), v4f(100.f, 0.f, 0.f, 0.f), ColorGray);
-		m_gpu->DrawLine3D(v4f(0.f, 0.f, -100.f, 0.f), v4f(0.f, 0.f, 100.f, 0.f), ColorGray);
+		m_gpu->DrawLine3D(v4f(-100.f, 0.f, 0.f, 0.f), v4f(100.f, 0.f, 0.f, 0.f), ColorRed);
+		m_gpu->DrawLine3D(v4f(0.f, 0.f, -100.f, 0.f), v4f(0.f, 0.f, 100.f, 0.f), ColorRed);
 
 		m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::Projection, m_camera->m_projectionMatrix);
 		m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::View, m_camera->m_viewMatrix);
 
 	//	rotation.y += 0.1f;
 		
-		if (g_mainFrame->m_mdlFile)
-		{
-			if (g_mainFrame->m_mdlFile->m_layers.size())
-			{
-				int selectedLayer = g_mainFrame->m_infoPanel->m_layersTab->m_listBox.GetCurSel();
+		//if (g_mainFrame->m_mdlObject)
+		//{
+		//	if (g_mainFrame->m_mdlObject->m_mdl->m_layers.size())
+		//	{
+		//		int selectedLayer = g_mainFrame->m_infoPanel->m_layersTab->m_listBox.GetCurSel();
 
-				for (u16 i = 0, sz = g_mainFrame->m_mdlFile->m_layers.size(); i < sz; ++i)
-				{
-					auto layer = g_mainFrame->m_mdlFile->m_layers[i];
-					auto & layerInfo = g_mainFrame->m_layerInfo[i];
+		//		for (u16 i = 0, sz = g_mainFrame->m_mdlObject->m_mdl->m_layers.size(); i < sz; ++i)
+		//		{
+		//			auto layer = g_mainFrame->m_mdlObject->m_mdl->m_layers[i];
+		//			auto & layerInfo = g_mainFrame->m_layerInfo[i];
 
-					Mat4 World;
-					World[3] = layerInfo.m_offset;
-					World[3].w = 1.f;
+		//			Mat4 World;
+		//			World[3] = layerInfo.m_offset;
+		//			World[3].w = 1.f;
 
-					m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::World, World);
-					m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection, m_camera->m_projectionMatrix * m_camera->m_viewMatrix * World);
-					m_gpu->SetModel(layer->m_meshGPU);
-					m_gpu->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, layer->m_textureGPU1 ? layer->m_textureGPU1 : 0);
-					m_gpu->SetTexture(yyVideoDriverAPI::TextureSlot::Texture1, layer->m_textureGPU2 ? layer->m_textureGPU2 : 0);
-					m_gpu->SetTexture(yyVideoDriverAPI::TextureSlot::Texture2, layer->m_textureGPU3 ? layer->m_textureGPU3 : 0);
-					m_gpu->SetTexture(yyVideoDriverAPI::TextureSlot::Texture3, layer->m_textureGPU4 ? layer->m_textureGPU4 : 0);
-					m_gpu->Draw();
+		//			m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::World, World);
+		//			m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection, m_camera->m_projectionMatrix * m_camera->m_viewMatrix * World);
+		//			m_gpu->SetModel(layer->m_meshGPU);
+		//		//	m_gpu->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, layer->m_textureGPU1 ? layer->m_textureGPU1 : 0);
+		//		//	m_gpu->SetTexture(yyVideoDriverAPI::TextureSlot::Texture1, layer->m_textureGPU2 ? layer->m_textureGPU2 : 0);
+		//		//	m_gpu->SetTexture(yyVideoDriverAPI::TextureSlot::Texture2, layer->m_textureGPU3 ? layer->m_textureGPU3 : 0);
+		//		//	m_gpu->SetTexture(yyVideoDriverAPI::TextureSlot::Texture3, layer->m_textureGPU4 ? layer->m_textureGPU4 : 0);
+		//			m_gpu->Draw();
 
 
-					if (selectedLayer == i)
-					{
-						m_gpu->DrawLine3D(v4f(-1.f, 0.f, 0.f, 0.f), v4f(1.f, 0.f, 0.f, 0.f), ColorRed);
-						m_gpu->DrawLine3D(v4f(0.f, -1.f, 0.f, 0.f), v4f(0.f, 1.f, 0.f, 0.f), ColorLime);
-						m_gpu->DrawLine3D(v4f(0.f, 0.f, -1.f, 0.f), v4f(0.f, 0.f, 1.f, 0.f), ColorBlue);
-					}
-				}
+		//			if (selectedLayer == i)
+		//			{
+		//				m_gpu->DrawLine3D(v4f(-1.f, 0.f, 0.f, 0.f), v4f(1.f, 0.f, 0.f, 0.f), ColorRed);
+		//				m_gpu->DrawLine3D(v4f(0.f, -1.f, 0.f, 0.f), v4f(0.f, 1.f, 0.f, 0.f), ColorLime);
+		//				m_gpu->DrawLine3D(v4f(0.f, 0.f, -1.f, 0.f), v4f(0.f, 0.f, 1.f, 0.f), ColorBlue);
+		//			}
+		//		}
 
-				m_gpu->UseDepth(false);
-				if (g_mainFrame->m_mdlFile->m_skeleton)
-				{
-					for (u16 i = 0, sz = g_mainFrame->m_mdlFile->m_joints.size(); i < sz; ++i)
-					{
-						auto joint = g_mainFrame->m_mdlFile->m_joints[i];
-						m_gpu->DrawLine3D(
-							joint->m_matrix.m_data[3] - v4f(0.1f, 0.f, 0.f, 0.f),
-							joint->m_matrix.m_data[3] + v4f(0.1f, 0.f, 0.f, 0.f), ColorCyan);
-						m_gpu->DrawLine3D(
-							joint->m_matrix.m_data[3] - v4f(0.f, 0.1f, 0.f, 0.f),
-							joint->m_matrix.m_data[3] + v4f(0.f, 0.1f, 0.f, 0.f), ColorCyan);
-						m_gpu->DrawLine3D(
-							joint->m_matrix.m_data[3] - v4f(0.f, 0.f, 0.1f, 0.f),
-							joint->m_matrix.m_data[3] + v4f(0.f, 0.f, 0.1f, 0.f), ColorCyan);
+		//		m_gpu->UseDepth(false);
+		//		/*if (g_mainFrame->m_mdlFile->m_skeleton)
+		//		{
+		//			for (u16 i = 0, sz = g_mainFrame->m_mdlFile->m_joints.size(); i < sz; ++i)
+		//			{
+		//				auto joint = g_mainFrame->m_mdlFile->m_joints[i];
+		//				m_gpu->DrawLine3D(
+		//					joint->m_matrix.m_data[3] - v4f(0.1f, 0.f, 0.f, 0.f),
+		//					joint->m_matrix.m_data[3] + v4f(0.1f, 0.f, 0.f, 0.f), ColorCyan);
+		//				m_gpu->DrawLine3D(
+		//					joint->m_matrix.m_data[3] - v4f(0.f, 0.1f, 0.f, 0.f),
+		//					joint->m_matrix.m_data[3] + v4f(0.f, 0.1f, 0.f, 0.f), ColorCyan);
+		//				m_gpu->DrawLine3D(
+		//					joint->m_matrix.m_data[3] - v4f(0.f, 0.f, 0.1f, 0.f),
+		//					joint->m_matrix.m_data[3] + v4f(0.f, 0.f, 0.1f, 0.f), ColorCyan);
 
-						if (joint->m_parent)
-						{
-							m_gpu->DrawLine3D(
-								joint->m_matrix.m_data[3],
-								joint->m_parent->m_matrix.m_data[3], ColorLime);
-						}
-					}
-				}
-				m_gpu->UseDepth(true);
-			}
-		}
+		//				if (joint->m_parent)
+		//				{
+		//					m_gpu->DrawLine3D(
+		//						joint->m_matrix.m_data[3],
+		//						joint->m_parent->m_matrix.m_data[3], ColorLime);
+		//				}
+		//			}
+		//		}*/
+		//		m_gpu->UseDepth(true);
+		//	}
+		//}
 
 
 		m_gpu->EndDraw();

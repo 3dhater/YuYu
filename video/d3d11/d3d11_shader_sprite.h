@@ -23,7 +23,7 @@ public:
 	ID3D11Buffer*		m_cb;
 
 	bool init();
-	void updateConstantBuffer();
+	virtual void SetConstants(yyMaterial* material);
 };
 
 #endif

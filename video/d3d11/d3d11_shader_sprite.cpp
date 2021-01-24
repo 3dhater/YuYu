@@ -21,7 +21,7 @@ D3D11ShaderSprite::~D3D11ShaderSprite()
 	if (m_cb) m_cb->Release();
 }
 
-void D3D11ShaderSprite::updateConstantBuffer()
+void D3D11ShaderSprite::SetConstants(yyMaterial* material)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	g_d3d11->m_d3d11DevCon->Map(m_cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);

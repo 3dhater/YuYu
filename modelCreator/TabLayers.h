@@ -16,7 +16,7 @@ public:
 	TabLayers(CWnd* pParent = NULL);   // standard constructor
 	virtual ~TabLayers();
 
-	void addLayer(const wchar_t*);
+	//void addLayer(const wchar_t*);
 
 // Dialog Data
 #ifdef AFX_DESIGN_TIME
@@ -30,6 +30,8 @@ protected:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+
+	void _updateLayerList();
 
 	DECLARE_MESSAGE_MAP()
 public:

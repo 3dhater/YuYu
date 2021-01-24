@@ -13,6 +13,7 @@
 #include "d3d11_shader_GUI.h"
 #include "d3d11_shader_sprite.h"
 #include "d3d11_shader_ScreenQuad.h"
+#include "d3d11_shader_simple.h"
 
 #include "d3d11_shader_Line3D.h"
 #include "d3d11_shader_standart.h"
@@ -77,12 +78,7 @@ D3D11Model* CreateD3D11Model(yyModel* model)
 void UnloadTexture(yyResource* r)
 {
 	assert(r);
-#ifdef YY_DEBUG
-	if(r->m_type != yyResourceType::Texture)
-	{
-		YY_PRINT_FAILED;
-	}
-#endif
+	assert((r->m_type == yyResourceType::Texture) || (r->m_type == yyResourceType::RenderTargetTexture));
 	if(r->m_refCount == 0)
 		return;
 
@@ -105,12 +101,7 @@ D3D11Texture* CreateD3D11Texture(yyImage* image, bool useLinearFilter, bool useC
 void LoadTexture(yyResource* r)
 {
 	assert(r);
-#ifdef YY_DEBUG
-	if(r->m_type != yyResourceType::Texture)
-	{
-		YY_PRINT_FAILED;
-	}
-#endif
+	assert((r->m_type == yyResourceType::Texture) || (r->m_type == yyResourceType::RenderTargetTexture));
 	++r->m_refCount;
 	if(r->m_refCount == 1)
 	{
@@ -334,7 +325,6 @@ void BeginDrawGUI()
 	memcpy(mappedResource.pData, g_d3d11->m_guiProjectionMatrix.getPtr(), d.ByteWidth);
 	g_d3d11->m_d3d11DevCon->Unmap(g_d3d11->m_shaderGUI->m_cb, 0);
 
-	g_d3d11->m_d3d11DevCon->IASetInputLayout(g_d3d11->m_shaderGUI->m_vLayout);
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
@@ -342,8 +332,9 @@ void BeginDrawGUI()
 
 	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
 	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
-	g_d3d11->m_d3d11DevCon->VSSetShader(g_d3d11->m_shaderGUI->m_vShader, 0, 0);
-	g_d3d11->m_d3d11DevCon->PSSetShader(g_d3d11->m_shaderGUI->m_pShader, 0, 0);
+
+	g_d3d11->SetShader(g_d3d11->m_shaderGUI);
+
 	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &g_d3d11->m_shaderGUI->m_cb);
 
 	g_d3d11->m_isGUI = true;
@@ -396,27 +387,39 @@ void Draw()
 	}
 	else
 	{
-		if (g_d3d11->m_currentMaterial)
+		auto material = g_d3d11->m_currentMaterial;
+		if (!material)
+			material = &g_d3d11->m_currentModel->m_material;
+
+		/*if (g_d3d11->m_currentMaterial->m_wireframe)
 		{
-			if (g_d3d11->m_currentMaterial->m_wireframe)
-			{
-				if (g_d3d11->m_currentMaterial->m_cullBackFace)
-					g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerWireframe);
-				else
-					g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerWireframeNoBackFaceCulling);
-			}
+			if (g_d3d11->m_currentMaterial->m_cullBackFace)
+				g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerWireframe);
 			else
-			{
-				if (g_d3d11->m_currentMaterial->m_cullBackFace)
-					g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolid);
-				else
-					g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
-			}
+				g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerWireframeNoBackFaceCulling);
 		}
 		else
 		{
-			g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
+			if (g_d3d11->m_currentMaterial->m_cullBackFace)
+				g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolid);
+			else
+				g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
+		}*/
+
+		switch (material->m_type)
+		{
+		default:
+		case yyMaterialType::Simple:
+			g_d3d11->SetShader(g_d3d11->m_shaderSimple);
+			g_d3d11->m_shaderSimple->SetConstants(material);
+			if (g_d3d11->m_currentTextures[0])
+			{
+				g_d3d11->m_d3d11DevCon->PSSetShaderResources(0, 1, &g_d3d11->m_currentTextures[0]->m_textureResView);
+				g_d3d11->m_d3d11DevCon->PSSetSamplers(0, 1, &g_d3d11->m_currentTextures[0]->m_samplerState);
+			}
+			break;
 		}
+		g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
 	}
 	u32 offset = 0u;
 	g_d3d11->m_d3d11DevCon->IASetVertexBuffers(0, 1, &g_d3d11->m_currentModel->m_vBuffer, &g_d3d11->m_currentModel->m_stride, &offset);
@@ -442,9 +445,8 @@ void DrawSprite(yySprite* sprite)
 	g_d3d11->m_shaderSprite->m_structCB.CameraPositionScale.y = g_d3d11->m_spriteCameraPosition.y;
 	g_d3d11->m_shaderSprite->m_structCB.CameraPositionScale.z = g_d3d11->m_spriteCameraScale.x;
 	g_d3d11->m_shaderSprite->m_structCB.CameraPositionScale.w = g_d3d11->m_spriteCameraScale.y;
-	g_d3d11->m_shaderSprite->updateConstantBuffer();
+	g_d3d11->m_shaderSprite->SetConstants(0);
 
-	g_d3d11->m_d3d11DevCon->IASetInputLayout(g_d3d11->m_shaderSprite->m_vLayout);
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 //	const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
@@ -452,8 +454,7 @@ void DrawSprite(yySprite* sprite)
 	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
 	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
 
-	g_d3d11->m_d3d11DevCon->VSSetShader(g_d3d11->m_shaderSprite->m_vShader, 0, 0);
-	g_d3d11->m_d3d11DevCon->PSSetShader(g_d3d11->m_shaderSprite->m_pShader, 0, 0);
+	g_d3d11->SetShader(g_d3d11->m_shaderSprite);
 	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &g_d3d11->m_shaderSprite->m_cb);
 
 
@@ -599,7 +600,6 @@ void EndDraw()
 	ClearColor();
 	SetViewport(0, 0, g_d3d11->m_swapChainSize.x, g_d3d11->m_swapChainSize.y);
 
-	g_d3d11->m_d3d11DevCon->IASetInputLayout(g_d3d11->m_shaderScreenQuad->m_vLayout);
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
 //	const float blend_factor[4] = { 0.f, 0.f, 0.f, 1.f };
@@ -607,8 +607,8 @@ void EndDraw()
 	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
 
 	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
-	g_d3d11->m_d3d11DevCon->VSSetShader(g_d3d11->m_shaderScreenQuad->m_vShader, 0, 0);
-	g_d3d11->m_d3d11DevCon->PSSetShader(g_d3d11->m_shaderScreenQuad->m_pShader, 0, 0);
+	g_d3d11->SetShader(g_d3d11->m_shaderScreenQuad);
+
 	g_d3d11->m_d3d11DevCon->PSSetShaderResources(0, 1, &g_d3d11->m_mainTarget->m_textureResView);
 	g_d3d11->m_d3d11DevCon->PSSetSamplers(0, 1, &g_d3d11->m_mainTarget->m_samplerState);
 	u32 offset = 0u;
@@ -665,8 +665,8 @@ void SetRenderTarget(yyResource* rtt)
 	}
 	else
 	{
-		g_d3d11->m_d3d11DevCon->OMSetRenderTargets(1, &g_d3d11->m_MainTargetView, g_d3d11->m_depthStencilView);
-		g_d3d11->m_currentTargetView = g_d3d11->m_MainTargetView;
+		g_d3d11->m_d3d11DevCon->OMSetRenderTargets(1, &g_d3d11->m_mainTarget->m_RTV, g_d3d11->m_depthStencilView);
+		g_d3d11->m_currentTargetView = g_d3d11->m_mainTarget->m_RTV;
 	}
 }
 void SetViewport(f32 x, f32 y, f32 width, f32 height)

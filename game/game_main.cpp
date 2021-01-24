@@ -119,7 +119,7 @@ void window_callbackKeyboard(yyWindow*, bool isPress, u32 key, char16_t characte
 
 int main(int argc, char* argv[])
 {
-	const char * videoDriverType = "opengl.yyvd"; // for example read name from .ini
+	const char * videoDriverType = "d3d11.yyvd"; // for example read name from .ini
 	yyStringA videoDriverTypeStr = videoDriverType;
 	for (int i = 0; i < argc; ++i)
 	{
@@ -207,9 +207,11 @@ vidOk:
 	g_videoDriver = yyGetVideoDriverAPI();
 	g_videoDriver->SetClearColor(0.3f,0.3f,0.74f,1.f);
 
+	window.m_data->SetTitle(g_videoDriver->GetVideoDriverName());
+
 	// CAMERA
 	Mat4 proj;
-	math::makePerspectiveRHMatrix(proj, 1.f, (f32)window.m_data->m_clientSize.x/(f32)window.m_data->m_clientSize.y, 0.1f,1000.f);
+	math::makePerspectiveRHMatrix(proj, 1.f, (f32)window.m_data->m_currentSize.x/(f32)window.m_data->m_currentSize.y, 0.1f,1000.f);
 	g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::Projection, proj);
 	Mat4 view;
 	math::makeLookAtRHMatrix(view, v4f(10.f, 10.f, 10.f, 0.f), v4f(), v4f(0.f, 1.f, 0.f, 0.f));
@@ -218,7 +220,7 @@ vidOk:
 	// OR LIKE THIS
 	yyCamera* camera = yyCreate<yyCamera>();
 	camera->m_objectBase.m_localPosition.set(10.f,10.f,10.f,0.f);
-	camera->m_aspect = (f32)window.m_data->m_clientSize.x/(f32)window.m_data->m_clientSize.y;
+	camera->m_aspect = (f32)window.m_data->m_currentSize.x/(f32)window.m_data->m_currentSize.y;
 	camera->Update();
 	g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::Projection, camera->m_projectionMatrix);
 	g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::View, camera->m_viewMatrix);
@@ -226,7 +228,7 @@ vidOk:
 	g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::ViewProjection, camera->m_projectionMatrix * camera->m_viewMatrix);
 
 	auto modelGPU = g_videoDriver->CreateModelFromFile("../res/models/editor/te_sphere.tr3d", true);
-	auto grassGPU = g_videoDriver->CreateTextureFromFile("../res/textures/grass_d.dds", true, false, true);
+	auto grassGPU = g_videoDriver->CreateTextureFromFile("../res/textures/grass_d.png", true, false, true);
 
 	yySprite* spriteLevel = yyCreateSprite(v4f(0.f,0.f,1160.f,224.f), g_videoDriver->CreateTextureFromFile("../res/GA3E/level1_ground.png",false, false, true), false);
 	
@@ -254,7 +256,7 @@ vidOk:
 	spriteCameraScale->y = 1.7f;
 	
 	auto rtt = g_videoDriver->CreateRenderTargetTexture(v2f(128.f, 128.f), false, true);
-	auto gui_pictureBox = yyGUICreatePictureBox(v4f(0.f, 0.f, 256.f, 256.f), rtt, 1);
+	auto gui_pictureBox = yyGUICreatePictureBox(v4f(0.f, 0.f, 256.f, 256.f), grassGPU, 1);
 	
 	f32 deltaTime = 0.f;
 	bool run = true;
@@ -361,15 +363,16 @@ vidOk:
 			}
 
 
-			g_videoDriver->SetViewport(0.f, 0.f, window.m_data->m_clientSize.x, window.m_data->m_clientSize.y);
-			g_videoDriver->BeginDrawClearAll();
+			//g_videoDriver->SetViewport(0.f, 0.f, window.m_data->m_currentSize.x, window.m_data->m_currentSize.y);
+			g_videoDriver->BeginDraw();
+			g_videoDriver->ClearAll();
 			
 			g_videoDriver->UseDepth(true);
 
 			g_videoDriver->DrawLine3D(v4f(-2.f, 0.f, 0.f, 0.f), v4f(2.f, 0.f, 0.f, 0.f), ColorRed);
 			
 			g_videoDriver->SetModel(modelGPU);
-			g_videoDriver->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, grassGPU);
+		//	g_videoDriver->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, grassGPU);
 			g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::World, Mat4());
 			g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection, camera->m_projectionMatrix * camera->m_viewMatrix * Mat4());
 			yyMaterial material;
@@ -377,12 +380,12 @@ vidOk:
 			g_videoDriver->Draw();
 
 			g_videoDriver->SetRenderTarget(rtt);
-			g_videoDriver->SetClearColor(0.f, 0.f, 0.f, 1.f);
-			g_videoDriver->SetViewport(0.f, 0.f, 128.f, 128.f);
-			g_videoDriver->BeginDrawClearAll();
+			g_videoDriver->SetClearColor(0.3f, 0.f, 0.f, 1.f);
+			//g_videoDriver->SetViewport(0.f, 0.f, 128.f, 128.f);
+			g_videoDriver->ClearAll();
 			g_videoDriver->Draw();
 			g_videoDriver->SetRenderTarget(0);
-			g_videoDriver->SetViewport(0.f, 0.f, window.m_data->m_clientSize.x, window.m_data->m_clientSize.y);
+			//g_videoDriver->SetViewport(0.f, 0.f, window.m_data->m_currentSize.x, window.m_data->m_currentSize.y);
 			g_videoDriver->SetClearColor(0.3f, 0.3f, 0.74f, 1.f);
 
 			g_videoDriver->UseDepth(false);

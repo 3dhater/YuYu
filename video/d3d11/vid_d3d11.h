@@ -71,9 +71,13 @@
 
 class D3D11Texture;
 class D3D11Model;
+
+class D3D11ShaderCommon;
 class D3D11ShaderGUI;
 class D3D11ShaderSprite;
 class D3D11ShaderScreenQuad;
+class D3D11ShaderSimple;
+
 class D3D11
 {
 	bool _createBackBuffer(int x, int y);
@@ -123,6 +127,10 @@ public:
 	D3D11ShaderGUI* m_shaderGUI;
 	D3D11ShaderSprite* m_shaderSprite;
 	D3D11ShaderScreenQuad* m_shaderScreenQuad;
+	D3D11ShaderSimple* m_shaderSimple;
+	D3D11ShaderCommon* m_activeShader;
+	void SetShader(D3D11ShaderCommon*);
+
 
 	v2f m_mainTargetSize;
 	v2i m_windowSize;

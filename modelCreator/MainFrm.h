@@ -9,6 +9,9 @@
 #include "Viewport.h"
 #include "containers\array.h"
 
+// для того чтобы настраивать модель в редакторе
+// например, можно изменить позицию
+// При сохранении нужно будет учитывать эти данные
 struct LayerInfo
 {
 	v3f m_offset;
@@ -17,6 +20,7 @@ struct LayerInfo
 struct yyMDL;
 struct yyResource;
 struct yyModel;
+struct yyMDLObject;
 class CMainFrame : public CFrameWnd
 {
 	
@@ -48,7 +52,8 @@ public:
 
 	int m_RIGHT_TAB_SIZE;
 	
-	yyMDL* m_mdlFile;
+	//yyMDL* m_mdlFile;
+	yyMDLObject * m_mdlObject;
 	yyArraySmall<LayerInfo> m_layerInfo;
 
 	void MDLCreateNew();
@@ -56,7 +61,7 @@ public:
 	void MDLRenameLayer(int layerIndex, const wchar_t* name);
 	void MDLDeleteLayer(int layerIndex);
 	void MDLUpdateAABB();
-	CString MDLNewLayer(const wchar_t* filePath);
+	void MDLNewLayer(const wchar_t* filePath);
 	void MDLLoadTexture(int layerIndex, int textureSlot, const wchar_t* name);
 
 	CInfoPannel*	m_infoPanel;

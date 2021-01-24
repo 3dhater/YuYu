@@ -12,6 +12,7 @@ public:
 	ID3D11Buffer*		m_cb;
 
 	bool init();
+	virtual void SetConstants(yyMaterial* material) {}
 };
 
 #endif

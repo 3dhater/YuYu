@@ -4,6 +4,8 @@
 #include "stdafx.h"
 #include "yy.h"
 #include "yy_model.h"
+#include "scene\common.h"
+#include "scene\mdl_object.h"
 #include "modelCreator.h"
 #include "TabLayers.h"
 #include "afxdialogex.h"
@@ -121,10 +123,26 @@ afx_msg void TabLayers::OnSize(UINT nType, int cx, int cy)
 	CDialog::OnSize(nType, cx, cy);
 }
 
-void TabLayers::addLayer(const wchar_t* name)
+//void TabLayers::addLayer(const wchar_t* name)
+//{
+//	m_listBox.InsertString(m_listBox.GetCount(), name);
+//	m_listBox.SetCurSel(m_listBox.GetCount() - 1);
+//}
+void TabLayers::_updateLayerList()
 {
-	m_listBox.InsertString(m_listBox.GetCount(), name);
-	m_listBox.SetCurSel(m_listBox.GetCount() - 1);
+	auto cursel = g_tabLayers->m_listBox.GetCurSel();
+	for (int i = 0, sz = m_listBox.GetCount(); i < sz; ++i)
+	{
+		m_listBox.DeleteString(0);
+	}
+	for (int i = 0; i < g_mainFrame->m_mdlObject->m_mdl->m_layers.size(); ++i)
+	{
+		m_listBox.AddString(g_mainFrame->m_mdlObject->m_mdl->m_layers[i]->m_model->m_name.data());
+	}
+	if(cursel == -1)
+		m_listBox.SetCurSel(0);
+	else
+		m_listBox.SetCurSel(cursel);
 }
 void TabLayers::OnBnClickedButton1()
 {
@@ -133,12 +151,9 @@ void TabLayers::OnBnClickedButton1()
 	if (dlg.DoModal() == IDOK)
 	{
 		CString sFilePath = dlg.GetPathName();
-		auto cursel = g_tabLayers->m_listBox.GetCurSel();
 		
-		auto name = g_mainFrame->MDLNewLayer(sFilePath.GetBuffer());
-
-		if(!name.IsEmpty())
-			addLayer(name);
+		g_mainFrame->MDLNewLayer(sFilePath.GetBuffer());
+		_updateLayerList();
 
 		HideRenameDialog();
 		g_mainFrame->RedrawWindow();
@@ -200,9 +215,9 @@ void TabLayers::OnBnClickedButton3()
 	if (!cnt)
 		return;
 	auto cursel = g_tabLayers->m_listBox.GetCurSel();
-	g_tabLayers->m_listBox.DeleteString(cursel);
+	//g_tabLayers->m_listBox.DeleteString(cursel);
 	g_mainFrame->MDLDeleteLayer(cursel);
-		
+	_updateLayerList();
 	if (cnt > 1)
 	{
 		if (cursel >= cnt-1)

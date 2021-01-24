@@ -20,6 +20,8 @@ public:
 	ID3D11VertexShader*	m_vShader;
 	ID3D11PixelShader*	m_pShader;
 	ID3D11InputLayout*	m_vLayout;
+
+	virtual void SetConstants(yyMaterial* material) = 0;
 };
 
 #endif

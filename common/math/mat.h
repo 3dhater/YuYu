@@ -555,51 +555,7 @@ namespace math
 		out[ 1u ].y = scale.y;
 		out[ 2u ].z = scale.z;
 	}
-
-	YY_FORCE_INLINE void makeRotationMatrix( Mat4& out, const Quat& p ){
-			
-		f32	wx, wy, wz;
-		f32	xx, yy, yz;
-		f32	xy, xz, zz;
-		f32	x2, y2, z2;
-
-		x2 = p.x + p.x;
-		y2 = p.y + p.y;
-		z2 = p.z + p.z;
-
-		xx = p.x * x2;
-		xy = p.x * y2;
-		xz = p.x * z2;
-
-		yy = p.y * y2;
-		yz = p.y * z2;
-		zz = p.z * z2;
-
-		wx = p.w * x2;
-		wy = p.w * y2;
-		wz = p.w * z2;
-
-		out[ 0u ].x = ( 1.f - ( yy + zz ) );
-		out[ 0u ].y = xy - wz;
-		out[ 0u ].z = xz + wy;
-
-		out[ 1u ].x = ( xy + wz);
-		out[ 1u ].y = ( 1.f - ( xx + zz ));
-		out[ 1u ].z = ( yz - wx);
-
-		out[ 2u ].x = ( xz - wy);
-		out[ 2u ].y = ( yz + wx);
-		out[ 2u ].z = ( 1.f - ( xx + yy ));
-
-		out[ 0u ].w = 0.f;
-		out[ 1u ].w = 0.f;
-		out[ 2u ].w = 0.f;
-		out[ 3u ].x = 0.f;
-		out[ 3u ].y = 0.f;
-		out[ 3u ].z = 0.f;
-		out[ 3u ].w = 1.f;
-	}
-
+	
 		//Vector-matrix product 
 	YY_FORCE_INLINE v4f mul( const v4f& vec, const Mat4& mat )
 	{

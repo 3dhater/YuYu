@@ -205,7 +205,7 @@ YY_FORCE_INLINE void yySceneObjectBase::UpdateBase()
 	Mat4 tMatrix;
 	math::makeTranslationMatrix( m_localPosition, tMatrix );
 	Mat4 rMatrix;
-	math::makeRotationMatrix( rMatrix, m_orientation );
+	rMatrix.setRotation(m_orientation);
 	Mat4 sMatrix;
 	sMatrix[ 0u ].x = m_scale.x;
 	sMatrix[ 1u ].y = m_scale.y;

@@ -235,9 +235,9 @@ YY_FORCE_INLINE void yyCamera_update(void * impl)
 		Mat4 R;
 		Mat4 P;
 		Mat4 Y;
-		math::makeRotationMatrix( R, qRoll );
-		math::makeRotationMatrix( P, qPitch );
-		math::makeRotationMatrix( Y, qYaw );
+		R.setRotation(qRoll);
+		P.setRotation(qPitch);
+		Y.setRotation(qYaw);
 
 		camera->m_rotationMatrix = R * P * Y;
 

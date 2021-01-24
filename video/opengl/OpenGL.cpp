@@ -706,7 +706,7 @@ bool OpenGL::initModel(yyModel* model, OpenGLModel* openglModel)
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 2, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (2 * sizeof(float)));
 	}
-	else
+	else if (model->m_vertexType == yyVertexType::Model)
 	{
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, false, model->m_stride, 0);
@@ -725,6 +725,23 @@ bool OpenGL::initModel(yyModel* model, OpenGLModel* openglModel)
 		// tangent
 		glEnableVertexAttribArray(4);
 		glVertexAttribPointer(4, 3, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (11 * sizeof(float)));
+	}
+	else if (model->m_vertexType == yyVertexType::AnimatedModel)
+	{
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, false, model->m_stride, 0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 3, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (5 * sizeof(float)));
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 3, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (8 * sizeof(float)));
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 3, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (11 * sizeof(float)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (14 * sizeof(float)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribIPointer(6, 4, GL_INT, model->m_stride, (unsigned char*)NULL + (18 * sizeof(float)));
 	}
 
 	

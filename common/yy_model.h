@@ -21,13 +21,25 @@ struct yyVertexModel
 	v3f Binormal;
 	v3f Tangent;
 };
+struct yyVertexAnimatedModel
+{
+	v3f Position;
+	v2f TCoords;
+	v3f Normal;
+	v3f Binormal;
+	v3f Tangent;
+
+	v4f Weights; // потом надо переделать на байты чтобы уменьшить вес
+	v4i Bones;
+};
 
 // тип
 // ещё надо будет добавить для анимированных моделей
 enum class yyVertexType : u32
 {
 	GUI,   // yyVertexGUI
-	Model  // yyVertexModel
+	Model,  // yyVertexModel
+	AnimatedModel
 };
 
 // предпологается что при создании MDL индекс будет устанавливаться автоматически, в зависимости от количества треугольников 
@@ -48,33 +60,18 @@ struct yyJoint
 	yyJoint*				m_parent;
 	yyArraySmall<yyJoint*>	m_children;
 
-	Mat4					m_matrixBind;
+	//	Mat4					m_matrixBind;
+	Mat4					m_matrixOffset;
 
-	v4f						m_position; // позиция
-	Quat					m_rotation; // вращение
-	Mat4					m_matrix;   // финальная матрица с учётом предков
+	v4f						m_position;
+	Quat					m_rotation;
 
 	yyStringA				m_name;
 
 	void toBind()
 	{
-		m_position = m_matrixBind[3];
-		m_rotation = math::matToQuat(m_matrixBind);
-	}
-	void updateMatrix()
-	{
-		math::makeRotationMatrix(m_matrix, m_rotation);
-
-		if (m_parent)
-			m_matrix = m_matrix * m_parent->m_matrix;
-
-		for (u16 i = 0, sz = m_children.size(); i < sz; ++i)
-		{
-			m_children[i]->updateMatrix();
-		}
-		
-		m_matrix[3] = m_position;
-		m_matrix[3].w = 1.f;
+	//	m_position = m_matrixBind[3];
+	//	m_rotation = math::matToQuat(m_matrixBind);
 	}
 };
 
@@ -327,14 +324,15 @@ struct yyModel
 //};
 
 // Идея такая - MDL это оболочка к yyModel
+// MDL может хранить множество слоёв (мешбуферов)
 struct yyMDLLayer
 {
 	yyMDLLayer() {
 		m_model = 0;
-		m_textureGPU1 = 0;
+		/*m_textureGPU1 = 0;
 		m_textureGPU2 = 0;
 		m_textureGPU3 = 0;
-		m_textureGPU4 = 0;
+		m_textureGPU4 = 0;*/
 		m_meshGPU = 0;
 		m_gpu = yyGetVideoDriverAPI();
 	}
@@ -352,28 +350,28 @@ struct yyMDLLayer
 	yyStringA m_texture3Path;
 	yyStringA m_texture4Path;
 
-	yyResource* m_textureGPU1;
+	/*yyResource* m_textureGPU1;
 	yyResource* m_textureGPU2;
 	yyResource* m_textureGPU3;
-	yyResource* m_textureGPU4;
+	yyResource* m_textureGPU4;*/
 
 	yyResource* m_meshGPU;
 
 	void Load()
 	{
-		if (m_textureGPU1) m_gpu->LoadTexture(m_textureGPU1);
+		/*if (m_textureGPU1) m_gpu->LoadTexture(m_textureGPU1);
 		if (m_textureGPU2) m_gpu->LoadTexture(m_textureGPU2);
 		if (m_textureGPU3) m_gpu->LoadTexture(m_textureGPU3);
-		if (m_textureGPU4) m_gpu->LoadTexture(m_textureGPU4);
+		if (m_textureGPU4) m_gpu->LoadTexture(m_textureGPU4);*/
 
 		if (m_meshGPU) m_gpu->LoadModel(m_meshGPU);
 	}
 	void Unload()
 	{
-		if (m_textureGPU1) m_gpu->UnloadTexture(m_textureGPU1);
+		/*if (m_textureGPU1) m_gpu->UnloadTexture(m_textureGPU1);
 		if (m_textureGPU2) m_gpu->UnloadTexture(m_textureGPU2);
 		if (m_textureGPU3) m_gpu->UnloadTexture(m_textureGPU3);
-		if (m_textureGPU4) m_gpu->UnloadTexture(m_textureGPU4);
+		if (m_textureGPU4) m_gpu->UnloadTexture(m_textureGPU4);*/
 
 		if (m_meshGPU) m_gpu->UnloadModel(m_meshGPU);
 	}
@@ -399,29 +397,6 @@ struct yyMDLAnimationLayer
 				return &m_keyFrames[i];
 		}
 		return nullptr;
-	}
-	void insertPosition(s32 time, f32 value, yyVectorComponent vc)
-	{
-		auto keyFrame = getKeyFrame(time);
-		if (!keyFrame)
-			keyFrame = insertKeyFrame(time);
-		switch (vc)
-		{
-		case yyVectorComponent::x:
-			keyFrame->m_position.x = value;
-			break;
-		case yyVectorComponent::y:
-			keyFrame->m_position.y = value;
-			break;
-		case yyVectorComponent::z:
-			keyFrame->m_position.z = value;
-			break;
-		case yyVectorComponent::w:
-			keyFrame->m_position.w = value;
-			break;
-		default:
-			break;
-		}
 	}
 	yyMDLAnimationKeyFrame* insertKeyFrame(s32 time)
 	{
@@ -452,6 +427,9 @@ struct yyMDLAnimation
 	{
 		s32  m_jointID;     // индекс yyMDL::m_joints
 		Mat4 m_matrixFinal; // финальная матрица, которая пойдёт в шейдер
+
+		v4f						m_position;
+		Quat					m_rotation;
 		
 		// фреймы анимации для конкретного джоинта
 		yyMDLAnimationLayer m_animationLayer;
@@ -494,7 +472,7 @@ struct yyMDL
 
 	yyArraySmall<yyMDLLayer*> m_layers;
 
-	// так как yyModel может быть множество, и все они могут использовать
+	// так как объектов с одним и тем же yyModel может быть множество, и все они могут использовать
 	// один набор костей, то нужно хранить эти кости в одном экземпляре
 	// и не создавать лишние ссылки.
 	// пока получается так, что для анимированных моделей обязательно 

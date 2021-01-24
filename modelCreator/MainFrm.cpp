@@ -8,8 +8,28 @@
 #include <cmath>
 #include "yy_window.h"
 #include "yy_model.h"
+#include "scene\common.h"
+#include "scene\mdl_object.h"
+
+#include <assimp/Importer.hpp>      // C++ importer interface
+#include <assimp/scene.h>       // Output data structure
+#include <assimp/postprocess.h> // Post processing flags
+
+#include <filesystem>
 
 CMainFrame * g_mainFrame = nullptr;
+
+Mat4 aiMatrixToGameMatrix(const aiMatrix4x4& a)
+{
+	Mat4 m;
+	auto dst = m.getPtr();
+	f32 * src = (f32*)&a.a1;
+	for (int i = 0; i < 16; ++i)
+	{
+		dst[i] = src[i];
+	}
+	return m;
+}
 
 struct yyEngineContext
 {
@@ -66,7 +86,11 @@ CMainFrame::CMainFrame()
 {
 	g_mainFrame = this;
 	m_RIGHT_TAB_SIZE = 300;
-	m_mdlFile = nullptr;
+	//m_mdlFile = nullptr;
+	m_mdlObject = 0;
+
+	AllocConsole();
+	freopen("CONOUT$", "w", stdout);
 }
 
 CMainFrame::~CMainFrame()
@@ -75,13 +99,135 @@ CMainFrame::~CMainFrame()
 	if (g_engineContext)
 		yyDestroy(g_engineContext);
 }
-
-CString CMainFrame::MDLNewLayer(const wchar_t* filePath)
+//
+//void print_tree(aiNode* node, int depth)
+//{
+//	printf("NODE:");
+//	for (int i = 0; i < depth; ++i)
+//	{
+//		printf("  ");
+//	}
+//	printf(" %s\n", node->mName.C_Str());
+//	for (int i = 0; i < node->mNumChildren; ++i)
+//	{
+//		print_tree(node->mChildren[i], depth + 1);
+//	}
+//}
+void CMainFrame::MDLNewLayer(const wchar_t* filePath)
 {
 	CString name = L"Model";
-	yyModel* newModel = 0;
 
-	auto slen = wcslen(filePath);
+	
+	std::tr2::sys::path p;
+	p = filePath;
+	Assimp::Importer Importer;
+	const aiScene* pScene = Importer.ReadFile(p.generic_string().c_str(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
+	
+	m_mdlObject->m_GlobalInverseTransform = aiMatrixToGameMatrix(pScene->mRootNode->mTransformation);
+	m_mdlObject->m_GlobalInverseTransform.invert();
+
+	for (int i = 0; i < pScene->mNumMeshes; ++i)
+	{
+		yyArray<yyVertexAnimatedModel> verts;
+		yyArray<u32> inds;
+
+		auto assMesh = pScene->mMeshes[i];
+
+		for (int o = 0; o < assMesh->mNumVertices; o++) 
+		{
+			yyVertexAnimatedModel newVertex;
+
+			const aiVector3D* pPos = &(assMesh->mVertices[o]);
+
+			newVertex.Position.x = pPos->x;
+			newVertex.Position.y = pPos->y;
+			newVertex.Position.z = pPos->z;
+			
+			if (assMesh->HasNormals())
+			{
+				const aiVector3D* pNormal = &(assMesh->mNormals[o]);
+				newVertex.Normal.x = pNormal->x;
+				newVertex.Normal.y = pNormal->y;
+				newVertex.Normal.z = pNormal->z;
+			}
+			if (assMesh->HasTextureCoords(0))
+			{
+				const aiVector3D* pTexCoord = &(assMesh->mTextureCoords[0][o]);
+				newVertex.TCoords.x = pTexCoord->x;
+				newVertex.TCoords.y = pTexCoord->y;
+			}
+			verts.push_back(newVertex);
+		}
+
+		for (int o = 0; o < assMesh->mNumFaces; o++)
+		{
+			const aiFace& Face = assMesh->mFaces[i];
+			assert(Face.mNumIndices == 3);
+			inds.push_back(Face.mIndices[0]);
+			inds.push_back(Face.mIndices[1]);
+			inds.push_back(Face.mIndices[2]);
+		}
+
+		yyMDLLayer* newMDLLayer = yyCreate<yyMDLLayer>();
+		newMDLLayer->m_model = yyCreate<yyModel>();
+
+		//newMDLLayer->m_model->m_aabb
+		// теперь можно собрать модель
+		bool is_animated = false;
+		if (is_animated)
+		{
+			newMDLLayer->m_model->m_vertexType = yyVertexType::AnimatedModel;
+			newMDLLayer->m_model->m_stride = sizeof(yyVertexAnimatedModel);
+			newMDLLayer->m_model->m_vertices = (u8*)yyMemAlloc(verts.size() * sizeof(yyVertexAnimatedModel));
+			memcpy(newMDLLayer->m_model->m_vertices, verts.data(), verts.size() * sizeof(yyVertexAnimatedModel));
+		}
+		else
+		{
+			newMDLLayer->m_model->m_vertexType = yyVertexType::Model;
+			newMDLLayer->m_model->m_stride = sizeof(yyVertexModel);
+			newMDLLayer->m_model->m_vertices = (u8*)yyMemAlloc(verts.size() * sizeof(yyVertexModel));
+			auto v_ptr = (yyVertexModel*)newMDLLayer->m_model->m_vertices;
+			for (u32 o = 0, sz = verts.size(); o < sz; ++o)
+			{
+				v_ptr[o].Position = verts[o].Position;
+				v_ptr[o].Normal = verts[o].Normal;
+				v_ptr[o].TCoords = verts[o].TCoords;
+				v_ptr[o].Binormal = verts[o].Binormal;
+				v_ptr[o].Tangent = verts[o].Tangent;
+			}
+		}
+		
+		if (inds.size() / 3 > 21845)
+		{
+			newMDLLayer->m_model->m_indexType = yyMeshIndexType::u32;
+			newMDLLayer->m_model->m_indices = (u8*)yyMemAlloc(inds.size() * sizeof(u32));
+			memcpy(newMDLLayer->m_model->m_indices, inds.data(), inds.size() * sizeof(u32));
+		}
+		else
+		{
+			newMDLLayer->m_model->m_indexType = yyMeshIndexType::u16;
+			newMDLLayer->m_model->m_indices = (u8*)yyMemAlloc(inds.size() * sizeof(u16));
+			u16 * i_ptr = (u16*)newMDLLayer->m_model->m_indices;
+			for (u32 o = 0, sz = inds.size(); o < sz; ++o)
+			{
+				*i_ptr = (u16)inds[o];
+				++i_ptr;
+			}
+		}
+		
+		newMDLLayer->m_model->m_name = assMesh->mName.C_Str();
+		newMDLLayer->m_model->m_vCount = verts.size();
+		newMDLLayer->m_model->m_iCount = inds.size();
+
+		newMDLLayer->m_meshGPU = yyGetVideoDriverAPI()->CreateModel(newMDLLayer->m_model);
+
+		m_mdlObject->m_mdl->m_layers.push_back(newMDLLayer);
+		m_layerInfo.push_back(LayerInfo());
+	}
+
+//	print_tree(pScene->mRootNode, 0);
+
+	/*auto slen = wcslen(filePath);
 	if (filePath[slen - 1] == L'j')
 	{
 		newModel = _importOBJ(filePath, name);
@@ -99,24 +245,21 @@ CString CMainFrame::MDLNewLayer(const wchar_t* filePath)
 	else
 	{
 		_importFBX(filePath, name);
-		name.Empty();
-		return name;
-	}
+	}*/
 
-	return name;
 }
 void CMainFrame::MDLUpdateAABB()
 {
-	m_mdlFile->m_aabb.reset();
-	for (u16 i = 0; i < m_mdlFile->m_layers.size(); ++i)
+	m_mdlObject->m_mdl->m_aabb.reset();
+	for (u16 i = 0; i < m_mdlObject->m_mdl->m_layers.size(); ++i)
 	{
-		m_mdlFile->m_aabb.add(m_mdlFile->m_layers[i]->m_model->m_aabb);
+		m_mdlObject->m_mdl->m_aabb.add(m_mdlObject->m_mdl->m_layers[i]->m_model->m_aabb);
 	}
 }
 void CMainFrame::MDLDeleteLayer(int layerIndex)
 {
-	auto layer = m_mdlFile->m_layers[layerIndex];
-	m_mdlFile->m_layers.erase(layerIndex);
+	auto layer = m_mdlObject->m_mdl->m_layers[layerIndex];
+	m_mdlObject->m_mdl->m_layers.erase(layerIndex);
 	m_layerInfo.erase(layerIndex);
 	if (layer->m_meshGPU)
 	{
@@ -129,37 +272,38 @@ void CMainFrame::MDLDeleteLayer(int layerIndex)
 }
 void CMainFrame::MDLRenameLayer(int layerIndex, const wchar_t* name)
 {
-	m_mdlFile->m_layers[layerIndex]->m_model->m_name = name;
+	m_mdlObject->m_mdl->m_layers[layerIndex]->m_model->m_name = name;
 }
 void CMainFrame::MDLDelete()
 {
-	if (!m_mdlFile)
+	if (!m_mdlObject)
 		return;
-	yyDestroy(m_mdlFile);
-	m_mdlFile = nullptr;
+	yyDestroy(m_mdlObject);
+	m_mdlObject = nullptr;
 }
 void CMainFrame::MDLCreateNew()
 {
 	MDLDelete();
-	m_mdlFile = yyCreate<yyMDL>();
+	m_mdlObject = yyCreate<yyMDLObject>();
+	m_mdlObject->m_mdl = yyCreate<yyMDL>();
 }
 void CMainFrame::MDLLoadTexture(int layerIndex, int textureSlot, const wchar_t* name)
 {
-	if (!m_mdlFile)
+	if (!m_mdlObject)
 		return;
-	if (layerIndex >= m_mdlFile->m_layers.size())
+	if (layerIndex >= m_mdlObject->m_mdl->m_layers.size())
 	{
 		MessageBoxW(L"MDLLoadTexture: layerIndex >= m_layers.size()");
 		return;
 	}
-	auto layer = m_mdlFile->m_layers[layerIndex];
-	if (layer->m_textureGPU1)
-		yyGetVideoDriverAPI()->DeleteTexture(layer->m_textureGPU1);
+	auto layer = m_mdlObject->m_mdl->m_layers[layerIndex];
+//	if (layer->m_textureGPU1)
+//		yyGetVideoDriverAPI()->DeleteTexture(layer->m_textureGPU1);
 
 	yyStringW utf16 = name;
 	yyStringA utf8;
 	util::utf16_to_utf8(&utf16, &utf8);
-	layer->m_textureGPU1 = yyGetVideoDriverAPI()->CreateTextureFromFile(utf8.data(), true, false, true);
+//	layer->m_textureGPU1 = yyGetVideoDriverAPI()->CreateTextureFromFile(utf8.data(), true, false, true);
 }
 
 void CMainFrame::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI)

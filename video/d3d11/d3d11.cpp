@@ -9,6 +9,7 @@
 #include "d3d11_shader_GUI.h"
 #include "d3d11_shader_sprite.h"
 #include "d3d11_shader_ScreenQuad.h"
+#include "d3d11_shader_simple.h"
 
 #include "DDSTextureLoader.h"
 
@@ -43,9 +44,11 @@ D3D11::D3D11()
 	m_currentMaterial = nullptr;
 	m_currentModel = nullptr;
 
+	m_activeShader = 0;
 	m_shaderScreenQuad = 0;
 	m_shaderGUI = nullptr;
 	m_shaderSprite = nullptr;
+	m_shaderSimple = 0;
 
 	m_isGUI = false;
 	m_vsync = false;
@@ -72,10 +75,11 @@ D3D11::~D3D11()
 	if (m_mainTarget) yyDestroy(m_mainTarget);
 	if (m_mainTargetSurface) yyDestroy(m_mainTargetSurface);
 
-	
+	if (m_shaderSimple) yyDestroy(m_shaderSimple);
 	if (m_shaderScreenQuad)yyDestroy(m_shaderScreenQuad);
 	if (m_shaderSprite)yyDestroy(m_shaderSprite);
 	if (m_shaderGUI) yyDestroy(m_shaderGUI);
+
 	if (m_blendStateAlphaDisabled)              m_blendStateAlphaDisabled->Release();
 	if (m_blendStateAlphaEnabledWithATC)        m_blendStateAlphaEnabledWithATC->Release();
 	if (m_blendStateAlphaEnabled)               m_blendStateAlphaEnabled->Release();
@@ -90,12 +94,8 @@ D3D11::~D3D11()
 	if (m_MainTargetView)                       m_MainTargetView->Release();
 	if (m_d3d11DevCon)                          m_d3d11DevCon->Release();
 	if (m_SwapChain)                            m_SwapChain->Release();
-	/*for (size_t i = 0, sz = m_windowGPUData.size(); i < sz; ++i)
-	{
-		m_windowGPUData[i]->m_SwapChain->Release();
-	}*/
+
 	if (m_d3d11Device)                          m_d3d11Device->Release();
-	//if (m_D3DLibrary)							FreeLibrary(m_D3DLibrary);
 }
 bool D3D11::Init(yyWindow* window)
 {
@@ -417,6 +417,13 @@ bool D3D11::Init(yyWindow* window)
 		return false;
 	}
 
+	m_shaderSimple = yyCreate<D3D11ShaderSimple>();
+	if (!m_shaderSimple->init())
+	{
+		yyLogWriteError("Can't create simple shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
 	 
 
 	if (!updateMainTarget())
@@ -573,6 +580,17 @@ bool D3D11::_createBackBuffer(int x, int y)
 	return true;
 }
 
+void D3D11::SetShader(D3D11ShaderCommon* shader)
+{
+//	if (shader != m_activeShader)
+	{
+		m_activeShader = shader;
+		m_d3d11DevCon->IASetInputLayout(shader->m_vLayout);
+		m_d3d11DevCon->VSSetShader(shader->m_vShader, 0, 0);
+		m_d3d11DevCon->PSSetShader(shader->m_pShader, 0, 0);
+	}
+}
+
 HRESULT	D3D11::createSamplerState(
 	D3D11_FILTER filter,
 	D3D11_TEXTURE_ADDRESS_MODE addressMode,
@@ -581,14 +599,16 @@ HRESULT	D3D11::createSamplerState(
 {
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
-	samplerDesc.Filter = filter;
+	samplerDesc.Filter = filter;	
+	samplerDesc.MipLODBias = 0.0f;
 
 	samplerDesc.AddressU = addressMode;
 	samplerDesc.AddressV = addressMode;
 	samplerDesc.AddressW = addressMode;
 
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerDesc.MaxLOD = FLT_MAX;
+	samplerDesc.MinLOD = 0;
+	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
 	samplerDesc.MaxAnisotropy = anisotropic_level;
 
@@ -690,6 +710,7 @@ bool D3D11::initTexture(yyImage* image, D3D11Texture* newTexture, bool useLinear
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 
+
 	switch (image->m_format)
 	{
 	case yyImageFormat::BC1:
@@ -715,23 +736,41 @@ bool D3D11::initTexture(yyImage* image, D3D11Texture* newTexture, bool useLinear
 		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 		desc.MiscFlags = 0;
-		desc.ArraySize = 1;
 		desc.MipLevels = 1;
+
+		desc.ArraySize = 1;
 		desc.Usage = D3D11_USAGE_DEFAULT;
 		desc.CPUAccessFlags = 0;
 
-		D3D11_SUBRESOURCE_DATA initData;
-		ZeroMemory(&initData, sizeof(initData));
-		initData.pSysMem = image->m_data;
-		initData.SysMemPitch = image->m_pitch;
-		initData.SysMemSlicePitch = image->m_dataSize;
-		auto hr = m_d3d11Device->CreateTexture2D(&desc, &initData, &newTexture->m_texture);
-		if (FAILED(hr))
+		if (useLinearFilter)
 		{
-			yyLogWriteError("Can't create 2D texture\n");
-			YY_PRINT_FAILED;
-			return false;
+			desc.MipLevels = 0;
+			desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+			auto hr = m_d3d11Device->CreateTexture2D(&desc, 0, &newTexture->m_texture);
+			if (FAILED(hr))
+			{
+				yyLogWriteError("Can't create 2D texture\n");
+				YY_PRINT_FAILED;
+				return false;
+			}
+			m_d3d11DevCon->UpdateSubresource(newTexture->m_texture, 0, NULL, image->m_data, image->m_pitch, 0);
 		}
+		else
+		{
+			D3D11_SUBRESOURCE_DATA initData;
+			ZeroMemory(&initData, sizeof(initData));
+			initData.pSysMem = image->m_data;
+			initData.SysMemPitch = image->m_pitch;
+			initData.SysMemSlicePitch = image->m_dataSize;
+			auto hr = m_d3d11Device->CreateTexture2D(&desc, &initData, &newTexture->m_texture);
+			if (FAILED(hr))
+			{
+				yyLogWriteError("Can't create 2D texture\n");
+				YY_PRINT_FAILED;
+				return false;
+			}
+		}
+
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc;
 		ZeroMemory(&SRVDesc, sizeof(SRVDesc));
@@ -739,8 +778,10 @@ bool D3D11::initTexture(yyImage* image, D3D11Texture* newTexture, bool useLinear
 		SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		SRVDesc.Texture2D.MostDetailedMip = 0;
 		SRVDesc.Texture2D.MipLevels = 1;
+		if (useLinearFilter)
+			SRVDesc.Texture2D.MipLevels = -1;
 
-		hr = m_d3d11Device->CreateShaderResourceView(newTexture->m_texture,
+		auto hr = m_d3d11Device->CreateShaderResourceView(newTexture->m_texture,
 			&SRVDesc, &newTexture->m_textureResView);
 		if (FAILED(hr))
 		{
@@ -756,30 +797,29 @@ bool D3D11::initTexture(yyImage* image, D3D11Texture* newTexture, bool useLinear
 	}
 
 	
-	//if (!is_RTT) 
+	D3D11_FILTER filter;
+
+	if (useLinearFilter)
 	{
-		D3D11_FILTER filter;
+		filter = D3D11_FILTER::D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		if(useComparedFilter)
+			filter = D3D11_FILTER::D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
 
-		if (useLinearFilter)
-		{
-			filter = D3D11_FILTER::D3D11_FILTER_ANISOTROPIC;
-			if(useComparedFilter)
-				filter = D3D11_FILTER::D3D11_FILTER_COMPARISON_ANISOTROPIC;
-		}
-		else
-		{
-			filter = D3D11_FILTER::D3D11_FILTER_MIN_MAG_MIP_POINT;
-			if (useComparedFilter)
-				filter = D3D11_FILTER::D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
-		}
+		m_d3d11DevCon->GenerateMips(newTexture->m_textureResView);
+	}
+	else
+	{
+		filter = D3D11_FILTER::D3D11_FILTER_MIN_MAG_MIP_POINT;
+		if (useComparedFilter)
+			filter = D3D11_FILTER::D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
+	}
 
-		auto hr = this->createSamplerState( filter, D3D11_TEXTURE_ADDRESS_WRAP, 1, &newTexture->m_samplerState);
-		if (FAILED(hr)) 
-		{
-			yyLogWriteError("Can't create sampler state\n");
-			YY_PRINT_FAILED;
-			return false;
-		}
+	auto hr = this->createSamplerState( filter, D3D11_TEXTURE_ADDRESS_WRAP, 1, &newTexture->m_samplerState);
+	if (FAILED(hr)) 
+	{
+		yyLogWriteError("Can't create sampler state\n");
+		YY_PRINT_FAILED;
+		return false;
 	}
 
 	return true;
@@ -787,6 +827,8 @@ bool D3D11::initTexture(yyImage* image, D3D11Texture* newTexture, bool useLinear
 
 bool D3D11::initModel(yyModel* model, D3D11Model* d3d11Model)
 {
+	d3d11Model->m_material = model->m_material;
+
 	D3D11_BUFFER_DESC	vbd, ibd;
 
 	ZeroMemory(&vbd, sizeof(D3D11_BUFFER_DESC));
@@ -808,7 +850,6 @@ bool D3D11::initModel(yyModel* model, D3D11Model* d3d11Model)
 	ZeroMemory(&iData, sizeof(D3D11_SUBRESOURCE_DATA));
 	HRESULT	hr = 0;
 
-	d3d11Model->m_stride = model->m_stride;
 
 	vbd.ByteWidth = model->m_stride * model->m_vCount;
 	vData.pSysMem = &model->m_vertices[0];

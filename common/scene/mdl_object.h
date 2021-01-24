@@ -11,6 +11,7 @@
 */
 
 void yyMDLObject_update(void * impl);
+
 struct yyMDLObject
 {
 	yyMDLObject()
@@ -25,6 +26,7 @@ struct yyMDLObject
 		if (m_mdl)
 		{
 			// destroy or release
+			yyDestroy(m_mdl);
 		}
 	}
 	void Update(float dt)
@@ -34,6 +36,7 @@ struct yyMDLObject
 
 	yyMDL* m_mdl;
 
+	Mat4 m_GlobalInverseTransform;
 };
 
 YY_FORCE_INLINE void yyMDLObject_update(void * impl)
