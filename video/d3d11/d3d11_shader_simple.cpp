@@ -78,15 +78,13 @@ bool D3D11ShaderSimple::init()
 
 void D3D11ShaderSimple::SetConstants(yyMaterial* material)
 {
-	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &m_cb);
-	
 	m_cbData.WVP = g_d3d11->m_matrixWorldViewProjection;
 
+	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &m_cb);
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	g_d3d11->m_d3d11DevCon->Map(m_cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	D3D11_BUFFER_DESC d;
 	m_cb->GetDesc(&d);
 	memcpy(mappedResource.pData, &m_cbData, d.ByteWidth);
 	g_d3d11->m_d3d11DevCon->Unmap(m_cb, 0);
-
 }

@@ -42,5 +42,13 @@
     <ClCompile Include="..\common\Win32\yy_window_imgui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

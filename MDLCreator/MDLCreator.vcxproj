@@ -145,7 +145,11 @@
     <ClCompile Include="..\libs\imgui\imgui_draw.cpp" />
     <ClCompile Include="..\libs\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\libs\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="camera.cpp" />
     <ClCompile Include="MDLCreator_main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="camera.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

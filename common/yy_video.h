@@ -56,7 +56,7 @@ struct yyVideoDriverAPI
 	
 	void (*SetClearColor)(f32 r, f32 g, f32 b, f32 a);
 	
-	// Вызвать перед началом рисования. После рисования обязательно нужно вызвать EndDraw
+	// Вызвать перед началом рисования. После рисования обязательно нужно вызвать EndDraw и SwapBuffers
 	void (*BeginDraw)();
 	void (*ClearDepth)();  // очистить буфер глубины
 	void (*ClearColor)();  // закрасить фон
@@ -64,7 +64,6 @@ struct yyVideoDriverAPI
 	// завершение рисования
 	// драйвер должен установить render target окна
 	void (*EndDraw)();    
-	// вывести всё на экран
 	// imgui рисуется между EndDraw и SwapBuffers
 	void (*SwapBuffers)();       // Present\swapbuffers
 	void(*UpdateMainRenderTarget)(const v2i& windowsSize, const v2f& bufferSize);

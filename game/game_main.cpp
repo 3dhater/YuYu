@@ -396,9 +396,6 @@ vidOk:
 			g_videoDriver->DrawSprite(spriteHero);
 			
 
-
-			
-
 			yyGUIDrawAll();
 			g_videoDriver->EndDraw();
 			g_videoDriver->SwapBuffers();

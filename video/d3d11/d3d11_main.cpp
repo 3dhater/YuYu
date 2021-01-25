@@ -14,8 +14,8 @@
 #include "d3d11_shader_sprite.h"
 #include "d3d11_shader_ScreenQuad.h"
 #include "d3d11_shader_simple.h"
-
 #include "d3d11_shader_Line3D.h"
+
 #include "d3d11_shader_standart.h"
 
 #include "scene/common.h"
@@ -422,6 +422,7 @@ void Draw()
 		g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
 	}
 	u32 offset = 0u;
+	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	g_d3d11->m_d3d11DevCon->IASetVertexBuffers(0, 1, &g_d3d11->m_currentModel->m_vBuffer, &g_d3d11->m_currentModel->m_stride, &offset);
 	g_d3d11->m_d3d11DevCon->IASetIndexBuffer(g_d3d11->m_currentModel->m_iBuffer, g_d3d11->m_currentModel->m_indexType, 0);
 	g_d3d11->m_d3d11DevCon->DrawIndexed(g_d3d11->m_currentModel->m_iCount, 0, 0);
@@ -470,16 +471,16 @@ void DrawSprite(yySprite* sprite)
 	g_d3d11->m_d3d11DevCon->IASetIndexBuffer(g_d3d11->m_currentModel->m_iBuffer, g_d3d11->m_currentModel->m_indexType, 0);
 	g_d3d11->m_d3d11DevCon->DrawIndexed(g_d3d11->m_currentModel->m_iCount, 0, 0);
 }
-void DrawLine3D(const v4f& _p1, const v4f& _p2, const yyColor& color)
+void DrawLine3D(const v4f& p1, const v4f& p2, const yyColor& color)
 {
-	/*glUseProgram( g_openGL->m_shader_line3d->m_program );
-	glUniformMatrix4fv(g_openGL->m_shader_line3d->m_uniform_ProjMtx, 1, GL_FALSE, g_openGL->m_matrixViewProjection.getPtr() );
-	glUniform4fv(g_openGL->m_shader_line3d->m_uniform_P1, 1, _p1.cdata());
-	glUniform4fv(g_openGL->m_shader_line3d->m_uniform_P2, 1, _p2.cdata());
-	glUniform4fv(g_openGL->m_shader_line3d->m_uniform_Color, 1, color.data());
+	g_d3d11->m_d3d11DevCon->IASetInputLayout(NULL);
+	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-	glBindVertexArray(g_openGL->m_shader_line3d->m_VAO);
-	glDrawArrays(GL_LINES, 0, 2);*/
+	g_d3d11->SetShader(g_d3d11->m_shaderLine3D);
+	g_d3d11->m_shaderLine3D->SetData(p1, p2, color);
+	g_d3d11->m_shaderLine3D->SetConstants(0);
+	
+	g_d3d11->m_d3d11DevCon->Draw(2, 0);
 }
 void SetMatrix(yyVideoDriverAPI::MatrixType mt, const Mat4& mat)
 {

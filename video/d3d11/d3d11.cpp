@@ -10,6 +10,7 @@
 #include "d3d11_shader_sprite.h"
 #include "d3d11_shader_ScreenQuad.h"
 #include "d3d11_shader_simple.h"
+#include "d3d11_shader_Line3D.h"
 
 #include "DDSTextureLoader.h"
 
@@ -49,6 +50,7 @@ D3D11::D3D11()
 	m_shaderGUI = nullptr;
 	m_shaderSprite = nullptr;
 	m_shaderSimple = 0;
+	m_shaderLine3D = 0;
 
 	m_isGUI = false;
 	m_vsync = false;
@@ -75,6 +77,7 @@ D3D11::~D3D11()
 	if (m_mainTarget) yyDestroy(m_mainTarget);
 	if (m_mainTargetSurface) yyDestroy(m_mainTargetSurface);
 
+	if (m_shaderLine3D) yyDestroy(m_shaderLine3D);
 	if (m_shaderSimple) yyDestroy(m_shaderSimple);
 	if (m_shaderScreenQuad)yyDestroy(m_shaderScreenQuad);
 	if (m_shaderSprite)yyDestroy(m_shaderSprite);
@@ -425,6 +428,13 @@ bool D3D11::Init(yyWindow* window)
 		return false;
 	}
 	 
+	m_shaderLine3D = yyCreate<D3D11ShaderLine3D>();
+	if (!m_shaderLine3D->init())
+	{
+		yyLogWriteError("Can't create Line 3D shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
 
 	if (!updateMainTarget())
 	{

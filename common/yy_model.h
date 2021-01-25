@@ -37,6 +37,7 @@ struct yyVertexAnimatedModel
 // ещё надо будет добавить для анимированных моделей
 enum class yyVertexType : u32
 {
+	Null, // 0
 	GUI,   // yyVertexGUI
 	Model,  // yyVertexModel
 	AnimatedModel

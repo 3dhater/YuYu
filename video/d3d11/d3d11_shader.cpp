@@ -106,156 +106,160 @@ bool D3D11_createShaders(
 		return false;
 	}
 
-	D3D11_INPUT_ELEMENT_DESC vertexLayout[7];
-	u32 vertexLayoutSize = 0;
-	/*
-	LPCSTR SemanticName;
-	UINT SemanticIndex;
-	DXGI_FORMAT Format;
-	UINT InputSlot;
-	UINT AlignedByteOffset;
-	D3D11_INPUT_CLASSIFICATION InputSlotClass;
-	UINT InstanceDataStepRate;
-	*/
-	switch (vertexType)
+	if (vertexType != yyVertexType::Null)
 	{
-	case yyVertexType::GUI:
-		vertexLayoutSize = 2;
-		vertexLayout[0].SemanticName = "POSITION";
-		vertexLayout[0].SemanticIndex = 0;
-		vertexLayout[0].Format = DXGI_FORMAT_R32G32_FLOAT;
-		vertexLayout[0].InputSlot = 0;
-		vertexLayout[0].AlignedByteOffset = 0;
-		vertexLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		vertexLayout[0].InstanceDataStepRate = 0;
-		
-		vertexLayout[1].SemanticName = "TEXCOORD";
-		vertexLayout[1].SemanticIndex = 0;
-		vertexLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-		vertexLayout[1].InputSlot = 0;
-		vertexLayout[1].AlignedByteOffset = 8;
-		vertexLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		vertexLayout[1].InstanceDataStepRate = 0;
-		break;
-	case yyVertexType::Model:
-		vertexLayoutSize = 5;
-		vertexLayout[0].SemanticName = "POSITION";
-		vertexLayout[0].SemanticIndex = 0;
-		vertexLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		vertexLayout[0].InputSlot = 0;
-		vertexLayout[0].AlignedByteOffset = 0;
-		vertexLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		vertexLayout[0].InstanceDataStepRate = 0;
+		D3D11_INPUT_ELEMENT_DESC vertexLayout[7];
+		u32 vertexLayoutSize = 0;
+		/*
+		LPCSTR SemanticName;
+		UINT SemanticIndex;
+		DXGI_FORMAT Format;
+		UINT InputSlot;
+		UINT AlignedByteOffset;
+		D3D11_INPUT_CLASSIFICATION InputSlotClass;
+		UINT InstanceDataStepRate;
+		*/
+		switch (vertexType)
+		{
+		case yyVertexType::GUI:
+			vertexLayoutSize = 2;
+			vertexLayout[0].SemanticName = "POSITION";
+			vertexLayout[0].SemanticIndex = 0;
+			vertexLayout[0].Format = DXGI_FORMAT_R32G32_FLOAT;
+			vertexLayout[0].InputSlot = 0;
+			vertexLayout[0].AlignedByteOffset = 0;
+			vertexLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[0].InstanceDataStepRate = 0;
 
-		vertexLayout[1].SemanticName = "TEXCOORD";
-		vertexLayout[1].SemanticIndex = 0;
-		vertexLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-		vertexLayout[1].InputSlot = 0;
-		vertexLayout[1].AlignedByteOffset = 12;
-		vertexLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		vertexLayout[1].InstanceDataStepRate = 0;
+			vertexLayout[1].SemanticName = "TEXCOORD";
+			vertexLayout[1].SemanticIndex = 0;
+			vertexLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+			vertexLayout[1].InputSlot = 0;
+			vertexLayout[1].AlignedByteOffset = 8;
+			vertexLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[1].InstanceDataStepRate = 0;
+			break;
+		case yyVertexType::Model:
+			vertexLayoutSize = 5;
+			vertexLayout[0].SemanticName = "POSITION";
+			vertexLayout[0].SemanticIndex = 0;
+			vertexLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+			vertexLayout[0].InputSlot = 0;
+			vertexLayout[0].AlignedByteOffset = 0;
+			vertexLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[0].InstanceDataStepRate = 0;
 
-		vertexLayout[2].SemanticName = "NORMAL";
-		vertexLayout[2].SemanticIndex = 0;
-		vertexLayout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		vertexLayout[2].InputSlot = 0;
-		vertexLayout[2].AlignedByteOffset = 20;
-		vertexLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		vertexLayout[2].InstanceDataStepRate = 0;
+			vertexLayout[1].SemanticName = "TEXCOORD";
+			vertexLayout[1].SemanticIndex = 0;
+			vertexLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+			vertexLayout[1].InputSlot = 0;
+			vertexLayout[1].AlignedByteOffset = 12;
+			vertexLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[1].InstanceDataStepRate = 0;
 
-		vertexLayout[3].SemanticName = "BINORMAL";
-		vertexLayout[3].SemanticIndex = 0;
-		vertexLayout[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		vertexLayout[3].InputSlot = 0;
-		vertexLayout[3].AlignedByteOffset = 32;
-		vertexLayout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		vertexLayout[3].InstanceDataStepRate = 0;
+			vertexLayout[2].SemanticName = "NORMAL";
+			vertexLayout[2].SemanticIndex = 0;
+			vertexLayout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+			vertexLayout[2].InputSlot = 0;
+			vertexLayout[2].AlignedByteOffset = 20;
+			vertexLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[2].InstanceDataStepRate = 0;
 
-		vertexLayout[4].SemanticName = "TANGENT";
-		vertexLayout[4].SemanticIndex = 0;
-		vertexLayout[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		vertexLayout[4].InputSlot = 0;
-		vertexLayout[4].AlignedByteOffset = 44;
-		vertexLayout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		vertexLayout[4].InstanceDataStepRate = 0;
-		break;
-	case yyVertexType::AnimatedModel:
-		vertexLayoutSize = 7;
-		vertexLayout[0].SemanticName = "POSITION";
-		vertexLayout[0].SemanticIndex = 0;
-		vertexLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		vertexLayout[0].InputSlot = 0;
-		vertexLayout[0].AlignedByteOffset = 0;
-		vertexLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		vertexLayout[0].InstanceDataStepRate = 0;
+			vertexLayout[3].SemanticName = "BINORMAL";
+			vertexLayout[3].SemanticIndex = 0;
+			vertexLayout[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+			vertexLayout[3].InputSlot = 0;
+			vertexLayout[3].AlignedByteOffset = 32;
+			vertexLayout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[3].InstanceDataStepRate = 0;
 
-		vertexLayout[1].SemanticName = "TEXCOORD";
-		vertexLayout[1].SemanticIndex = 0;
-		vertexLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-		vertexLayout[1].InputSlot = 0;
-		vertexLayout[1].AlignedByteOffset = 12;
-		vertexLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		vertexLayout[1].InstanceDataStepRate = 0;
+			vertexLayout[4].SemanticName = "TANGENT";
+			vertexLayout[4].SemanticIndex = 0;
+			vertexLayout[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+			vertexLayout[4].InputSlot = 0;
+			vertexLayout[4].AlignedByteOffset = 44;
+			vertexLayout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[4].InstanceDataStepRate = 0;
+			break;
+		case yyVertexType::AnimatedModel:
+			vertexLayoutSize = 7;
+			vertexLayout[0].SemanticName = "POSITION";
+			vertexLayout[0].SemanticIndex = 0;
+			vertexLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+			vertexLayout[0].InputSlot = 0;
+			vertexLayout[0].AlignedByteOffset = 0;
+			vertexLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[0].InstanceDataStepRate = 0;
 
-		vertexLayout[2].SemanticName = "NORMAL";
-		vertexLayout[2].SemanticIndex = 0;
-		vertexLayout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		vertexLayout[2].InputSlot = 0;
-		vertexLayout[2].AlignedByteOffset = 20;
-		vertexLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		vertexLayout[2].InstanceDataStepRate = 0;
+			vertexLayout[1].SemanticName = "TEXCOORD";
+			vertexLayout[1].SemanticIndex = 0;
+			vertexLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+			vertexLayout[1].InputSlot = 0;
+			vertexLayout[1].AlignedByteOffset = 12;
+			vertexLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[1].InstanceDataStepRate = 0;
 
-		vertexLayout[3].SemanticName = "BINORMAL";
-		vertexLayout[3].SemanticIndex = 0;
-		vertexLayout[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		vertexLayout[3].InputSlot = 0;
-		vertexLayout[3].AlignedByteOffset = 32;
-		vertexLayout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		vertexLayout[3].InstanceDataStepRate = 0;
+			vertexLayout[2].SemanticName = "NORMAL";
+			vertexLayout[2].SemanticIndex = 0;
+			vertexLayout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+			vertexLayout[2].InputSlot = 0;
+			vertexLayout[2].AlignedByteOffset = 20;
+			vertexLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[2].InstanceDataStepRate = 0;
 
-		vertexLayout[4].SemanticName = "TANGENT";
-		vertexLayout[4].SemanticIndex = 0;
-		vertexLayout[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		vertexLayout[4].InputSlot = 0;
-		vertexLayout[4].AlignedByteOffset = 44;
-		vertexLayout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		vertexLayout[4].InstanceDataStepRate = 0;
+			vertexLayout[3].SemanticName = "BINORMAL";
+			vertexLayout[3].SemanticIndex = 0;
+			vertexLayout[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+			vertexLayout[3].InputSlot = 0;
+			vertexLayout[3].AlignedByteOffset = 32;
+			vertexLayout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[3].InstanceDataStepRate = 0;
 
-		vertexLayout[5].SemanticName = "WEIGHTS";
-		vertexLayout[5].SemanticIndex = 0;
-		vertexLayout[5].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		vertexLayout[5].InputSlot = 0;
-		vertexLayout[5].AlignedByteOffset = 56;
-		vertexLayout[5].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		vertexLayout[5].InstanceDataStepRate = 0;
+			vertexLayout[4].SemanticName = "TANGENT";
+			vertexLayout[4].SemanticIndex = 0;
+			vertexLayout[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+			vertexLayout[4].InputSlot = 0;
+			vertexLayout[4].AlignedByteOffset = 44;
+			vertexLayout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[4].InstanceDataStepRate = 0;
 
-		vertexLayout[6].SemanticName = "BONES";
-		vertexLayout[6].SemanticIndex = 0;
-		vertexLayout[6].Format = DXGI_FORMAT_R32G32B32A32_UINT;
-		vertexLayout[6].InputSlot = 0;
-		vertexLayout[6].AlignedByteOffset = 72;
-		vertexLayout[6].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		vertexLayout[6].InstanceDataStepRate = 0;
+			vertexLayout[5].SemanticName = "WEIGHTS";
+			vertexLayout[5].SemanticIndex = 0;
+			vertexLayout[5].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+			vertexLayout[5].InputSlot = 0;
+			vertexLayout[5].AlignedByteOffset = 56;
+			vertexLayout[5].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[5].InstanceDataStepRate = 0;
 
-		break;
-	default:
-		yyLogWriteError("Unsupportex vertex type\n");
-		return false;
+			vertexLayout[6].SemanticName = "BONES";
+			vertexLayout[6].SemanticIndex = 0;
+			vertexLayout[6].Format = DXGI_FORMAT_R32G32B32A32_UINT;
+			vertexLayout[6].InputSlot = 0;
+			vertexLayout[6].AlignedByteOffset = 72;
+			vertexLayout[6].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[6].InstanceDataStepRate = 0;
+
+			break;
+		default:
+			yyLogWriteError("Unsupportex vertex type\n");
+			return false;
+		}
+		//		layout.get()[i] = { "COLOR",     0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, offset, D3D11_INPUT_PER_VERTEX_DATA, 0 };
+
+		hr = g_d3d11->m_d3d11Device->CreateInputLayout(
+			vertexLayout,
+			vertexLayoutSize,
+			m_VsBlob->GetBufferPointer(),
+			m_VsBlob->GetBufferSize(),
+			il);
+		if (FAILED(hr))
+		{
+			yyLogWriteError("Can't create input layout. Error code [%u]\n", hr);
+			YY_PRINT_FAILED;
+			return false;
+		}
 	}
-	//		layout.get()[i] = { "COLOR",     0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, offset, D3D11_INPUT_PER_VERTEX_DATA, 0 };
-
-	hr = g_d3d11->m_d3d11Device->CreateInputLayout(
-		vertexLayout,
-		vertexLayoutSize,
-		m_VsBlob->GetBufferPointer(),
-		m_VsBlob->GetBufferSize(),
-		il);
-	if (FAILED(hr)) 
-	{
-		yyLogWriteError("Can't create input layout. Error code [%u]\n", hr);
-		YY_PRINT_FAILED;
-		return false;
-	}
+	
 
 	if (m_VsBlob)    m_VsBlob->Release();
 	if (m_PsBlob)    m_PsBlob->Release();

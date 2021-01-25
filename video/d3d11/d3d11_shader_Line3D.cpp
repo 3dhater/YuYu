@@ -7,8 +7,11 @@
 
 #include "math/mat.h"
 
+extern D3D11 * g_d3d11;
+
 D3D11ShaderLine3D::D3D11ShaderLine3D()
 {
+	m_cb = 0;
 }
 
 D3D11ShaderLine3D::~D3D11ShaderLine3D()
@@ -17,6 +20,60 @@ D3D11ShaderLine3D::~D3D11ShaderLine3D()
 
 bool D3D11ShaderLine3D::init()
 {
+	const char * text =
+		"struct VSIn{\n"
+		"	uint vertexID : SV_VertexID;\n"
+		"};\n"
+		"cbuffer cbVertex  : register(b0) {\n"
+		"	float4x4 VP;\n"
+		"	float4 P1;\n"
+		"	float4 P2;\n"
+		"	float4 Color;\n"
+		"};\n"
+		"struct VSOut{\n"
+		"   float4 pos : SV_POSITION;\n"
+		"   float4 color : COLOR0;\n"
+		"};\n"
+		"struct PSOut{\n"
+		"    float4 color : SV_Target;\n"
+		"};\n"
+
+		"VSOut VSMain(VSIn input){\n"
+		"float4 vertices[2] = {\n"
+			"float4( P1.xyz, 1.0),\n"
+			"float4( P2.xyz, 1.0)\n"
+			"};\n"
+		"   VSOut output;\n"
+		"	output.pos   = mul(VP, vertices[input.vertexID]);\n"
+		"	output.color = Color;\n"
+		"	return output;\n"
+		"}\n"
+		"PSOut PSMain(VSOut input){\n"
+		"    PSOut output;\n"
+		"    output.color = input.color;\n"
+		"    return output;\n"
+		"}\n";
+	if (!D3D11_createShaders(
+		"vs_4_0",
+		"ps_4_0",
+		text,
+		text,
+		"VSMain",
+		"PSMain",
+		yyVertexType::Null,
+		&this->m_vShader,
+		&this->m_pShader,
+		&this->m_vLayout))
+	{
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	if (!D3D11_createConstantBuffer(sizeof(cb), &m_cb))
+	{
+		YY_PRINT_FAILED;
+		return false;
+	}
 	/*const char * text_v = 
 		"#version 130\n"
 		"uniform mat4 ProjMtx;\n"
@@ -51,4 +108,23 @@ bool D3D11ShaderLine3D::init()
 	glGenVertexArrays(1, &m_VAO);*/
 
 	return true;
+}
+
+void D3D11ShaderLine3D::SetData(const v4f& p1, const v4f& p2, const yyColor& color)
+{
+	m_cbData.P1 = p1;
+	m_cbData.P2 = p2;
+	m_cbData.Color = color;
+}
+void D3D11ShaderLine3D::SetConstants(yyMaterial* material)
+{
+	m_cbData.VP = g_d3d11->m_matrixViewProjection;
+
+	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &m_cb);
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	g_d3d11->m_d3d11DevCon->Map(m_cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	D3D11_BUFFER_DESC d;
+	m_cb->GetDesc(&d);
+	memcpy(mappedResource.pData, &m_cbData, d.ByteWidth);
+	g_d3d11->m_d3d11DevCon->Unmap(m_cb, 0);
 }
