@@ -22,7 +22,7 @@ void camera_onUpdate(yyCamera* camera)
 Camera::Camera()
 {
 	m_camera = 0;
-	m_moveSpeed = 10.f;
+	m_moveSpeed = 50.f;
 }
 
 Camera::~Camera()
@@ -33,27 +33,36 @@ Camera::~Camera()
 void Camera::init()
 {
 	m_camera = yyCreate<yyCamera>();
-	//m_camera->m_cameraType = yyCameraType::Custom;
-	//m_camera->m_updateCallback = camera_onUpdate;	
+	m_camera->m_cameraType = yyCameraType::Custom;
+	m_camera->m_updateCallback = camera_onUpdate;	
+	m_camera->m_fov = math::degToRad(80.f);
+	m_camera->m_near = 0.1f;
+	m_camera->m_far = 3000.f;
 
-	m_camera->m_objectBase.m_localPosition.set(10.f, 0.f, 0.f, 0.f);
+	reset();
+}
+
+void Camera::reset()
+{
+	m_camera->m_objectBase.m_localPosition.set(10.f, 10.f, 0.f, 0.f);
+	m_camera->m_rotationMatrix.setRotation(Quat(math::degToRad(-45.f), math::degToRad(90.f), math::degToRad(0.f)));
 }
 
 void Camera::rotate(const v2f& mouseDelta, f32 dt)
 {
-	f32 speed = 4.4f;
+	f32 speed = 5.f;
 	Mat4 RX;
 	Mat4 RY;
 	bool update = false;
 	if (mouseDelta.x != 0.f)
 	{
 		update = true;
-		RY.setRotation(Quat(v4f(0.f, math::degToRad(-mouseDelta.x) * dt * speed, 0.f, 0.f)));
+		RY.setRotation(Quat(v4f(0.f, math::degToRad(mouseDelta.x) * dt * speed, 0.f, 0.f)));
 	}
 	if (mouseDelta.y != 0.f)
 	{
 		update = true;
-		RX.setRotation(Quat(v4f(math::degToRad(-mouseDelta.y) * dt * speed, 0.f, 0.f, 0.f)));
+		RX.setRotation(Quat(v4f(math::degToRad(mouseDelta.y) * dt * speed, 0.f, 0.f, 0.f)));
 	}
 
 	if (update)
@@ -87,7 +96,7 @@ void Camera::moveForward(f32 dt)
 
 void Camera::_moveCamera(v4f& vel)
 {
-	auto RotInv = m_rotationMatrix;
+	auto RotInv = m_camera->m_rotationMatrix;
 	RotInv.invert();
 	vel = math::mul(vel, RotInv);
 	m_camera->m_objectBase.m_localPosition += vel;

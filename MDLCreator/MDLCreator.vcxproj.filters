@@ -39,10 +39,10 @@
     <ClCompile Include="..\libs\imgui\imgui_demo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\common\Win32\yy_window_imgui.cpp">
+    <ClCompile Include="camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="camera.cpp">
+    <ClCompile Include="..\common\Win32\yy_window_imgui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

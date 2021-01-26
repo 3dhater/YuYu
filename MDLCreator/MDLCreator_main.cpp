@@ -133,7 +133,7 @@ int main()
 
 	RECT rc;
 	GetWindowRect(GetDesktopWindow(), &rc);
-//	rc.left = 0; rc.top = 0; rc.right = 800; rc.bottom = 600;
+	rc.left = 0; rc.top = 0; rc.right = 1200; rc.bottom = 800;
 	if (!p_window->init(rc.right - rc.left, rc.bottom - rc.top, 0))
 	{
 		YY_PRINT_FAILED;
@@ -142,6 +142,7 @@ int main()
 
 	p_window->m_onClose = window_onCLose;
 	p_window->m_onMouseButton = window_callbackMouse;
+	yySetMainWindow(p_window);
 
 	// init video driver
 	const char * videoDriverType = "d3d11.yyvd";
@@ -152,6 +153,7 @@ int main()
 	}
 	g_videoDriver = yyGetVideoDriverAPI();
 	g_videoDriver->SetClearColor(0.3f, 0.3f, 0.4f, 1.f);
+	g_videoDriver->UseVSync(true);
 
 	yyVideoDriverObjectD3D11* vdo = (yyVideoDriverObjectD3D11*)g_videoDriver->GetVideoDriverObjects();
 
@@ -161,24 +163,20 @@ int main()
 	ImGui::StyleColorsDark();
 	ImGui_ImplWin32_Init(p_window->m_hWnd);
 	ImGui_ImplDX11_Init((ID3D11Device*)vdo->m_device, (ID3D11DeviceContext*)vdo->m_context);
-	bool show_demo_window = true;
-	bool show_another_window = false;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	window.m_data->SetFocus();
-
+	
 	f32 deltaTime = 0.f;
 	bool run = true;
 	while (run)
-	{
+	{		
 		static u64 t1 = 0u;
 		u64 t2 = yyGetTime();
 		f32 m_tick = f32(t2 - t1);
 		t1 = t2;
 		deltaTime = m_tick / 1000.f;
-
 		updateInputContext();
-
 #ifdef YY_PLATFORM_WINDOWS
 		MSG msg;
 		while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE))
@@ -190,9 +188,7 @@ int main()
 #else
 #error For windows
 #endif
-		camera.update();
-
-		g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::ViewProjection, camera.m_camera->m_viewProjectionMatrix);
+		
 		
 
 		// Start the Dear ImGui frame
@@ -200,37 +196,95 @@ int main()
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
-		//if (show_demo_window)
-		//	ImGui::ShowDemoWindow(&show_demo_window);
-		//{
-		//	static float f = 0.0f;
-		//	static int counter = 0;
+		if (g_inputContex->m_isRMBHold)
+		{
+			camera.rotate(v2f(-g_inputContex->m_mouseDelta.x, -g_inputContex->m_mouseDelta.y), deltaTime);
+	//		printf("%f %f\n", io.MouseDelta.x, io.MouseDelta.y);
 
-		//	ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+			if (io.KeysDownDuration[(int)yyKey::K_W] >= 0.0f)
+				camera.moveForward(deltaTime);
 
-		//	ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-		//	ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-		//	ImGui::Checkbox("Another Window", &show_another_window);
+			if (io.KeysDownDuration[(int)yyKey::K_S] >= 0.0f)
+				camera.moveBackward(deltaTime);
 
-		//	ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-		//	ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+			if (io.KeysDownDuration[(int)yyKey::K_A] >= 0.0f)
+				camera.moveLeft(deltaTime);
 
-		//	if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-		//		counter++;
-		//	ImGui::SameLine();
-		//	ImGui::Text("counter = %d", counter);
+			if (io.KeysDownDuration[(int)yyKey::K_D] >= 0.0f)
+				camera.moveRight(deltaTime);
 
-		//	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		//	ImGui::End();
-		//}
-		//if (show_another_window)
-		//{
-		//	ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-		//	ImGui::Text("Hello from another window!");
-		//	if (ImGui::Button("Close Me"))
-		//		show_another_window = false;
-		//	ImGui::End();
-		//}
+			if (io.KeysDownDuration[(int)yyKey::K_E] >= 0.0f)
+				camera.moveUp(deltaTime);
+
+			if (io.KeysDownDuration[(int)yyKey::K_Q] >= 0.0f)
+				camera.moveDown(deltaTime);
+
+			auto cursorX = std::floor((f32)window.m_data->m_currentSize.x / 2.f);
+			auto cursorY = std::floor((f32)window.m_data->m_currentSize.y / 2.f);
+			g_inputContex->m_cursorCoordsOld.set(cursorX, cursorY);
+
+			yySetCursorPosition(cursorX, cursorY, window.m_data);
+		}
+	//	printf("%f\n", deltaTime);
+		camera.update();
+		g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::ViewProjection, camera.m_camera->m_viewProjectionMatrix);
+		
+
+		
+		ImGui::Begin("Main menu", 0, ImGuiWindowFlags_AlwaysAutoResize);
+		ImGuiTabBarFlags mainemnuTab_bar_flags = ImGuiTabBarFlags_None;
+		if (ImGui::BeginTabBar("menutab", mainemnuTab_bar_flags))
+		{
+			if (ImGui::BeginTabItem("File"))
+			{
+				ImGui::EndTabItem();
+			}
+			if (ImGui::BeginTabItem("View"))
+			{
+				if (ImGui::Button("Reset camera"))
+				{
+					camera.reset();
+				}
+				ImGui::EndTabItem();
+			}
+			ImGui::EndTabBar();
+		}
+		ImGui::End();
+
+		ImGui::SetNextWindowSizeConstraints(ImVec2(300.f, 600.f), ImVec2(300.f, 600.f));
+		ImGui::Begin("Parameters", 0, ImGuiWindowFlags_AlwaysAutoResize);
+		if (ImGui::BeginTabBar("parameterstab"))
+		{
+			if (ImGui::BeginTabItem("Layers"))
+			{
+				ImGuiWindowFlags window_flags = ImGuiWindowFlags_HorizontalScrollbar;
+				ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(255, 0, 0, 100));
+				ImGui::BeginChild("ChildLayerList", ImVec2(ImGui::GetWindowContentRegionWidth(), 200), false, window_flags);
+				for (int i = 0; i < 100; i++)
+				{
+					ImGui::Text("%04d: scrollable region", i);
+				}
+				ImGui::EndChild();
+				ImGui::PopStyleColor();
+				if (ImGui::Button("New"))
+				{
+					auto path = yyOpenFileDialog("Import model", "Import", "obj fbx", "Supported files");
+					if (path)
+					{
+						//yyLogWriteInfo("OpenFileDialog: %s\n", path->to_stringA().data());
+
+						yyDestroy(path);
+					}
+				}
+				ImGui::EndTabItem();
+			}
+			if (ImGui::BeginTabItem("Animations"))
+			{
+				ImGui::EndTabItem();
+			}
+			ImGui::EndTabBar();
+		}
+		ImGui::End();
 
 		yyGUIUpdate(1.f);
 		yyUpdateAsyncLoader();
@@ -276,9 +330,9 @@ int main()
 		}
 	}
 
-	ImGui_ImplDX11_Shutdown();
+	/*ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
+	ImGui::DestroyContext();*/
 
 	return 0;
 }

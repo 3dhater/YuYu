@@ -12,6 +12,7 @@ public:
 
 	void init();
 	void update();
+	void reset();
 
 
 	void rotate(const v2f& mouseDelta, f32 dt);
@@ -24,7 +25,6 @@ public:
 	void _moveCamera(v4f& vel);
 
 	yyCamera* m_camera;
-	Mat4 m_rotationMatrix;
 	f32 m_moveSpeed;
 };
 

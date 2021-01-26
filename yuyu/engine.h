@@ -79,8 +79,12 @@ struct CacheNode
 	T* m_resource;
 };
 
+struct IFileSaveDialog;
+struct IFileOpenDialog;
+
 class Engine
 {
+
 public:
 	Engine();
 	~Engine();
@@ -116,6 +120,11 @@ public:
 	std::vector<CacheNode<yyResource>> m_modelGPUCache;
 	std::vector<CacheNode<yyResource>> m_textureCache;
 	std::vector<CacheNode<yyModel>> m_modelCache;
+
+#ifdef YY_PLATFORM_WINDOWS
+	IFileSaveDialog * m_fileSaveDialog;
+	IFileOpenDialog * m_fileOpenDialog;
+#endif
 };
 
 #endif

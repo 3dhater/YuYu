@@ -33,6 +33,13 @@ extern "C"
 	
 	YY_API u64 YY_C_DECL yyGetTime();
 
+	// extensions = "obj 3ds fbx"
+	// extensionTitle = "Supported 3d files"
+	// return - path to selected file or nullptr
+	//  call yyDestroy(path) after using
+	// Before using call yySetMainWindow(yourWindow);
+	YY_API yyString* YY_C_DECL yyOpenFileDialog(const char* title, const char* okButtonLabel, 
+		const char* extensions, const char* extensionTitle);
 
 	YY_API u8* YY_C_DECL yyCompressData( u8* in_data, u32 in_data_size, u32& out_data_size, yyCompressType ct );
 	YY_API u8* YY_C_DECL yyDecompressData( u8* in_data, u32 in_data_size, u32& out_data_size, yyCompressType ct );

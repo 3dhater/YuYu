@@ -7,9 +7,15 @@
 #include "yy_gui.h"
 #include "yy_input.h"
 #include "scene/common.h"
+#include "strings\string.h"
+#include "strings\utils.h"
 
 #include "engine.h"
 
+#ifdef YY_PLATFORM_WINDOWS
+#include <Windows.h>
+#include <shobjidl.h> 
+#endif
 
 #include <thread>
 
@@ -59,6 +65,21 @@ Engine::Engine()
 	modelLoader.ext = ".tr3d";
 	modelLoader.model_loader_callback = ModelLoader_TR3D;
 	m_modelLoaders.push_back(modelLoader);
+
+#ifdef YY_PLATFORM_WINDOWS
+	m_fileSaveDialog = nullptr;
+	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+	if (FAILED(hr))
+		YY_PRINT_FAILED;
+
+	hr = CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_ALL, IID_IFileSaveDialog, reinterpret_cast<void**>(&m_fileSaveDialog));
+	if (FAILED(hr))
+		YY_PRINT_FAILED;
+
+	hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void**>(&m_fileOpenDialog));
+	if (FAILED(hr))
+		YY_PRINT_FAILED;
+#endif
 }
 Engine::~Engine()
 {
@@ -66,6 +87,12 @@ Engine::~Engine()
 	{
 		yyDestroy(m_inputContext);
 	}*/
+
+#ifdef YY_PLATFORM_WINDOWS
+	if (m_fileSaveDialog) m_fileSaveDialog->Release();
+	if (m_fileOpenDialog) m_fileOpenDialog->Release();
+	CoUninitialize();
+#endif
 
 	delete m_sceneRootObject;
 
@@ -414,6 +441,69 @@ YY_API void YY_C_DECL yySetMainWindow(yyWindow* w)
 YY_API yyWindow* YY_C_DECL yyGetMainWindow()
 {
 	return g_mainWindow;
+}
+
+YY_API yyString* YY_C_DECL yyOpenFileDialog(const char* title, const char* okButtonLabel,
+	const char* extensions, const char* extensionTitle)
+{
+	assert(g_engine);
+	assert(g_mainWindow);
+	assert(title);
+	assert(okButtonLabel);
+	assert(extensions);
+	assert(extensionTitle);
+
+	std::vector<yyString> extensions_array;
+	util::stringGetWords<yyString>(&extensions_array, yyString(extensions));
+
+	yyStringW titleW;
+	yyStringW okButtonLabelW;
+	yyStringW extensionTitleW;
+	titleW = title;
+	okButtonLabelW = okButtonLabel;
+	extensionTitleW = extensionTitle;
+
+	yyString * returnPath = 0;
+
+#ifdef YY_PLATFORM_WINDOWS
+	g_engine->m_fileOpenDialog->SetTitle(titleW.data());
+	g_engine->m_fileOpenDialog->SetOkButtonLabel(okButtonLabelW.data());
+
+	COMDLG_FILTERSPEC rgSpec;
+	yyStringW wstr;
+	for (u32 i = 0, sz = (u32)extensions_array.size(); i < sz; ++i)
+	{
+		wstr += L"*.";
+		wstr += extensions_array[i].data();
+		if (i < sz - 1)
+			wstr += L";";
+	}
+	rgSpec.pszName = extensionTitleW.data();
+	rgSpec.pszSpec = wstr.data();
+	g_engine->m_fileOpenDialog->SetFileTypes(1, &rgSpec);
+	auto hr = g_engine->m_fileOpenDialog->Show(g_mainWindow->m_hWnd);
+	if (SUCCEEDED(hr))
+	{
+		IShellItem *pItem;
+		hr = g_engine->m_fileOpenDialog->GetResult(&pItem);
+		if (SUCCEEDED(hr))
+		{
+			PWSTR pszFilePath;
+			hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+			if (SUCCEEDED(hr))
+			{
+				returnPath = yyCreate<yyString>();
+				returnPath->append( (const char16_t*)pszFilePath );
+				CoTaskMemFree(pszFilePath);
+			}
+			pItem->Release();
+		}
+	}
+#else
+#error Need to implement
+#endif
+
+	return returnPath;
 }
 
 }
