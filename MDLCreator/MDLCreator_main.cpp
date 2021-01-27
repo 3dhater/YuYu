@@ -1,6 +1,9 @@
 ﻿#include "imgui.h"
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx11.h"
+#include "imgui_impl_opengl3.h"
+
+#include <GL/gl3w.h>
 
 #include "yy.h"
 #include "yy_window.h"
@@ -203,6 +206,11 @@ void newLayer(yyMDLObject* object, const char16_t* file)
 			newVertex.Position.y = pPos->y;
 			newVertex.Position.z = pPos->z;
 
+			newVertex.Bones.x = 255;
+			newVertex.Bones.y = 255;
+			newVertex.Bones.z = 255;
+			newVertex.Bones.w = 255;
+
 			if (assMesh->HasNormals())
 			{
 				const aiVector3D* pNormal = &(assMesh->mNormals[o]);
@@ -214,7 +222,7 @@ void newLayer(yyMDLObject* object, const char16_t* file)
 			{
 				const aiVector3D* pTexCoord = &(assMesh->mTextureCoords[0][o]);
 				newVertex.TCoords.x = pTexCoord->x;
-				newVertex.TCoords.y = 1.f - pTexCoord->y;
+				newVertex.TCoords.y = pTexCoord->y;
 			}
 			verts.push_back(newVertex);
 		}
@@ -234,6 +242,51 @@ void newLayer(yyMDLObject* object, const char16_t* file)
 		//newMDLLayer->m_model->m_aabb
 		// теперь можно собрать модель
 		bool is_animated = false;
+		
+		if(assMesh->mNumBones)
+			is_animated = true;
+
+		for (u32 i = 0; i < assMesh->mNumBones; i++) 
+		{
+			auto assBone = assMesh->mBones[i];
+			
+			u32 BoneIndex = 0;
+			auto joint = object->m_mdl->GetJointByName(assBone->mName.data, BoneIndex);
+			if (!joint)
+			{
+				yyJoint * newJoint = yyCreate<yyJoint>();
+				newJoint->m_name = assBone->mName.data;
+				newJoint->m_matrixOffset = aiMatrixToGameMatrix(assBone->mOffsetMatrix);
+				BoneIndex = object->m_mdl->m_joints.size();
+				object->m_mdl->m_joints.push_back(newJoint);
+			}
+
+			for (u32 j = 0; j < assMesh->mBones[i]->mNumWeights; j++)
+			{
+				s32* boneIndsData = verts[assBone->mWeights[j].mVertexId].Bones.data();
+				f32* boneWeightsData = verts[assBone->mWeights[j].mVertexId].Weights.data();
+				for (u32 m = 0; m < 4; ++m)
+				{
+					if (boneIndsData[m] == 255)
+					{
+						boneIndsData[m] = BoneIndex;
+						boneWeightsData[m] = assBone->mWeights[j].mWeight;
+						break;
+					}
+				}
+				/*if (verts[assBone->mWeights[j].mVertexId].Bones.x == 255)
+				{
+					verts[assBone->mWeights[j].mVertexId].Bones.x = BoneIndex;
+					verts[assBone->mWeights[j].mVertexId].Weights.x = assBone->mWeights[j].mWeight;
+				}
+				else if (verts[assBone->mWeights[j].mVertexId].Bones.y == 255)
+				{
+					verts[assBone->mWeights[j].mVertexId].Bones.y = BoneIndex;
+					verts[assBone->mWeights[j].mVertexId].Weights.y = assBone->mWeights[j].mWeight;
+				}*/
+			}
+		}
+
 		if (is_animated)
 		{
 			newMDLLayer->m_model->m_vertexType = yyVertexType::AnimatedModel;
@@ -310,6 +363,45 @@ void reloadTexture(yyMDLObject* object, int textureSlot, const wchar_t* path)
 {
 	auto layer = object->m_mdl->m_layers[g_selectedLayer];
 
+	if (!yyFS::exists(yyFS::path(path)))
+	{
+		printf("Not exist\n");
+		switch (textureSlot)
+		{
+		case 0: 
+		if (layer->m_textureGPU1) 
+		{
+			yyGetVideoDriverAPI()->DeleteTexture(layer->m_textureGPU1); 
+			layer->m_textureGPU1 = 0;
+		}
+		break;
+		case 1:
+			if (layer->m_textureGPU2)
+			{
+				yyGetVideoDriverAPI()->DeleteTexture(layer->m_textureGPU2);
+				layer->m_textureGPU2 = 0;
+			}
+			break;
+		case 2:
+			if (layer->m_textureGPU3)
+			{
+				yyGetVideoDriverAPI()->DeleteTexture(layer->m_textureGPU3);
+				layer->m_textureGPU3 = 0;
+			}
+			break;
+		case 3:
+			if (layer->m_textureGPU4)
+			{
+				yyGetVideoDriverAPI()->DeleteTexture(layer->m_textureGPU4);
+				layer->m_textureGPU4 = 0;
+			}
+			break;
+		default: YY_PRINT_FAILED; break;
+		}
+		return;
+	}
+
+
 	yyResource* texture = 0;
 	switch (textureSlot)
 	{
@@ -338,8 +430,16 @@ void reloadTexture(yyMDLObject* object, int textureSlot, const wchar_t* path)
 	default: YY_PRINT_FAILED; break;
 	}
 }
-int main()
+int main(int argc, char* argv[])
 {
+	bool useOpenGL = false;
+	for (int i = 0; i < argc; ++i)
+	{
+		if (strcmp(argv[i], "opengl") == 0)
+		{
+			useOpenGL = true;
+		}
+	}
 
 	yyPtr<yyInputContext> inputContext = yyCreate<yyInputContext>();
 	g_inputContex = inputContext.m_data;
@@ -380,6 +480,8 @@ int main()
 
 	// init video driver
 	const char * videoDriverType = "d3d11.yyvd";
+	if(useOpenGL)
+		videoDriverType = "opengl.yyvd";
 	if (!yyInitVideoDriver(videoDriverType, p_window))
 	{
 		YY_PRINT_FAILED;
@@ -389,6 +491,15 @@ int main()
 	g_videoDriver->SetClearColor(0.3f, 0.3f, 0.4f, 1.f);
 	g_videoDriver->UseVSync(true);
 
+	{
+		yyStringA t;
+		t = "MDLCreator";
+		t += " - ";
+		t += g_videoDriver->GetVideoDriverName();
+		p_window->SetTitle(t.data());
+	}
+
+
 	yyVideoDriverObjectD3D11* vdo = (yyVideoDriverObjectD3D11*)g_videoDriver->GetVideoDriverObjects();
 
 	IMGUI_CHECKVERSION();
@@ -396,7 +507,14 @@ int main()
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	ImGui::StyleColorsDark();
 	ImGui_ImplWin32_Init(p_window->m_hWnd);
-	ImGui_ImplDX11_Init((ID3D11Device*)vdo->m_device, (ID3D11DeviceContext*)vdo->m_context);
+	if (useOpenGL)
+	{
+		gl3wInit();
+		const char* glsl_version = "#version 330";
+		ImGui_ImplOpenGL3_Init(glsl_version);
+	}
+	else
+		ImGui_ImplDX11_Init((ID3D11Device*)vdo->m_device, (ID3D11DeviceContext*)vdo->m_context);
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	ImVec4* colors = ImGui::GetStyle().Colors;
@@ -450,7 +568,14 @@ int main()
 		
 
 		// Start the Dear ImGui frame
-		ImGui_ImplDX11_NewFrame();
+		if (useOpenGL)
+		{
+			ImGui_ImplOpenGL3_NewFrame();
+		}
+		else
+		{
+			ImGui_ImplDX11_NewFrame();
+		}
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
@@ -590,44 +715,60 @@ int main()
 						ImGui::DragFloat("Z", &currentLayerInfo.m_offset.z, 0.005f);
 						ImGui::Separator();
 					}
-					const char* shaderCombo_items[] = { "Simple" };
-					ImGui::Combo("Shader", &g_shaderCombo_item_current, shaderCombo_items, IM_ARRAYSIZE(shaderCombo_items));
-
-					if (ImGui::CollapsingHeader("Texture 0"))
+					if (ImGui::CollapsingHeader("Shader"))
 					{
-						ImGui::InputText("path", currentLayerInfo.m_texturePathTextBuffer.data(), currentLayerInfo.m_texturePathTextBufferSize);
-						ImGui::SameLine();
-						if (ImGui::Button("..."))
+						const char* shaderCombo_items[] = { "Simple" };
+						ImGui::Combo("Type", &g_shaderCombo_item_current, shaderCombo_items, IM_ARRAYSIZE(shaderCombo_items));
+
+						if (ImGui::CollapsingHeader("Texture 0"))
 						{
-							auto path = yyOpenFileDialog("Texture file", "Select", "png dds bmp tga", "Supported files");
-							if (path)
+							ImGui::InputText("path", currentLayerInfo.m_texturePathTextBuffer.data(), currentLayerInfo.m_texturePathTextBufferSize);
+							ImGui::SameLine();
+							if (ImGui::Button("..."))
 							{
-								auto relPath = yyGetRelativePath((wchar_t*)path->data());
-								if (relPath)
+								auto path = yyOpenFileDialog("Texture file", "Select", "png dds bmp tga", "Supported files");
+								if (path)
 								{
-									mdlObject.m_data->m_mdl->m_layers[g_selectedLayer]->m_texture1Path = relPath->data();
-									currentLayerInfo.m_texturePathTextBuffer = relPath->data();
-
-									reloadTexture(mdlObject.m_data, 0, (wchar_t*)relPath->data());
-
-									yyDestroy(relPath);
+									mdlObject.m_data->m_mdl->m_layers[g_selectedLayer]->m_texture1Path = path->data();
+									currentLayerInfo.m_texturePathTextBuffer = path->data();
+									reloadTexture(mdlObject.m_data, 0, (wchar_t*)path->data());
+									yyDestroy(path);
 								}
-								yyDestroy(path);
 							}
+							if (ImGui::Button("Reload"))
+							{
+								mdlObject.m_data->m_mdl->m_layers[g_selectedLayer]->m_texture1Path = currentLayerInfo.m_texturePathTextBuffer.data();
+								reloadTexture(mdlObject.m_data, 0, (wchar_t*)currentLayerInfo.m_texturePathTextBuffer.to_string().data());
+							}
+							if (mdlObject.m_data->m_mdl->m_layers[g_selectedLayer]->m_textureGPU1)
+							{
+								auto th = yyGetVideoDriverAPI()->GetTextureHandle(mdlObject.m_data->m_mdl->m_layers[g_selectedLayer]->m_textureGPU1);
+								ImTextureID my_tex_id = th;
+								float my_tex_w = 64.f;
+								float my_tex_h = 64.f;
+								ImVec2 pos = ImGui::GetCursorScreenPos();
+								ImGui::Image(my_tex_id, ImVec2(my_tex_w, my_tex_h));
+								if (ImGui::IsItemHovered())
+								{
+									ImGui::BeginTooltip();
+									ImGui::Image(my_tex_id, ImVec2(256.f, 256.f));
+									ImGui::EndTooltip();
+								}
+							}
+							ImGui::Separator();
 						}
-						ImGui::Separator();
-					}
-					if (ImGui::CollapsingHeader("Texture 1"))
-					{
-						ImGui::Separator();
-					}
-					if (ImGui::CollapsingHeader("Texture 2"))
-					{
-						ImGui::Separator();
-					}
-					if (ImGui::CollapsingHeader("Texture 3"))
-					{
-						ImGui::Separator();
+						if (ImGui::CollapsingHeader("Texture 1"))
+						{
+							ImGui::Separator();
+						}
+						if (ImGui::CollapsingHeader("Texture 2"))
+						{
+							ImGui::Separator();
+						}
+						if (ImGui::CollapsingHeader("Texture 3"))
+						{
+							ImGui::Separator();
+						}
 					}
 				}
 
@@ -695,17 +836,30 @@ int main()
 
 			g_videoDriver->EndDraw();
 			ImGui::Render();
-			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+			if (useOpenGL)
+			{
+				ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+			}
+			else
+			{
+				ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+			}
 
 			g_videoDriver->SwapBuffers();
 
 		}break;
 		}
 	}
-
-	/*ImGui_ImplDX11_Shutdown();
+	if (useOpenGL)
+	{
+		ImGui_ImplOpenGL3_Shutdown();
+	}
+	else
+	{
+		ImGui_ImplDX11_Shutdown();
+	}
 	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();*/
+	ImGui::DestroyContext();
 
 	return 0;
 }

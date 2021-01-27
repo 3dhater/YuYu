@@ -55,17 +55,19 @@ struct yyJoint
 {
 	yyJoint()
 	{
-		m_parent = nullptr;
+	//	m_parent = nullptr;
+	//	m_parentIndex = -1;
 	}
 
-	yyJoint*				m_parent;
+	//yyJoint*				m_parent;
+	//s32 m_parentIndex; // index in yyMDL::m_joints
 	yyArraySmall<yyJoint*>	m_children;
 
 	//	Mat4					m_matrixBind;
 	Mat4					m_matrixOffset;
 
-	v4f						m_position;
-	Quat					m_rotation;
+	//v4f						m_position;
+	//Quat					m_rotation;
 
 	yyStringA				m_name;
 
@@ -444,8 +446,8 @@ struct yyMDLAnimation
 struct yyMDL
 {
 	yyMDL()
-		:
-		m_skeleton(0)
+	//	:
+	//	m_skeleton(0)
 	{
 	}
 
@@ -481,7 +483,17 @@ struct yyMDL
 	// скорее всего при рисовании нужно будет передавать что-то
 	// ещё, чтобы работал нужный шейдер и т.д.
 	yyArraySmall<yyJoint*> m_joints;
-	yyJoint* m_skeleton; // иерархия
+	//yyJoint* m_skeleton; // иерархия
+	yyJoint* GetJointByName(const char* name, u32 & index)
+	{
+		for (u16 i = 0, sz = m_joints.size(); i < sz; ++i)
+		{
+			index = i;
+			if (strcmp(name, m_joints[i]->m_name.data()) == 0)
+				return m_joints[i];
+		}
+		return 0;
+	}
 	
 	yyArraySmall<yyMDLAnimation*> m_animations;
 

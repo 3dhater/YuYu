@@ -4,7 +4,7 @@ Game engine with low overhead.
 # Features
 
 * Can compile with Visual Studio 2012
-* Loading PNG, DDS, BMP
+* Loading PNG, DDS, BMP, TGA
 * 2d sprite with animations
 * OpenGL 3.3, Direct3D 11
 
@@ -13,6 +13,8 @@ Game engine with low overhead.
 Code without polymorphism and inheritance. It may be difficult for inexperienced users, but it is needed to increase speed and reduce overhead.
 
 Inspired by Quake 2 and Half-Life 2.
+
+0. Projects for Visual Studio 2015, but compiler from VS2012. Text editor from VS2015 much better.
 
 1.  Compile yuyu.dll. It contains general features such as working with archives, default GUI (not imgui), etc. Every memory allocations must be done through yuyu.dll. All objects with `yy` prefix must be created using yyCreate function, and destroyed by yyDestroy.
 

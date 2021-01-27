@@ -642,6 +642,8 @@ void BeginDraw()
 	g_d3d11->m_d3d11DevCon->OMSetRenderTargets(1, &g_d3d11->m_mainTarget->m_RTV, g_d3d11->m_depthStencilView);
 	SetViewport(0, 0, g_d3d11->m_mainTargetSize.x, g_d3d11->m_mainTargetSize.y);
 	g_d3d11->m_currentTargetView = g_d3d11->m_mainTarget->m_RTV;
+
+	UseDepth(true);
 }
 void EndDraw()
 {
@@ -649,6 +651,8 @@ void EndDraw()
 	g_d3d11->m_currentTargetView = g_d3d11->m_MainTargetView;
 	ClearColor();
 	SetViewport(0, 0, g_d3d11->m_swapChainSize.x, g_d3d11->m_swapChainSize.y);
+
+	UseDepth(false);
 
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
@@ -754,6 +758,10 @@ void DeleteTexture(yyResource* r)
 	g_d3d11->m_freeTextureResourceIndex.push_back(r->m_index);
 	yyDestroy(r);
 }
+void* GetTextureHandle(yyResource* res)
+{
+	return g_d3d11->m_textures[res->m_index]->m_textureResView;
+}
 
 extern "C"
 {
@@ -816,6 +824,8 @@ extern "C"
 
 		g_api.GetVideoDriverName = GetVideoDriverName;
 		g_api.SwapBuffers = SwapBuffers;
+
+		g_api.GetTextureHandle = GetTextureHandle;
 
 		return &g_api;
 	}

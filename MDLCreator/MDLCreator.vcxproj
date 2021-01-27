@@ -85,11 +85,11 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>../common/;../libs/imgui/;../libs/imgui/backends/;E:\Code\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../common/;../libs/imgui/;../libs/imgui/backends/;../libs/assimp/include/;../libs/gl3w/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(OutDir);E:\Code\assimp\bin32</AdditionalLibraryDirectories>
-      <AdditionalDependencies>yuyu_debug.lib;%(AdditionalDependencies);d3d11.lib;d3d11.lib;assimp.lib</AdditionalDependencies>
+      <AdditionalDependencies>yuyu_debug.lib;%(AdditionalDependencies);d3d11.lib;d3d11.lib;assimp.lib;OpenGL32.lib</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -98,11 +98,11 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>../common/;../libs/imgui/;../libs/imgui/backends/;E:\Code\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../common/;../libs/imgui/;../libs/imgui/backends/;../libs/assimp/include/;../libs/gl3w/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(OutDir);E:\Code\assimp\bin64</AdditionalLibraryDirectories>
-      <AdditionalDependencies>yuyu_debug.lib;%(AdditionalDependencies);d3d11.lib;d3d11.lib;assimp.lib</AdditionalDependencies>
+      <AdditionalDependencies>yuyu_debug.lib;%(AdditionalDependencies);d3d11.lib;d3d11.lib;assimp.lib;OpenGL32.lib</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -113,13 +113,13 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>../common/;../libs/imgui/;../libs/imgui/backends/;E:\Code\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../common/;../libs/imgui/;../libs/imgui/backends/;../libs/assimp/include/;../libs/gl3w/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(OutDir);E:\Code\assimp\bin32</AdditionalLibraryDirectories>
-      <AdditionalDependencies>yuyu.lib;%(AdditionalDependencies);d3d11.lib;d3d11.lib;assimp.lib</AdditionalDependencies>
+      <AdditionalDependencies>yuyu.lib;%(AdditionalDependencies);d3d11.lib;d3d11.lib;assimp.lib;OpenGL32.lib</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -130,19 +130,21 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>../common/;../libs/imgui/;../libs/imgui/backends/;E:\Code\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../common/;../libs/imgui/;../libs/imgui/backends/;../libs/assimp/include/;../libs/gl3w/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(OutDir);E:\Code\assimp\bin64</AdditionalLibraryDirectories>
-      <AdditionalDependencies>yuyu.lib;%(AdditionalDependencies);d3d11.lib;d3d11.lib;assimp.lib</AdditionalDependencies>
+      <AdditionalDependencies>yuyu.lib;%(AdditionalDependencies);d3d11.lib;d3d11.lib;assimp.lib;OpenGL32.lib</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\common\Win32\yy_window_imgui.cpp" />
+    <ClCompile Include="..\libs\gl3w\GL\gl3w.c" />
     <ClCompile Include="..\libs\imgui\backends\imgui_impl_dx11.cpp" />
+    <ClCompile Include="..\libs\imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="..\libs\imgui\backends\imgui_impl_win32.cpp" />
     <ClCompile Include="..\libs\imgui\imgui.cpp" />
     <ClCompile Include="..\libs\imgui\imgui_demo.cpp" />
@@ -153,6 +155,7 @@
     <ClCompile Include="MDLCreator_main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\libs\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="camera.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

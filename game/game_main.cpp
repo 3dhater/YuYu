@@ -379,14 +379,14 @@ vidOk:
 			g_videoDriver->SetMaterial(&material);
 			g_videoDriver->Draw();
 
-			g_videoDriver->SetRenderTarget(rtt);
+			/*g_videoDriver->SetRenderTarget(rtt);
 			g_videoDriver->SetClearColor(0.3f, 0.f, 0.f, 1.f);
 			g_videoDriver->SetViewport(0.f, 0.f, 128.f, 128.f);
 			g_videoDriver->ClearAll();
 			g_videoDriver->Draw();
 			g_videoDriver->SetRenderTarget(0);
 			g_videoDriver->SetViewport(0.f, 0.f, window.m_data->m_currentSize.x, window.m_data->m_currentSize.y);
-			g_videoDriver->SetClearColor(0.3f, 0.3f, 0.74f, 1.f);
+			g_videoDriver->SetClearColor(0.3f, 0.3f, 0.74f, 1.f);*/
 
 			g_videoDriver->UseDepth(false);
 			g_videoDriver->DrawSprite(spriteLevel);

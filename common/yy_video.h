@@ -57,13 +57,17 @@ struct yyVideoDriverAPI
 	void (*SetClearColor)(f32 r, f32 g, f32 b, f32 a);
 	
 	// Вызвать перед началом рисования. После рисования обязательно нужно вызвать EndDraw и SwapBuffers
+	// video driver must set UseDepth(true)
 	void (*BeginDraw)();
+
 	void (*ClearDepth)();  // очистить буфер глубины
 	void (*ClearColor)();  // закрасить фон
 	void (*ClearAll)();    // ClearDepth и ClearColor
-	// завершение рисования
-	// драйвер должен установить render target окна
+
+	// video driver must set window render target 
+	// video driver must set UseDepth(false)
 	void (*EndDraw)();    
+
 	// imgui рисуется между EndDraw и SwapBuffers
 	void (*SwapBuffers)();       // Present\swapbuffers
 	void(*UpdateMainRenderTarget)(const v2i& windowsSize, const v2f& bufferSize);
@@ -83,6 +87,7 @@ struct yyVideoDriverAPI
 	//   иначе будет попытка загрузить реализацию из файла
 	yyResource* (*CreateTexture)(yyImage*, bool useLinearFilter, bool useComparisonFilter);
 	yyResource* (*CreateTextureFromFile)(const char* fileName, bool useLinearFilter, bool useComparisonFilter, bool load);
+
 	void (*UnloadTexture)(yyResource*); // --m_refCount; or unload
 	void (*LoadTexture)(yyResource*); // ++m_refCount; or load
 
@@ -134,6 +139,9 @@ struct yyVideoDriverAPI
 	void(*test_draw)();
 	
 	const char* (*GetVideoDriverName)();
+
+	// Get ID3D11ShaderResourceView* or OpenGL texture ID
+	void* (*GetTextureHandle)(yyResource*);
 
 };
 

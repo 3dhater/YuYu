@@ -767,23 +767,26 @@ void BeginDraw()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, g_openGL->m_mainTarget->m_FBO);
 	glViewport(0, 0, g_openGL->m_mainTargetSize.x, g_openGL->m_mainTargetSize.y);
+	UseDepth(true);
 }
 void ClearAll()
 {
-	gglClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 }
 void ClearColor()
 {
-	gglClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 void ClearDepth()
 {
-	gglClear(GL_DEPTH_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT);
 }
 void EndDraw()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0); // window
 	glViewport(0, 0, g_openGL->m_windowSize.x, g_openGL->m_windowSize.y);
+
+	UseDepth(false);
 
 	glUseProgram(g_openGL->m_shader_screenQuad->m_program);
 	glActiveTexture(GL_TEXTURE0);
@@ -806,6 +809,11 @@ void UpdateMainRenderTarget(const v2i& windowsSize, const v2f& bufferSize)
 	g_openGL->m_windowSize = windowsSize;
 	g_openGL->m_mainTargetSize = bufferSize;
 	g_openGL->updateMainTarget();
+}
+
+void* GetTextureHandle(yyResource* res)
+{
+	return &g_openGL->m_textures[res->m_index]->m_texture;
 }
 
 extern "C"
@@ -867,6 +875,8 @@ extern "C"
 
 		g_api.GetVideoDriverName = GetVideoDriverName;
 		g_api.SwapBuffers = SwapBuffers;
+		
+		g_api.GetTextureHandle = GetTextureHandle;
 
 		return &g_api;
 	}
