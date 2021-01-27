@@ -168,7 +168,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>yuyu_debug.lib;%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib</AdditionalDependencies>
+      <AdditionalDependencies>yuyu_debug.lib;%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib;dxgi.lib;dxguid.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir);E:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86</AdditionalLibraryDirectories>
       <ImportLibrary>$(OutDir)vid_$(TargetName).lib</ImportLibrary>
     </Link>
@@ -193,7 +193,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>yuyu.lib;%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib</AdditionalDependencies>
+      <AdditionalDependencies>yuyu.lib;%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib;dxgi.lib;dxguid.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir);E:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86</AdditionalLibraryDirectories>
       <ImportLibrary>$(OutDir)vid_$(TargetName).lib</ImportLibrary>
     </Link>
@@ -218,7 +218,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>yuyu.lib;%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib</AdditionalDependencies>
+      <AdditionalDependencies>yuyu.lib;%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib;dxgi.lib;dxguid.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir);E:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86</AdditionalLibraryDirectories>
       <ImportLibrary>$(OutDir)vid_$(TargetName).lib</ImportLibrary>
     </Link>
@@ -237,7 +237,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>yuyu_debug.lib;%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib</AdditionalDependencies>
+      <AdditionalDependencies>yuyu_debug.lib;%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib;dxgi.lib;dxguid.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir);E:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x64</AdditionalLibraryDirectories>
       <ImportLibrary>$(OutDir)vid_$(TargetName).lib</ImportLibrary>
     </Link>
@@ -262,7 +262,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>yuyu.lib;%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib</AdditionalDependencies>
+      <AdditionalDependencies>yuyu.lib;%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib;dxgi.lib;dxguid.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir);E:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x64</AdditionalLibraryDirectories>
       <ImportLibrary>$(OutDir)vid_$(TargetName).lib</ImportLibrary>
     </Link>
@@ -287,7 +287,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>yuyu.lib;%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib</AdditionalDependencies>
+      <AdditionalDependencies>yuyu.lib;%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib;dxgi.lib;dxguid.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir);E:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x64</AdditionalLibraryDirectories>
       <ImportLibrary>$(OutDir)vid_$(TargetName).lib</ImportLibrary>
     </Link>

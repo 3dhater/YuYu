@@ -155,6 +155,8 @@ public:
 		u32 anisotropic_level,
 		ID3D11SamplerState** samplerState);
 
+	yyListFast<size_t> m_freeModelResourceIndex;
+	yyListFast<size_t> m_freeTextureResourceIndex;
 };
 
 #endif

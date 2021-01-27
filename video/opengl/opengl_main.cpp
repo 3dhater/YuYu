@@ -352,9 +352,7 @@ void UnloadModel(yyResource* r)
 void DeleteModel(yyResource* r)
 {
 	assert(r);
-#ifdef YY_DEBUG
-	if (r->m_type != yyResourceType::Model) YY_PRINT_FAILED;
-#endif
+	assert(r->m_type == yyResourceType::Model);
 
 	// нужно ли использовать это в таком случае? m_refCount 
 	// если нужно удалить, то надо удалить, иначе надо вызывать UnloadModel

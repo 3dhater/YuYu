@@ -25,6 +25,45 @@
 
 #include "camera.h"
 #include "scene/sprite.h"
+#include "scene/mdl_object.h"
+
+#include <assimp/Importer.hpp>      // C++ importer interface
+#include <assimp/scene.h>       // Output data structure
+#include <assimp/postprocess.h> // Post processing flags
+
+// для того чтобы настраивать модель в редакторе
+// например, можно изменить позицию
+// При сохранении нужно будет учитывать эти данные
+struct LayerInfo
+{
+	LayerInfo()
+	{
+		m_texturePathTextBufferSize = 512;
+		m_texturePathTextBuffer.reserve(m_texturePathTextBufferSize);
+	}
+	v3f m_offset;
+	yyStringA m_texturePathTextBuffer;
+	u32 m_texturePathTextBufferSize;
+};
+yyArraySmall<LayerInfo> g_layerInfo;
+
+yyStringA g_renameTextBuffer;
+const u32 g_renameTextBufferSize = 128;
+int g_shaderCombo_item_current = 0;
+
+int g_selectedLayer = -1;
+
+Mat4 aiMatrixToGameMatrix(const aiMatrix4x4& a)
+{
+	Mat4 m;
+	auto dst = m.getPtr();
+	f32 * src = (f32*)&a.a1;
+	for (int i = 0; i < 16; ++i)
+	{
+		dst[i] = src[i];
+	}
+	return m;
+}
 
 struct yyEngineContext
 {
@@ -105,6 +144,200 @@ void updateInputContext() // call before all callbacks
 	g_inputContex->m_mouseDelta.y = 0.f;
 }
 
+yyStringW checkName(yyMDLObject* object, yyStringW name)
+{
+	static int number = 0;
+	yyStringW newName = name;
+
+check_again:;
+
+	int count = 0;
+	for (u16 i = 0; i < object->m_mdl->m_layers.size(); ++i)
+	{
+		auto layer = object->m_mdl->m_layers[i];
+		if (layer->m_model->m_name == newName)
+		{
+			++count;
+		}
+	}
+	if (count > 0)
+	{
+		newName += number++;
+		goto check_again;
+	}
+	return newName;
+}
+
+// load model, create new layer
+void newLayer(yyMDLObject* object, const char16_t* file)
+{
+	yyStringA stra;
+	stra = file;
+
+	Assimp::Importer Importer;
+	const aiScene* pScene = Importer.ReadFile(
+		stra.c_str(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
+	if (!pScene)
+	{
+		YY_PRINT_FAILED;
+		return;
+	}
+
+	object->m_GlobalInverseTransform = aiMatrixToGameMatrix(pScene->mRootNode->mTransformation);
+	object->m_GlobalInverseTransform.invert();
+
+	for (int i = 0; i < pScene->mNumMeshes; ++i)
+	{
+		yyArray<yyVertexAnimatedModel> verts;
+		yyArray<u32> inds;
+
+		auto assMesh = pScene->mMeshes[i];
+
+		for (int o = 0; o < assMesh->mNumVertices; o++)
+		{
+			yyVertexAnimatedModel newVertex;
+
+			const aiVector3D* pPos = &(assMesh->mVertices[o]);
+
+			newVertex.Position.x = pPos->x;
+			newVertex.Position.y = pPos->y;
+			newVertex.Position.z = pPos->z;
+
+			if (assMesh->HasNormals())
+			{
+				const aiVector3D* pNormal = &(assMesh->mNormals[o]);
+				newVertex.Normal.x = pNormal->x;
+				newVertex.Normal.y = pNormal->y;
+				newVertex.Normal.z = pNormal->z;
+			}
+			if (assMesh->HasTextureCoords(0))
+			{
+				const aiVector3D* pTexCoord = &(assMesh->mTextureCoords[0][o]);
+				newVertex.TCoords.x = pTexCoord->x;
+				newVertex.TCoords.y = 1.f - pTexCoord->y;
+			}
+			verts.push_back(newVertex);
+		}
+
+		for (int o = 0; o < assMesh->mNumFaces; o++)
+		{
+			const aiFace& Face = assMesh->mFaces[o];
+			assert(Face.mNumIndices == 3);
+			inds.push_back(Face.mIndices[0]);
+			inds.push_back(Face.mIndices[1]);
+			inds.push_back(Face.mIndices[2]);
+		}
+
+		yyMDLLayer* newMDLLayer = yyCreate<yyMDLLayer>();
+		newMDLLayer->m_model = yyCreate<yyModel>();
+
+		//newMDLLayer->m_model->m_aabb
+		// теперь можно собрать модель
+		bool is_animated = false;
+		if (is_animated)
+		{
+			newMDLLayer->m_model->m_vertexType = yyVertexType::AnimatedModel;
+			newMDLLayer->m_model->m_stride = sizeof(yyVertexAnimatedModel);
+			newMDLLayer->m_model->m_vertices = (u8*)yyMemAlloc(verts.size() * sizeof(yyVertexAnimatedModel));
+			memcpy(newMDLLayer->m_model->m_vertices, verts.data(), verts.size() * sizeof(yyVertexAnimatedModel));
+		}
+		else
+		{
+			newMDLLayer->m_model->m_vertexType = yyVertexType::Model;
+			newMDLLayer->m_model->m_stride = sizeof(yyVertexModel);
+			newMDLLayer->m_model->m_vertices = (u8*)yyMemAlloc(verts.size() * sizeof(yyVertexModel));
+			auto v_ptr = (yyVertexModel*)newMDLLayer->m_model->m_vertices;
+			for (u32 o = 0, sz = verts.size(); o < sz; ++o)
+			{
+				v_ptr[o].Position = verts[o].Position;
+				v_ptr[o].Normal = verts[o].Normal;
+				v_ptr[o].TCoords = verts[o].TCoords;
+				v_ptr[o].Binormal = verts[o].Binormal;
+				v_ptr[o].Tangent = verts[o].Tangent;
+			}
+		}
+
+		if (inds.size() / 3 > 21845)
+		{
+			newMDLLayer->m_model->m_indexType = yyMeshIndexType::u32;
+			newMDLLayer->m_model->m_indices = (u8*)yyMemAlloc(inds.size() * sizeof(u32));
+			memcpy(newMDLLayer->m_model->m_indices, inds.data(), inds.size() * sizeof(u32));
+		}
+		else
+		{
+			newMDLLayer->m_model->m_indexType = yyMeshIndexType::u16;
+			newMDLLayer->m_model->m_indices = (u8*)yyMemAlloc(inds.size() * sizeof(u16));
+			u16 * i_ptr = (u16*)newMDLLayer->m_model->m_indices;
+			for (u32 o = 0, sz = inds.size(); o < sz; ++o)
+			{
+				*i_ptr = (u16)inds[o];
+				++i_ptr;
+			}
+		}
+
+		newMDLLayer->m_model->m_name = checkName(object, assMesh->mName.C_Str());
+		newMDLLayer->m_model->m_vCount = verts.size();
+		newMDLLayer->m_model->m_iCount = inds.size();
+
+		newMDLLayer->m_meshGPU = yyGetVideoDriverAPI()->CreateModel(newMDLLayer->m_model);
+
+		object->m_mdl->m_layers.push_back(newMDLLayer);
+		g_layerInfo.push_back(LayerInfo());
+	}
+
+	g_selectedLayer = object->m_mdl->m_layers.size()-1;
+	// update MDL aabb
+}
+void deleteLayer(yyMDLObject* object)
+{
+	auto layer = object->m_mdl->m_layers[g_selectedLayer];
+	object->m_mdl->m_layers.erase(g_selectedLayer);
+	g_layerInfo.erase(g_selectedLayer);
+	if (layer->m_meshGPU)
+	{
+		yyGetVideoDriverAPI()->DeleteModel(layer->m_meshGPU);
+		layer->m_meshGPU = nullptr;
+	}
+	yyDestroy(layer);
+	// update MDL aabb
+
+	if (object->m_mdl->m_layers.size() == g_selectedLayer)
+	{
+		--g_selectedLayer;
+	}
+}
+void reloadTexture(yyMDLObject* object, int textureSlot, const wchar_t* path)
+{
+	auto layer = object->m_mdl->m_layers[g_selectedLayer];
+
+	yyResource* texture = 0;
+	switch (textureSlot)
+	{
+	case 0: texture = layer->m_textureGPU1; break;
+	case 1: texture = layer->m_textureGPU2; break;
+	case 2: texture = layer->m_textureGPU3; break;
+	case 3: texture = layer->m_textureGPU4; break;
+	default: YY_PRINT_FAILED; break;
+	}
+	
+	if (texture)
+	{
+		yyGetVideoDriverAPI()->DeleteTexture(texture);
+	}
+
+	yyStringA str;
+	str = path;
+	texture = yyGetVideoDriverAPI()->CreateTextureFromFile(str.data(), true, false, true);
+
+	switch (textureSlot)
+	{
+	case 0: layer->m_textureGPU1 = texture; break;
+	case 1: layer->m_textureGPU2 = texture; break;
+	case 2: layer->m_textureGPU3 = texture; break;
+	case 3: layer->m_textureGPU4 = texture; break;
+	default: YY_PRINT_FAILED; break;
+	}
+}
 int main()
 {
 
@@ -115,6 +348,7 @@ int main()
 	engineContext.m_data->init(inputContext.m_data);
 	auto p_engineContext = engineContext.m_data;
 
+	g_renameTextBuffer.reserve(g_renameTextBufferSize);
 
 	yyLogSetErrorOutput(log_onError);
 	yyLogSetInfoOutput(log_onInfo);
@@ -165,8 +399,32 @@ int main()
 	ImGui_ImplDX11_Init((ID3D11Device*)vdo->m_device, (ID3D11DeviceContext*)vdo->m_context);
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+	ImVec4* colors = ImGui::GetStyle().Colors;
+	colors[ImGuiCol_FrameBg] = ImVec4(0.24f, 0.25f, 0.25f, 1.00f);
+	colors[ImGuiCol_FrameBgHovered] = ImVec4(1.00f, 1.00f, 1.00f, 0.40f);
+	colors[ImGuiCol_FrameBgActive] = ImVec4(0.85f, 0.85f, 0.85f, 0.67f);
+	colors[ImGuiCol_TitleBgActive] = ImVec4(0.11f, 0.11f, 0.11f, 1.00f);
+	colors[ImGuiCol_CheckMark] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+	colors[ImGuiCol_SliderGrab] = ImVec4(0.88f, 0.88f, 0.88f, 1.00f);
+	colors[ImGuiCol_SliderGrabActive] = ImVec4(0.40f, 0.65f, 1.00f, 1.00f);
+	colors[ImGuiCol_Button] = ImVec4(0.80f, 0.80f, 0.80f, 0.40f);
+	colors[ImGuiCol_ButtonHovered] = ImVec4(0.73f, 0.73f, 0.73f, 1.00f);
+	colors[ImGuiCol_Header] = ImVec4(0.76f, 0.76f, 0.76f, 0.31f);
+	colors[ImGuiCol_HeaderHovered] = ImVec4(0.76f, 0.77f, 0.77f, 0.80f);
+	colors[ImGuiCol_ResizeGrip] = ImVec4(0.87f, 0.87f, 0.87f, 0.20f);
+	colors[ImGuiCol_ResizeGripHovered] = ImVec4(1.00f, 1.00f, 1.00f, 0.67f);
+	colors[ImGuiCol_Tab] = ImVec4(0.29f, 0.29f, 0.29f, 1.00f);
+	colors[ImGuiCol_TabHovered] = ImVec4(0.75f, 0.75f, 0.75f, 0.80f);
+	colors[ImGuiCol_TabActive] = ImVec4(0.56f, 0.57f, 0.59f, 1.00f);
+
+	
 	window.m_data->SetFocus();
 	
+	yyPtr<yyMDLObject> mdlObject = yyCreate<yyMDLObject>();
+	mdlObject.m_data->m_mdl = yyCreate<yyMDL>();
+
+	auto defaultTexture = yyGetTextureResource("../res/textures/editor/white.dds", false, false, true);
+
 	f32 deltaTime = 0.f;
 	bool run = true;
 	while (run)
@@ -202,22 +460,22 @@ int main()
 	//		printf("%f %f\n", io.MouseDelta.x, io.MouseDelta.y);
 
 			if (io.KeysDownDuration[(int)yyKey::K_W] >= 0.0f)
-				camera.moveForward(deltaTime);
+				camera.moveForward(deltaTime, io.KeyShift);
 
 			if (io.KeysDownDuration[(int)yyKey::K_S] >= 0.0f)
-				camera.moveBackward(deltaTime);
+				camera.moveBackward(deltaTime, io.KeyShift);
 
 			if (io.KeysDownDuration[(int)yyKey::K_A] >= 0.0f)
-				camera.moveLeft(deltaTime);
+				camera.moveLeft(deltaTime, io.KeyShift);
 
 			if (io.KeysDownDuration[(int)yyKey::K_D] >= 0.0f)
-				camera.moveRight(deltaTime);
+				camera.moveRight(deltaTime, io.KeyShift);
 
 			if (io.KeysDownDuration[(int)yyKey::K_E] >= 0.0f)
-				camera.moveUp(deltaTime);
+				camera.moveUp(deltaTime, io.KeyShift);
 
 			if (io.KeysDownDuration[(int)yyKey::K_Q] >= 0.0f)
-				camera.moveDown(deltaTime);
+				camera.moveDown(deltaTime, io.KeyShift);
 
 			auto cursorX = std::floor((f32)window.m_data->m_currentSize.x / 2.f);
 			auto cursorY = std::floor((f32)window.m_data->m_currentSize.y / 2.f);
@@ -231,7 +489,8 @@ int main()
 		
 
 		
-		ImGui::Begin("Main menu", 0, ImGuiWindowFlags_AlwaysAutoResize);
+		ImGui::Begin("Main menu", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove
+		| ImGuiWindowFlags_NoTitleBar);
 		ImGuiTabBarFlags mainemnuTab_bar_flags = ImGuiTabBarFlags_None;
 		if (ImGui::BeginTabBar("menutab", mainemnuTab_bar_flags))
 		{
@@ -252,30 +511,126 @@ int main()
 		ImGui::End();
 
 		ImGui::SetNextWindowSizeConstraints(ImVec2(300.f, 600.f), ImVec2(300.f, 600.f));
-		ImGui::Begin("Parameters", 0, ImGuiWindowFlags_AlwaysAutoResize);
+		ImGui::Begin("Parameters", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove
+		| ImGuiWindowFlags_NoTitleBar);
 		if (ImGui::BeginTabBar("parameterstab"))
 		{
 			if (ImGui::BeginTabItem("Layers"))
 			{
-				ImGuiWindowFlags window_flags = ImGuiWindowFlags_HorizontalScrollbar;
 				ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(255, 0, 0, 100));
-				ImGui::BeginChild("ChildLayerList", ImVec2(ImGui::GetWindowContentRegionWidth(), 200), false, window_flags);
-				for (int i = 0; i < 100; i++)
+				ImGui::BeginChild("ChildLayerList", ImVec2(ImGui::GetWindowContentRegionWidth(), 200), false, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoMove);
+				yyStringA stra;
+				for (int n = 0, nsz = mdlObject.m_data->m_mdl->m_layers.size(); n < nsz; ++n)
 				{
-					ImGui::Text("%04d: scrollable region", i);
+					auto layer = mdlObject.m_data->m_mdl->m_layers[n];
+					stra = layer->m_model->m_name.data();
+
+					if (ImGui::Selectable(stra.data(), g_selectedLayer == n))
+					{
+						g_selectedLayer = n;
+						printf("Select %i\n", g_selectedLayer);
+					}
 				}
 				ImGui::EndChild();
 				ImGui::PopStyleColor();
 				if (ImGui::Button("New"))
 				{
-					auto path = yyOpenFileDialog("Import model", "Import", "obj fbx", "Supported files");
+					auto path = yyOpenFileDialog("Import model", "Import", "obj fbx dae collada xml md5mesh smd x stl lwo gltf glb ", "Supported files");
 					if (path)
 					{
 						//yyLogWriteInfo("OpenFileDialog: %s\n", path->to_stringA().data());
+						newLayer(mdlObject.m_data, path->data());
 
 						yyDestroy(path);
 					}
 				}
+				
+				if (g_selectedLayer != -1)
+				{
+					auto & currentLayerInfo = g_layerInfo[g_selectedLayer];
+					
+					ImGui::SameLine();
+					if (ImGui::Button("Rename"))
+					{
+						g_renameTextBuffer = mdlObject.m_data->m_mdl->m_layers[g_selectedLayer]->m_model->m_name.data();
+						ImGui::OpenPopup("Rename");
+					}
+					ImVec2 center(ImGui::GetIO().DisplaySize.x * 0.5f, ImGui::GetIO().DisplaySize.y * 0.5f);
+					ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+					if (ImGui::BeginPopupModal("Rename", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+					{
+						ImGui::InputText("new name", g_renameTextBuffer.data(), g_renameTextBufferSize);
+						ImGui::Separator();
+
+						if (ImGui::Button("OK", ImVec2(120, 0))) 
+						{
+							mdlObject.m_data->m_mdl->m_layers[g_selectedLayer]->m_model->m_name = checkName(mdlObject.m_data, g_renameTextBuffer.data());
+							ImGui::CloseCurrentPopup(); 
+						}
+						ImGui::SetItemDefaultFocus();
+						ImGui::SameLine();
+						if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+						ImGui::EndPopup();
+					}
+					ImGui::SameLine();
+					ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(255, 0, 0, 100));
+					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(255, 255, 0, 255));
+					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 255, 255));
+					if (ImGui::Button("Delete"))
+					{
+						deleteLayer(mdlObject.m_data);
+					}
+					ImGui::PopStyleColor();
+					ImGui::PopStyleColor();
+					ImGui::PopStyleColor();
+					if (ImGui::CollapsingHeader("Position"))
+					{
+						ImGui::DragFloat("X", &currentLayerInfo.m_offset.x, 0.005f);
+						ImGui::DragFloat("Y", &currentLayerInfo.m_offset.y, 0.005f);
+						ImGui::DragFloat("Z", &currentLayerInfo.m_offset.z, 0.005f);
+						ImGui::Separator();
+					}
+					const char* shaderCombo_items[] = { "Simple" };
+					ImGui::Combo("Shader", &g_shaderCombo_item_current, shaderCombo_items, IM_ARRAYSIZE(shaderCombo_items));
+
+					if (ImGui::CollapsingHeader("Texture 0"))
+					{
+						ImGui::InputText("path", currentLayerInfo.m_texturePathTextBuffer.data(), currentLayerInfo.m_texturePathTextBufferSize);
+						ImGui::SameLine();
+						if (ImGui::Button("..."))
+						{
+							auto path = yyOpenFileDialog("Texture file", "Select", "png dds bmp", "Supported files");
+							if (path)
+							{
+								auto relPath = yyGetRelativePath((wchar_t*)path->data());
+								if (relPath)
+								{
+									mdlObject.m_data->m_mdl->m_layers[g_selectedLayer]->m_texture1Path = relPath->data();
+									currentLayerInfo.m_texturePathTextBuffer = relPath->data();
+
+									reloadTexture(mdlObject.m_data, 0, (wchar_t*)relPath->data());
+
+									yyDestroy(relPath);
+								}
+								yyDestroy(path);
+							}
+						}
+						ImGui::Separator();
+					}
+					if (ImGui::CollapsingHeader("Texture 1"))
+					{
+						ImGui::Separator();
+					}
+					if (ImGui::CollapsingHeader("Texture 2"))
+					{
+						ImGui::Separator();
+					}
+					if (ImGui::CollapsingHeader("Texture 3"))
+					{
+						ImGui::Separator();
+					}
+				}
+
 				ImGui::EndTabItem();
 			}
 			if (ImGui::BeginTabItem("Animations"))
@@ -305,19 +660,37 @@ int main()
 			g_videoDriver->DrawLine3D(v4f(10.f, 0.f, 0.f, 0.f), v4f(-10.f, 0.f, 0.f, 0.f), ColorRed);
 			g_videoDriver->DrawLine3D(v4f(0.f, 0.f, 10.f, 0.f), v4f(0.f, 0.f, -10.f, 0.f), ColorBlue);
 
-			//g_videoDriver->UseDepth(true);
+			g_videoDriver->UseDepth(true);
 
-			///*g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::Projection, viewport.m_data->m_activeCamera->m_camera->m_projectionMatrix);
-			//g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::View, viewport.m_data->m_activeCamera->m_camera->m_viewMatrix);
-			//g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::ViewProjection, viewport.m_data->m_activeCamera->m_camera->m_viewProjectionMatrix);*/
+			g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::Projection, camera.m_camera->m_projectionMatrix);
+			g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::View, camera.m_camera->m_viewMatrix);
 
 			//g_videoDriver->DrawLine3D(v4f(-2.f, 0.f, 0.f, 0.f), v4f(2.f, 0.f, 0.f, 0.f), ColorRed);
 			//g_videoDriver->DrawLine3D(v4f(0.f, 0.f, -2.f, 0.f), v4f(0.f, 0.f, 2.f, 0.f), ColorRed);
 
 
+			for (int n = 0, nsz = mdlObject.m_data->m_mdl->m_layers.size(); n < nsz; ++n)
+			{
+				auto layer = mdlObject.m_data->m_mdl->m_layers[n];
+				g_videoDriver->SetModel(layer->m_meshGPU);
+
+				Mat4 WorldMatrix;
+				WorldMatrix[3] = g_layerInfo[n].m_offset;
+				WorldMatrix[3].w = 1.f;
+
+				g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::World, WorldMatrix);
+				g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection, camera.m_camera->m_projectionMatrix * camera.m_camera->m_viewMatrix * WorldMatrix);
+				if(layer->m_textureGPU1)
+					g_videoDriver->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, layer->m_textureGPU1);
+				else
+					g_videoDriver->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, defaultTexture);
+				g_videoDriver->Draw();
+			}
+
 			//g_videoDriver->UseDepth(false);
 			//
 			//yyGUIDrawAll();
+
 
 
 			g_videoDriver->EndDraw();

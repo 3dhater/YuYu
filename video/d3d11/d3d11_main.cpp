@@ -129,7 +129,6 @@ yyResource* CreateTextureFromFile(const char* fileName, bool useLinearFilter, bo
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Texture;
 	newRes->m_source = nullptr;
-	newRes->m_index = g_d3d11->m_textures.size();
 	newRes->m_refCount = 0;
 	if(useLinearFilter)
 		newRes->m_flags |= yyResource::flags::texture_useLinearFilter;
@@ -137,7 +136,16 @@ yyResource* CreateTextureFromFile(const char* fileName, bool useLinearFilter, bo
 		newRes->m_flags |= yyResource::flags::texture_useComparisonFilter;
 	newRes->m_file = fileName;
 
-	g_d3d11->m_textures.push_back(nullptr);
+	if (g_d3d11->m_freeTextureResourceIndex.head())
+	{
+		newRes->m_index = g_d3d11->m_freeTextureResourceIndex.head()->m_data;
+		g_d3d11->m_freeTextureResourceIndex.erase_node(g_d3d11->m_freeTextureResourceIndex.head());
+	}
+	else
+	{
+		newRes->m_index = g_d3d11->m_textures.size();
+		g_d3d11->m_textures.push_back(nullptr);
+	}
 
 	if(load)
 		LoadTexture(newRes);
@@ -149,15 +157,33 @@ yyResource* CreateTexture(yyImage* image, bool useLinearFilter, bool useComparis
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Texture;
 	newRes->m_source = image;
-	newRes->m_index = g_d3d11->m_textures.size();
 	newRes->m_refCount = 1;
 	if(useLinearFilter)
 		newRes->m_flags |= yyResource::flags::texture_useLinearFilter;
+	if (useComparisonFilter)
+		newRes->m_flags |= yyResource::flags::texture_useComparisonFilter;
+
+	bool isNewIndex = false;
+	if (g_d3d11->m_freeTextureResourceIndex.head())
+	{
+		newRes->m_index = g_d3d11->m_freeTextureResourceIndex.head()->m_data;
+		g_d3d11->m_freeTextureResourceIndex.erase_node(g_d3d11->m_freeTextureResourceIndex.head());
+	}
+	else
+	{
+		newRes->m_index = g_d3d11->m_textures.size();
+		isNewIndex = true;
+	}
 
 	auto newTexture = CreateD3D11Texture(image, useLinearFilter, useComparisonFilter);
 	if(newTexture)
 	{
-		g_d3d11->m_textures.push_back(newTexture);
+		if (isNewIndex)
+			g_d3d11->m_textures.push_back(newTexture);
+		else
+			g_d3d11->m_textures[newRes->m_index] = newTexture;
+
+		newRes->m_isLoaded = true;
 		return newRes;
 	}
 
@@ -194,11 +220,19 @@ yyResource* CreateModelFromFile(const char* fileName, bool load)
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Model;
 	newRes->m_source = nullptr;
-	newRes->m_index = g_d3d11->m_models.size();
 	newRes->m_refCount = 0;
 	newRes->m_file = fileName;
 
-	g_d3d11->m_models.push_back(nullptr);
+	if (g_d3d11->m_freeModelResourceIndex.head())
+	{
+		newRes->m_index = g_d3d11->m_freeModelResourceIndex.head()->m_data;
+		g_d3d11->m_freeModelResourceIndex.erase_node(g_d3d11->m_freeModelResourceIndex.head());
+	}
+	else
+	{
+		newRes->m_index = g_d3d11->m_models.size();
+		g_d3d11->m_models.push_back(nullptr);
+	}
 
 	if(load)
 		LoadModel(newRes);
@@ -209,14 +243,29 @@ yyResource* CreateModel(yyModel* model)
 	assert(model);
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Model;
-	newRes->m_index = g_d3d11->m_models.size();
 	newRes->m_source = model;
 	newRes->m_refCount = 1;
+
+	bool isNewIndex = false;
+	if (g_d3d11->m_freeModelResourceIndex.head())
+	{
+		newRes->m_index = g_d3d11->m_freeModelResourceIndex.head()->m_data;
+		g_d3d11->m_freeModelResourceIndex.erase_node(g_d3d11->m_freeModelResourceIndex.head());
+	}
+	else
+	{
+		newRes->m_index = g_d3d11->m_models.size();
+		isNewIndex = true;
+	}
 
 	auto newModel = CreateD3D11Model(model);
 	if(newModel)
 	{
-		g_d3d11->m_models.push_back(newModel);
+		if (isNewIndex)
+			g_d3d11->m_models.push_back(newModel);
+		else
+			g_d3d11->m_models[newRes->m_index] = newModel;
+		newRes->m_isLoaded = true;
 		return newRes;
 	}
 
@@ -685,6 +734,26 @@ void SwapBuffers()
 	g_d3d11->m_vsync ? g_d3d11->m_SwapChain->Present(1, 0)
 		: g_d3d11->m_SwapChain->Present(0, 0);
 }
+void DeleteModel(yyResource* r)
+{
+	assert(r);
+	assert(r->m_type == yyResourceType::Model);
+	yyDestroy(g_d3d11->m_models[r->m_index]);
+	g_d3d11->m_models[r->m_index] = nullptr;
+	// чтобы не переполнять g_d3d11->m_models при создании новых ресурсов,
+	// лучше вставлять их в свободные ячейки.
+	// чтобы не перебирать их, наверно, лучше иметь список свободных ячеек
+	// соответственно, при создании ресурса, перед указанием индекса, нужно проверить этот список
+	g_d3d11->m_freeModelResourceIndex.push_back(r->m_index);
+	yyDestroy(r); // удаление ресурса
+}
+void DeleteTexture(yyResource* r)
+{
+	yyDestroy(g_d3d11->m_textures[r->m_index]);
+	g_d3d11->m_textures[r->m_index] = nullptr;
+	g_d3d11->m_freeTextureResourceIndex.push_back(r->m_index);
+	yyDestroy(r);
+}
 
 extern "C"
 {
@@ -741,6 +810,9 @@ extern "C"
 		g_api.GetVideoDriverObjects = GetVideoDriverObjects;
 		
 		g_api.test_draw = 0;
+
+		g_api.DeleteModel = DeleteModel;
+		g_api.DeleteTexture = DeleteTexture;
 
 		g_api.GetVideoDriverName = GetVideoDriverName;
 		g_api.SwapBuffers = SwapBuffers;

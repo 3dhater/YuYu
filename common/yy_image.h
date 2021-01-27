@@ -35,6 +35,101 @@ struct yyImage
 			yyMemFree(m_data);
 	}
 
+	void _convertToR8G8B8A8_from_R8G8B8()
+	{
+		u32 new_pitch = m_width * 4;
+		u32 new_dataSize = m_height * new_pitch;
+		u8* new_data = (u8*)yyMemAlloc(new_dataSize);
+
+		struct rgb
+		{
+			u8 r, g, b;
+		};
+		struct rgba
+		{
+			u8 r, g, b, a;
+		};
+
+		rgb* rgb_data = (rgb*)m_data;
+		rgba* rgba_data = (rgba*)new_data;
+		u32 num_of_pixels = m_width * m_height;
+		for (s32 i = 0; i < num_of_pixels; ++i)
+		{
+			rgba_data->r = rgb_data->r;
+			rgba_data->g = rgb_data->g;
+			rgba_data->b = rgb_data->b;
+			rgba_data->a = 255;
+			
+			rgba_data++;
+			rgb_data++;
+		}
+
+		yyDestroy(m_data);
+
+		m_data = new_data;
+		m_pitch = new_pitch;
+		m_dataSize = new_dataSize;
+		m_format = yyImageFormat::R8G8B8A8;
+	}
+	void convertToR8G8B8A8()
+	{
+		assert(m_data);
+		switch (m_format)
+		{
+		case yyImageFormat::R8G8B8:
+			_convertToR8G8B8A8_from_R8G8B8();
+			break;
+		case yyImageFormat::R8G8B8A8:
+			break;
+		case yyImageFormat::A8R8G8B8:
+			break;
+		case yyImageFormat::BC1:
+			break;
+		case yyImageFormat::BC2:
+			break;
+		case yyImageFormat::BC3:
+			break;
+		case yyImageFormat::Unknown:
+			break;
+		default:
+			YY_PRINT_FAILED;
+			break;
+		}
+	}
+
+	void flipVertical()
+	{
+		assert(m_data);
+		u8 * line = nullptr;
+		line = (u8*)yyMemAlloc(m_pitch);
+		u8 * p_Up = &m_data[0u];
+		u8 * p_Down = &m_data[m_pitch * m_height - m_pitch];
+		for (u32 i = 0u; i < m_height / 2u; ++i)
+		{
+			memcpy(line, p_Up, m_pitch);
+			memcpy(p_Up, p_Down, m_pitch);
+			memcpy(p_Down, line, m_pitch);
+			p_Up += m_pitch;
+			p_Down -= m_pitch;
+		}
+		yyMemFree(line);
+	}
+	void flipPixel() 
+	{
+		for (u32 i = 0u; i < m_dataSize; ) 
+		{
+			u8 r = m_data[i];
+			u8 g = m_data[i + 1u];
+			u8 b = m_data[i + 2u];
+			u8 a = m_data[i + 3u];
+			m_data[i] = b;
+			m_data[i + 1u] = g;
+			m_data[i + 2u] = r;
+			m_data[i + 3u] = a;
+			i += 4;
+		}
+	}
+
 	void fill( const yyColor& color )
 	{
 		u8* data = m_data;

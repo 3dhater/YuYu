@@ -15,6 +15,7 @@
 #ifdef YY_PLATFORM_WINDOWS
 #include <Windows.h>
 #include <shobjidl.h> 
+#include "Shlwapi.h"
 #endif
 
 #include <thread>
@@ -61,6 +62,14 @@ Engine::Engine()
 	imageLoader.image_loader_callback = ImageLoader_PNG;
 	m_imageLoaders.push_back(imageLoader);
 
+	imageLoader.ext = ".bmp";
+	imageLoader.image_loader_callback = ImageLoader_BMP;
+	m_imageLoaders.push_back(imageLoader);
+
+	imageLoader.ext = ".tga";
+	imageLoader.image_loader_callback = ImageLoader_TGA;
+	m_imageLoaders.push_back(imageLoader);
+
 	yyModelLoader modelLoader;
 	modelLoader.ext = ".tr3d";
 	modelLoader.model_loader_callback = ModelLoader_TR3D;
@@ -79,6 +88,11 @@ Engine::Engine()
 	hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void**>(&m_fileOpenDialog));
 	if (FAILED(hr))
 		YY_PRINT_FAILED;
+
+	//m_workingDir
+	wchar_t wcharBuffer[512];
+	GetCurrentDirectory(512, wcharBuffer);
+	m_workingDir = wcharBuffer;
 #endif
 }
 Engine::~Engine()
@@ -117,6 +131,7 @@ Engine::~Engine()
 	ZSTD_freeCCtx(m_cctx);
 }
 
+
 void Engine::addGuiElement(yyGUIElement* el)
 {
 	m_guiElements.push_back(el);
@@ -139,6 +154,29 @@ EngineDestroyer g_engineDestroyer;
 
 extern "C"
 {
+
+YY_API const wchar_t* YY_C_DECL yyGetWorkingDir()
+{
+	assert(g_engine);
+	return g_engine->m_workingDir.data();
+}
+YY_API yyString* YY_C_DECL yyGetRelativePath(const wchar_t* path)
+{
+	yyString * returnPath = 0;
+#ifdef YY_PLATFORM_WINDOWS
+	wchar_t szOut[MAX_PATH] = L"";
+	if (PathRelativePathTo(szOut, yyGetWorkingDir(), FILE_ATTRIBUTE_DIRECTORY, path, FILE_ATTRIBUTE_NORMAL)
+		== TRUE)
+	{
+		returnPath = yyCreate<yyString>();
+		returnPath->append((const char16_t*)szOut);
+	}
+#else
+#error Need to implement
+#endif
+
+	return returnPath;
+}
 
 YY_API yyResource* YY_C_DECL yyGetTextureResource(const char* fileName, bool useFilter, bool useComparisonFilter, bool load)
 {
@@ -499,6 +537,8 @@ YY_API yyString* YY_C_DECL yyOpenFileDialog(const char* title, const char* okBut
 			pItem->Release();
 		}
 	}
+	g_engine->m_fileOpenDialog->Release();
+	CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void**>(&g_engine->m_fileOpenDialog));
 #else
 #error Need to implement
 #endif

@@ -121,6 +121,8 @@ public:
 	std::vector<CacheNode<yyResource>> m_textureCache;
 	std::vector<CacheNode<yyModel>> m_modelCache;
 
+	yyStringW m_workingDir;
+
 #ifdef YY_PLATFORM_WINDOWS
 	IFileSaveDialog * m_fileSaveDialog;
 	IFileOpenDialog * m_fileOpenDialog;

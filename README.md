@@ -4,7 +4,7 @@ Game engine with low overhead.
 # Features
 
 * Can compile with Visual Studio 2012
-* Loading PNG, DDS
+* Loading PNG, DDS, BMP
 * 2d sprite with animations
 * OpenGL 3.3, Direct3D 11
 

@@ -25,7 +25,7 @@ struct yyMDLObject
 	{
 		if (m_mdl)
 		{
-			// destroy or release
+			// destroy or release like yyUnloadMDL
 			yyDestroy(m_mdl);
 		}
 	}

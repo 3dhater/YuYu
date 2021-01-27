@@ -8,8 +8,11 @@
 //#include <filesystem>
 
 // LOADER PROTOTYPES
+// don't forget to add this in Engine::m_imageLoaders
 yyImage* ImageLoader_DDS(const char* p);
 yyImage* ImageLoader_PNG(const char* p);
+yyImage* ImageLoader_TGA(const char* p);
+yyImage* ImageLoader_BMP(const char* p); 
 yyModel* ModelLoader_TR3D(const char* p); // from my old game
 
 typedef yyImage*(*ImageLoaderFunction_t)(const char* p);

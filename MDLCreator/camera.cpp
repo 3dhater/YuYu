@@ -22,7 +22,7 @@ void camera_onUpdate(yyCamera* camera)
 Camera::Camera()
 {
 	m_camera = 0;
-	m_moveSpeed = 50.f;
+	m_moveSpeed = 5.f;
 }
 
 Camera::~Camera()
@@ -69,29 +69,35 @@ void Camera::rotate(const v2f& mouseDelta, f32 dt)
 		m_camera->m_rotationMatrix = RX * m_camera->m_rotationMatrix * RY;
 }
 
-void Camera::moveLeft(f32 dt)
+void Camera::moveLeft(f32 dt, bool isShift)
 {
-	_moveCamera(v4f(-m_moveSpeed * dt, 0.f, 0.f, 1.f));
+	auto speed = m_moveSpeed; if (isShift) speed *= 10.f;
+	_moveCamera(v4f(-speed * dt, 0.f, 0.f, 1.f));
 }
-void Camera::moveRight(f32 dt)
+void Camera::moveRight(f32 dt, bool isShift)
 {
-	_moveCamera(v4f(m_moveSpeed * dt, 0.f, 0.f, 1.f));
+	auto speed = m_moveSpeed; if (isShift) speed *= 10.f;
+	_moveCamera(v4f(speed * dt, 0.f, 0.f, 1.f));
 }
-void Camera::moveUp(f32 dt)
+void Camera::moveUp(f32 dt, bool isShift)
 {
-	_moveCamera(v4f(0.f, m_moveSpeed * dt, 0.f, 1.f));
+	auto speed = m_moveSpeed; if (isShift) speed *= 10.f;
+	_moveCamera(v4f(0.f, speed * dt, 0.f, 1.f));
 }
-void Camera::moveDown(f32 dt)
+void Camera::moveDown(f32 dt, bool isShift)
 {
-	_moveCamera(v4f(0.f, -m_moveSpeed * dt, 0.f, 1.f));
+	auto speed = m_moveSpeed; if (isShift) speed *= 10.f;
+	_moveCamera(v4f(0.f, -speed * dt, 0.f, 1.f));
 }
-void Camera::moveBackward(f32 dt)
+void Camera::moveBackward(f32 dt, bool isShift)
 {
-	_moveCamera(v4f(0.f, 0.f, m_moveSpeed * dt, 1.f));
+	auto speed = m_moveSpeed; if (isShift) speed *= 10.f;
+	_moveCamera(v4f(0.f, 0.f, speed * dt, 1.f));
 }
-void Camera::moveForward(f32 dt)
+void Camera::moveForward(f32 dt, bool isShift)
 {
-	_moveCamera(v4f(0.f, 0.f, -m_moveSpeed * dt, 1.f));
+	auto speed = m_moveSpeed; if (isShift) speed *= 10.f;
+	_moveCamera(v4f(0.f, 0.f, -speed * dt, 1.f));
 }
 
 void Camera::_moveCamera(v4f& vel)

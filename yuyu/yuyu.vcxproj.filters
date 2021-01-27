@@ -219,5 +219,11 @@
     <ClCompile Include="..\libs\zstd\lib\decompress\huf_decompress.c">
       <Filter>Source Files\zstd</Filter>
     </ClCompile>
+    <ClCompile Include="image_loader_tga.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="image_loader_bmp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

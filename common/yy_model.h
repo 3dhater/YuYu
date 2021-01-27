@@ -330,10 +330,10 @@ struct yyMDLLayer
 {
 	yyMDLLayer() {
 		m_model = 0;
-		/*m_textureGPU1 = 0;
+		m_textureGPU1 = 0;
 		m_textureGPU2 = 0;
 		m_textureGPU3 = 0;
-		m_textureGPU4 = 0;*/
+		m_textureGPU4 = 0;
 		m_meshGPU = 0;
 		m_gpu = yyGetVideoDriverAPI();
 	}
@@ -351,28 +351,28 @@ struct yyMDLLayer
 	yyStringA m_texture3Path;
 	yyStringA m_texture4Path;
 
-	/*yyResource* m_textureGPU1;
+	yyResource* m_textureGPU1;
 	yyResource* m_textureGPU2;
 	yyResource* m_textureGPU3;
-	yyResource* m_textureGPU4;*/
+	yyResource* m_textureGPU4;
 
 	yyResource* m_meshGPU;
 
 	void Load()
 	{
-		/*if (m_textureGPU1) m_gpu->LoadTexture(m_textureGPU1);
+		if (m_textureGPU1) m_gpu->LoadTexture(m_textureGPU1);
 		if (m_textureGPU2) m_gpu->LoadTexture(m_textureGPU2);
 		if (m_textureGPU3) m_gpu->LoadTexture(m_textureGPU3);
-		if (m_textureGPU4) m_gpu->LoadTexture(m_textureGPU4);*/
+		if (m_textureGPU4) m_gpu->LoadTexture(m_textureGPU4);
 
 		if (m_meshGPU) m_gpu->LoadModel(m_meshGPU);
 	}
 	void Unload()
 	{
-		/*if (m_textureGPU1) m_gpu->UnloadTexture(m_textureGPU1);
+		if (m_textureGPU1) m_gpu->UnloadTexture(m_textureGPU1);
 		if (m_textureGPU2) m_gpu->UnloadTexture(m_textureGPU2);
 		if (m_textureGPU3) m_gpu->UnloadTexture(m_textureGPU3);
-		if (m_textureGPU4) m_gpu->UnloadTexture(m_textureGPU4);*/
+		if (m_textureGPU4) m_gpu->UnloadTexture(m_textureGPU4);
 
 		if (m_meshGPU) m_gpu->UnloadModel(m_meshGPU);
 	}

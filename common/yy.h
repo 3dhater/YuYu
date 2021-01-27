@@ -41,6 +41,10 @@ extern "C"
 	YY_API yyString* YY_C_DECL yyOpenFileDialog(const char* title, const char* okButtonLabel, 
 		const char* extensions, const char* extensionTitle);
 
+	YY_API const wchar_t* YY_C_DECL yyGetWorkingDir();
+	YY_API yyString* YY_C_DECL yyGetRelativePath(const wchar_t*);
+
+
 	YY_API u8* YY_C_DECL yyCompressData( u8* in_data, u32 in_data_size, u32& out_data_size, yyCompressType ct );
 	YY_API u8* YY_C_DECL yyDecompressData( u8* in_data, u32 in_data_size, u32& out_data_size, yyCompressType ct );
 
