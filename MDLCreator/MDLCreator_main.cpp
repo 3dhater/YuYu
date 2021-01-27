@@ -599,7 +599,7 @@ int main()
 						ImGui::SameLine();
 						if (ImGui::Button("..."))
 						{
-							auto path = yyOpenFileDialog("Texture file", "Select", "png dds bmp", "Supported files");
+							auto path = yyOpenFileDialog("Texture file", "Select", "png dds bmp tga", "Supported files");
 							if (path)
 							{
 								auto relPath = yyGetRelativePath((wchar_t*)path->data());
