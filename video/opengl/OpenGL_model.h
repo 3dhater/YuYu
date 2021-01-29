@@ -2,6 +2,7 @@
 #define YY_OPENGL_MODEL_H__
 
 #include "yy_material.h"
+#include "yy_model.h"
 
 class OpenGLModel
 {
@@ -14,6 +15,7 @@ public:
 	GLsizei m_iCount;
 	GLenum m_indexType;
 
+	yyVertexType m_vertexType;
 	yyMaterial m_material;
 };
 

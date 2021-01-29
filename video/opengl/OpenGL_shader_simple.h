@@ -13,5 +13,19 @@ public:
 
 	bool init();
 };
+class OpenGLShaderSimpleAnimated
+{
+public:
+	OpenGLShaderSimpleAnimated();
+	~OpenGLShaderSimpleAnimated();
+
+	GLuint m_program;
+	GLuint m_VAO;
+	GLint m_uniform_WVP;
+	GLint m_uniform_World;
+	GLint m_uniform_Bones;
+
+	bool init();
+};
 
 #endif

@@ -44,7 +44,7 @@ bool D3D11ShaderSimple::init()
 		"   VSOut output;\n"
 		"	output.pos   = mul(WVP, float4(input.position.x, input.position.y, input.position.z, 1.f));\n"
 		"	output.uv.x    = input.uv.x;\n"
-		"	output.uv.y    = 1.f - input.uv.y;\n"
+		"	output.uv.y    = input.uv.y;\n"
 		"	return output;\n"
 		"}\n"
 		"PSOut PSMain(VSOut input){\n"

@@ -121,6 +121,7 @@ public:
 	Mat4 m_matrixProjection;
 	Mat4 m_matrixViewProjection;
 	Mat4 m_matrixWorldViewProjection;
+	Mat4 m_matrixBones[100];
 
 	v2f m_spriteCameraPosition;
 	v2f m_spriteCameraScale;

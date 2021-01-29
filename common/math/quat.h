@@ -40,7 +40,6 @@ public:
 	{
 		set( Euler_x, Euler_y, Euler_z );
 	}
-
 		//	create quaternion from Euler angles
 	Quat( const v4f& v ){ set( v ); }
 
@@ -71,12 +70,15 @@ public:
 		// \param Euler_y: y angle
 		// \param Euler_z: z angle
 	void set( f32 Euler_x, f32 Euler_y, f32 Euler_z ){
-		f32 c1 = cos( Euler_x * 0.5f );
-		f32 c2 = cos( Euler_y * 0.5f );
-		f32 c3 = cos( Euler_z * 0.5f );
-		f32 s1 = sin( Euler_x * 0.5f );
-		f32 s2 = sin( Euler_y * 0.5f );
-		f32 s3 = sin( Euler_z * 0.5f );
+		Euler_x *= 0.5f;
+		Euler_y *= 0.5f;
+		Euler_z *= 0.5f;
+		f32 c1 = cos( Euler_x );
+		f32 c2 = cos( Euler_y );
+		f32 c3 = cos( Euler_z );
+		f32 s1 = sin( Euler_x );
+		f32 s2 = sin( Euler_y );
+		f32 s3 = sin( Euler_z );
 		w	=	(c1 * c2 * c3) + (s1 * s2 * s3);
 		x	=	(s1 * c2 * c3) - (c1 * s2 * s3);
 		y	=	(c1 * s2 * c3) + (s1 * c2 * s3);

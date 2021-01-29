@@ -123,6 +123,7 @@ OpenGL::OpenGL()
 	m_shader_terrain(nullptr),
 	m_shader_depth(nullptr),
 	m_shader_simple(nullptr),
+	m_shader_simpleAnimated(nullptr),
 	m_shader_screenQuad(nullptr),
 
 	m_isGUI(false),
@@ -159,6 +160,7 @@ OpenGL::~OpenGL()
 	if (m_shader_terrain) yyDestroy(m_shader_terrain);
 	if (m_shader_depth) yyDestroy(m_shader_depth);
 	if (m_shader_simple) yyDestroy(m_shader_simple);
+	if (m_shader_simpleAnimated) yyDestroy(m_shader_simpleAnimated);
 
 	for(size_t i = 0, sz = m_textures.size(); i < sz; ++i)
 	{
@@ -508,6 +510,14 @@ bool OpenGL::Init(yyWindow* window)
 		return false;
 	}
 
+	m_shader_simpleAnimated = yyCreate<OpenGLShaderSimpleAnimated>();
+	if (!m_shader_simpleAnimated->init())
+	{
+		yyLogWriteError("Can't create simple animated shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
 	m_shader_screenQuad = yyCreate<OpenGLShaderScreenQuad>();
 	if (!m_shader_screenQuad->init())
 	{
@@ -689,6 +699,7 @@ bool OpenGL::initTexture(yyImage* image, OpenGLTexture* newTexture, bool useLine
 bool OpenGL::initModel(yyModel* model, OpenGLModel* openglModel)
 {
 	openglModel->m_material = model->m_material;
+	openglModel->m_vertexType = model->m_vertexType;
 
 	glGenVertexArrays(1, &openglModel->m_VAO);
 	glBindVertexArray(openglModel->m_VAO);

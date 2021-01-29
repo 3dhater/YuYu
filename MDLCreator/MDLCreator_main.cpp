@@ -30,9 +30,9 @@
 #include "scene/sprite.h"
 #include "scene/mdl_object.h"
 
-#include <assimp/Importer.hpp>      // C++ importer interface
-#include <assimp/scene.h>       // Output data structure
-#include <assimp/postprocess.h> // Post processing flags
+//#include <assimp/Importer.hpp>      // C++ importer interface
+//#include <assimp/scene.h>       // Output data structure
+//#include <assimp/postprocess.h> // Post processing flags
 
 // для того чтобы настраивать модель в редакторе
 // например, можно изменить позицию
@@ -55,18 +55,36 @@ const u32 g_renameTextBufferSize = 128;
 int g_shaderCombo_item_current = 0;
 
 int g_selectedLayer = -1;
+bool g_bindPose = false;
 
-Mat4 aiMatrixToGameMatrix(const aiMatrix4x4& a)
-{
-	Mat4 m;
-	auto dst = m.getPtr();
-	f32 * src = (f32*)&a.a1;
-	for (int i = 0; i < 16; ++i)
-	{
-		dst[i] = src[i];
-	}
-	return m;
-}
+bool g_SMDFixCoorSystem = false;
+bool g_SMDIsZeroBased = true;
+
+//Mat4 aiMatrixToGameMatrix(const aiMatrix4x4& a)
+//{
+//	Mat4 m;
+//	auto dst = m.getPtr();
+//	f32 * src = (f32*)&a.a1;
+//	for (int i = 0; i < 16; ++i)
+//	{
+//		dst[i] = src[i];
+//	}
+//	return m;
+//}
+//aiNode* aiFindNode(const char* name, aiNode* node)
+//{
+//	if (strcmp(node->mName.data, name) == 0)
+//	{
+//		return node;
+//	}
+//	for (int i = 0; i < node->mNumChildren; ++i)
+//	{
+//		auto n = aiFindNode(name, node->mChildren[i]);
+//		if (n)
+//			return n;
+//	}
+//	return 0;
+//}
 
 struct yyEngineContext
 {
@@ -171,145 +189,663 @@ check_again:;
 	return newName;
 }
 
-// load model, create new layer
-void newLayer(yyMDLObject* object, const char16_t* file)
+//void aiPrintNames(aiNode* node, int depth)
+//{
+//	for (int i = 0; i < depth; ++i)
+//	{
+//		printf("  ");
+//	}
+//	if (node->mName.data)
+//		printf("%s", node->mName.data);
+//	else
+//		printf("[noname]");
+//	printf("\n");
+//	for (int i = 0; i < node->mNumChildren; ++i)
+//	{
+//		aiPrintNames(node->mChildren[i], depth + 1);
+//	}
+//}
+
+struct SMDNode
 {
-	yyStringA stra;
-	stra = file;
-
-	Assimp::Importer Importer;
-	const aiScene* pScene = Importer.ReadFile(
-		stra.c_str(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
-	if (!pScene)
+	SMDNode()
 	{
-		YY_PRINT_FAILED;
-		return;
+		m_ID = 0;
+		m_parentID = -1;
 	}
-
-	object->m_GlobalInverseTransform = aiMatrixToGameMatrix(pScene->mRootNode->mTransformation);
-	object->m_GlobalInverseTransform.invert();
-
-	for (int i = 0; i < pScene->mNumMeshes; ++i)
+	s32 m_ID;
+	std::string m_name;
+	s32 m_parentID;
+};
+struct SMDNodeTransformation
+{
+	SMDNodeTransformation()
 	{
-		yyArray<yyVertexAnimatedModel> verts;
-		yyArray<u32> inds;
-
-		auto assMesh = pScene->mMeshes[i];
-
-		for (int o = 0; o < assMesh->mNumVertices; o++)
-		{
-			yyVertexAnimatedModel newVertex;
-
-			const aiVector3D* pPos = &(assMesh->mVertices[o]);
-
-			newVertex.Position.x = pPos->x;
-			newVertex.Position.y = pPos->y;
-			newVertex.Position.z = pPos->z;
-
-			newVertex.Bones.x = 255;
-			newVertex.Bones.y = 255;
-			newVertex.Bones.z = 255;
-			newVertex.Bones.w = 255;
-
-			if (assMesh->HasNormals())
-			{
-				const aiVector3D* pNormal = &(assMesh->mNormals[o]);
-				newVertex.Normal.x = pNormal->x;
-				newVertex.Normal.y = pNormal->y;
-				newVertex.Normal.z = pNormal->z;
-			}
-			if (assMesh->HasTextureCoords(0))
-			{
-				const aiVector3D* pTexCoord = &(assMesh->mTextureCoords[0][o]);
-				newVertex.TCoords.x = pTexCoord->x;
-				newVertex.TCoords.y = pTexCoord->y;
-			}
-			verts.push_back(newVertex);
+		m_boneID = 0;
+	}
+	s32 m_boneID;
+	v3f m_position;
+	v3f m_rotation;
+};
+struct SMDVertex
+{
+	SMDVertex()
+	{
+		m_parentBone = 0;
+		m_links = 1;
+		memset(m_boneID, 0, sizeof(int) * 4);
+		memset(m_weight, 0, sizeof(f32) * 4);
+	}
+	s32 m_parentBone;
+	v3f m_position;
+	v3f m_normal;
+	v2f m_UV;
+	s32 m_links;
+	s32 m_boneID[4];
+	f32 m_weight[4];
+};
+struct SMDTriangle
+{
+	std::string m_materialName;
+	SMDVertex m_triangle[3];
+};
+struct SMDKeyFrame
+{
+	SMDKeyFrame()
+	{
+		m_time = 0;
+	}
+	std::vector<SMDNodeTransformation> m_nodeTransforms;
+	s32 m_time;
+};
+char * SMDNextLine(char * ptr){
+	while (*ptr){
+		if (*ptr == '\n'){
+			ptr++;
+			return ptr;
 		}
-
-		for (int o = 0; o < assMesh->mNumFaces; o++)
+		ptr++;
+	}
+	return ptr;
+}
+char * skipSpaces(char * ptr){
+	while (*ptr){
+		if (*ptr != '\t' && *ptr != ' ' && *ptr != '\f' && *ptr != '\r' && *ptr != '\n' && *ptr != '\v')
+			break;
+		ptr++;
+	}
+	return ptr;
+}
+char * SMDReadString(char * ptr, std::string& str)
+{
+	ptr = skipSpaces(ptr);
+	str.clear();
+	bool isBegin = false;
+	while (*ptr) {
+		if (isspace(*ptr) && !isBegin)
+			break;
+		if (*ptr == '\"')
 		{
-			const aiFace& Face = assMesh->mFaces[o];
-			assert(Face.mNumIndices == 3);
-			inds.push_back(Face.mIndices[0]);
-			inds.push_back(Face.mIndices[1]);
-			inds.push_back(Face.mIndices[2]);
-		}
-
-		yyMDLLayer* newMDLLayer = yyCreate<yyMDLLayer>();
-		newMDLLayer->m_model = yyCreate<yyModel>();
-
-		//newMDLLayer->m_model->m_aabb
-		// теперь можно собрать модель
-		bool is_animated = false;
-		
-		if(assMesh->mNumBones)
-			is_animated = true;
-
-		for (u32 i = 0; i < assMesh->mNumBones; i++) 
-		{
-			auto assBone = assMesh->mBones[i];
-			
-			u32 BoneIndex = 0;
-			auto joint = object->m_mdl->GetJointByName(assBone->mName.data, BoneIndex);
-			if (!joint)
+			if (!isBegin)
 			{
-				yyJoint * newJoint = yyCreate<yyJoint>();
-				newJoint->m_name = assBone->mName.data;
-				newJoint->m_matrixOffset = aiMatrixToGameMatrix(assBone->mOffsetMatrix);
-				BoneIndex = object->m_mdl->m_joints.size();
-				object->m_mdl->m_joints.push_back(newJoint);
+				isBegin = true;
 			}
-
-			for (u32 j = 0; j < assMesh->mBones[i]->mNumWeights; j++)
+			else
 			{
-				s32* boneIndsData = verts[assBone->mWeights[j].mVertexId].Bones.data();
-				f32* boneWeightsData = verts[assBone->mWeights[j].mVertexId].Weights.data();
-				for (u32 m = 0; m < 4; ++m)
-				{
-					if (boneIndsData[m] == 255)
-					{
-						boneIndsData[m] = BoneIndex;
-						boneWeightsData[m] = assBone->mWeights[j].mWeight;
-						break;
-					}
-				}
-				/*if (verts[assBone->mWeights[j].mVertexId].Bones.x == 255)
-				{
-					verts[assBone->mWeights[j].mVertexId].Bones.x = BoneIndex;
-					verts[assBone->mWeights[j].mVertexId].Weights.x = assBone->mWeights[j].mWeight;
-				}
-				else if (verts[assBone->mWeights[j].mVertexId].Bones.y == 255)
-				{
-					verts[assBone->mWeights[j].mVertexId].Bones.y = BoneIndex;
-					verts[assBone->mWeights[j].mVertexId].Weights.y = assBone->mWeights[j].mWeight;
-				}*/
+				ptr++;
+				break;
 			}
-		}
-
-		if (is_animated)
-		{
-			newMDLLayer->m_model->m_vertexType = yyVertexType::AnimatedModel;
-			newMDLLayer->m_model->m_stride = sizeof(yyVertexAnimatedModel);
-			newMDLLayer->m_model->m_vertices = (u8*)yyMemAlloc(verts.size() * sizeof(yyVertexAnimatedModel));
-			memcpy(newMDLLayer->m_model->m_vertices, verts.data(), verts.size() * sizeof(yyVertexAnimatedModel));
 		}
 		else
 		{
-			newMDLLayer->m_model->m_vertexType = yyVertexType::Model;
-			newMDLLayer->m_model->m_stride = sizeof(yyVertexModel);
-			newMDLLayer->m_model->m_vertices = (u8*)yyMemAlloc(verts.size() * sizeof(yyVertexModel));
-			auto v_ptr = (yyVertexModel*)newMDLLayer->m_model->m_vertices;
-			for (u32 o = 0, sz = verts.size(); o < sz; ++o)
+			if(isBegin)
+				str += (char)*ptr;
+		}
+		ptr++;
+	}
+	return ptr;
+}
+char * SMDReadWord(char * ptr, std::string& str)
+{
+	ptr = skipSpaces(ptr);
+	str.clear();
+	while (*ptr){
+		if (isspace(*ptr))
+			break;
+		str += (char)*ptr;
+		ptr++;
+	}
+	return ptr;
+}
+char * SMDReadFloat(char * ptr, f32& value)
+{
+	ptr = skipSpaces(ptr);
+	char str[32u];
+	memset(str, 0, 32);
+	char * p = &str[0u];
+	while (*ptr) {
+		if (!isdigit(*ptr) && (*ptr != '-') && (*ptr != '+')
+			&& (*ptr != 'e') && (*ptr != 'E') && (*ptr != '.')) break;
+		*p = *ptr;
+		++p;
+		++ptr;
+	}
+	value = (f32)atof(str);
+	return ptr;
+}
+char * SMDReadInt(char * ptr, s32& i)
+{
+	ptr = skipSpaces(ptr);
+	char str[8u];
+	memset(str, 0, 8);
+	char * p = &str[0u];
+	while (*ptr){
+		if (!isdigit(*ptr) && *ptr != '-') break;
+		*p = *ptr;
+		++p;
+		++ptr;
+	}
+	i = atoi(str);
+	return ptr;
+}
+
+void SMDReadNodes(std::vector<SMDNode>& nodes, char* fileBuffer)
+{
+	g_SMDIsZeroBased = false;
+
+	bool firstID = true;
+
+	std::string word_name;
+	while (*fileBuffer)
+	{
+		auto savePtr = fileBuffer;
+		fileBuffer = SMDReadWord(fileBuffer, word_name);
+		if (word_name == "end") break;
+		else fileBuffer = savePtr;
+
+		s32 id = 0;
+		s32 parentID = 0;
+		fileBuffer = SMDReadInt(fileBuffer, id);
+		fileBuffer = SMDReadString(fileBuffer, word_name);
+		fileBuffer = SMDReadInt(fileBuffer, parentID);
+
+		if (firstID)
+		{
+			firstID = false;
+			if (id == 0)
 			{
-				v_ptr[o].Position = verts[o].Position;
-				v_ptr[o].Normal = verts[o].Normal;
-				v_ptr[o].TCoords = verts[o].TCoords;
-				v_ptr[o].Binormal = verts[o].Binormal;
-				v_ptr[o].Tangent = verts[o].Tangent;
+				g_SMDIsZeroBased = true;
 			}
 		}
 
+		if (!g_SMDIsZeroBased)
+		{
+			--id;
+
+			if (parentID > 0)
+				--parentID;
+		}
+
+		SMDNode newNode;
+		newNode.m_ID = id;
+		newNode.m_name = word_name;
+		newNode.m_parentID = parentID;
+		nodes.push_back(newNode);
+	}
+}
+void SMDReadSkeleton(std::vector<SMDKeyFrame>& skeleton, char* fileBuffer)
+{
+	std::string word_time;
+	std::string word_frameNum;
+	std::string word_boneID;
+	v3f position;
+	v3f rotation;
+
+	SMDKeyFrame* keyFramePtr = 0;
+	s32 time = 0;
+
+	while (*fileBuffer)
+	{
+		auto savePtr = fileBuffer;
+
+		fileBuffer = SMDReadWord(fileBuffer, word_time);
+		if (word_time == "end")
+			break;
+
+		fileBuffer = SMDReadWord(fileBuffer, word_frameNum);
+		if (word_frameNum == "end")
+			break;
+
+		time = atoi(word_frameNum.data());
+
+		if (word_time == "time")
+		{
+			savePtr = fileBuffer;
+			std::string checkNext;
+			fileBuffer = SMDReadWord(fileBuffer, checkNext);
+			fileBuffer = savePtr;
+			if (checkNext == "end")
+				break;
+			if (checkNext != "time")
+			{
+				SMDKeyFrame newKeyFrame;
+				newKeyFrame.m_time = time;
+				skeleton.push_back(newKeyFrame);
+				keyFramePtr = &skeleton[skeleton.size() - 1];
+			}
+			else
+				continue;
+		}
+		else
+		{
+			fileBuffer = savePtr;
+		}
+
+
+		fileBuffer = SMDReadWord(fileBuffer, word_boneID);
+		if (word_boneID == "end")
+			break;
+
+		auto boneID = atoi(word_boneID.data());
+		if (!g_SMDIsZeroBased)
+		{
+			--boneID;
+		}
+
+		fileBuffer = SMDReadFloat(fileBuffer, position.x);
+		fileBuffer = SMDReadFloat(fileBuffer, position.y);
+		fileBuffer = SMDReadFloat(fileBuffer, position.z);
+		fileBuffer = SMDReadFloat(fileBuffer, rotation.x);
+		fileBuffer = SMDReadFloat(fileBuffer, rotation.y);
+		fileBuffer = SMDReadFloat(fileBuffer, rotation.z);
+
+		if (g_SMDFixCoorSystem)
+		{
+		//	auto tmp = position.y;
+		//	position.y = position.z;
+		//	position.z = -tmp;
+
+			//position.z = -position.z;
+
+			/*tmp = rotation.y;
+			rotation.y = rotation.z;
+			rotation.z = -tmp;*/
+			//rotation.z = -rotation.z;
+		}
+
+		SMDNodeTransformation nt;
+		nt.m_boneID = boneID;
+		nt.m_position = position;
+		nt.m_rotation = rotation;
+		keyFramePtr->m_nodeTransforms.push_back(nt);
+	}
+}
+bool SMDIsEndLine(char* fileBuffer)
+{
+	while (*fileBuffer) 
+	{
+		if (isspace(*fileBuffer))
+		{
+			if (*fileBuffer == '\n')
+				return true;
+		}
+		else break;
+		++fileBuffer;
+	}
+	return false;
+}
+void SMDReadTriangles(std::vector<SMDTriangle>& triangles, char* fileBuffer)
+{
+	std::string word_material;
+	while (*fileBuffer)
+	{
+		fileBuffer = SMDReadWord(fileBuffer, word_material);
+		if (word_material == "end")
+			break;
+
+		SMDTriangle newTriangle;
+		newTriangle.m_materialName = word_material;
+
+		for (int i = 0; i < 3; ++i)
+		{
+			fileBuffer = SMDReadInt(fileBuffer, newTriangle.m_triangle[i].m_parentBone);
+			fileBuffer = SMDReadFloat(fileBuffer, newTriangle.m_triangle[i].m_position.x);
+			fileBuffer = SMDReadFloat(fileBuffer, newTriangle.m_triangle[i].m_position.y);
+			fileBuffer = SMDReadFloat(fileBuffer, newTriangle.m_triangle[i].m_position.z);
+			fileBuffer = SMDReadFloat(fileBuffer, newTriangle.m_triangle[i].m_normal.x);
+			fileBuffer = SMDReadFloat(fileBuffer, newTriangle.m_triangle[i].m_normal.y);
+			fileBuffer = SMDReadFloat(fileBuffer, newTriangle.m_triangle[i].m_normal.z);
+			fileBuffer = SMDReadFloat(fileBuffer, newTriangle.m_triangle[i].m_UV.x);
+			fileBuffer = SMDReadFloat(fileBuffer, newTriangle.m_triangle[i].m_UV.y);
+			newTriangle.m_triangle[i].m_UV.y = 1.f - newTriangle.m_triangle[i].m_UV.y;
+
+			if (!SMDIsEndLine(fileBuffer))
+			{
+				fileBuffer = SMDReadInt(fileBuffer, newTriangle.m_triangle[i].m_links);
+				if (newTriangle.m_triangle[i].m_links > 4)
+				{
+					newTriangle.m_triangle[i].m_links = 4;
+					yyLogWriteWarning("SMD: links > 4\n");
+				}
+				for (int q = 0; q < newTriangle.m_triangle[i].m_links; ++q)
+				{
+					fileBuffer = SMDReadInt(fileBuffer, newTriangle.m_triangle[i].m_boneID[q]);
+
+					if (!g_SMDIsZeroBased)
+					{
+						--newTriangle.m_triangle[i].m_boneID[q];
+					}
+
+					fileBuffer = SMDReadFloat(fileBuffer, newTriangle.m_triangle[i].m_weight[q]);
+				}
+			}
+			else
+			{
+				newTriangle.m_triangle[i].m_links = 1;
+				newTriangle.m_triangle[i].m_boneID[0] = newTriangle.m_triangle[i].m_parentBone;
+				newTriangle.m_triangle[i].m_weight[0] = 1.f;
+			}
+
+			if (g_SMDFixCoorSystem)
+			{
+				auto tmp = newTriangle.m_triangle[i].m_position.y;
+				newTriangle.m_triangle[i].m_position.y = newTriangle.m_triangle[i].m_position.z;
+				newTriangle.m_triangle[i].m_position.z = -tmp;
+			}
+		}
+		triangles.push_back(newTriangle);
+	}
+}
+
+// up / down
+#define	PITCH	0
+// left / right
+#define	YAW		1
+// fall over
+#define	ROLL	2 
+void SMDAngleMatrix(v3f& angles, Mat4& matrix)
+{
+	float		angle;
+	float		sr, sp, sy, cr, cp, cy;
+
+	angle = angles[YAW];// *(math::PI * 2 / 360);
+	sy = sin(angle);
+	cy = cos(angle);
+	angle = angles[PITCH];// * (math::PI * 2 / 360);
+	sp = sin(angle);
+	cp = cos(angle);
+	angle = angles[ROLL];// * (math::PI * 2 / 360);
+	sr = sin(angle);
+	cr = cos(angle);
+
+	// matrix = (YAW * PITCH) * ROLL
+	matrix[0][0] = cp*cy;
+	matrix[0][1] = cp*sy;
+	matrix[0][2] = -sp;
+	matrix[1][0] = sr*sp*cy + cr*-sy;
+	matrix[1][1] = sr*sp*sy + cr*cy;
+	matrix[1][2] = sr*cp;
+	matrix[2][0] = (cr*sp*cy + -sr*-sy);
+	matrix[2][1] = (cr*sp*sy + -sr*cy);
+	matrix[2][2] = cr*cp;
+	matrix[0][3] = 0.0;
+	matrix[1][3] = 0.0;
+	matrix[2][3] = 0.0;
+}
+void readSMD(yyMDLObject* object, const char* file)
+{
+	std::vector<SMDNode> nodes;
+	std::vector<SMDKeyFrame> skeleton;
+	std::vector<SMDTriangle> triangles;
+
+	auto fileSz = yyFS::file_size(file);
+	char * fileBuffer = new char[fileSz + 1];
+	fileBuffer[fileSz] = 0;
+
+	auto deletePtr = fileBuffer;
+
+	FILE * f = fopen(file, "rb");
+	fread(fileBuffer, fileSz, 1, f);
+	fclose(f);
+
+	std::string word;
+	while (*fileBuffer)
+	{
+		fileBuffer = SMDReadWord(fileBuffer, word);
+
+		// skip comments
+		//  "Stand-alone line comments start with // (double foreslash)"
+		if (word == "//")
+		{
+			fileBuffer = SMDNextLine(fileBuffer);
+			continue;
+		}
+		else if(word.size() > 2)
+		{
+			if (word[0] == '/' && word[1] == '/')
+			{
+				fileBuffer = SMDNextLine(fileBuffer);
+				continue;
+			}
+		}
+
+		if (word == "nodes")
+		{
+			SMDReadNodes(nodes, fileBuffer);
+		}
+		else if (word == "skeleton")
+		{
+			SMDReadSkeleton(skeleton, fileBuffer);
+		}
+		else if (word == "triangles")
+		{
+			SMDReadTriangles(triangles, fileBuffer);
+		}
+	}
+
+	// create joints
+	for (size_t i = 0, sz = nodes.size(); i < sz; ++i)
+	{
+		auto & node = nodes[i];
+
+		auto joint = object->m_mdl->GetJointByName(node.m_name.data(), 0);
+		if (joint)
+			continue;
+
+		yyJoint* newJoint = yyCreate<yyJoint>();
+		newJoint->m_name = node.m_name.data();
+		// newJoint->m_parentIndex = node.m_parentID; // better to find parents later
+		//newJoint->m_children
+		//newJoint->m_matrixBind.setRotation(Quat(node.));
+		object->m_mdl->m_joints.push_back(newJoint);
+	}
+
+	// skeleton
+	// time 0
+	for (size_t i = 0, sz = skeleton.size(); i < sz; ++i)
+	{
+		auto & f = skeleton[i];
+		if (f.m_time == 0)
+		{
+			for (size_t i2 = 0, sz2 = f.m_nodeTransforms.size(); i2 < sz2; ++i2)
+			{
+				auto & nt = f.m_nodeTransforms[i2];
+				auto & node = nodes[nt.m_boneID];
+				auto joint = object->m_mdl->GetJointByName(node.m_name.data(), 0);
+				if (joint)
+				{
+					Quat qX, qY, qZ;
+					
+					/*
+					qX.setRotation(v3f(1.f, 0.f, 0.f), nt.m_rotation.x); // work
+					qY.setRotation(v3f(0.f, 1.f, 0.f), -nt.m_rotation.y);
+					qZ.setRotation(v3f(0.f, 0.f, 1.f), nt.m_rotation.z);
+					*/
+
+					qX.setRotation(v3f(1.f, 0.f, 0.f), nt.m_rotation.x); // work
+					qY.setRotation(v3f(0.f, 1.f, 0.f), nt.m_rotation.z);
+					qZ.setRotation(v3f(0.f, 0.f, 1.f), nt.m_rotation.y);
+
+					Quat qR = qX * qY * qZ;
+					qR.normalize();
+
+					Mat4 R;
+					//R.setRotation(qR);
+					
+					//R.setRotation(Quat(-nt.m_rotation.x,-nt.m_rotation.y, -nt.m_rotation.z));
+					//SMDAngleMatrix(v3f(-nt.m_rotation.y, nt.m_rotation.z, nt.m_rotation.x), R);
+					SMDAngleMatrix(v3f(nt.m_rotation.y, nt.m_rotation.z, nt.m_rotation.x), R);
+					//R.transpose();
+					
+					Mat4 T;
+					T[3] = nt.m_position;
+					T[3].w = 1.f;
+					
+					if (node.m_parentID == -1)
+					{
+						Mat4 rR;
+						rR.setRotation(Quat(math::degToRad(90.f), 0.f, 0.f));
+					//	R = rR * R;
+					}
+
+					joint->m_matrixBind = T * R;
+					
+					if(node.m_parentID != -1)
+					{
+						joint->m_matrixBind = object->m_mdl->m_joints[node.m_parentID]->m_matrixBind * joint->m_matrixBind;
+					}
+
+				}
+			}
+			break;
+		}
+	}
+	
+	// find parents
+	for (size_t i = 0, sz = nodes.size(); i < sz; ++i)
+	{
+		auto & node = nodes[i];
+		if (node.m_parentID == -1)
+			continue;
+		
+		auto & parentNode = nodes[node.m_parentID];
+
+		auto joint = object->m_mdl->GetJointByName(node.m_name.data(), 0);
+
+		u32 parentNodeIndex = 0;
+		auto parentJoint = object->m_mdl->GetJointByName(parentNode.m_name.data(), &parentNodeIndex);
+		if (parentJoint)
+		{
+			joint->m_parentIndex = parentNodeIndex;
+		}
+	}
+
+	// need to find unique material names.
+	// every unique material name is new MDLLayer
+	std::vector<std::string> materialNames;
+	for (size_t i = 0, sz = triangles.size(); i < sz; ++i)
+	{
+		auto & currentMaterialName = triangles[i].m_materialName;
+
+		bool needToAdd = true;
+		
+		for (size_t o = 0, osz = materialNames.size(); o < osz; ++o)
+		{
+			if (materialNames[o] == currentMaterialName)
+			{
+				needToAdd = false;
+				break;
+			}
+		}
+
+		if (needToAdd)
+		{
+			materialNames.push_back(currentMaterialName);
+		}
+	}
+	
+	for (size_t i = 0, sz = materialNames.size(); i < sz; ++i)
+	{
+		yyMDLLayer* newMDLLayer = yyCreate<yyMDLLayer>();
+		newMDLLayer->m_model = yyCreate<yyModel>();
+
+		newMDLLayer->m_model->m_name = "Model";
+
+		yyArray<yyVertexAnimatedModel> verts;
+		verts.setAddMemoryValue(0xffff);
+		yyArray<u32> inds;
+		inds.setAddMemoryValue(0xffff);
+
+		for (size_t k = 0, ksz = triangles.size(); k < ksz; ++k)
+		{
+			auto & tri = triangles[k];
+			if (tri.m_materialName != materialNames[i])
+				continue;
+
+			if (tri.m_materialName.size())
+				newMDLLayer->m_model->m_name.clear();
+
+			for (u32 s = 0, ssz = tri.m_materialName.size(); s < ssz; ++s)
+			{
+				auto ch = tri.m_materialName[s];
+				if (ch == '.')
+					break;
+				newMDLLayer->m_model->m_name += (wchar_t)ch;
+			}
+
+			yyVertexAnimatedModel v1, v2, v3;
+
+			v1.Position = tri.m_triangle[0].m_position;
+			v2.Position = tri.m_triangle[1].m_position;
+			v3.Position = tri.m_triangle[2].m_position;
+			
+			v1.Normal = tri.m_triangle[0].m_normal;
+			v2.Normal = tri.m_triangle[1].m_normal;
+			v3.Normal = tri.m_triangle[2].m_normal;
+			
+			v1.TCoords = tri.m_triangle[0].m_UV;
+			v2.TCoords = tri.m_triangle[1].m_UV;
+			v3.TCoords = tri.m_triangle[2].m_UV;
+			
+			v1.Bones.x = tri.m_triangle[0].m_boneID[0];
+			v1.Bones.y = tri.m_triangle[0].m_boneID[1];
+			v1.Bones.z = tri.m_triangle[0].m_boneID[2];
+			v1.Bones.w = tri.m_triangle[0].m_boneID[3];
+			v2.Bones.x = tri.m_triangle[1].m_boneID[0];
+			v2.Bones.y = tri.m_triangle[1].m_boneID[1];
+			v2.Bones.z = tri.m_triangle[1].m_boneID[2];
+			v2.Bones.w = tri.m_triangle[1].m_boneID[3];
+			v3.Bones.x = tri.m_triangle[2].m_boneID[0];
+			v3.Bones.y = tri.m_triangle[2].m_boneID[1];
+			v3.Bones.z = tri.m_triangle[2].m_boneID[2];
+			v3.Bones.w = tri.m_triangle[2].m_boneID[3];
+
+			v1.Weights.x = tri.m_triangle[0].m_weight[0];
+			v1.Weights.y = tri.m_triangle[0].m_weight[1];
+			v1.Weights.z = tri.m_triangle[0].m_weight[2];
+			v1.Weights.w = tri.m_triangle[0].m_weight[3];
+			v2.Weights.x = tri.m_triangle[1].m_weight[0];
+			v2.Weights.y = tri.m_triangle[1].m_weight[1];
+			v2.Weights.z = tri.m_triangle[1].m_weight[2];
+			v2.Weights.w = tri.m_triangle[1].m_weight[3];
+			v3.Weights.x = tri.m_triangle[2].m_weight[0];
+			v3.Weights.y = tri.m_triangle[2].m_weight[1];
+			v3.Weights.z = tri.m_triangle[2].m_weight[2];
+			v3.Weights.w = tri.m_triangle[2].m_weight[3];
+
+			verts.push_back(v1);
+			verts.push_back(v2);
+			verts.push_back(v3);
+
+			inds.push_back(inds.size());
+			inds.push_back(inds.size());
+			inds.push_back(inds.size());
+		}
+
+		newMDLLayer->m_model->m_vertexType = yyVertexType::AnimatedModel;
+		newMDLLayer->m_model->m_stride = sizeof(yyVertexAnimatedModel);
+		newMDLLayer->m_model->m_vertices = (u8*)yyMemAlloc(verts.size() * sizeof(yyVertexAnimatedModel));
+		memcpy(newMDLLayer->m_model->m_vertices, verts.data(), verts.size() * sizeof(yyVertexAnimatedModel));
 		if (inds.size() / 3 > 21845)
 		{
 			newMDLLayer->m_model->m_indexType = yyMeshIndexType::u32;
@@ -328,7 +864,6 @@ void newLayer(yyMDLObject* object, const char16_t* file)
 			}
 		}
 
-		newMDLLayer->m_model->m_name = checkName(object, assMesh->mName.C_Str());
 		newMDLLayer->m_model->m_vCount = verts.size();
 		newMDLLayer->m_model->m_iCount = inds.size();
 
@@ -338,7 +873,267 @@ void newLayer(yyMDLObject* object, const char16_t* file)
 		g_layerInfo.push_back(LayerInfo());
 	}
 
+	delete deletePtr;
+}
+
+
+
+// load model, create new layer
+void newLayer(yyMDLObject* object, const char16_t* file)
+{
+	yyStringA stra;
+	stra = file;
+
+	bool is_animated = false;
+	yyArray<yyVertexAnimatedModel> verts;
+	yyArray<u32> inds;
+
+	yyFS::path path = file;
+	auto ext = path.extension();
+	
+	if (ext.m_data == L".smd")
+	{
+		is_animated = true;
+		readSMD(object, stra.data());
+	}
+	else
+	{
+
+	}
+
+
+	//Assimp::Importer Importer;
+	//const aiScene* pScene = Importer.ReadFile(
+	//	stra.c_str(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
+	//if (!pScene)
+	//{
+	//	YY_PRINT_FAILED;
+	//	return;
+	//}
+
+	//object->m_GlobalInverseTransform = aiMatrixToGameMatrix(pScene->mRootNode->mTransformation);
+	//object->m_GlobalInverseTransform.invert();
+
+	//auto assRoot = pScene->mRootNode;
+	//aiPrintNames(assRoot, 1);
+
+	//for (int i = 0; i < pScene->mNumMeshes; ++i)
+	//{
+	//	yyArray<yyVertexAnimatedModel> verts;
+	//	yyArray<u32> inds;
+
+	//	auto assMesh = pScene->mMeshes[i];
+
+	//	for (int o = 0; o < assMesh->mNumVertices; o++)
+	//	{
+	//		yyVertexAnimatedModel newVertex;
+
+	//		const aiVector3D* pPos = &(assMesh->mVertices[o]);
+
+	//		newVertex.Position.x = pPos->x;
+	//		newVertex.Position.y = pPos->y;
+	//		newVertex.Position.z = pPos->z;
+
+	//		newVertex.Bones.x = 255;
+	//		newVertex.Bones.y = 255;
+	//		newVertex.Bones.z = 255;
+	//		newVertex.Bones.w = 255;
+
+	//		if (assMesh->HasNormals())
+	//		{
+	//			const aiVector3D* pNormal = &(assMesh->mNormals[o]);
+	//			newVertex.Normal.x = pNormal->x;
+	//			newVertex.Normal.y = pNormal->y;
+	//			newVertex.Normal.z = pNormal->z;
+	//		}
+	//		if (assMesh->HasTextureCoords(0))
+	//		{
+	//			const aiVector3D* pTexCoord = &(assMesh->mTextureCoords[0][o]);
+	//			newVertex.TCoords.x = pTexCoord->x;
+	//			newVertex.TCoords.y = 1.f - pTexCoord->y;
+	//		}
+	//		verts.push_back(newVertex);
+	//	}
+
+	//	for (int o = 0; o < assMesh->mNumFaces; o++)
+	//	{
+	//		const aiFace& Face = assMesh->mFaces[o];
+	//		assert(Face.mNumIndices == 3);
+	//		inds.push_back(Face.mIndices[0]);
+	//		inds.push_back(Face.mIndices[1]);
+	//		inds.push_back(Face.mIndices[2]);
+	//	}
+
+		
+
+	//	//newMDLLayer->m_model->m_aabb
+	//	// теперь можно собрать модель
+	//	
+	//	if(assMesh->mNumBones)
+	//		is_animated = true;
+	//	
+	//	// Здесь заполняю вершины весом и индексами
+	//	// Так-же получаю те кости, которые воздействуют на модельки
+	//	// После цикла, нужно найти всех парентов
+	//	for (u32 b = 0; b < assMesh->mNumBones; b++) 
+	//	{
+	//		auto assBone = assMesh->mBones[b];
+	//		
+	//		u32 BoneIndex = 0;
+	//		auto joint = object->m_mdl->GetJointByName(assBone->mName.data, &BoneIndex);
+	//		if (!joint)
+	//		{
+	//			yyJoint * newJoint = yyCreate<yyJoint>();
+	//			newJoint->m_name = assBone->mName.data;
+	//		//	printf("Joint: %s\n", assBone->mName.data);
+	//			
+	//			newJoint->m_matrixOffset = aiMatrixToGameMatrix(assBone->mOffsetMatrix);
+	//			
+	//			//auto assNode = aiFindNode(assBone->mName.data, assRoot);
+	//			//if(assNode)
+	//			//	newJoint->m_nodeTransformation = aiMatrixToGameMatrix(assNode->mTransformation);
+
+	//			BoneIndex = object->m_mdl->m_joints.size();
+	//			object->m_mdl->m_joints.push_back(newJoint);
+	//		}
+
+	//		for (u32 j = 0; j < assMesh->mBones[b]->mNumWeights; j++)
+	//		{
+	//			s32* boneIndsData = verts[assBone->mWeights[j].mVertexId].Bones.data();
+	//			f32* boneWeightsData = verts[assBone->mWeights[j].mVertexId].Weights.data();
+	//			for (u32 m = 0; m < 4; ++m)
+	//			{
+	//				if (boneIndsData[m] == 255)
+	//				{
+	//					boneIndsData[m] = BoneIndex;
+	//					boneWeightsData[m] = assBone->mWeights[j].mWeight;
+	//					break;
+	//				}
+	//			}
+	//			/*if (verts[assBone->mWeights[j].mVertexId].Bones.x == 255)
+	//			{
+	//				verts[assBone->mWeights[j].mVertexId].Bones.x = BoneIndex;
+	//				verts[assBone->mWeights[j].mVertexId].Weights.x = assBone->mWeights[j].mWeight;
+	//			}
+	//			else if (verts[assBone->mWeights[j].mVertexId].Bones.y == 255)
+	//			{
+	//				verts[assBone->mWeights[j].mVertexId].Bones.y = BoneIndex;
+	//				verts[assBone->mWeights[j].mVertexId].Weights.y = assBone->mWeights[j].mWeight;
+	//			}*/
+	//		}
+	//	}
+	//	
+	//	// Поиск родителей
+	//	for (u32 j = 0; j < object->m_mdl->m_joints.size(); j++)
+	//	{
+	//		auto currentJoint = object->m_mdl->m_joints[j];
+	//
+	//		// Ищу aiNode c таким же именем как и джоинт.
+	//		auto assNode = aiFindNode(currentJoint->m_name.data(), assRoot);
+
+	//		// Если у этой ноды есть дети, то этот джоинт является родителем
+	//		for (u32 c = 0; c < assNode->mNumChildren; c++)
+	//		{
+	//			auto child = assNode->mChildren[c];
+	//			// нахожу джоинт с таким-же именем
+	//			auto childJoint = object->m_mdl->GetJointByName(child->mName.data, 0);
+	//			if (childJoint)
+	//			{
+	//				childJoint->m_parentIndex = j; // j это индекс родителя в yyMDL::m_joints
+	//			}
+	//		}
+	//	}
+
+	//	// read animations
+	//	for (int a = 0; a < pScene->mNumAnimations; ++a)
+	//	{
+	//		const aiAnimation* pAnimation = pScene->mAnimations[a];
+
+	//		yyMDLAnimation* newAnimation = yyCreate<yyMDLAnimation>();
+	//		newAnimation->m_name = pAnimation->mName.data;
+	//		if (!newAnimation->m_name.size())
+	//		{
+	//			newAnimation->m_name = "Animation";
+	//			newAnimation->m_name += a;
+	//		}
+	//		newAnimation->m_len = pAnimation->mDuration;
+
+	//		for (int c = 0; c < pAnimation->mNumChannels; ++c)
+	//		{
+	//			auto channel = pAnimation->mChannels[c];
+	//			
+	//			u32 mdlJointIndex = 0;
+	//			auto mdlJoint = object->m_mdl->GetJointByName(channel->mNodeName.data, &mdlJointIndex);
+	//			if (mdlJoint)
+	//			{
+	//				yyMDLAnimation::_joint_info ji;
+	//				ji.m_jointID = mdlJointIndex;
+
+	//				for (int k = 0; k < channel->mNumPositionKeys; ++k)
+	//				{
+	//					auto key = channel->mPositionKeys[k];
+	//					ji.m_animationFrames.insertPosition(v3f(key.mValue.x, key.mValue.y, key.mValue.z), (s32)key.mTime);
+	//				}
+	//			}
+	//		}
+
+	//		object->m_mdl->m_animations.push_back(newAnimation);
+	//	}
+
+		
+//		if (is_animated)
+//		{
+//			newMDLLayer->m_model->m_vertexType = yyVertexType::AnimatedModel;
+//			newMDLLayer->m_model->m_stride = sizeof(yyVertexAnimatedModel);
+//			newMDLLayer->m_model->m_vertices = (u8*)yyMemAlloc(verts.size() * sizeof(yyVertexAnimatedModel));
+//			memcpy(newMDLLayer->m_model->m_vertices, verts.data(), verts.size() * sizeof(yyVertexAnimatedModel));
+//		}
+//		else
+//		{
+//			newMDLLayer->m_model->m_vertexType = yyVertexType::Model;
+//			newMDLLayer->m_model->m_stride = sizeof(yyVertexModel);
+//			newMDLLayer->m_model->m_vertices = (u8*)yyMemAlloc(verts.size() * sizeof(yyVertexModel));
+//			auto v_ptr = (yyVertexModel*)newMDLLayer->m_model->m_vertices;
+//			for (u32 o = 0, sz = verts.size(); o < sz; ++o)
+//			{
+//				v_ptr[o].Position = verts[o].Position;
+//				v_ptr[o].Normal = verts[o].Normal;
+//				v_ptr[o].TCoords = verts[o].TCoords;
+//				v_ptr[o].Binormal = verts[o].Binormal;
+//				v_ptr[o].Tangent = verts[o].Tangent;
+//			}
+//		}
+//
+//		if (inds.size() / 3 > 21845)
+//		{
+//			newMDLLayer->m_model->m_indexType = yyMeshIndexType::u32;
+//			newMDLLayer->m_model->m_indices = (u8*)yyMemAlloc(inds.size() * sizeof(u32));
+//			memcpy(newMDLLayer->m_model->m_indices, inds.data(), inds.size() * sizeof(u32));
+//		}
+//		else
+//		{
+//			newMDLLayer->m_model->m_indexType = yyMeshIndexType::u16;
+//			newMDLLayer->m_model->m_indices = (u8*)yyMemAlloc(inds.size() * sizeof(u16));
+//			u16 * i_ptr = (u16*)newMDLLayer->m_model->m_indices;
+//			for (u32 o = 0, sz = inds.size(); o < sz; ++o)
+//			{
+//				*i_ptr = (u16)inds[o];
+//				++i_ptr;
+//			}
+//		}
+//
+//		//newMDLLayer->m_model->m_name = checkName(object, assMesh->mName.C_Str());
+//		newMDLLayer->m_model->m_vCount = verts.size();
+//		newMDLLayer->m_model->m_iCount = inds.size();
+//
+//		newMDLLayer->m_meshGPU = yyGetVideoDriverAPI()->CreateModel(newMDLLayer->m_model);
+//
+//		object->m_mdl->m_layers.push_back(newMDLLayer);
+//		g_layerInfo.push_back(LayerInfo());
+////	}
+
 	g_selectedLayer = object->m_mdl->m_layers.size()-1;
+	object->SetMDL(object->m_mdl);
 	// update MDL aabb
 }
 void deleteLayer(yyMDLObject* object)
@@ -660,7 +1455,7 @@ int main(int argc, char* argv[])
 				ImGui::PopStyleColor();
 				if (ImGui::Button("New"))
 				{
-					auto path = yyOpenFileDialog("Import model", "Import", "obj fbx dae collada xml md5mesh smd x stl lwo gltf glb ", "Supported files");
+					auto path = yyOpenFileDialog("Import model", "Import", "smd", "SMD");
 					if (path)
 					{
 						//yyLogWriteInfo("OpenFileDialog: %s\n", path->to_stringA().data());
@@ -715,7 +1510,7 @@ int main(int argc, char* argv[])
 						ImGui::DragFloat("Z", &currentLayerInfo.m_offset.z, 0.005f);
 						ImGui::Separator();
 					}
-					if (ImGui::CollapsingHeader("Shader"))
+					if (ImGui::CollapsingHeader("Shader") && g_selectedLayer != -1)
 					{
 						const char* shaderCombo_items[] = { "Simple" };
 						ImGui::Combo("Type", &g_shaderCombo_item_current, shaderCombo_items, IM_ARRAYSIZE(shaderCombo_items));
@@ -776,6 +1571,22 @@ int main(int argc, char* argv[])
 			}
 			if (ImGui::BeginTabItem("Animations"))
 			{
+				ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(255, 0, 0, 100));
+				ImGui::BeginChild("ChildAnimationList", ImVec2(ImGui::GetWindowContentRegionWidth(), 200), false, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoMove);
+				/*yyStringA stra;
+				for (int n = 0, nsz = mdlObject.m_data->m_mdl->m_layers.size(); n < nsz; ++n)
+				{
+					auto layer = mdlObject.m_data->m_mdl->m_layers[n];
+					stra = layer->m_model->m_name.data();
+					if (ImGui::Selectable(stra.data(), g_selectedLayer == n))
+					{
+						g_selectedLayer = n;
+						printf("Select %i\n", g_selectedLayer);
+					}
+				}*/
+				ImGui::EndChild();
+				ImGui::PopStyleColor();
+				ImGui::Checkbox("Bind pose", &g_bindPose);
 				ImGui::EndTabItem();
 			}
 			ImGui::EndTabBar();
@@ -806,8 +1617,7 @@ int main(int argc, char* argv[])
 			g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::Projection, camera.m_camera->m_projectionMatrix);
 			g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::View, camera.m_camera->m_viewMatrix);
 
-			//g_videoDriver->DrawLine3D(v4f(-2.f, 0.f, 0.f, 0.f), v4f(2.f, 0.f, 0.f, 0.f), ColorRed);
-			//g_videoDriver->DrawLine3D(v4f(0.f, 0.f, -2.f, 0.f), v4f(0.f, 0.f, 2.f, 0.f), ColorRed);
+			
 
 
 			for (int n = 0, nsz = mdlObject.m_data->m_mdl->m_layers.size(); n < nsz; ++n)
@@ -825,7 +1635,76 @@ int main(int argc, char* argv[])
 					g_videoDriver->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, layer->m_textureGPU1);
 				else
 					g_videoDriver->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, defaultTexture);
+
+			//	mdlObject.m_data->Update(deltaTime);
+				
 				g_videoDriver->Draw();
+
+				/*Mat4 R;
+				R.setRotation(Quat(math::degToRad(90.f), 0.f, 0.f));*/
+
+				auto numJoints = mdlObject.m_data->m_joints.size();
+				if (numJoints)
+				{
+					bool drawBind = true;
+
+					if (drawBind)
+					{
+						for (int i = 0; i < numJoints; ++i)
+						{
+							auto & objJoint = mdlObject.m_data->m_joints[i];
+							auto mdlJoint = mdlObject.m_data->m_mdl->m_joints[i];
+
+							objJoint.m_globalTransformation = mdlJoint->m_matrixBind;
+
+							//if (mdlJoint->m_parentIndex != -1)
+							//{
+							//	objJoint.m_globalTransformation = 
+							//		mdlObject.m_data->m_joints[mdlJoint->m_parentIndex].m_globalTransformation 
+							//		* objJoint.m_globalTransformation;
+							//}
+							//else
+							//{
+							////	objJoint.m_globalTransformation = R * objJoint.m_globalTransformation;
+							//}
+						}
+					}
+					
+					g_videoDriver->UseDepth(false);
+					for (int i = 0; i < numJoints; ++i)
+					{
+						auto & objJoint = mdlObject.m_data->m_joints[i];
+						auto mdlJoint = mdlObject.m_data->m_mdl->m_joints[i];
+
+						auto matrix = objJoint.m_globalTransformation;
+						matrix[3].set(0.f, 0.f, 0.f, 1.f);
+
+						auto point = objJoint.m_globalTransformation[3];
+
+						auto distCamera = point.distance(camera.m_camera->m_objectBase.m_globalPosition);
+						f32 jointSize = 0.02f * distCamera;
+
+						g_videoDriver->DrawLine3D(
+							point + math::mul(v4f(-jointSize, 0.f, 0.f, 0.f), matrix),
+							point + math::mul(v4f(jointSize, 0.f, 0.f, 0.f), matrix), ColorRed);
+						g_videoDriver->DrawLine3D(
+							point + math::mul(v4f(.0f, -jointSize, 0.f, 0.f), matrix),
+							point + math::mul(v4f(.0f, jointSize, 0.f, 0.f), matrix), ColorGreen);
+						g_videoDriver->DrawLine3D(
+							point + math::mul(v4f(0.0f, 0.f, -jointSize, 0.f), matrix),
+							point + math::mul(v4f(0.0f, 0.f, jointSize, 0.f), matrix), ColorBlue);
+
+						if (mdlJoint->m_parentIndex != -1)
+						{
+							g_videoDriver->DrawLine3D(
+								objJoint.m_globalTransformation[3],
+								mdlObject.m_data->m_joints[mdlJoint->m_parentIndex].m_globalTransformation[3], ColorLime);
+						}
+						//g_videoDriver->SetBoneMatrix(i, defaultTexture);
+					}
+					g_videoDriver->UseDepth(true);
+				}
+
 			}
 
 			//g_videoDriver->UseDepth(false);

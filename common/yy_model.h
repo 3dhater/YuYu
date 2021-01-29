@@ -56,17 +56,18 @@ struct yyJoint
 	yyJoint()
 	{
 	//	m_parent = nullptr;
-	//	m_parentIndex = -1;
+		m_parentIndex = -1;
 	}
 
 	//yyJoint*				m_parent;
-	//s32 m_parentIndex; // index in yyMDL::m_joints
-	yyArraySmall<yyJoint*>	m_children;
+	s32 m_parentIndex; // index in yyMDL::m_joints
+	//yyArraySmall<yyJoint*>	m_children;
 
-	//	Mat4					m_matrixBind;
-	Mat4					m_matrixOffset;
+	Mat4					m_matrixBind;
+	//Mat4					m_matrixOffset;
+	//Mat4					m_nodeTransformation;
 
-	//v4f						m_position;
+	//v4f					m_position;
 	//Quat					m_rotation;
 
 	yyStringA				m_name;
@@ -388,7 +389,7 @@ struct yyMDLAnimationKeyFrame
 	v4f m_position;
 	Quat m_rotation;
 };
-struct yyMDLAnimationLayer
+struct yyMDLAnimationFrames
 {
 	yyArraySmall<yyMDLAnimationKeyFrame> m_keyFrames;
 
@@ -415,6 +416,29 @@ struct yyMDLAnimationLayer
 		m_keyFrames.push_back(yyMDLAnimationKeyFrame(time));
 		return &m_keyFrames[m_keyFrames.size()-1];
 	}
+
+	void insertPosition(const v3f& position, s32 time)
+	{
+		auto keyFrame = getKeyFrame(time);
+		if (!keyFrame)
+			keyFrame = insertKeyFrame(time);
+		keyFrame->m_position = position;
+	}
+
+	yyMDLAnimationKeyFrame* getCurrentKeyFrame(s32 time)
+	{
+		return nullptr;
+	}
+	yyMDLAnimationKeyFrame* getNextKeyFrame(s32 time)
+	{
+		for (u16 i = 0, sz = m_keyFrames.size(); i < sz; ++i)
+		{
+			auto & k = m_keyFrames[i];
+			if ( k.m_time > time )
+				return &m_keyFrames[i];
+		}
+		return nullptr;
+	}
 };
 struct yyMDLAnimation
 {
@@ -429,13 +453,13 @@ struct yyMDLAnimation
 	struct _joint_info
 	{
 		s32  m_jointID;     // индекс yyMDL::m_joints
-		Mat4 m_matrixFinal; // финальная матрица, которая пойдёт в шейдер
+		//Mat4 m_matrixFinal; // финальная матрица, которая пойдёт в шейдер
 
-		v4f						m_position;
-		Quat					m_rotation;
+		//v4f						m_position;
+		//Quat					m_rotation;
 		
 		// фреймы анимации для конкретного джоинта
-		yyMDLAnimationLayer m_animationLayer;
+		yyMDLAnimationFrames m_animationFrames;
 	};
 	yyArraySmall<_joint_info> m_animatedJoints;
 
@@ -482,13 +506,14 @@ struct yyMDL
 	// нужно использовать yyMDL (другого-то способа и нет)
 	// скорее всего при рисовании нужно будет передавать что-то
 	// ещё, чтобы работал нужный шейдер и т.д.
-	yyArraySmall<yyJoint*> m_joints;
+	std::vector<yyJoint*> m_joints;
 	//yyJoint* m_skeleton; // иерархия
-	yyJoint* GetJointByName(const char* name, u32 & index)
+	yyJoint* GetJointByName(const char* name, u32* index)
 	{
 		for (u16 i = 0, sz = m_joints.size(); i < sz; ++i)
 		{
-			index = i;
+			if(index)
+				*index = i;
 			if (strcmp(name, m_joints[i]->m_name.data()) == 0)
 				return m_joints[i];
 		}

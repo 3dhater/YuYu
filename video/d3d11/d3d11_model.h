@@ -2,6 +2,7 @@
 #define YY_D3D11_MODEL_H__
 
 #include "yy_material.h"
+#include "yy_model.h"
 #include "containers\array.h"
 
 class D3D11Model
@@ -18,6 +19,7 @@ public:
 
 	DXGI_FORMAT m_indexType;
 
+	yyVertexType m_vertexType;
 	yyMaterial m_material;
 };
 

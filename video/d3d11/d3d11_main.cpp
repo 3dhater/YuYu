@@ -555,6 +555,10 @@ void SetMatrix(yyVideoDriverAPI::MatrixType mt, const Mat4& mat)
 		break;
 	}
 }
+void SetBoneMatrix(u32 boneIndex, const Mat4& mat)
+{
+	g_d3d11->m_matrixBones[boneIndex] = mat;
+}
 v2f* GetSpriteCameraPosition()
 {
 	return &g_d3d11->m_spriteCameraPosition;
@@ -767,65 +771,53 @@ extern "C"
 {
 	YY_API yyVideoDriverAPI* YY_C_DECL GetAPI()
 	{
-		g_api.GetAPIVersion = GetAPIVersion;
-		g_api.Init          = Init;
-		g_api.Destroy       = Destroy;
-	
-		g_api.SetClearColor = SetClearColor;
 		g_api.BeginDraw = BeginDraw;
-		g_api.ClearDepth = ClearDepth;
-		g_api.ClearColor = ClearColor;
+		g_api.BeginDrawGUI = BeginDrawGUI;
 		g_api.ClearAll = ClearAll;
-		g_api.EndDraw = EndDraw;
-		g_api.UpdateMainRenderTarget = UpdateMainRenderTarget;
-
-		g_api.CreateTexture = CreateTexture;
-		g_api.CreateTextureFromFile = CreateTextureFromFile;
-		g_api.UnloadTexture = UnloadTexture;
-		g_api.LoadTexture = LoadTexture;
-
-		g_api.UseVSync = UseVSync;
-		g_api.UseDepth = UseDepth;
-		g_api.UseBlend = UseBlend;
-
+		g_api.ClearColor = ClearColor;
+		g_api.ClearDepth = ClearDepth;
 		g_api.CreateModel = CreateModel;
 		g_api.CreateModelFromFile = CreateModelFromFile;
-		g_api.LoadModel = LoadModel;
-		g_api.UnloadModel = UnloadModel;
-
-		g_api.BeginDrawGUI = BeginDrawGUI;
-		g_api.EndDrawGUI = EndDrawGUI;
-		g_api.SetTexture = SetTexture;
-		g_api.SetModel = SetModel;
-		
-		g_api.Draw = Draw;
-		g_api.DrawSprite = DrawSprite;
-		g_api.DrawLine3D = DrawLine3D;
-		g_api.SetMatrix = SetMatrix;
-		g_api.GetSpriteCameraPosition = GetSpriteCameraPosition;
-		g_api.GetSpriteCameraScale = GetSpriteCameraScale;
-
-		g_api.GetTextureSize = GetTextureSize;
-
-		g_api.SetMaterial = SetMaterial;
-		g_api.MapModelForWriteVerts = MapModelForWriteVerts;
-		g_api.UnmapModelForWriteVerts = UnmapModelForWriteVerts;
-
 		g_api.CreateRenderTargetTexture = CreateRenderTargetTexture;
-		g_api.SetRenderTarget = SetRenderTarget;
-		g_api.SetViewport = SetViewport;
-
-		g_api.GetVideoDriverObjects = GetVideoDriverObjects;
-		
-		g_api.test_draw = 0;
-
+		g_api.CreateTexture = CreateTexture;
+		g_api.CreateTextureFromFile = CreateTextureFromFile;
 		g_api.DeleteModel = DeleteModel;
 		g_api.DeleteTexture = DeleteTexture;
-
-		g_api.GetVideoDriverName = GetVideoDriverName;
-		g_api.SwapBuffers = SwapBuffers;
-
+		g_api.Destroy       = Destroy;
+		g_api.Draw = Draw;
+		g_api.DrawLine3D = DrawLine3D;
+		g_api.DrawSprite = DrawSprite;
+		g_api.EndDraw = EndDraw;
+		g_api.EndDrawGUI = EndDrawGUI;
+		g_api.GetAPIVersion = GetAPIVersion;
+		g_api.GetSpriteCameraPosition = GetSpriteCameraPosition;
+		g_api.GetSpriteCameraScale = GetSpriteCameraScale;
 		g_api.GetTextureHandle = GetTextureHandle;
+		g_api.GetTextureSize = GetTextureSize;
+		g_api.GetVideoDriverName = GetVideoDriverName;
+		g_api.GetVideoDriverObjects = GetVideoDriverObjects;
+		g_api.Init          = Init;
+		g_api.LoadModel = LoadModel;
+		g_api.LoadTexture = LoadTexture;
+		g_api.MapModelForWriteVerts = MapModelForWriteVerts;
+		g_api.SetBoneMatrix = SetBoneMatrix;
+		g_api.SetClearColor = SetClearColor;
+		g_api.SetMaterial = SetMaterial;
+		g_api.SetMatrix = SetMatrix;
+		g_api.SetModel = SetModel;
+		g_api.SetRenderTarget = SetRenderTarget;
+		g_api.SetTexture = SetTexture;
+		g_api.SetViewport = SetViewport;
+		g_api.SwapBuffers = SwapBuffers;
+		g_api.UnloadModel = UnloadModel;
+		g_api.UnloadTexture = UnloadTexture;
+		g_api.UnmapModelForWriteVerts = UnmapModelForWriteVerts;
+		g_api.UpdateMainRenderTarget = UpdateMainRenderTarget;
+		g_api.UseBlend = UseBlend;
+		g_api.UseDepth = UseDepth;
+		g_api.UseVSync = UseVSync;
+
+		g_api.test_draw = 0;
 
 		return &g_api;
 	}

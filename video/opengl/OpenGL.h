@@ -1242,6 +1242,7 @@ class OpenGLShaderStd;
 class OpenGLShaderTerrain;
 class OpenGLShaderDepth;
 class OpenGLShaderSimple;
+class OpenGLShaderSimpleAnimated;
 class OpenGLShaderScreenQuad;
 
 class OpenGLTexture;
@@ -1278,6 +1279,7 @@ public:
 	OpenGLShaderTerrain* m_shader_terrain;
 	OpenGLShaderDepth* m_shader_depth;
 	OpenGLShaderSimple* m_shader_simple;
+	OpenGLShaderSimpleAnimated* m_shader_simpleAnimated;
 	OpenGLShaderScreenQuad* m_shader_screenQuad;
 
 	Mat4 m_guiProjectionMatrix;
@@ -1307,6 +1309,7 @@ public:
 	Mat4 m_matrixWorldViewProjection;
 	Mat4 m_matrixLightView;
 	Mat4 m_matrixLightProjection;
+	Mat4 m_matrixBones[100];
 
 	v2f m_spriteCameraPosition;
 	v2f m_spriteCameraScale;

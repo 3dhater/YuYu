@@ -838,6 +838,7 @@ bool D3D11::initTexture(yyImage* image, D3D11Texture* newTexture, bool useLinear
 bool D3D11::initModel(yyModel* model, D3D11Model* d3d11Model)
 {
 	d3d11Model->m_material = model->m_material;
+	d3d11Model->m_vertexType = model->m_vertexType;
 
 	D3D11_BUFFER_DESC	vbd, ibd;
 

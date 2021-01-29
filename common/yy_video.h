@@ -120,6 +120,7 @@ struct yyVideoDriverAPI
 		LightProjection,
 	};
 	void(*SetMatrix)(MatrixType, const Mat4&);
+	void(*SetBoneMatrix)(u32 boneIndex, const Mat4&);
 	
 	v2f* (*GetSpriteCameraPosition)();
 	v2f* (*GetSpriteCameraScale)();

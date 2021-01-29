@@ -11,7 +11,8 @@ D3D11Model::D3D11Model()
 	m_iBuffer(0),
 	m_stride(0),
 	m_iCount(0),
-	m_indexType(DXGI_FORMAT_R16_UINT)
+	m_indexType(DXGI_FORMAT_R16_UINT),
+	m_vertexType(yyVertexType::Model)
 {
 }
 

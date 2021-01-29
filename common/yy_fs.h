@@ -84,6 +84,7 @@ namespace yyFS
 			}
 			result.m_data += L'.';
 			util::stringFlip(result.m_data);
+			util::stringToLower(result.m_data);
 			return result;
 		}
 
