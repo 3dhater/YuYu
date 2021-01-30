@@ -26,6 +26,10 @@ yyVideoDriverAPI g_api;
 bool g_useDepth = true;
 void LoadModel(yyResource* r);
 
+#ifdef YY_DEBUG
+bool g_drawBegin = false;
+#endif
+
 //yyResource g_defaultRes;
 
 #ifdef YY_PLATFORM_WINDOWS
@@ -121,6 +125,7 @@ void LoadTexture(yyResource* r)
 	{
 		r->m_isLoaded = true;
 
+		// возможно g_openGL->m_textures[r->m_index] может быть занят, по этому лучше добавить проверку
 		if(r->m_source)
 		{
 			g_openGL->m_textures[r->m_index] = CreateOpenGLTexture((yyImage*)r->m_source, 
@@ -783,6 +788,12 @@ const char* GetVideoDriverName()
 
 void BeginDraw()
 {
+#ifdef YY_DEBUG
+	if(g_drawBegin)
+		yyLogWriteError("You forgot to call SwapBuffers()  Video driver: %s\n", GetVideoDriverName());
+	assert(!g_drawBegin);
+	g_drawBegin = true;
+#endif
 	glBindFramebuffer(GL_FRAMEBUFFER, g_openGL->m_mainTarget->m_FBO);
 	glViewport(0, 0, g_openGL->m_mainTargetSize.x, g_openGL->m_mainTargetSize.y);
 	UseDepth(true);
@@ -815,6 +826,9 @@ void EndDraw()
 
 void SwapBuffers()
 {
+#ifdef YY_DEBUG
+	g_drawBegin = false;
+#endif
 #ifdef YY_PLATFORM_WINDOWS
 	SwapBuffers(g_openGL->m_windowDC);
 #else

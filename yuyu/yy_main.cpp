@@ -188,6 +188,11 @@ YY_API yyResource* YY_C_DECL yyGetTextureResource(const char* fileName, bool use
 		{
 			if (node.m_resource->m_isLoaded)
 				++node.m_resource->m_refCount;
+			else
+			{
+				if (load)
+					g_engine->m_videoAPI->LoadTexture(node.m_resource); // ++m_refCount inside
+			}
 			return node.m_resource;
 		}
 	}
@@ -224,6 +229,11 @@ YY_API yyResource* YY_C_DECL yyGetModelResource(const char* fileName, bool load)
 		{
 			if(node.m_resource->m_isLoaded)
 				++node.m_resource->m_refCount; // надо прибавлять только в случае если ресурс загружен
+			else
+			{
+				if (load)
+					g_engine->m_videoAPI->LoadModel(node.m_resource); // ++m_refCount inside
+			}
 			return node.m_resource;
 		}
 	}

@@ -682,12 +682,12 @@ void readSMD(yyMDLObject* object, const char* file)
 					qZ.setRotation(v3f(0.f, 0.f, 1.f), nt.m_rotation.z);
 					*/
 
-					qX.setRotation(v3f(1.f, 0.f, 0.f), nt.m_rotation.x); // work
-					qY.setRotation(v3f(0.f, 1.f, 0.f), nt.m_rotation.z);
-					qZ.setRotation(v3f(0.f, 0.f, 1.f), nt.m_rotation.y);
+					//qX.setRotation(v3f(1.f, 0.f, 0.f), nt.m_rotation.x); // work
+					//qY.setRotation(v3f(0.f, 1.f, 0.f), nt.m_rotation.z);
+					//qZ.setRotation(v3f(0.f, 0.f, 1.f), nt.m_rotation.y);
 
-					Quat qR = qX * qY * qZ;
-					qR.normalize();
+					//Quat qR = qX * qY * qZ;
+					//qR.normalize();
 
 					Mat4 R;
 					//R.setRotation(qR);
@@ -1227,7 +1227,7 @@ void reloadTexture(yyMDLObject* object, int textureSlot, const wchar_t* path)
 }
 int main(int argc, char* argv[])
 {
-	bool useOpenGL = false;
+	bool useOpenGL = true;
 	for (int i = 0; i < argc; ++i)
 	{
 		if (strcmp(argv[i], "opengl") == 0)

@@ -674,7 +674,7 @@ bool OpenGL::initTexture(yyImage* image, OpenGLTexture* newTexture, bool useLine
 		for(u32 level = 0; level < image->m_mipCount && (width || height); ++level)
 		{
 			u32 size = ((width+3)/4)*((height+3)/4)*blockSize;
-			gglCompressedTexImage2D(GL_TEXTURE_2D, level, format, width, height, 
+			glCompressedTexImage2D(GL_TEXTURE_2D, level, format, width, height, 
 				0, size, image->m_data + image->m_bitDataOffset + offset);
 
 			offset += size;
@@ -682,17 +682,17 @@ bool OpenGL::initTexture(yyImage* image, OpenGLTexture* newTexture, bool useLine
 			height /= 2;
 		}
 	}
-	gglGenerateMipmap(GL_TEXTURE_2D);
-	gglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	gglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	if (useComparisonFilter)
 	{
-		gglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-		gglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-		gglTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+		glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
 	}
-	gglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, useLinearFilter ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST);
-	gglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, useLinearFilter ? GL_LINEAR : GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, useLinearFilter ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, useLinearFilter ? GL_LINEAR : GL_NEAREST);
 	return true;
 }
 
