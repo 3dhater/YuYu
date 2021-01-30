@@ -19,6 +19,7 @@
 #include <cstdio>
 #include <vector>
 #include <string>
+#include <iostream>
 
 #include "yy_fs.h"
 #include "yy_image.h"
@@ -660,13 +661,35 @@ void readSMD(yyMDLObject* object, const char* file)
 		object->m_mdl->m_joints.push_back(newJoint);
 	}
 
+	std::cout
+		<< yyFS::path("/foo/bar.txt").filename() << '\n'
+		<< yyFS::path("/foo/.bar").filename() << '\n'
+		<< yyFS::path("/foo/bar/").filename() << '\n'
+		<< yyFS::path("/foo/.").filename() << '\n'
+		<< yyFS::path("/foo/..").filename() << '\n'
+		<< yyFS::path(".").filename() << '\n'
+		<< yyFS::path("..").filename() << '\n'
+		<< yyFS::path("/").filename() << '\n'
+		<< yyFS::path("//host").filename() << '\n';
+
+	yyMDLAnimation* newMDLAnimation = 0;
+	bool isAnimation = skeleton.size() > 1;
+	if (isAnimation)
+	{
+		newMDLAnimation = yyCreate<yyMDLAnimation>();
+		object->m_mdl->m_animations.push_back(newMDLAnimation);
+		newMDLAnimation->m_len = skeleton.size();
+		//yyFS::path p = file;
+		//p.
+	//	newMDLAnimation->m_name = 
+	}
 	// skeleton
 	// time 0
 	for (size_t i = 0, sz = skeleton.size(); i < sz; ++i)
 	{
 		auto & f = skeleton[i];
-		if (f.m_time == 0)
-		{
+		//if (f.m_time == 0)
+		//{
 			for (size_t i2 = 0, sz2 = f.m_nodeTransforms.size(); i2 < sz2; ++i2)
 			{
 				auto & nt = f.m_nodeTransforms[i2];
@@ -674,51 +697,38 @@ void readSMD(yyMDLObject* object, const char* file)
 				auto joint = object->m_mdl->GetJointByName(node.m_name.data(), 0);
 				if (joint)
 				{
-					Quat qX, qY, qZ;
-					
-					/*
-					qX.setRotation(v3f(1.f, 0.f, 0.f), nt.m_rotation.x); // work
-					qY.setRotation(v3f(0.f, 1.f, 0.f), -nt.m_rotation.y);
-					qZ.setRotation(v3f(0.f, 0.f, 1.f), nt.m_rotation.z);
-					*/
-
-					//qX.setRotation(v3f(1.f, 0.f, 0.f), nt.m_rotation.x); // work
-					//qY.setRotation(v3f(0.f, 1.f, 0.f), nt.m_rotation.z);
-					//qZ.setRotation(v3f(0.f, 0.f, 1.f), nt.m_rotation.y);
-
-					//Quat qR = qX * qY * qZ;
-					//qR.normalize();
-
-					Mat4 R;
-					//R.setRotation(qR);
-					
-					//R.setRotation(Quat(-nt.m_rotation.x,-nt.m_rotation.y, -nt.m_rotation.z));
-					//SMDAngleMatrix(v3f(-nt.m_rotation.y, nt.m_rotation.z, nt.m_rotation.x), R);
-					SMDAngleMatrix(v3f(nt.m_rotation.y, nt.m_rotation.z, nt.m_rotation.x), R);
-					//R.transpose();
-					
-					Mat4 T;
-					T[3] = nt.m_position;
-					T[3].w = 1.f;
-					
-					if (node.m_parentID == -1)
+					if (isAnimation)
 					{
-						Mat4 rR;
-						rR.setRotation(Quat(math::degToRad(90.f), 0.f, 0.f));
-					//	R = rR * R;
-					}
 
-					joint->m_matrixBind = T * R;
-					
-					if(node.m_parentID != -1)
+					}
+					else
 					{
-						joint->m_matrixBind = object->m_mdl->m_joints[node.m_parentID]->m_matrixBind * joint->m_matrixBind;
-					}
+						Mat4 R;					
+						//R.setRotation(Quat(-nt.m_rotation.x,-nt.m_rotation.y, -nt.m_rotation.z));
+						SMDAngleMatrix(v3f(nt.m_rotation.y, nt.m_rotation.z, nt.m_rotation.x), R);
+					
+						Mat4 T;
+						T[3] = nt.m_position;
+						T[3].w = 1.f;
+					
+						if (node.m_parentID == -1)
+						{
+							Mat4 rR;
+							rR.setRotation(Quat(math::degToRad(90.f), 0.f, 0.f));
+						//	R = rR * R;
+						}
 
+						joint->m_matrixBind = T * R;
+					
+						if(node.m_parentID != -1)
+						{
+						//	joint->m_matrixBind = object->m_mdl->m_joints[node.m_parentID]->m_matrixBind * joint->m_matrixBind;
+						}
+					}
 				}
 			}
-			break;
-		}
+		//	break;
+		//}
 	}
 	
 	// find parents
@@ -1657,17 +1667,21 @@ int main(int argc, char* argv[])
 
 							objJoint.m_globalTransformation = mdlJoint->m_matrixBind;
 
-							//if (mdlJoint->m_parentIndex != -1)
-							//{
-							//	objJoint.m_globalTransformation = 
-							//		mdlObject.m_data->m_joints[mdlJoint->m_parentIndex].m_globalTransformation 
-							//		* objJoint.m_globalTransformation;
-							//}
-							//else
-							//{
-							////	objJoint.m_globalTransformation = R * objJoint.m_globalTransformation;
-							//}
+							if (mdlJoint->m_parentIndex != -1)
+							{
+								objJoint.m_globalTransformation = 
+									mdlObject.m_data->m_joints[mdlJoint->m_parentIndex].m_globalTransformation 
+									* objJoint.m_globalTransformation;
+							}
+							else
+							{
+							//	objJoint.m_globalTransformation = R * objJoint.m_globalTransformation;
+							}
 						}
+					}
+					else
+					{
+
 					}
 					
 					g_videoDriver->UseDepth(false);

@@ -13,6 +13,7 @@
 #endif
 
 #include <fstream>
+#include <iostream>
 
 namespace yyFS
 {
@@ -88,16 +89,32 @@ namespace yyFS
 			return result;
 		}
 
+		path filename()
+		{
+			path result;
+			for (u32 i = m_data.size() - 1u; i >= 0u; --i)
+			{
+				auto c = m_data[i];
+				if (c == '/' || c == '\\')
+					break;
+				else result.m_data += c;
+				if (!i) break;
+			}
+			util::stringFlip(result.m_data);
+			util::stringToLower(result.m_data);
+			return result;
+		}
+
 		bool operator==(const path& other){ return m_data == other.m_data; }
 		bool operator!=(const path& other){ return m_data != other.m_data; }
 		
-		std::string generic_string()
+		std::string generic_string() const
 		{
 			std::string result;
 			util::utf16_to_utf8(&m_data, &result);
 			return result;
 		}
-		std::u16string generic_u16string()
+		std::u16string generic_u16string() const
 		{
 			std::u16string result;
 			result.reserve(m_data.size());
@@ -110,7 +127,21 @@ namespace yyFS
 		}
 
 		yyStringW m_data;
+
+		friend std::wostream& operator<<(std::wostream& os, const yyFS::path& dt);
+		friend std::ostream& operator<<(std::ostream& os, const yyFS::path& dt);
 	};
+
+	YY_FORCE_INLINE std::wostream& operator<<(std::wostream& os, const yyFS::path& dt)
+	{
+		os << dt.m_data.data();
+		return os;
+	}
+	YY_FORCE_INLINE std::ostream& operator<<(std::ostream& os, const yyFS::path& dt)
+	{
+		os << dt.generic_string().data();
+		return os;
+	}
 
 	YY_FORCE_INLINE bool exists(const path& p)
 	{

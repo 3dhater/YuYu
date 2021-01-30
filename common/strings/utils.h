@@ -8,6 +8,7 @@ namespace util
 template<typename Type>
 inline void stringToLower( Type& str )
 {
+	if (!str.size()) return;
 	u32 sz = str.size();
 	for( u32 i = 0u; i < sz; ++i )
 	{
@@ -20,6 +21,7 @@ inline void stringToLower( Type& str )
 template<typename Type>
 inline void stringFlip( Type& str )
 {
+	if (!str.size()) return;
 	Type flippedStr;
 	for( u32 i = str.size() - 1u; i >= 0u; --i )
 	{
@@ -31,6 +33,7 @@ inline void stringFlip( Type& str )
 template<typename Type>
 inline void stringFlipSlash( Type& str )
 {
+	if (!str.size()) return;
 	u32 sz = str.size();
 	for( u32 i = 0u; i < sz; ++i )
 	{
@@ -41,6 +44,7 @@ inline void stringFlipSlash( Type& str )
 template<typename Type>
 inline void stringFlipSlashBackSlash( Type& str )
 {
+	if (!str.size()) return;
 	u32 sz = str.size();
 	for( u32 i = 0u; i < sz; ++i )
 	{

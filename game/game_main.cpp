@@ -256,7 +256,7 @@ vidOk:
 	spriteCameraScale->y = 1.7f;
 	
 	auto rtt = g_videoDriver->CreateRenderTargetTexture(v2f(128.f, 128.f), false, true);
-	auto gui_pictureBox = yyGUICreatePictureBox(v4f(0.f, 0.f, 256.f, 256.f), yyGetTextureResource("E:/1_24bit.bmp", false, false, true), 1);
+	auto gui_pictureBox = yyGUICreatePictureBox(v4f(0.f, 0.f, 256.f, 256.f), rtt, 1);
 	
 	f32 deltaTime = 0.f;
 	bool run = true;
