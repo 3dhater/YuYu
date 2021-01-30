@@ -99,6 +99,16 @@ struct v2f
 	bool operator==(const v2f& v)const {if (x != v.x)return false;if (y != v.y)return false;return true;}
 };
 
+struct v3i
+{
+	v3i() :x(0), y(0), z(0) {}
+	v3i(const v3i& o) :x(o.x), y(o.y), z(o.z) {}
+	v3i(s32 X, s32 Y, s32 Z) :x(X), y(Y), z(Z) {}
+	s32 x, y, z;
+	v3i operator/(const v3i& v)const { v3i r; r.x = x / v.x; r.y = y / v.y; r.z = z / v.z; return r; }
+	v3i operator/(int v)const { v3i r; r.x = x / v; r.y = y / v; r.z = z / v; return r; }
+};
+
 struct v3f
 {
 	v3f():x(0.f),y(0.f),z(0.f){}
