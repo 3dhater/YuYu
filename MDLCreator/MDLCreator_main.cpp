@@ -56,6 +56,7 @@ const u32 g_renameTextBufferSize = 128;
 int g_shaderCombo_item_current = 0;
 
 int g_selectedLayer = -1;
+int g_selectedAnimation = -1;
 bool g_bindPose = false;
 
 bool g_SMDFixCoorSystem = false;
@@ -166,7 +167,28 @@ void updateInputContext() // call before all callbacks
 	g_inputContex->m_mouseDelta.y = 0.f;
 }
 
-yyStringW checkName(yyMDLObject* object, yyStringW name)
+yyStringW AnimationCheckName(yyMDLObject* object, yyStringW name)
+{
+	static int number = 0;
+	yyStringW newName = name;
+
+check_again:;
+
+	int count = 0;
+	for (u16 i = 0; i < object->m_mdl->m_animations.size(); ++i)
+	{
+		auto a = object->m_mdl->m_animations[i];
+		if (a->m_name == newName)
+			++count;
+	}
+	if (count > 0)
+	{
+		newName += number++;
+		goto check_again;
+	}
+	return newName;
+}
+yyStringW ModelCheckName(yyMDLObject* object, yyStringW name)
 {
 	static int number = 0;
 	yyStringW newName = name;
@@ -661,74 +683,64 @@ void readSMD(yyMDLObject* object, const char* file)
 		object->m_mdl->m_joints.push_back(newJoint);
 	}
 
-	std::cout
-		<< yyFS::path("/foo/bar.txt").filename() << '\n'
-		<< yyFS::path("/foo/.bar").filename() << '\n'
-		<< yyFS::path("/foo/bar/").filename() << '\n'
-		<< yyFS::path("/foo/.").filename() << '\n'
-		<< yyFS::path("/foo/..").filename() << '\n'
-		<< yyFS::path(".").filename() << '\n'
-		<< yyFS::path("..").filename() << '\n'
-		<< yyFS::path("/").filename() << '\n'
-		<< yyFS::path("//host").filename() << '\n';
-
 	yyMDLAnimation* newMDLAnimation = 0;
 	bool isAnimation = skeleton.size() > 1;
 	if (isAnimation)
 	{
 		newMDLAnimation = yyCreate<yyMDLAnimation>();
-		object->m_mdl->m_animations.push_back(newMDLAnimation);
 		newMDLAnimation->m_len = skeleton.size();
-		//yyFS::path p = file;
-		//p.
-	//	newMDLAnimation->m_name = 
+		yyFS::path p = file;
+		auto fn = p.filename();
+		newMDLAnimation->m_name = fn.generic_string().data();
+		util::stringPopBackBefore(newMDLAnimation->m_name, '.');
+		newMDLAnimation->m_name.pop_back(); // .
+	
+		newMDLAnimation->m_name = AnimationCheckName(object, newMDLAnimation->m_name.data());
+		object->m_mdl->m_animations.push_back(newMDLAnimation);
 	}
 	// skeleton
-	// time 0
 	for (size_t i = 0, sz = skeleton.size(); i < sz; ++i)
 	{
 		auto & f = skeleton[i];
-		//if (f.m_time == 0)
-		//{
-			for (size_t i2 = 0, sz2 = f.m_nodeTransforms.size(); i2 < sz2; ++i2)
+		for (size_t i2 = 0, sz2 = f.m_nodeTransforms.size(); i2 < sz2; ++i2)
+		{
+			auto & nt = f.m_nodeTransforms[i2];
+			auto & node = nodes[nt.m_boneID];
+			u32 jointID = 0;
+			auto joint = object->m_mdl->GetJointByName(node.m_name.data(), &jointID);
+			if (joint)
 			{
-				auto & nt = f.m_nodeTransforms[i2];
-				auto & node = nodes[nt.m_boneID];
-				auto joint = object->m_mdl->GetJointByName(node.m_name.data(), 0);
-				if (joint)
+				if (isAnimation)
 				{
-					if (isAnimation)
-					{
+					Mat4 R;
+					SMDAngleMatrix(v3f(nt.m_rotation.y, nt.m_rotation.z, nt.m_rotation.x), R);
+					Quat q = math::matToQuat(R);
+					newMDLAnimation->AddKeyFrame(jointID, i, nt.m_position, q);
+				}
+				else
+				{
+					Mat4 R;					
+					SMDAngleMatrix(v3f(nt.m_rotation.y, nt.m_rotation.z, nt.m_rotation.x), R);
+					
 
-					}
-					else
-					{
-						Mat4 R;					
-						//R.setRotation(Quat(-nt.m_rotation.x,-nt.m_rotation.y, -nt.m_rotation.z));
-						SMDAngleMatrix(v3f(nt.m_rotation.y, nt.m_rotation.z, nt.m_rotation.x), R);
+					Mat4 T;
+					T[3] = nt.m_position;
+					T[3].w = 1.f;
 					
-						Mat4 T;
-						T[3] = nt.m_position;
-						T[3].w = 1.f;
-					
-						if (node.m_parentID == -1)
-						{
-							Mat4 rR;
-							rR.setRotation(Quat(math::degToRad(90.f), 0.f, 0.f));
-						//	R = rR * R;
-						}
+					if (node.m_parentID == -1)
+						object->m_mdl->m_preRotation.setRotation(Quat(math::degToRad(90.f), 0.f, 0.f));
 
-						joint->m_matrixBind = T * R;
+					joint->m_matrixBind = T * R;
 					
-						if(node.m_parentID != -1)
-						{
-						//	joint->m_matrixBind = object->m_mdl->m_joints[node.m_parentID]->m_matrixBind * joint->m_matrixBind;
-						}
+					if(node.m_parentID != -1)
+					{
+						joint->m_matrixBind = object->m_mdl->m_joints[node.m_parentID]->m_matrixBind * joint->m_matrixBind;
 					}
+					joint->m_matrixOffset = joint->m_matrixBind;
+					joint->m_matrixOffset.invert();
 				}
 			}
-		//	break;
-		//}
+		}
 	}
 	
 	// find parents
@@ -753,135 +765,139 @@ void readSMD(yyMDLObject* object, const char* file)
 	// need to find unique material names.
 	// every unique material name is new MDLLayer
 	std::vector<std::string> materialNames;
-	for (size_t i = 0, sz = triangles.size(); i < sz; ++i)
+	if (!isAnimation)
 	{
-		auto & currentMaterialName = triangles[i].m_materialName;
-
-		bool needToAdd = true;
-		
-		for (size_t o = 0, osz = materialNames.size(); o < osz; ++o)
+		for (size_t i = 0, sz = triangles.size(); i < sz; ++i)
 		{
-			if (materialNames[o] == currentMaterialName)
+			auto & currentMaterialName = triangles[i].m_materialName;
+
+			bool needToAdd = true;
+
+			for (size_t o = 0, osz = materialNames.size(); o < osz; ++o)
 			{
-				needToAdd = false;
-				break;
-			}
-		}
-
-		if (needToAdd)
-		{
-			materialNames.push_back(currentMaterialName);
-		}
-	}
-	
-	for (size_t i = 0, sz = materialNames.size(); i < sz; ++i)
-	{
-		yyMDLLayer* newMDLLayer = yyCreate<yyMDLLayer>();
-		newMDLLayer->m_model = yyCreate<yyModel>();
-
-		newMDLLayer->m_model->m_name = "Model";
-
-		yyArray<yyVertexAnimatedModel> verts;
-		verts.setAddMemoryValue(0xffff);
-		yyArray<u32> inds;
-		inds.setAddMemoryValue(0xffff);
-
-		for (size_t k = 0, ksz = triangles.size(); k < ksz; ++k)
-		{
-			auto & tri = triangles[k];
-			if (tri.m_materialName != materialNames[i])
-				continue;
-
-			if (tri.m_materialName.size())
-				newMDLLayer->m_model->m_name.clear();
-
-			for (u32 s = 0, ssz = tri.m_materialName.size(); s < ssz; ++s)
-			{
-				auto ch = tri.m_materialName[s];
-				if (ch == '.')
+				if (materialNames[o] == currentMaterialName)
+				{
+					needToAdd = false;
 					break;
-				newMDLLayer->m_model->m_name += (wchar_t)ch;
+				}
 			}
 
-			yyVertexAnimatedModel v1, v2, v3;
-
-			v1.Position = tri.m_triangle[0].m_position;
-			v2.Position = tri.m_triangle[1].m_position;
-			v3.Position = tri.m_triangle[2].m_position;
-			
-			v1.Normal = tri.m_triangle[0].m_normal;
-			v2.Normal = tri.m_triangle[1].m_normal;
-			v3.Normal = tri.m_triangle[2].m_normal;
-			
-			v1.TCoords = tri.m_triangle[0].m_UV;
-			v2.TCoords = tri.m_triangle[1].m_UV;
-			v3.TCoords = tri.m_triangle[2].m_UV;
-			
-			v1.Bones.x = tri.m_triangle[0].m_boneID[0];
-			v1.Bones.y = tri.m_triangle[0].m_boneID[1];
-			v1.Bones.z = tri.m_triangle[0].m_boneID[2];
-			v1.Bones.w = tri.m_triangle[0].m_boneID[3];
-			v2.Bones.x = tri.m_triangle[1].m_boneID[0];
-			v2.Bones.y = tri.m_triangle[1].m_boneID[1];
-			v2.Bones.z = tri.m_triangle[1].m_boneID[2];
-			v2.Bones.w = tri.m_triangle[1].m_boneID[3];
-			v3.Bones.x = tri.m_triangle[2].m_boneID[0];
-			v3.Bones.y = tri.m_triangle[2].m_boneID[1];
-			v3.Bones.z = tri.m_triangle[2].m_boneID[2];
-			v3.Bones.w = tri.m_triangle[2].m_boneID[3];
-
-			v1.Weights.x = tri.m_triangle[0].m_weight[0];
-			v1.Weights.y = tri.m_triangle[0].m_weight[1];
-			v1.Weights.z = tri.m_triangle[0].m_weight[2];
-			v1.Weights.w = tri.m_triangle[0].m_weight[3];
-			v2.Weights.x = tri.m_triangle[1].m_weight[0];
-			v2.Weights.y = tri.m_triangle[1].m_weight[1];
-			v2.Weights.z = tri.m_triangle[1].m_weight[2];
-			v2.Weights.w = tri.m_triangle[1].m_weight[3];
-			v3.Weights.x = tri.m_triangle[2].m_weight[0];
-			v3.Weights.y = tri.m_triangle[2].m_weight[1];
-			v3.Weights.z = tri.m_triangle[2].m_weight[2];
-			v3.Weights.w = tri.m_triangle[2].m_weight[3];
-
-			verts.push_back(v1);
-			verts.push_back(v2);
-			verts.push_back(v3);
-
-			inds.push_back(inds.size());
-			inds.push_back(inds.size());
-			inds.push_back(inds.size());
-		}
-
-		newMDLLayer->m_model->m_vertexType = yyVertexType::AnimatedModel;
-		newMDLLayer->m_model->m_stride = sizeof(yyVertexAnimatedModel);
-		newMDLLayer->m_model->m_vertices = (u8*)yyMemAlloc(verts.size() * sizeof(yyVertexAnimatedModel));
-		memcpy(newMDLLayer->m_model->m_vertices, verts.data(), verts.size() * sizeof(yyVertexAnimatedModel));
-		if (inds.size() / 3 > 21845)
-		{
-			newMDLLayer->m_model->m_indexType = yyMeshIndexType::u32;
-			newMDLLayer->m_model->m_indices = (u8*)yyMemAlloc(inds.size() * sizeof(u32));
-			memcpy(newMDLLayer->m_model->m_indices, inds.data(), inds.size() * sizeof(u32));
-		}
-		else
-		{
-			newMDLLayer->m_model->m_indexType = yyMeshIndexType::u16;
-			newMDLLayer->m_model->m_indices = (u8*)yyMemAlloc(inds.size() * sizeof(u16));
-			u16 * i_ptr = (u16*)newMDLLayer->m_model->m_indices;
-			for (u32 o = 0, sz = inds.size(); o < sz; ++o)
+			if (needToAdd)
 			{
-				*i_ptr = (u16)inds[o];
-				++i_ptr;
+				materialNames.push_back(currentMaterialName);
 			}
 		}
 
-		newMDLLayer->m_model->m_vCount = verts.size();
-		newMDLLayer->m_model->m_iCount = inds.size();
+		for (size_t i = 0, sz = materialNames.size(); i < sz; ++i)
+		{
+			yyMDLLayer* newMDLLayer = yyCreate<yyMDLLayer>();
+			newMDLLayer->m_model = yyCreate<yyModel>();
 
-		newMDLLayer->m_meshGPU = yyGetVideoDriverAPI()->CreateModel(newMDLLayer->m_model);
+			newMDLLayer->m_model->m_name = "Model";
 
-		object->m_mdl->m_layers.push_back(newMDLLayer);
-		g_layerInfo.push_back(LayerInfo());
-	}
+			yyArray<yyVertexAnimatedModel> verts;
+			verts.setAddMemoryValue(0xffff);
+			yyArray<u32> inds;
+			inds.setAddMemoryValue(0xffff);
+
+			for (size_t k = 0, ksz = triangles.size(); k < ksz; ++k)
+			{
+				auto & tri = triangles[k];
+				if (tri.m_materialName != materialNames[i])
+					continue;
+
+				if (tri.m_materialName.size())
+					newMDLLayer->m_model->m_name.clear();
+
+				for (u32 s = 0, ssz = tri.m_materialName.size(); s < ssz; ++s)
+				{
+					auto ch = tri.m_materialName[s];
+					if (ch == '.')
+						break;
+					newMDLLayer->m_model->m_name += (wchar_t)ch;
+				}
+
+				yyVertexAnimatedModel v1, v2, v3;
+
+				v1.Position = tri.m_triangle[0].m_position;
+				v2.Position = tri.m_triangle[1].m_position;
+				v3.Position = tri.m_triangle[2].m_position;
+
+				v1.Normal = tri.m_triangle[0].m_normal;
+				v2.Normal = tri.m_triangle[1].m_normal;
+				v3.Normal = tri.m_triangle[2].m_normal;
+
+				v1.TCoords = tri.m_triangle[0].m_UV;
+				v2.TCoords = tri.m_triangle[1].m_UV;
+				v3.TCoords = tri.m_triangle[2].m_UV;
+
+				v1.Bones.x = tri.m_triangle[0].m_boneID[0];
+				v1.Bones.y = tri.m_triangle[0].m_boneID[1];
+				v1.Bones.z = tri.m_triangle[0].m_boneID[2];
+				v1.Bones.w = tri.m_triangle[0].m_boneID[3];
+				v2.Bones.x = tri.m_triangle[1].m_boneID[0];
+				v2.Bones.y = tri.m_triangle[1].m_boneID[1];
+				v2.Bones.z = tri.m_triangle[1].m_boneID[2];
+				v2.Bones.w = tri.m_triangle[1].m_boneID[3];
+				v3.Bones.x = tri.m_triangle[2].m_boneID[0];
+				v3.Bones.y = tri.m_triangle[2].m_boneID[1];
+				v3.Bones.z = tri.m_triangle[2].m_boneID[2];
+				v3.Bones.w = tri.m_triangle[2].m_boneID[3];
+
+				v1.Weights.x = tri.m_triangle[0].m_weight[0];
+				v1.Weights.y = tri.m_triangle[0].m_weight[1];
+				v1.Weights.z = tri.m_triangle[0].m_weight[2];
+				v1.Weights.w = tri.m_triangle[0].m_weight[3];
+				v2.Weights.x = tri.m_triangle[1].m_weight[0];
+				v2.Weights.y = tri.m_triangle[1].m_weight[1];
+				v2.Weights.z = tri.m_triangle[1].m_weight[2];
+				v2.Weights.w = tri.m_triangle[1].m_weight[3];
+				v3.Weights.x = tri.m_triangle[2].m_weight[0];
+				v3.Weights.y = tri.m_triangle[2].m_weight[1];
+				v3.Weights.z = tri.m_triangle[2].m_weight[2];
+				v3.Weights.w = tri.m_triangle[2].m_weight[3];
+
+				verts.push_back(v1);
+				verts.push_back(v2);
+				verts.push_back(v3);
+
+				inds.push_back(inds.size());
+				inds.push_back(inds.size());
+				inds.push_back(inds.size());
+			}
+
+			newMDLLayer->m_model->m_name = ModelCheckName(object, newMDLLayer->m_model->m_name.data());
+			newMDLLayer->m_model->m_vertexType = yyVertexType::AnimatedModel;
+			newMDLLayer->m_model->m_stride = sizeof(yyVertexAnimatedModel);
+			newMDLLayer->m_model->m_vertices = (u8*)yyMemAlloc(verts.size() * sizeof(yyVertexAnimatedModel));
+			memcpy(newMDLLayer->m_model->m_vertices, verts.data(), verts.size() * sizeof(yyVertexAnimatedModel));
+			if (inds.size() / 3 > 21845)
+			{
+				newMDLLayer->m_model->m_indexType = yyMeshIndexType::u32;
+				newMDLLayer->m_model->m_indices = (u8*)yyMemAlloc(inds.size() * sizeof(u32));
+				memcpy(newMDLLayer->m_model->m_indices, inds.data(), inds.size() * sizeof(u32));
+			}
+			else
+			{
+				newMDLLayer->m_model->m_indexType = yyMeshIndexType::u16;
+				newMDLLayer->m_model->m_indices = (u8*)yyMemAlloc(inds.size() * sizeof(u16));
+				u16 * i_ptr = (u16*)newMDLLayer->m_model->m_indices;
+				for (u32 o = 0, sz = inds.size(); o < sz; ++o)
+				{
+					*i_ptr = (u16)inds[o];
+					++i_ptr;
+				}
+			}
+
+			newMDLLayer->m_model->m_vCount = verts.size();
+			newMDLLayer->m_model->m_iCount = inds.size();
+
+			newMDLLayer->m_meshGPU = yyGetVideoDriverAPI()->CreateModel(newMDLLayer->m_model);
+
+			object->m_mdl->m_layers.push_back(newMDLLayer);
+			g_layerInfo.push_back(LayerInfo());
+		}
+	} // !isAnimation
 
 	delete deletePtr;
 }
@@ -1494,7 +1510,7 @@ int main(int argc, char* argv[])
 
 						if (ImGui::Button("OK", ImVec2(120, 0))) 
 						{
-							mdlObject.m_data->m_mdl->m_layers[g_selectedLayer]->m_model->m_name = checkName(mdlObject.m_data, g_renameTextBuffer.data());
+							mdlObject.m_data->m_mdl->m_layers[g_selectedLayer]->m_model->m_name = ModelCheckName(mdlObject.m_data, g_renameTextBuffer.data());
 							ImGui::CloseCurrentPopup(); 
 						}
 						ImGui::SetItemDefaultFocus();
@@ -1583,17 +1599,16 @@ int main(int argc, char* argv[])
 			{
 				ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(255, 0, 0, 100));
 				ImGui::BeginChild("ChildAnimationList", ImVec2(ImGui::GetWindowContentRegionWidth(), 200), false, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoMove);
-				/*yyStringA stra;
-				for (int n = 0, nsz = mdlObject.m_data->m_mdl->m_layers.size(); n < nsz; ++n)
+				yyStringA stra;
+				for (int n = 0, nsz = mdlObject.m_data->m_mdl->m_animations.size(); n < nsz; ++n)
 				{
-					auto layer = mdlObject.m_data->m_mdl->m_layers[n];
-					stra = layer->m_model->m_name.data();
-					if (ImGui::Selectable(stra.data(), g_selectedLayer == n))
+					auto animation = mdlObject.m_data->m_mdl->m_animations[n];
+					stra = animation->m_name.data();
+					if (ImGui::Selectable(stra.data(), g_selectedAnimation == n))
 					{
-						g_selectedLayer = n;
-						printf("Select %i\n", g_selectedLayer);
+						g_selectedAnimation = n;
 					}
-				}*/
+				}
 				ImGui::EndChild();
 				ImGui::PopStyleColor();
 				ImGui::Checkbox("Bind pose", &g_bindPose);
@@ -1636,19 +1651,21 @@ int main(int argc, char* argv[])
 				g_videoDriver->SetModel(layer->m_meshGPU);
 
 				Mat4 WorldMatrix;
+
+				WorldMatrix = mdlObject.m_data->m_mdl->m_preRotation * WorldMatrix;
 				WorldMatrix[3] = g_layerInfo[n].m_offset;
 				WorldMatrix[3].w = 1.f;
 
-				g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::World, WorldMatrix);
+
+
+				g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::World,  WorldMatrix);
 				g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection, camera.m_camera->m_projectionMatrix * camera.m_camera->m_viewMatrix * WorldMatrix);
 				if(layer->m_textureGPU1)
 					g_videoDriver->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, layer->m_textureGPU1);
 				else
 					g_videoDriver->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, defaultTexture);
 
-			//	mdlObject.m_data->Update(deltaTime);
-				
-				g_videoDriver->Draw();
+			
 
 				/*Mat4 R;
 				R.setRotation(Quat(math::degToRad(90.f), 0.f, 0.f));*/
@@ -1656,7 +1673,13 @@ int main(int argc, char* argv[])
 				auto numJoints = mdlObject.m_data->m_joints.size();
 				if (numJoints)
 				{
-					bool drawBind = true;
+					bool drawBind = false;
+					
+					if(g_selectedAnimation == -1)
+						drawBind = true;
+
+					if(g_bindPose)
+						drawBind = true;
 
 					if (drawBind)
 					{
@@ -1664,24 +1687,13 @@ int main(int argc, char* argv[])
 						{
 							auto & objJoint = mdlObject.m_data->m_joints[i];
 							auto mdlJoint = mdlObject.m_data->m_mdl->m_joints[i];
-
+							objJoint.m_finalTransformation.identity();
 							objJoint.m_globalTransformation = mdlJoint->m_matrixBind;
-
-							if (mdlJoint->m_parentIndex != -1)
-							{
-								objJoint.m_globalTransformation = 
-									mdlObject.m_data->m_joints[mdlJoint->m_parentIndex].m_globalTransformation 
-									* objJoint.m_globalTransformation;
-							}
-							else
-							{
-							//	objJoint.m_globalTransformation = R * objJoint.m_globalTransformation;
-							}
 						}
 					}
 					else
 					{
-
+						mdlObject.m_data->Update(deltaTime);
 					}
 					
 					g_videoDriver->UseDepth(false);
@@ -1690,10 +1702,10 @@ int main(int argc, char* argv[])
 						auto & objJoint = mdlObject.m_data->m_joints[i];
 						auto mdlJoint = mdlObject.m_data->m_mdl->m_joints[i];
 
-						auto matrix = objJoint.m_globalTransformation;
-						matrix[3].set(0.f, 0.f, 0.f, 1.f);
+						auto matrix = mdlObject.m_data->m_mdl->m_preRotation * objJoint.m_globalTransformation;
+						auto point = matrix[3];
 
-						auto point = objJoint.m_globalTransformation[3];
+						matrix[3].set(0.f, 0.f, 0.f, 1.f);
 
 						auto distCamera = point.distance(camera.m_camera->m_objectBase.m_globalPosition);
 						f32 jointSize = 0.02f * distCamera;
@@ -1710,15 +1722,19 @@ int main(int argc, char* argv[])
 
 						if (mdlJoint->m_parentIndex != -1)
 						{
+							auto matrixP = mdlObject.m_data->m_mdl->m_preRotation * mdlObject.m_data->m_joints[mdlJoint->m_parentIndex].m_globalTransformation;
 							g_videoDriver->DrawLine3D(
-								objJoint.m_globalTransformation[3],
-								mdlObject.m_data->m_joints[mdlJoint->m_parentIndex].m_globalTransformation[3], ColorLime);
+								point,
+								matrixP[3],
+								ColorLime);
 						}
-						//g_videoDriver->SetBoneMatrix(i, defaultTexture);
+
+						g_videoDriver->SetBoneMatrix(i, objJoint.m_finalTransformation);
 					}
 					g_videoDriver->UseDepth(true);
 				}
 
+				g_videoDriver->Draw();
 			}
 
 			//g_videoDriver->UseDepth(false);

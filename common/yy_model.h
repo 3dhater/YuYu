@@ -55,28 +55,16 @@ struct yyJoint
 {
 	yyJoint()
 	{
-	//	m_parent = nullptr;
 		m_parentIndex = -1;
 	}
 
-	//yyJoint*				m_parent;
 	s32 m_parentIndex; // index in yyMDL::m_joints
-	//yyArraySmall<yyJoint*>	m_children;
 
 	Mat4					m_matrixBind;
-	//Mat4					m_matrixOffset;
-	//Mat4					m_nodeTransformation;
-
-	//v4f					m_position;
-	//Quat					m_rotation;
+	Mat4					m_matrixOffset;
 
 	yyStringA				m_name;
 
-	void toBind()
-	{
-	//	m_position = m_matrixBind[3];
-	//	m_rotation = math::matToQuat(m_matrixBind);
-	}
 };
 
 
@@ -424,10 +412,23 @@ struct yyMDLAnimationFrames
 			keyFrame = insertKeyFrame(time);
 		keyFrame->m_position = position;
 	}
+	void insertRotation(const Quat& rotation, s32 time)
+	{
+		auto keyFrame = getKeyFrame(time);
+		if (!keyFrame)
+			keyFrame = insertKeyFrame(time);
+		keyFrame->m_rotation = rotation;
+	}
 
 	yyMDLAnimationKeyFrame* getCurrentKeyFrame(s32 time)
 	{
-		return nullptr;
+		for (s32 i = m_keyFrames.size() - 1; i >= 0; --i)
+		{
+			auto & k = m_keyFrames[i];
+			if (k.m_time < time)
+				return &m_keyFrames[i];
+		}
+		return &m_keyFrames[0];
 	}
 	yyMDLAnimationKeyFrame* getNextKeyFrame(s32 time)
 	{
@@ -437,13 +438,19 @@ struct yyMDLAnimationFrames
 			if ( k.m_time > time )
 				return &m_keyFrames[i];
 		}
-		return nullptr;
+		return &m_keyFrames[0];
 	}
 };
 struct yyMDLAnimation
 {
 	yyMDLAnimation() :m_len(0.f) {}
-	yyStringA m_name;
+	~yyMDLAnimation() {
+		for (u16 i = 0, sz = m_animatedJoints.size(); i < sz; ++i)
+		{
+			yyDestroy(m_animatedJoints[i]);
+		}
+	}
+	yyStringW m_name;
 
 
 	// анимация это список джоинтов которые задействованны в анимации
@@ -452,19 +459,44 @@ struct yyMDLAnimation
 	//   дополнительную структуру
 	struct _joint_info
 	{
-		s32  m_jointID;     // индекс yyMDL::m_joints
+		u32  m_jointID;     // индекс yyMDL::m_joints
 		//Mat4 m_matrixFinal; // финальная матрица, которая пойдёт в шейдер
 
-		//v4f						m_position;
-		//Quat					m_rotation;
+		//v4f				m_position;
+		//Quat				m_rotation;
 		
 		// фреймы анимации для конкретного джоинта
 		yyMDLAnimationFrames m_animationFrames;
 	};
-	yyArraySmall<_joint_info> m_animatedJoints;
+	yyArraySmall<_joint_info*> m_animatedJoints;
 
 	// длинна анимации
 	f32 m_len;
+
+	void AddKeyFrame(u32 jointID, s32 time, const v3f& position, const Quat& rotation)
+	{
+		_joint_info* ji = _get_joint_info(jointID);
+		if (!ji)
+		{
+			yyLogWriteWarning("yyMDLAnimation::AddKeyFrame - joint not found\n");
+			return;
+		}
+		ji->m_animationFrames.insertPosition(position, time);
+		ji->m_animationFrames.insertRotation(rotation, time);
+	}
+
+	_joint_info* _get_joint_info(u32 jointID)
+	{
+		for (u16 i = 0, sz = m_animatedJoints.size(); i < sz; ++i)
+		{
+			if (m_animatedJoints[i]->m_jointID == jointID)
+				return m_animatedJoints[i];
+		}
+		_joint_info * new_ji = yyCreate<_joint_info>();
+		new_ji->m_jointID = jointID;
+		m_animatedJoints.push_back(new_ji);
+		return new_ji;
+	}
 };
 
 struct yyMDL
@@ -541,6 +573,8 @@ struct yyMDL
 			m_layers[i]->Unload();
 		}
 	}
+	
+	Mat4	m_preRotation;
 
 	Aabb m_aabb;
 };
