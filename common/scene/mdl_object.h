@@ -60,20 +60,23 @@ struct yyMDLObject
 				Mat4 RotationM;
 				RotationM.setRotation(objJoint.m_rotation);
 
-				Mat4 NodeTransformation = TranslationM * RotationM;
+				//Mat4 NodeTransformation = mdlJoint->m_matrixBindNoParent;
+Mat4 NodeTransformation = TranslationM * RotationM;
 
-				if (mdlJoint->m_parentIndex != -1)
-				{
-					objJoint.m_globalTransformation =
-						m_joints[mdlJoint->m_parentIndex].m_globalTransformation
-						* NodeTransformation;
-				}
-				else
-				{
-					objJoint.m_globalTransformation = NodeTransformation;
-				}
+if (mdlJoint->m_parentIndex != -1)
+{
+	objJoint.m_globalTransformation =
+		m_joints[mdlJoint->m_parentIndex].m_globalTransformation
+		* NodeTransformation;
+}
+else
+{
+	objJoint.m_globalTransformation = NodeTransformation;
+}
 
-				objJoint.m_finalTransformation = /*m_mdl->m_preRotation * */objJoint.m_globalTransformation * mdlJoint->m_matrixOffset;
+objJoint.m_finalTransformation = 
+					 
+	objJoint.m_globalTransformation *  mdlJoint->m_matrixOffset *  mdlJoint->m_matrixBindInverse;
 			}
 
 			time += dt;
@@ -85,8 +88,8 @@ struct yyMDLObject
 					auto jointID = animation->m_animatedJoints[i]->m_jointID;
 					auto mdlJoint = m_mdl->m_joints[jointID];
 					auto objJoint = m_joints[jointID];
-					objJoint.m_position = mdlJoint->m_matrixBind[3];
-					objJoint.m_rotation = math::matToQuat(mdlJoint->m_matrixBind);
+					objJoint.m_position = mdlJoint->m_matrixWorld[3];
+					objJoint.m_rotation = math::matToQuat(mdlJoint->m_matrixWorld);
 				}
 			}
 		}
@@ -124,13 +127,13 @@ struct yyMDLObject
 		m_mdl = mdl;
 
 		m_joints.clear();
-		m_joints.reserve(100);
+		m_joints.reserve(255);
 		for (u16 i = 0, sz = m_mdl->m_joints.size(); i < sz; ++i)
 		{
 			auto j = m_mdl->m_joints[i];
 			JointInfo ji;
-			ji.m_position = j->m_matrixBind[3];
-			ji.m_rotation = math::matToQuat(j->m_matrixBind);
+			ji.m_position = j->m_matrixWorld[3];
+			ji.m_rotation = math::matToQuat(j->m_matrixWorld);
 			m_joints.push_back(ji);
 		}
 	}

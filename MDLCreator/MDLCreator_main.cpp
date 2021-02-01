@@ -59,7 +59,6 @@ int g_selectedLayer = -1;
 int g_selectedAnimation = -1;
 bool g_bindPose = false;
 
-bool g_SMDFixCoorSystem = false;
 bool g_SMDIsZeroBased = true;
 
 //Mat4 aiMatrixToGameMatrix(const aiMatrix4x4& a)
@@ -482,20 +481,6 @@ void SMDReadSkeleton(std::vector<SMDKeyFrame>& skeleton, char* fileBuffer)
 		fileBuffer = SMDReadFloat(fileBuffer, rotation.y);
 		fileBuffer = SMDReadFloat(fileBuffer, rotation.z);
 
-		if (g_SMDFixCoorSystem)
-		{
-		//	auto tmp = position.y;
-		//	position.y = position.z;
-		//	position.z = -tmp;
-
-			//position.z = -position.z;
-
-			/*tmp = rotation.y;
-			rotation.y = rotation.z;
-			rotation.z = -tmp;*/
-			//rotation.z = -rotation.z;
-		}
-
 		SMDNodeTransformation nt;
 		nt.m_boneID = boneID;
 		nt.m_position = position;
@@ -542,6 +527,10 @@ void SMDReadTriangles(std::vector<SMDTriangle>& triangles, char* fileBuffer)
 			fileBuffer = SMDReadFloat(fileBuffer, newTriangle.m_triangle[i].m_UV.y);
 			newTriangle.m_triangle[i].m_UV.y = 1.f - newTriangle.m_triangle[i].m_UV.y;
 
+			newTriangle.m_triangle[i].m_links = 1;
+			newTriangle.m_triangle[i].m_boneID[0] = newTriangle.m_triangle[i].m_parentBone;
+			newTriangle.m_triangle[i].m_weight[0] = 1.f;
+
 			if (!SMDIsEndLine(fileBuffer))
 			{
 				fileBuffer = SMDReadInt(fileBuffer, newTriangle.m_triangle[i].m_links);
@@ -562,19 +551,7 @@ void SMDReadTriangles(std::vector<SMDTriangle>& triangles, char* fileBuffer)
 					fileBuffer = SMDReadFloat(fileBuffer, newTriangle.m_triangle[i].m_weight[q]);
 				}
 			}
-			else
-			{
-				newTriangle.m_triangle[i].m_links = 1;
-				newTriangle.m_triangle[i].m_boneID[0] = newTriangle.m_triangle[i].m_parentBone;
-				newTriangle.m_triangle[i].m_weight[0] = 1.f;
-			}
 
-			if (g_SMDFixCoorSystem)
-			{
-				auto tmp = newTriangle.m_triangle[i].m_position.y;
-				newTriangle.m_triangle[i].m_position.y = newTriangle.m_triangle[i].m_position.z;
-				newTriangle.m_triangle[i].m_position.z = -tmp;
-			}
 		}
 		triangles.push_back(newTriangle);
 	}
@@ -677,7 +654,7 @@ void readSMD(yyMDLObject* object, const char* file)
 
 		yyJoint* newJoint = yyCreate<yyJoint>();
 		newJoint->m_name = node.m_name.data();
-		// newJoint->m_parentIndex = node.m_parentID; // better to find parents later
+		newJoint->m_parentIndex = node.m_parentID; // better to find parents later
 		//newJoint->m_children
 		//newJoint->m_matrixBind.setRotation(Quat(node.));
 		object->m_mdl->m_joints.push_back(newJoint);
@@ -698,6 +675,7 @@ void readSMD(yyMDLObject* object, const char* file)
 		newMDLAnimation->m_name = AnimationCheckName(object, newMDLAnimation->m_name.data());
 		object->m_mdl->m_animations.push_back(newMDLAnimation);
 	}
+
 	// skeleton
 	for (size_t i = 0, sz = skeleton.size(); i < sz; ++i)
 	{
@@ -706,7 +684,7 @@ void readSMD(yyMDLObject* object, const char* file)
 		{
 			auto & nt = f.m_nodeTransforms[i2];
 			auto & node = nodes[nt.m_boneID];
-			u32 jointID = 0;
+			s32 jointID = 0;
 			auto joint = object->m_mdl->GetJointByName(node.m_name.data(), &jointID);
 			if (joint)
 			{
@@ -722,46 +700,127 @@ void readSMD(yyMDLObject* object, const char* file)
 					Mat4 R;					
 					SMDAngleMatrix(v3f(nt.m_rotation.y, nt.m_rotation.z, nt.m_rotation.x), R);
 					
+					/*
+					SMDAngleMatrix(v3f(nt.m_rotation.x, nt.m_rotation.y, nt.m_rotation.z), R);
+					SMDAngleMatrix(v3f(nt.m_rotation.x, nt.m_rotation.z, nt.m_rotation.y), R);
+					SMDAngleMatrix(v3f(nt.m_rotation.y, nt.m_rotation.x, nt.m_rotation.z), R);
+					SMDAngleMatrix(v3f(nt.m_rotation.y, nt.m_rotation.z, nt.m_rotation.x), R);
+					SMDAngleMatrix(v3f(nt.m_rotation.z, nt.m_rotation.y, nt.m_rotation.x), R);
+					SMDAngleMatrix(v3f(nt.m_rotation.z, nt.m_rotation.x, nt.m_rotation.y), R);
+
+					SMDAngleMatrix(v3f(nt.m_rotation.x, nt.m_rotation.y, -nt.m_rotation.z), R);
+					SMDAngleMatrix(v3f(nt.m_rotation.x, nt.m_rotation.z, -nt.m_rotation.y), R);
+					SMDAngleMatrix(v3f(nt.m_rotation.y, nt.m_rotation.x, -nt.m_rotation.z), R);
+					SMDAngleMatrix(v3f(nt.m_rotation.y, nt.m_rotation.z, -nt.m_rotation.x), R);
+					SMDAngleMatrix(v3f(nt.m_rotation.z, nt.m_rotation.y, -nt.m_rotation.x), R);
+					SMDAngleMatrix(v3f(nt.m_rotation.z, nt.m_rotation.x, -nt.m_rotation.y), R);
+
+					SMDAngleMatrix(v3f(nt.m_rotation.x, -nt.m_rotation.y, nt.m_rotation.z), R);
+					SMDAngleMatrix(v3f(nt.m_rotation.x, -nt.m_rotation.z, nt.m_rotation.y), R);
+					SMDAngleMatrix(v3f(nt.m_rotation.y, -nt.m_rotation.x, nt.m_rotation.z), R);
+					SMDAngleMatrix(v3f(nt.m_rotation.y, -nt.m_rotation.z, nt.m_rotation.x), R);
+					SMDAngleMatrix(v3f(nt.m_rotation.z, -nt.m_rotation.y, nt.m_rotation.x), R);
+					SMDAngleMatrix(v3f(nt.m_rotation.z, -nt.m_rotation.x, nt.m_rotation.y), R);
+
+					SMDAngleMatrix(v3f(nt.m_rotation.x, -nt.m_rotation.y, -nt.m_rotation.z), R);
+					SMDAngleMatrix(v3f(nt.m_rotation.x, -nt.m_rotation.z, -nt.m_rotation.y), R);
+					SMDAngleMatrix(v3f(nt.m_rotation.y, -nt.m_rotation.x, -nt.m_rotation.z), R);
+					SMDAngleMatrix(v3f(nt.m_rotation.y, -nt.m_rotation.z, -nt.m_rotation.x), R);
+					SMDAngleMatrix(v3f(nt.m_rotation.z, -nt.m_rotation.y, -nt.m_rotation.x), R);
+					SMDAngleMatrix(v3f(nt.m_rotation.z, -nt.m_rotation.x, -nt.m_rotation.y), R);
+
+					SMDAngleMatrix(v3f(-nt.m_rotation.x, nt.m_rotation.y, nt.m_rotation.z), R);
+					SMDAngleMatrix(v3f(-nt.m_rotation.x, nt.m_rotation.z, nt.m_rotation.y), R);
+					SMDAngleMatrix(v3f(-nt.m_rotation.y, nt.m_rotation.x, nt.m_rotation.z), R);
+					SMDAngleMatrix(v3f(-nt.m_rotation.y, nt.m_rotation.z, nt.m_rotation.x), R);
+					SMDAngleMatrix(v3f(-nt.m_rotation.z, nt.m_rotation.y, nt.m_rotation.x), R);
+					SMDAngleMatrix(v3f(-nt.m_rotation.z, nt.m_rotation.x, nt.m_rotation.y), R);
+
+					SMDAngleMatrix(v3f(-nt.m_rotation.x, nt.m_rotation.y, -nt.m_rotation.z), R);
+					SMDAngleMatrix(v3f(-nt.m_rotation.x, nt.m_rotation.z, -nt.m_rotation.y), R);
+					SMDAngleMatrix(v3f(-nt.m_rotation.y, nt.m_rotation.x, -nt.m_rotation.z), R);
+					SMDAngleMatrix(v3f(-nt.m_rotation.y, nt.m_rotation.z, -nt.m_rotation.x), R);
+					SMDAngleMatrix(v3f(-nt.m_rotation.z, nt.m_rotation.y, -nt.m_rotation.x), R);
+					SMDAngleMatrix(v3f(-nt.m_rotation.z, nt.m_rotation.x, -nt.m_rotation.y), R);
+
+					SMDAngleMatrix(v3f(-nt.m_rotation.x, -nt.m_rotation.y, nt.m_rotation.z), R);
+					SMDAngleMatrix(v3f(-nt.m_rotation.x, -nt.m_rotation.z, nt.m_rotation.y), R);
+					SMDAngleMatrix(v3f(-nt.m_rotation.y, -nt.m_rotation.x, nt.m_rotation.z), R);
+					SMDAngleMatrix(v3f(-nt.m_rotation.y, -nt.m_rotation.z, nt.m_rotation.x), R);
+					SMDAngleMatrix(v3f(-nt.m_rotation.z, -nt.m_rotation.y, nt.m_rotation.x), R);
+					SMDAngleMatrix(v3f(-nt.m_rotation.z, -nt.m_rotation.x, nt.m_rotation.y), R);
+
+					SMDAngleMatrix(v3f(-nt.m_rotation.x, -nt.m_rotation.y, -nt.m_rotation.z), R);
+					SMDAngleMatrix(v3f(-nt.m_rotation.x, -nt.m_rotation.z, -nt.m_rotation.y), R);
+					SMDAngleMatrix(v3f(-nt.m_rotation.y, -nt.m_rotation.x, -nt.m_rotation.z), R);
+					SMDAngleMatrix(v3f(-nt.m_rotation.y, -nt.m_rotation.z, -nt.m_rotation.x), R);
+					SMDAngleMatrix(v3f(-nt.m_rotation.z, -nt.m_rotation.y, -nt.m_rotation.x), R);
+					SMDAngleMatrix(v3f(-nt.m_rotation.z, -nt.m_rotation.x, -nt.m_rotation.y), R);
+					*/
+
+					/*Quat qX(v3f(1.f, 0.f, 0.f), -nt.m_rotation.x);
+					Quat qY(v3f(0.f, 1.f, 0.f), -nt.m_rotation.y);
+					Quat qZ(v3f(0.f, 0.f, 1.f), -nt.m_rotation.z);
+					Quat qR = qX * qY * qZ;
+					qR.normalize();
+					R.setRotation(qR);*/
+					//R.invert();
 
 					Mat4 T;
 					T[3] = nt.m_position;
+					//T[0].w = nt.m_position.x;
+					//T[1].w = nt.m_position.y;
+					//T[2].w = nt.m_position.z;
 					T[3].w = 1.f;
 					
 					if (node.m_parentID == -1)
 						object->m_mdl->m_preRotation.setRotation(Quat(math::degToRad(90.f), 0.f, 0.f));
 
-					joint->m_matrixBind = T * R;
-					
-					if(node.m_parentID != -1)
-					{
-						joint->m_matrixBind = object->m_mdl->m_joints[node.m_parentID]->m_matrixBind * joint->m_matrixBind;
-					}
-					joint->m_matrixOffset = joint->m_matrixBind;
-					joint->m_matrixOffset.invert();
+	Mat4 localMatrix = T * R;
+
+	if (node.m_parentID == -1)
+	{
+		joint->m_matrixWorld = localMatrix;
+	}
+	else
+	{
+		joint->m_matrixWorld =
+			object->m_mdl->m_joints[node.m_parentID]->m_matrixWorld *
+			localMatrix;
+	}
+
+	joint->m_matrixBindInverse = joint->m_matrixWorld;
+	joint->m_matrixBindInverse.invert();
+	joint->m_matrixOffset = joint->m_matrixBindInverse * joint->m_matrixWorld;
+	joint->m_matrixOffset.invert();
+					//printf("i2 %u\n", i2);
 				}
 			}
 		}
 	}
+
 	
 	// find parents
-	for (size_t i = 0, sz = nodes.size(); i < sz; ++i)
+	/*if (!isAnimation)
 	{
-		auto & node = nodes[i];
-		if (node.m_parentID == -1)
-			continue;
-		
-		auto & parentNode = nodes[node.m_parentID];
-
-		auto joint = object->m_mdl->GetJointByName(node.m_name.data(), 0);
-
-		u32 parentNodeIndex = 0;
-		auto parentJoint = object->m_mdl->GetJointByName(parentNode.m_name.data(), &parentNodeIndex);
-		if (parentJoint)
+		for (size_t i = 0, sz = nodes.size(); i < sz; ++i)
 		{
-			joint->m_parentIndex = parentNodeIndex;
-		}
-	}
+			auto & node = nodes[i];
+			if (node.m_parentID == -1)
+				continue;
 
+			auto & parentNode = nodes[node.m_parentID];
+
+			auto joint = object->m_mdl->GetJointByName(node.m_name.data(), 0);
+
+			u32 parentNodeIndex = 0;
+			auto parentJoint = object->m_mdl->GetJointByName(parentNode.m_name.data(), &parentNodeIndex);
+			if (parentJoint && joint->m_parentIndex == -1)
+			{
+				joint->m_parentIndex = parentNodeIndex;
+			}
+		}
+	}*/
 	// need to find unique material names.
 	// every unique material name is new MDLLayer
 	std::vector<std::string> materialNames;
@@ -1688,7 +1747,7 @@ int main(int argc, char* argv[])
 							auto & objJoint = mdlObject.m_data->m_joints[i];
 							auto mdlJoint = mdlObject.m_data->m_mdl->m_joints[i];
 							objJoint.m_finalTransformation.identity();
-							objJoint.m_globalTransformation = mdlJoint->m_matrixBind;
+							objJoint.m_globalTransformation = mdlJoint->m_matrixWorld;
 						}
 					}
 					else

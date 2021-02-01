@@ -92,11 +92,22 @@ struct v2i
 struct v2f
 {
 	v2f():x(0.f),y(0.f){}
-	v2f(f32 _x, f32 _y):x(_x),y(_y){}
+	v2f(f32 _x, f32 _y) :x(_x), y(_y) {}
+	v2f(f32 val):x(val),y(val){}
 	f32 x, y;
 	void set(f32 _x, f32 _y){x=_x;y=_y;}
 	v2f operator*(const v2f& v)const { v2f r; r.x = x * v.x; r.y = y * v.y; return r; }
+	v2f operator-(const v2f& v)const { v2f r; r.x = x - v.x; r.y = y - v.y; return r; }
+	v2f operator+(const v2f& v)const { v2f r; r.x = x + v.x; r.y = y + v.y; return r; }
+	v2f operator/(const v2f& v)const { v2f r; r.x = x / v.x; r.y = y / v.y; return r; }
+	void operator+=(const v2f& v) { x += v.x; y += v.y; }
+	void operator-=(const v2f& v) { x -= v.x; y -= v.y; }
+	void operator*=(const v2f& v) { x *= v.x; y *= v.y; }
+	void operator/=(const v2f& v) { x /= v.x; y /= v.y; }
 	bool operator==(const v2f& v)const {if (x != v.x)return false;if (y != v.y)return false;return true;}
+	f32 distance(const v2f& from)const { return v2f(x - from.x, y - from.y).length(); }
+	f32 length()const { return std::sqrt(lengthSqrt()); }
+	f32 lengthSqrt()const { return(x*x) + (y*y); }
 };
 
 struct v3i

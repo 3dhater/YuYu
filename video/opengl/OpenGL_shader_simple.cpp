@@ -91,14 +91,25 @@ bool OpenGLShaderSimpleAnimated::init()
 		"out vec2 texCoord;\n"
 		"uniform mat4 WVP;\n"
 		"uniform mat4 World;\n"
-		"uniform mat4 Bones[100];\n"
+		"uniform mat4 Bones[255];\n"
 		"void main(){\n"
-		"	mat4 BoneTransform = Bones[inputBones[0]] * inputWeights[0];\n"
-		"	BoneTransform     += Bones[inputBones[1]] * inputWeights[1];\n"
-		"	BoneTransform     += Bones[inputBones[2]] * inputWeights[2];\n"
-		"	BoneTransform     += Bones[inputBones[3]] * inputWeights[3];\n"
-		"	vec4 vertexPosition = BoneTransform * vec4(inputPosition.xyz,1.0f);\n"
-		"	gl_Position = WVP * vertexPosition;\n"
+		
+		"	vec4 inPos = vec4(inputPosition.xyz,1.0f);\n"
+
+		"	mat4 BoneTransform = Bones[inputBones.x] * inputWeights.x;\n"
+		"	BoneTransform     += Bones[inputBones.y] * inputWeights.y;\n"
+		"	BoneTransform     += Bones[inputBones.z] * inputWeights.z;\n"
+		"	BoneTransform     += Bones[inputBones.w] * inputWeights.w;\n"
+		"	vec4 outPos = BoneTransform * inPos;\n"
+		
+		/*"	vec4 outPos = inPos;\n"
+		"	uint iBone = inputBones.x;\n"
+		"	float fWeight = inputWeights.x;\n"
+		"	mat4 m = Bones[iBone];\n"
+		"	outPos += fWeight * (m * inPos);\n"*/
+
+
+		"	gl_Position = WVP * outPos;\n"
 		"	texCoord.x = inputTexCoord.x;\n"
 		"	texCoord.y = inputTexCoord.y;\n"
 		"}\n";

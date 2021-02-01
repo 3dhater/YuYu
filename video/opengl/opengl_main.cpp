@@ -589,7 +589,7 @@ void Draw()
 				glUseProgram(g_openGL->m_shader_simpleAnimated->m_program);
 				glUniformMatrix4fv(g_openGL->m_shader_simpleAnimated->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr());
 				glUniformMatrix4fv(g_openGL->m_shader_simpleAnimated->m_uniform_World, 1, GL_FALSE, g_openGL->m_matrixWorld.getPtr());
-				glUniformMatrix4fv(g_openGL->m_shader_simpleAnimated->m_uniform_Bones, 100, GL_FALSE, g_openGL->m_matrixBones[0].getPtr());
+				glUniformMatrix4fv(g_openGL->m_shader_simpleAnimated->m_uniform_Bones, 255, GL_FALSE, g_openGL->m_matrixBones[0].getPtr());
 			}break;
 			}
 			glActiveTexture(GL_TEXTURE0);

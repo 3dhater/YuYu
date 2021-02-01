@@ -60,8 +60,9 @@ struct yyJoint
 
 	s32 m_parentIndex; // index in yyMDL::m_joints
 
-	Mat4					m_matrixBind;
+	Mat4					m_matrixBindInverse;
 	Mat4					m_matrixOffset;
+	Mat4					m_matrixWorld;
 
 	yyStringA				m_name;
 
@@ -459,7 +460,7 @@ struct yyMDLAnimation
 	//   дополнительную структуру
 	struct _joint_info
 	{
-		u32  m_jointID;     // индекс yyMDL::m_joints
+		s32  m_jointID;     // индекс yyMDL::m_joints
 		//Mat4 m_matrixFinal; // финальная матрица, которая пойдёт в шейдер
 
 		//v4f				m_position;
@@ -473,7 +474,7 @@ struct yyMDLAnimation
 	// длинна анимации
 	f32 m_len;
 
-	void AddKeyFrame(u32 jointID, s32 time, const v3f& position, const Quat& rotation)
+	void AddKeyFrame(s32 jointID, s32 time, const v3f& position, const Quat& rotation)
 	{
 		_joint_info* ji = _get_joint_info(jointID);
 		if (!ji)
@@ -485,7 +486,7 @@ struct yyMDLAnimation
 		ji->m_animationFrames.insertRotation(rotation, time);
 	}
 
-	_joint_info* _get_joint_info(u32 jointID)
+	_joint_info* _get_joint_info(s32 jointID)
 	{
 		for (u16 i = 0, sz = m_animatedJoints.size(); i < sz; ++i)
 		{
@@ -540,7 +541,7 @@ struct yyMDL
 	// ещё, чтобы работал нужный шейдер и т.д.
 	std::vector<yyJoint*> m_joints;
 	//yyJoint* m_skeleton; // иерархия
-	yyJoint* GetJointByName(const char* name, u32* index)
+	yyJoint* GetJointByName(const char* name, s32* index)
 	{
 		for (u16 i = 0, sz = m_joints.size(); i < sz; ++i)
 		{
@@ -575,6 +576,7 @@ struct yyMDL
 	}
 	
 	Mat4	m_preRotation;
+	//Mat4	m_rootTransformInvert;
 
 	Aabb m_aabb;
 };
