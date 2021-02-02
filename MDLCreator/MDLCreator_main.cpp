@@ -699,64 +699,6 @@ void readSMD(yyMDLObject* object, const char* file)
 				{
 					Mat4 R;					
 					SMDAngleMatrix(v3f(nt.m_rotation.y, nt.m_rotation.z, nt.m_rotation.x), R);
-					
-					/*
-					SMDAngleMatrix(v3f(nt.m_rotation.x, nt.m_rotation.y, nt.m_rotation.z), R);
-					SMDAngleMatrix(v3f(nt.m_rotation.x, nt.m_rotation.z, nt.m_rotation.y), R);
-					SMDAngleMatrix(v3f(nt.m_rotation.y, nt.m_rotation.x, nt.m_rotation.z), R);
-					SMDAngleMatrix(v3f(nt.m_rotation.y, nt.m_rotation.z, nt.m_rotation.x), R);
-					SMDAngleMatrix(v3f(nt.m_rotation.z, nt.m_rotation.y, nt.m_rotation.x), R);
-					SMDAngleMatrix(v3f(nt.m_rotation.z, nt.m_rotation.x, nt.m_rotation.y), R);
-
-					SMDAngleMatrix(v3f(nt.m_rotation.x, nt.m_rotation.y, -nt.m_rotation.z), R);
-					SMDAngleMatrix(v3f(nt.m_rotation.x, nt.m_rotation.z, -nt.m_rotation.y), R);
-					SMDAngleMatrix(v3f(nt.m_rotation.y, nt.m_rotation.x, -nt.m_rotation.z), R);
-					SMDAngleMatrix(v3f(nt.m_rotation.y, nt.m_rotation.z, -nt.m_rotation.x), R);
-					SMDAngleMatrix(v3f(nt.m_rotation.z, nt.m_rotation.y, -nt.m_rotation.x), R);
-					SMDAngleMatrix(v3f(nt.m_rotation.z, nt.m_rotation.x, -nt.m_rotation.y), R);
-
-					SMDAngleMatrix(v3f(nt.m_rotation.x, -nt.m_rotation.y, nt.m_rotation.z), R);
-					SMDAngleMatrix(v3f(nt.m_rotation.x, -nt.m_rotation.z, nt.m_rotation.y), R);
-					SMDAngleMatrix(v3f(nt.m_rotation.y, -nt.m_rotation.x, nt.m_rotation.z), R);
-					SMDAngleMatrix(v3f(nt.m_rotation.y, -nt.m_rotation.z, nt.m_rotation.x), R);
-					SMDAngleMatrix(v3f(nt.m_rotation.z, -nt.m_rotation.y, nt.m_rotation.x), R);
-					SMDAngleMatrix(v3f(nt.m_rotation.z, -nt.m_rotation.x, nt.m_rotation.y), R);
-
-					SMDAngleMatrix(v3f(nt.m_rotation.x, -nt.m_rotation.y, -nt.m_rotation.z), R);
-					SMDAngleMatrix(v3f(nt.m_rotation.x, -nt.m_rotation.z, -nt.m_rotation.y), R);
-					SMDAngleMatrix(v3f(nt.m_rotation.y, -nt.m_rotation.x, -nt.m_rotation.z), R);
-					SMDAngleMatrix(v3f(nt.m_rotation.y, -nt.m_rotation.z, -nt.m_rotation.x), R);
-					SMDAngleMatrix(v3f(nt.m_rotation.z, -nt.m_rotation.y, -nt.m_rotation.x), R);
-					SMDAngleMatrix(v3f(nt.m_rotation.z, -nt.m_rotation.x, -nt.m_rotation.y), R);
-
-					SMDAngleMatrix(v3f(-nt.m_rotation.x, nt.m_rotation.y, nt.m_rotation.z), R);
-					SMDAngleMatrix(v3f(-nt.m_rotation.x, nt.m_rotation.z, nt.m_rotation.y), R);
-					SMDAngleMatrix(v3f(-nt.m_rotation.y, nt.m_rotation.x, nt.m_rotation.z), R);
-					SMDAngleMatrix(v3f(-nt.m_rotation.y, nt.m_rotation.z, nt.m_rotation.x), R);
-					SMDAngleMatrix(v3f(-nt.m_rotation.z, nt.m_rotation.y, nt.m_rotation.x), R);
-					SMDAngleMatrix(v3f(-nt.m_rotation.z, nt.m_rotation.x, nt.m_rotation.y), R);
-
-					SMDAngleMatrix(v3f(-nt.m_rotation.x, nt.m_rotation.y, -nt.m_rotation.z), R);
-					SMDAngleMatrix(v3f(-nt.m_rotation.x, nt.m_rotation.z, -nt.m_rotation.y), R);
-					SMDAngleMatrix(v3f(-nt.m_rotation.y, nt.m_rotation.x, -nt.m_rotation.z), R);
-					SMDAngleMatrix(v3f(-nt.m_rotation.y, nt.m_rotation.z, -nt.m_rotation.x), R);
-					SMDAngleMatrix(v3f(-nt.m_rotation.z, nt.m_rotation.y, -nt.m_rotation.x), R);
-					SMDAngleMatrix(v3f(-nt.m_rotation.z, nt.m_rotation.x, -nt.m_rotation.y), R);
-
-					SMDAngleMatrix(v3f(-nt.m_rotation.x, -nt.m_rotation.y, nt.m_rotation.z), R);
-					SMDAngleMatrix(v3f(-nt.m_rotation.x, -nt.m_rotation.z, nt.m_rotation.y), R);
-					SMDAngleMatrix(v3f(-nt.m_rotation.y, -nt.m_rotation.x, nt.m_rotation.z), R);
-					SMDAngleMatrix(v3f(-nt.m_rotation.y, -nt.m_rotation.z, nt.m_rotation.x), R);
-					SMDAngleMatrix(v3f(-nt.m_rotation.z, -nt.m_rotation.y, nt.m_rotation.x), R);
-					SMDAngleMatrix(v3f(-nt.m_rotation.z, -nt.m_rotation.x, nt.m_rotation.y), R);
-
-					SMDAngleMatrix(v3f(-nt.m_rotation.x, -nt.m_rotation.y, -nt.m_rotation.z), R);
-					SMDAngleMatrix(v3f(-nt.m_rotation.x, -nt.m_rotation.z, -nt.m_rotation.y), R);
-					SMDAngleMatrix(v3f(-nt.m_rotation.y, -nt.m_rotation.x, -nt.m_rotation.z), R);
-					SMDAngleMatrix(v3f(-nt.m_rotation.y, -nt.m_rotation.z, -nt.m_rotation.x), R);
-					SMDAngleMatrix(v3f(-nt.m_rotation.z, -nt.m_rotation.y, -nt.m_rotation.x), R);
-					SMDAngleMatrix(v3f(-nt.m_rotation.z, -nt.m_rotation.x, -nt.m_rotation.y), R);
-					*/
 
 					/*Quat qX(v3f(1.f, 0.f, 0.f), -nt.m_rotation.x);
 					Quat qY(v3f(0.f, 1.f, 0.f), -nt.m_rotation.y);
@@ -764,13 +706,9 @@ void readSMD(yyMDLObject* object, const char* file)
 					Quat qR = qX * qY * qZ;
 					qR.normalize();
 					R.setRotation(qR);*/
-					//R.invert();
 
 					Mat4 T;
 					T[3] = nt.m_position;
-					//T[0].w = nt.m_position.x;
-					//T[1].w = nt.m_position.y;
-					//T[2].w = nt.m_position.z;
 					T[3].w = 1.f;
 					
 					if (node.m_parentID == -1)
@@ -1312,7 +1250,7 @@ void reloadTexture(yyMDLObject* object, int textureSlot, const wchar_t* path)
 }
 int main(int argc, char* argv[])
 {
-	bool useOpenGL = true;
+	bool useOpenGL = false;
 	for (int i = 0; i < argc; ++i)
 	{
 		if (strcmp(argv[i], "opengl") == 0)
@@ -1417,6 +1355,7 @@ int main(int argc, char* argv[])
 
 	
 	window.m_data->SetFocus();
+	//window.m_data->ToFullscreenMode();
 	
 	yyPtr<yyMDLObject> mdlObject = yyCreate<yyMDLObject>();
 	mdlObject.m_data->m_mdl = yyCreate<yyMDL>();
@@ -1533,7 +1472,7 @@ int main(int argc, char* argv[])
 					if (ImGui::Selectable(stra.data(), g_selectedLayer == n))
 					{
 						g_selectedLayer = n;
-						printf("Select %i\n", g_selectedLayer);
+				//		printf("Select %i\n", g_selectedLayer);
 					}
 				}
 				ImGui::EndChild();

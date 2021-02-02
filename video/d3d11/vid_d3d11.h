@@ -77,6 +77,7 @@ class D3D11ShaderGUI;
 class D3D11ShaderSprite;
 class D3D11ShaderScreenQuad;
 class D3D11ShaderSimple;
+class D3D11ShaderSimpleAnimated;
 class D3D11ShaderLine3D;
 
 class D3D11
@@ -121,7 +122,7 @@ public:
 	Mat4 m_matrixProjection;
 	Mat4 m_matrixViewProjection;
 	Mat4 m_matrixWorldViewProjection;
-	Mat4 m_matrixBones[100];
+	Mat4 m_matrixBones[255];
 
 	v2f m_spriteCameraPosition;
 	v2f m_spriteCameraScale;
@@ -130,6 +131,7 @@ public:
 	D3D11ShaderSprite* m_shaderSprite;
 	D3D11ShaderScreenQuad* m_shaderScreenQuad;
 	D3D11ShaderSimple* m_shaderSimple;
+	D3D11ShaderSimpleAnimated* m_shaderSimpleAnimated;
 	D3D11ShaderLine3D* m_shaderLine3D;
 	D3D11ShaderCommon* m_activeShader;
 	void SetShader(D3D11ShaderCommon*);

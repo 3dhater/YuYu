@@ -21,4 +21,22 @@ public:
 	virtual void SetConstants(yyMaterial* material);
 };
 
+class D3D11ShaderSimpleAnimated : public D3D11ShaderCommon
+{
+public:
+	D3D11ShaderSimpleAnimated();
+	virtual ~D3D11ShaderSimpleAnimated();
+	virtual void SetConstants(yyMaterial* material);
+	bool init();
+
+	ID3D11Buffer*		m_cb;
+
+	struct cb
+	{
+		Mat4 WVP;
+		Mat4 Bones[255];
+	}m_cbData;
+
+};
+
 #endif

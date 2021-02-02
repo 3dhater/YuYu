@@ -30,6 +30,7 @@ class yyListFast
 		m_head->m_right = m_head;
 		m_head->m_left = m_head;
 	}
+
 public:
 	yyListFast()
 		:
@@ -169,6 +170,34 @@ public:
 		}
 	}
 
+	//class Iterator
+	//{
+	////	friend class ConstIterator;
+	//	yyListNode<T>* m_node;
+	//public:
+	//	Iterator() :m_node(0) {}
+	//	Iterator(yyListNode<T>* other) :m_node(other) {}
+	//	~Iterator() {}
+	//	Iterator& operator ++() { return *this; }
+	//	Iterator& operator --() { return *this; }
+	//	Iterator  operator ++(s32) { Iterator tmp = *this; return tmp; }
+	//	Iterator  operator --(s32) { Iterator tmp = *this;  return tmp; }
+	//	bool operator ==(const Iterator&      other) const { return false; }
+	//	bool operator !=(const Iterator&      other) const { return false; }
+	//	//directory_entry & operator * () { return *m_dirEntry; }
+	//	//directory_entry * operator ->() { return m_dirEntry; }
+	//};
+
+	//Iterator begin()
+	//{
+	//	return Iterator(m_head);
+	//}
+	//Iterator end()
+	//{
+	//	return Iterator(m_head);
+	//}
+
+	//private:
 };
 
 template<typename T>

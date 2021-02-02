@@ -60,6 +60,8 @@ public:
 	yyWindow_callback m_onMinimize;
 	yyWindow_callback m_onRestore;
 
+	void(*m_onRawInput)(yyWindow*, bool inForeground, void* rawInput);
+
 	yyWindow_callbackMouse m_onMouseWheel;
 	yyWindow_callbackMouse m_onMouseButton;
 

@@ -440,27 +440,38 @@ void Draw()
 		if (!material)
 			material = &g_d3d11->m_currentModel->m_material;
 
-		/*if (g_d3d11->m_currentMaterial->m_wireframe)
+		if (material->m_wireframe)
 		{
-			if (g_d3d11->m_currentMaterial->m_cullBackFace)
+			if (material->m_cullBackFace)
 				g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerWireframe);
 			else
 				g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerWireframeNoBackFaceCulling);
 		}
 		else
 		{
-			if (g_d3d11->m_currentMaterial->m_cullBackFace)
+			if (material->m_cullBackFace)
 				g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolid);
 			else
 				g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
-		}*/
+		}
 
 		switch (material->m_type)
 		{
 		default:
 		case yyMaterialType::Simple:
-			g_d3d11->SetShader(g_d3d11->m_shaderSimple);
-			g_d3d11->m_shaderSimple->SetConstants(material);
+			switch (g_d3d11->m_currentModel->m_vertexType)
+			{
+			case yyVertexType::Model:
+			{
+				g_d3d11->SetShader(g_d3d11->m_shaderSimple);
+				g_d3d11->m_shaderSimple->SetConstants(material);
+			}break;
+			case yyVertexType::AnimatedModel:
+			{
+				g_d3d11->SetShader(g_d3d11->m_shaderSimpleAnimated);
+				g_d3d11->m_shaderSimpleAnimated->SetConstants(material);
+			}break;
+			}
 			if (g_d3d11->m_currentTextures[0])
 			{
 				g_d3d11->m_d3d11DevCon->PSSetShaderResources(0, 1, &g_d3d11->m_currentTextures[0]->m_textureResView);

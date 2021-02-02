@@ -28,6 +28,8 @@ yyWindow::yyWindow()
 	m_onMouseButton(nullptr),
 	m_onKeyboard(nullptr)
 {
+	m_onRawInput = 0;
+
 	m_GPUData = 0;
 	m_isFullscreen = false;
 	m_hWnd = nullptr;
@@ -36,6 +38,8 @@ yyWindow::yyWindow()
 	wsprintfW(m_class_name, L"Window%i", g_window_counter++);
 	m_visible = false;
 	m_title = "Window";
+
+	
 }
 
 yyWindow::~yyWindow()
@@ -147,6 +151,13 @@ bool yyWindow::init(int size_x, int size_y, u32 flags, yyWindow* parent)
 	UpdateWindow( m_hWnd );
 	m_dc = GetDC(m_hWnd);
 
+	RAWINPUTDEVICE device;
+	device.usUsagePage = 0x01;
+	device.usUsage = 0x02;
+	device.dwFlags = 0;
+	device.hwndTarget = 0;
+	RegisterRawInputDevices(&device, 1, sizeof device);
+
 	return true;
 }
 
@@ -214,6 +225,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 	}
 	break;
+	case WM_INPUT:
+		if (pD)
+		{
+			if (pD->m_onRawInput)
+				pD->m_onRawInput(pD,
+					GET_RAWINPUT_CODE_WPARAM(wParam) == RIM_INPUT,
+					(HRAWINPUT)lParam);
+		}
+		break;
 	case WM_MOVE:
 	{
 		if(pD)

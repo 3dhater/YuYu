@@ -50,6 +50,7 @@ D3D11::D3D11()
 	m_shaderGUI = nullptr;
 	m_shaderSprite = nullptr;
 	m_shaderSimple = 0;
+	m_shaderSimpleAnimated = 0;
 	m_shaderLine3D = 0;
 
 	m_isGUI = false;
@@ -78,6 +79,7 @@ D3D11::~D3D11()
 	if (m_mainTargetSurface) yyDestroy(m_mainTargetSurface);
 
 	if (m_shaderLine3D) yyDestroy(m_shaderLine3D);
+	if (m_shaderSimpleAnimated) yyDestroy(m_shaderSimpleAnimated);
 	if (m_shaderSimple) yyDestroy(m_shaderSimple);
 	if (m_shaderScreenQuad)yyDestroy(m_shaderScreenQuad);
 	if (m_shaderSprite)yyDestroy(m_shaderSprite);
@@ -424,6 +426,14 @@ bool D3D11::Init(yyWindow* window)
 	if (!m_shaderSimple->init())
 	{
 		yyLogWriteError("Can't create simple shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	m_shaderSimpleAnimated = yyCreate<D3D11ShaderSimpleAnimated>();
+	if (!m_shaderSimpleAnimated->init())
+	{
+		yyLogWriteError("Can't create simple animated shader...");
 		YY_PRINT_FAILED;
 		return false;
 	}
