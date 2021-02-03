@@ -531,13 +531,26 @@ void DrawSprite(yySprite* sprite)
 	g_d3d11->m_d3d11DevCon->IASetIndexBuffer(g_d3d11->m_currentModel->m_iBuffer, g_d3d11->m_currentModel->m_indexType, 0);
 	g_d3d11->m_d3d11DevCon->DrawIndexed(g_d3d11->m_currentModel->m_iCount, 0, 0);
 }
+void DrawLine2D(const v3f& _p1, const v3f& _p2, const yyColor& color)
+{
+	v4f p1 = _p1;
+	v4f p2 = _p2;
+	g_d3d11->m_d3d11DevCon->IASetInputLayout(NULL);
+	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+
+	g_d3d11->SetShader(g_d3d11->m_shaderLine3D);
+	g_d3d11->m_shaderLine3D->SetData(p1, p2, color, g_d3d11->m_guiProjectionMatrix);
+	g_d3d11->m_shaderLine3D->SetConstants(0);
+
+	g_d3d11->m_d3d11DevCon->Draw(2, 0);
+}
 void DrawLine3D(const v4f& p1, const v4f& p2, const yyColor& color)
 {
 	g_d3d11->m_d3d11DevCon->IASetInputLayout(NULL);
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
 	g_d3d11->SetShader(g_d3d11->m_shaderLine3D);
-	g_d3d11->m_shaderLine3D->SetData(p1, p2, color);
+	g_d3d11->m_shaderLine3D->SetData(p1, p2, color, g_d3d11->m_matrixViewProjection);
 	g_d3d11->m_shaderLine3D->SetConstants(0);
 	
 	g_d3d11->m_d3d11DevCon->Draw(2, 0);
@@ -796,6 +809,7 @@ extern "C"
 		g_api.DeleteTexture = DeleteTexture;
 		g_api.Destroy       = Destroy;
 		g_api.Draw = Draw;
+		g_api.DrawLine2D = DrawLine2D;
 		g_api.DrawLine3D = DrawLine3D;
 		g_api.DrawSprite = DrawSprite;
 		g_api.EndDraw = EndDraw;

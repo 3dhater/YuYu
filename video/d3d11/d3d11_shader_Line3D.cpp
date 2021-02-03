@@ -110,15 +110,15 @@ bool D3D11ShaderLine3D::init()
 	return true;
 }
 
-void D3D11ShaderLine3D::SetData(const v4f& p1, const v4f& p2, const yyColor& color)
+void D3D11ShaderLine3D::SetData(const v4f& p1, const v4f& p2, const yyColor& color, const Mat4& projMat)
 {
 	m_cbData.P1 = p1;
 	m_cbData.P2 = p2;
 	m_cbData.Color = color;
+	m_cbData.VP = projMat; // g_d3d11->m_matrixViewProjection;
 }
 void D3D11ShaderLine3D::SetConstants(yyMaterial* material)
 {
-	m_cbData.VP = g_d3d11->m_matrixViewProjection;
 
 	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &m_cb);
 	D3D11_MAPPED_SUBRESOURCE mappedResource;

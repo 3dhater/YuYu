@@ -47,11 +47,16 @@ struct yyMDLObject
 				auto currentKey = animation->m_animatedJoints[i]->m_animationFrames.getCurrentKeyFrame((s32)time);
 				auto nextKey = animation->m_animatedJoints[i]->m_animationFrames.getNextKeyFrame((s32)time);
 
-				objJoint.m_position.x = math::lerp(objJoint.m_position.x, nextKey->m_position.x, 1.f);
-				objJoint.m_position.y = math::lerp(objJoint.m_position.y, nextKey->m_position.y, 1.f);
-				objJoint.m_position.z = math::lerp(objJoint.m_position.z, nextKey->m_position.z, 1.f);
+				auto timeSize = (f32)(nextKey->m_time - currentKey->m_time);
+				auto timeLeft = (f32)nextKey->m_time - time;
 
-				objJoint.m_rotation = math::slerp(objJoint.m_rotation, nextKey->m_rotation, 1.f);
+				f32 interpolation_factor = 0.f;
+
+				objJoint.m_position.x = math::lerp(objJoint.m_position.x, nextKey->m_position.x, interpolation_factor);
+				objJoint.m_position.y = math::lerp(objJoint.m_position.y, nextKey->m_position.y, interpolation_factor);
+				objJoint.m_position.z = math::lerp(objJoint.m_position.z, nextKey->m_position.z, interpolation_factor);
+
+				objJoint.m_rotation = math::slerp(objJoint.m_rotation, nextKey->m_rotation, interpolation_factor);
 
 				Mat4 TranslationM;
 				TranslationM[3] = objJoint.m_position;
@@ -60,23 +65,22 @@ struct yyMDLObject
 				Mat4 RotationM;
 				RotationM.setRotation(objJoint.m_rotation);
 
-				//Mat4 NodeTransformation = mdlJoint->m_matrixBindNoParent;
-Mat4 NodeTransformation = TranslationM * RotationM;
+				Mat4 NodeTransformation = TranslationM * RotationM;
 
-if (mdlJoint->m_parentIndex != -1)
-{
-	objJoint.m_globalTransformation =
-		m_joints[mdlJoint->m_parentIndex].m_globalTransformation
-		* NodeTransformation;
-}
-else
-{
-	objJoint.m_globalTransformation = NodeTransformation;
-}
+				if (mdlJoint->m_parentIndex != -1)
+				{
+					objJoint.m_globalTransformation =
+						m_joints[mdlJoint->m_parentIndex].m_globalTransformation
+						* NodeTransformation;
+				}
+				else
+				{
+					objJoint.m_globalTransformation = NodeTransformation;
+				}
 
-objJoint.m_finalTransformation = 
-					 
-	objJoint.m_globalTransformation *  mdlJoint->m_matrixOffset *  mdlJoint->m_matrixBindInverse;
+				objJoint.m_finalTransformation =
+
+				objJoint.m_globalTransformation *  mdlJoint->m_matrixOffset;// *mdlJoint->m_matrixBindInverse;
 			}
 
 			time += dt;

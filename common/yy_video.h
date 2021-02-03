@@ -108,6 +108,7 @@ struct yyVideoDriverAPI
 	
 	void (*DrawSprite)(yySprite*);
 	void (*DrawLine3D)(const v4f& _p1, const v4f& _p2, const yyColor& color);
+	void (*DrawLine2D)(const v3f& _p1, const v3f& _p2, const yyColor& color);
 
 	enum MatrixType
 	{

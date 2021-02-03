@@ -714,23 +714,25 @@ void readSMD(yyMDLObject* object, const char* file)
 					if (node.m_parentID == -1)
 						object->m_mdl->m_preRotation.setRotation(Quat(math::degToRad(90.f), 0.f, 0.f));
 
-	Mat4 localMatrix = T * R;
+					Mat4 localMatrix = T * R;
 
-	if (node.m_parentID == -1)
-	{
-		joint->m_matrixWorld = localMatrix;
-	}
-	else
-	{
-		joint->m_matrixWorld =
-			object->m_mdl->m_joints[node.m_parentID]->m_matrixWorld *
-			localMatrix;
-	}
+					if (node.m_parentID == -1)
+					{
+						joint->m_matrixWorld = localMatrix;
+					}
+					else
+					{
+						joint->m_matrixWorld =
+							object->m_mdl->m_joints[node.m_parentID]->m_matrixWorld *
+							localMatrix;
+					}
 
-	joint->m_matrixBindInverse = joint->m_matrixWorld;
-	joint->m_matrixBindInverse.invert();
-	joint->m_matrixOffset = joint->m_matrixBindInverse * joint->m_matrixWorld;
-	joint->m_matrixOffset.invert();
+					joint->m_matrixBindInverse = joint->m_matrixWorld;
+					joint->m_matrixBindInverse.invert();
+					joint->m_matrixOffset = joint->m_matrixBindInverse * joint->m_matrixWorld;
+					joint->m_matrixOffset.invert();
+
+					joint->m_matrixOffset = joint->m_matrixOffset * joint->m_matrixBindInverse;
 					//printf("i2 %u\n", i2);
 				}
 			}
@@ -1295,6 +1297,7 @@ int main(int argc, char* argv[])
 	p_window->m_onClose = window_onCLose;
 	p_window->m_onMouseButton = window_callbackMouse;
 	yySetMainWindow(p_window);
+	//p_window->ToFullscreenMode();
 
 	// init video driver
 	const char * videoDriverType = "d3d11.yyvd";
@@ -1735,11 +1738,12 @@ int main(int argc, char* argv[])
 				g_videoDriver->Draw();
 			}
 
-			//g_videoDriver->UseDepth(false);
-			//
-			//yyGUIDrawAll();
+			g_videoDriver->UseDepth(false);
+			yyGUIDrawAll();
+			g_videoDriver->DrawLine2D(v3f(50.f, 50.f, 0.f), v3f(264.f, 264.f, 0.f), ColorRed);
 
 
+			g_videoDriver->UseDepth(true);
 
 			g_videoDriver->EndDraw();
 			ImGui::Render();

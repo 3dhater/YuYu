@@ -683,6 +683,19 @@ void DrawSprite(yySprite* sprite)
 	glBindVertexArray(g_openGL->m_currentModel->m_VAO);
 	glDrawElements(GL_TRIANGLES, g_openGL->m_currentModel->m_iCount, GL_UNSIGNED_SHORT, 0);
 }
+void DrawLine2D(const v3f& _p1, const v3f& _p2, const yyColor& color)
+{
+	v4f p1 = _p1;
+	v4f p2 = _p2;
+	glUseProgram(g_openGL->m_shader_line3d->m_program);
+	glUniformMatrix4fv(g_openGL->m_shader_line3d->m_uniform_ProjMtx, 1, GL_FALSE, g_openGL->m_guiProjectionMatrix.getPtr());
+	glUniform4fv(g_openGL->m_shader_line3d->m_uniform_P1, 1, &p1.x);
+	glUniform4fv(g_openGL->m_shader_line3d->m_uniform_P2, 1, &p2.x);
+	glUniform4fv(g_openGL->m_shader_line3d->m_uniform_Color, 1, color.data());
+
+	glBindVertexArray(g_openGL->m_shader_line3d->m_VAO);
+	glDrawArrays(GL_LINES, 0, 2);
+}
 void DrawLine3D(const v4f& _p1, const v4f& _p2, const yyColor& color)
 {
 	glUseProgram( g_openGL->m_shader_line3d->m_program );
@@ -866,6 +879,7 @@ extern "C"
 		g_api.DeleteTexture = DeleteTexture;
 		g_api.Destroy = Destroy;
 		g_api.Draw = Draw;
+		g_api.DrawLine2D = DrawLine2D;
 		g_api.DrawLine3D = DrawLine3D;
 		g_api.DrawSprite = DrawSprite;
 		g_api.EndDraw = EndDraw;

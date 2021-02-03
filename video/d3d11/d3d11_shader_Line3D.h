@@ -19,7 +19,7 @@ public:
 	}m_cbData;
 	virtual void SetConstants(yyMaterial* material);
 
-	void SetData(const v4f& p1, const v4f& p2, const yyColor& color);
+	void SetData(const v4f& p1, const v4f& p2, const yyColor& color, const Mat4& projMat);
 
 	bool init();
 };
