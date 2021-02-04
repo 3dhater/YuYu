@@ -1644,7 +1644,17 @@ int main(int argc, char* argv[])
 			g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::View, camera.m_camera->m_viewMatrix);
 
 			
+			bool drawBind = false;
 
+			if (g_selectedAnimation == -1)
+				drawBind = true;
+
+			if (g_bindPose)
+				drawBind = true;
+			if (!drawBind)
+			{
+				mdlObject.m_data->Update(deltaTime);
+			}
 
 			for (int n = 0, nsz = mdlObject.m_data->m_mdl->m_layers.size(); n < nsz; ++n)
 			{
@@ -1674,14 +1684,6 @@ int main(int argc, char* argv[])
 				auto numJoints = mdlObject.m_data->m_joints.size();
 				if (numJoints)
 				{
-					bool drawBind = false;
-					
-					if(g_selectedAnimation == -1)
-						drawBind = true;
-
-					if(g_bindPose)
-						drawBind = true;
-
 					if (drawBind)
 					{
 						for (int i = 0; i < numJoints; ++i)
@@ -1694,7 +1696,6 @@ int main(int argc, char* argv[])
 					}
 					else
 					{
-						mdlObject.m_data->Update(deltaTime);
 					}
 					
 					g_videoDriver->UseDepth(false);

@@ -47,6 +47,7 @@ extern "C"
 	YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResource* texture, s32 id);
 	YY_API yyGUIFont* YY_C_DECL yyGUILoadFont(const char* path);
 	YY_API yyGUIText* YY_C_DECL yyGUICreateText(const v2f& position, yyGUIFont* font, const wchar_t* text);
+	YY_API void YY_C_DECL yyGUIDeleteElement(yyGUIElement*);
 }
 
 #endif

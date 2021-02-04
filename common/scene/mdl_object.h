@@ -21,6 +21,7 @@ struct yyMDLObject
 		m_objectBase.m_implementationPtr = this;
 		m_objectBase.m_updateImplementation = yyMDLObject_update; 
 	//	m_isAnimated = false;
+		m_time = 0.f;
 	}
 	~yyMDLObject()
 	{
@@ -31,26 +32,33 @@ struct yyMDLObject
 		}
 	}
 
+	f32 m_time; // время должно быть в стейтах
+
 	void Update(float dt)
 	{
-		static f32 time = 0.f;
-
 		if (m_mdl->m_animations.size())
 		{
 			auto animation = m_mdl->m_animations[0];
+		//	printf("Time: [%f] Len: [%f] DT: [%f]\n", m_time, animation->m_len, dt);
+
+			f32 fps_factor = animation->m_fps * dt;
+
 			for (u16 i = 0, sz = animation->m_animatedJoints.size(); i < sz; ++i)
 			{
 				auto jointID = animation->m_animatedJoints[i]->m_jointID;
 				auto mdlJoint = m_mdl->m_joints[jointID];
 				auto & objJoint = m_joints[jointID];
 
-				auto currentKey = animation->m_animatedJoints[i]->m_animationFrames.getCurrentKeyFrame((s32)time);
-				auto nextKey = animation->m_animatedJoints[i]->m_animationFrames.getNextKeyFrame((s32)time);
+				auto currentKey = animation->m_animatedJoints[i]->m_animationFrames.getCurrentKeyFrame((s32)m_time);
+				auto nextKey = animation->m_animatedJoints[i]->m_animationFrames.getNextKeyFrame((s32)m_time);
 
 				auto timeSize = (f32)(nextKey->m_time - currentKey->m_time);
-				auto timeLeft = (f32)nextKey->m_time - time;
+				auto timeLeft = (f32)nextKey->m_time - m_time;
+				auto timeCoef = 1.f - math::get_0_1(timeSize, timeLeft );
+				timeCoef *= fps_factor;
 
-				f32 interpolation_factor = 0.f;
+
+				f32 interpolation_factor = timeCoef;
 
 				objJoint.m_position.x = math::lerp(objJoint.m_position.x, nextKey->m_position.x, interpolation_factor);
 				objJoint.m_position.y = math::lerp(objJoint.m_position.y, nextKey->m_position.y, interpolation_factor);
@@ -83,10 +91,10 @@ struct yyMDLObject
 				objJoint.m_globalTransformation *  mdlJoint->m_matrixOffset;// *mdlJoint->m_matrixBindInverse;
 			}
 
-			time += dt;
-			if (time >= animation->m_len)
+			m_time += fps_factor;
+			if (m_time >= animation->m_len)
 			{
-				time = 0;
+				m_time = 0;
 				for (u16 i = 0, sz = animation->m_animatedJoints.size(); i < sz; ++i)
 				{
 					auto jointID = animation->m_animatedJoints[i]->m_jointID;

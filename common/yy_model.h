@@ -444,7 +444,7 @@ struct yyMDLAnimationFrames
 };
 struct yyMDLAnimation
 {
-	yyMDLAnimation() :m_len(0.f) {}
+	yyMDLAnimation() :m_len(0.f), m_fps(30.f){}
 	~yyMDLAnimation() {
 		for (u16 i = 0, sz = m_animatedJoints.size(); i < sz; ++i)
 		{
@@ -473,6 +473,9 @@ struct yyMDLAnimation
 
 	// длинна анимации
 	f32 m_len;
+
+	f32 m_fps;
+
 
 	void AddKeyFrame(s32 jointID, s32 time, const v3f& position, const Quat& rotation)
 	{

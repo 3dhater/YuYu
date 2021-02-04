@@ -251,6 +251,28 @@ public:
 		return nullptr;
 	}
 
+	yyListNode<T>* find_by_value(const T& data)
+	{
+		if (m_head)
+		{
+			auto curr = m_head;
+			auto last = m_head->m_left;
+			while (true)
+			{
+				if (curr->m_data == data)
+					return curr;
+
+				if (curr == last)
+				{
+					break;
+				}
+
+				curr = curr->m_right;
+			}
+		}
+		return nullptr;
+	}
+
 	private:
 };
 
@@ -435,6 +457,62 @@ public:
 	}
 
 	yyListNode<T>* head(){ return m_head; }
+
+	class Iterator
+	{
+		//	friend class ConstIterator;
+
+		yyListNode<T>* m_node;
+		yyListNode<T>* m_nodeEnd;
+		bool m_isEnd;
+	public:
+		Iterator() :m_node(0), m_isEnd(true) {}
+		Iterator(yyListNode<T>* head) :m_node(head), m_isEnd(false)
+		{
+			if (!head)
+			{
+				m_isEnd = true;
+			}
+			else
+			{
+				m_nodeEnd = head->m_left;
+			}
+		}
+		~Iterator() {}
+		Iterator& operator ++() {
+			if (m_node == m_nodeEnd) {
+				m_isEnd = true;
+			}
+			m_node = m_node->m_right;
+			return *this;
+		}
+		//Iterator& operator --() { return *this; }
+		//Iterator  operator ++(s32) { Iterator tmp = *this; return tmp; }
+		//Iterator  operator --(s32) { Iterator tmp = *this;  return tmp; }
+		bool operator ==(const Iterator&      other) const {
+			if (m_isEnd != other.m_isEnd) return false;
+			return true;
+		}
+		bool operator !=(const Iterator&      other) const {
+			if (m_isEnd != other.m_isEnd) return true;
+			return false;
+		}
+		yyListNode<T>& operator*() {
+			return *m_node;
+		}
+		yyListNode<T>* operator->() {
+			return m_node;
+		}
+	};
+
+	Iterator begin()
+	{
+		return Iterator(m_head);
+	}
+	Iterator end()
+	{
+		return Iterator();
+	}
 };
 
 #endif
