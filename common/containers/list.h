@@ -170,34 +170,88 @@ public:
 		}
 	}
 
-	//class Iterator
-	//{
-	////	friend class ConstIterator;
-	//	yyListNode<T>* m_node;
-	//public:
-	//	Iterator() :m_node(0) {}
-	//	Iterator(yyListNode<T>* other) :m_node(other) {}
-	//	~Iterator() {}
-	//	Iterator& operator ++() { return *this; }
-	//	Iterator& operator --() { return *this; }
-	//	Iterator  operator ++(s32) { Iterator tmp = *this; return tmp; }
-	//	Iterator  operator --(s32) { Iterator tmp = *this;  return tmp; }
-	//	bool operator ==(const Iterator&      other) const { return false; }
-	//	bool operator !=(const Iterator&      other) const { return false; }
-	//	//directory_entry & operator * () { return *m_dirEntry; }
-	//	//directory_entry * operator ->() { return m_dirEntry; }
-	//};
+	class Iterator
+	{
+	//	friend class ConstIterator;
 
-	//Iterator begin()
-	//{
-	//	return Iterator(m_head);
-	//}
-	//Iterator end()
-	//{
-	//	return Iterator(m_head);
-	//}
+		yyListNode<T>* m_node;
+		yyListNode<T>* m_nodeEnd;
+		bool m_isEnd;
+	public:
+		Iterator() :m_node(0), m_isEnd(true){}
+		Iterator(yyListNode<T>* head) :m_node(head), m_isEnd(false)
+		{
+			if (!head)
+			{
+				m_isEnd = true;
+			}
+			else
+			{
+				m_nodeEnd = head->m_left;
+			}
+		}
+		~Iterator() {}
+		Iterator& operator ++() { 
+			if (m_node == m_nodeEnd) {
+				m_isEnd = true;
+			}
+			m_node = m_node->m_right;
+			return *this; 
+		}
+		//Iterator& operator --() { return *this; }
+		//Iterator  operator ++(s32) { Iterator tmp = *this; return tmp; }
+		//Iterator  operator --(s32) { Iterator tmp = *this;  return tmp; }
+		bool operator ==(const Iterator&      other) const { 
+			if (m_isEnd != other.m_isEnd) return false;
+			return true;
+		}
+		bool operator !=(const Iterator&      other) const {
+			if (m_isEnd != other.m_isEnd) return true;
+			return false;
+		}
+		yyListNode<T>& operator*() { 
+			return *m_node;
+		}
+		yyListNode<T>* operator->() {
+			return m_node;
+		}
+	};
 
-	//private:
+	Iterator begin()
+	{
+		return Iterator(m_head);
+	}
+	Iterator end()
+	{
+		return Iterator();
+	}
+
+	yyListNode<T>* find(u32 index)
+	{
+		if (m_head)
+		{
+			u32 indexCounter = 0;
+			auto curr = m_head;
+			auto last = m_head->m_left;
+			while (true)
+			{
+				if (indexCounter == index)
+					return curr;
+
+				++indexCounter;
+
+				if (curr == last)
+				{
+					break;
+				}
+
+				curr = curr->m_right;
+			}
+		}
+		return nullptr;
+	}
+
+	private:
 };
 
 template<typename T>

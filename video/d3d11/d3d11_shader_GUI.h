@@ -9,7 +9,17 @@ public:
 	D3D11ShaderGUI();
 	virtual ~D3D11ShaderGUI();
 
-	ID3D11Buffer*		m_cb;
+	struct cbVertex {
+		Mat4 m_ProjMtx;
+		v2f m_Offset;
+		v2f m_Padding;
+	}m_cbVertex_impl;
+	ID3D11Buffer*		m_cbVertex;
+
+	struct cbPixel{
+		yyColor m_Color;
+	}m_cbPixel_impl;
+	ID3D11Buffer*		m_cbPixel;
 
 	bool init();
 	virtual void SetConstants(yyMaterial* material) {}

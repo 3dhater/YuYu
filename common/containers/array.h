@@ -381,4 +381,85 @@ public:
 };
 #pragma pack()
 
+// `clear` must do m_size = 0;
+template<typename type>
+class yyArraySimple
+{
+	u32     m_allocated;
+	void reallocate(u32 new_capacity)
+	{
+		new_capacity += 4;
+		auto tmp_size = new_capacity * sizeof(type);
+		pointer new_data = static_cast<type*>(yyMemAlloc(tmp_size));
+		memset(new_data, 0, tmp_size);
+
+		if (m_data)
+		{
+			for (u32 i = 0u; i < m_size; ++i)
+			{
+				new(&new_data[i]) type(m_data[i]);
+				(&m_data[i])->~type();
+			}
+			yyMemFree(m_data);
+		}
+		m_data = new_data;
+		m_allocated = new_capacity;
+	}
+public:
+	typedef type* pointer;
+	typedef type& reference;
+	typedef const type& const_reference;
+
+	yyArraySimple() :m_allocated(0),m_size(0), m_data(0){}
+	~yyArraySimple() { free_memory(); }
+
+	void reserve(u16 new_capacity)
+	{
+		if (new_capacity > m_allocated)
+			reallocate(new_capacity);
+	}
+
+	void push_back(const_reference object)
+	{
+		u32 new_size = m_size + 1u;
+		if (new_size > m_allocated)
+			reallocate(new_size);
+		new(&m_data[m_size]) type(object);
+		m_size = new_size;
+	}
+	
+	void free_memory()
+	{
+		if (m_data)
+		{
+			for (u32 i = 0u; i < m_size; ++i)
+			{
+				(&m_data[i])->~type();
+			}
+			yyMemFree(m_data);
+
+			m_allocated = m_size = 0u;
+			m_data = nullptr;
+		}
+	}
+
+	void clear()
+	{
+		m_size = 0;
+	}
+
+	type* get(u32 index)
+	{
+		if(index >= m_allocated)
+			return nullptr;
+
+		return &m_data[index];
+	}
+
+	
+
+	pointer m_data;
+	u32     m_size;
+};
+
 #endif

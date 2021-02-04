@@ -310,6 +310,10 @@
     <ClCompile Include="..\libs\zstd\lib\decompress\zstd_ddict.c" />
     <ClCompile Include="..\libs\zstd\lib\decompress\zstd_decompress.c" />
     <ClCompile Include="..\libs\zstd\lib\decompress\zstd_decompress_block.c" />
+    <ClCompile Include="gui\yy_gui_font.cpp" />
+    <ClCompile Include="gui\yy_gui_pictureBox.cpp" />
+    <ClCompile Include="gui\yy_gui.cpp" />
+    <ClCompile Include="gui\yy_gui_text.cpp" />
     <ClCompile Include="image_loader_bmp.cpp" />
     <ClCompile Include="image_loader_dds.cpp" />
     <ClCompile Include="image_loader_png.cpp" />
@@ -317,7 +321,6 @@
     <ClCompile Include="model_loader_tr3d.cpp" />
     <ClCompile Include="yy_backgroundWorker.cpp" />
     <ClCompile Include="yy_dl.cpp" />
-    <ClCompile Include="yy_gui.cpp" />
     <ClCompile Include="yy_memory.cpp" />
     <ClCompile Include="yy_resource.cpp" />
     <ClCompile Include="yy_log.cpp" />

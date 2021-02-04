@@ -144,7 +144,8 @@ public:
 	{
 		m_size = 0u;
 		m_data[ m_size ] = static_cast<char_type>(0x0);
-		append( str );
+		if(str)
+			append( str );
 	}
 
 	void assign( this_const_reference str )

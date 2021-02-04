@@ -54,7 +54,7 @@ D3D11::D3D11()
 	m_shaderLine3D = 0;
 
 	m_isGUI = false;
-	m_vsync = false;
+	m_vsync = true;
 	//m_D3DLibrary = nullptr;
 	m_SwapChain = nullptr;
 	//m_activeWindowGPUData = nullptr;

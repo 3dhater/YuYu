@@ -11,7 +11,9 @@ public:
 	GLuint m_VAO;
 
 	GLint m_uniform_ProjMtx;
+	GLint m_uniform_Offset;
 	GLint m_uniform_Texture;
+	GLint m_uniform_Color;
 
 	bool init();
 };

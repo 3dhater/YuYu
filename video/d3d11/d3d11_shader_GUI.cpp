@@ -9,13 +9,15 @@ extern Mat4 g_guiProjectionMatrix;
 
 D3D11ShaderGUI::D3D11ShaderGUI()
 	:
-	m_cb(0)
+	m_cbVertex(0),
+	m_cbPixel(0)
 {
 }
 
 D3D11ShaderGUI::~D3D11ShaderGUI()
 {
-	if (m_cb) m_cb->Release();
+	if (m_cbVertex) m_cbVertex->Release();
+	if (m_cbPixel) m_cbPixel->Release();
 }
 
 bool D3D11ShaderGUI::init()
@@ -27,8 +29,13 @@ bool D3D11ShaderGUI::init()
 		"   float2 position : POSITION;\n"
 		"	float2 uv : TEXCOORD;\n"
 		"};\n"
-		"cbuffer cbVertex  : register(b0) {\n"
+		"cbuffer cbVertex{\n"
 		"	float4x4 ProjMtx;\n"
+		"	float2 Offset;\n"
+		"	float2 Padding;\n"
+		"};\n"
+		"cbuffer cbPixel{\n"
+		"	float4 Color;\n"
 		"};\n"
 		"struct VSOut{\n"
 		"   float4 pos : SV_POSITION;\n"
@@ -39,13 +46,13 @@ bool D3D11ShaderGUI::init()
 		"};\n"
 		"VSOut VSMain(VSIn input){\n"
 		"   VSOut output;\n"
-		"	output.pos   = mul(ProjMtx, float4(input.position.x, input.position.y, 0.0f, 1.f));\n"
+		"	output.pos   = mul(ProjMtx, float4(input.position.x + Offset.x, input.position.y + Offset.y, 0.0f, 1.f));\n"
 		"	output.uv    = input.uv;\n"
 		"	return output;\n"
 		"}\n"
 		"PSOut PSMain(VSOut input){\n" 
 		"    PSOut output;\n"
-		"    output.color = tex2d_1.Sample(tex2D_sampler_1, input.uv);\n"
+		"    output.color = tex2d_1.Sample(tex2D_sampler_1, input.uv) * Color;\n"
 		"    return output;\n"
 		"}\n";
 	if (!D3D11_createShaders(
@@ -64,7 +71,13 @@ bool D3D11ShaderGUI::init()
 		return false;
 	}
 
-	if (!D3D11_createConstantBuffer(sizeof(Mat4), &m_cb))
+	if (!D3D11_createConstantBuffer(sizeof(cbVertex), &m_cbVertex))
+	{
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	if (!D3D11_createConstantBuffer(sizeof(cbPixel), &m_cbPixel))
 	{
 		YY_PRINT_FAILED;
 		return false;

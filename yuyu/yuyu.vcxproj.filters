@@ -22,6 +22,9 @@
     <Filter Include="Source Files\zstd">
       <UniqueIdentifier>{e47f3a23-ea45-4739-98b2-df97b607cc01}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\gui">
+      <UniqueIdentifier>{074e1bd8-d0d9-4499-a0cb-8de9e2f1eb38}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="yy_main.cpp">
@@ -135,9 +138,6 @@
     <ClCompile Include="yy_backgroundWorker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="yy_gui.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="yy_memory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -224,6 +224,18 @@
     </ClCompile>
     <ClCompile Include="image_loader_bmp.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\yy_gui.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\yy_gui_pictureBox.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\yy_gui_font.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\yy_gui_text.cpp">
+      <Filter>Source Files\gui</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

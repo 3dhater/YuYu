@@ -21,27 +21,33 @@ namespace yyFS
 	{
 		void _checkBackSlash()
 		{
-			if(m_data.size())
+			if(string_type.size())
 			{
-				util::stringFlipSlashBackSlash(m_data);
+				util::stringFlipSlashBackSlash(string_type);
 			}
 		}
+
+
 	public:
+
+		typedef wchar_t value_type;
+		yyString_base<value_type,yyDefault_allocator> string_type;
+
 		path(){}
 		path(const wchar_t* char16_text)
 		{
-			m_data = char16_text;
+			string_type = char16_text;
 			_checkBackSlash();
 		}
 		path(const char16_t* char16_text)
 		{
-			m_data = (const wchar_t*)char16_text;
+			string_type = (const wchar_t*)char16_text;
 			_checkBackSlash();
 		}
 		path(const char* char_text)
 		{
 			yyStringA str(char_text);
-			util::utf8_to_utf16(&str, &m_data);
+			util::utf8_to_utf16(&str, &string_type);
 			_checkBackSlash();
 		}
 		~path()
@@ -51,12 +57,12 @@ namespace yyFS
 		bool has_extension()
 		{
 			bool dot = false;
-			if(m_data.size())
+			if(string_type.size())
 			{
 
-				for( u32 i = m_data.size() - 1u; i >= 0u; --i )
+				for( u32 i = string_type.size() - 1u; i >= 0u; --i )
 				{
-					auto c = m_data[ i ];
+					auto c = string_type[ i ];
 
 					if (c == '/' || c == '\\')
 					{
@@ -75,66 +81,81 @@ namespace yyFS
 		path extension()
 		{
 			path result;
-			for( u32 i = m_data.size() - 1u; i >= 0u; --i )
+			for( u32 i = string_type.size() - 1u; i >= 0u; --i )
 			{
-				auto c = m_data[ i ];
+				auto c = string_type[ i ];
 				if( c == '/' || c == '.' || c == '\\' )
 					break;
-				else result.m_data += c;
+				else result.string_type += c;
 				if( !i ) break;
 			}
-			result.m_data += L'.';
-			util::stringFlip(result.m_data);
-			util::stringToLower(result.m_data);
+			result.string_type += L'.';
+			util::stringFlip(result.string_type);
+			util::stringToLower(result.string_type);
 			return result;
 		}
 
 		path filename()
 		{
 			path result;
-			for (u32 i = m_data.size() - 1u; i >= 0u; --i)
+			for (u32 i = string_type.size() - 1u; i >= 0u; --i)
 			{
-				auto c = m_data[i];
+				auto c = string_type[i];
 				if (c == '/' || c == '\\')
 					break;
-				else result.m_data += c;
+				else result.string_type += c;
 				if (!i) break;
 			}
-			util::stringFlip(result.m_data);
-			util::stringToLower(result.m_data);
+			util::stringFlip(result.string_type);
+			util::stringToLower(result.string_type);
+			return result;
+		}
+		
+		path parent_path()
+		{
+			path result;
+			result.string_type = string_type;
+			util::stringFlipSlashBackSlash(result.string_type);
+			util::stringPopBackBefore(result.string_type, '\\');
+			if (result.string_type.size())
+			{
+				if (result.string_type[result.string_type.size() - 1] == (value_type)'\\')
+					result.string_type.pop_back();
+			}
 			return result;
 		}
 
-		bool operator==(const path& other){ return m_data == other.m_data; }
-		bool operator!=(const path& other){ return m_data != other.m_data; }
+		bool operator==(const path& other){ return string_type == other.string_type; }
+		bool operator!=(const path& other){ return string_type != other.string_type; }
 		
 		std::string generic_string() const
 		{
 			std::string result;
-			util::utf16_to_utf8(&m_data, &result);
+			util::utf16_to_utf8(&string_type, &result);
 			return result;
 		}
 		std::u16string generic_u16string() const
 		{
 			std::u16string result;
-			result.reserve(m_data.size());
-			auto data = m_data.data();
-			for (size_t i = 0, sz = m_data.size(); i < sz; ++i)
+			result.reserve(string_type.size());
+			auto data = string_type.data();
+			for (size_t i = 0, sz = string_type.size(); i < sz; ++i)
 			{
-				result += (std::u16string::value_type)data[i];
+				result += (std::u16string::value_type)string_type[i];
 			}
 			return result;
 		}
 
-		yyStringW m_data;
 
 		friend std::wostream& operator<<(std::wostream& os, const yyFS::path& dt);
 		friend std::ostream& operator<<(std::ostream& os, const yyFS::path& dt);
+
+
 	};
 
 	YY_FORCE_INLINE std::wostream& operator<<(std::wostream& os, const yyFS::path& dt)
 	{
-		os << dt.m_data.data();
+		os << dt.string_type.data();
 		return os;
 	}
 	YY_FORCE_INLINE std::ostream& operator<<(std::ostream& os, const yyFS::path& dt)
@@ -147,12 +168,12 @@ namespace yyFS
 	{
 		bool result = false;
 #ifdef YY_PLATFORM_WINDOWS
-		DWORD dwAttrib = GetFileAttributes( p.m_data.c_str() );
+		DWORD dwAttrib = GetFileAttributes( p.string_type.c_str() );
 		result = (dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY)); // dir
 		if(!result)
 		{
 			WIN32_FIND_DATA FindFileData;
-			HANDLE handle = FindFirstFile( p.m_data.c_str(), &FindFileData ); // file
+			HANDLE handle = FindFirstFile( p.string_type.c_str(), &FindFileData ); // file
 			int found = handle != INVALID_HANDLE_VALUE;
 			if( found ){
 				FindClose( handle );
@@ -169,7 +190,7 @@ namespace yyFS
 
 	YY_FORCE_INLINE size_t file_size(const path& p)
 	{
-		std::ifstream f( p.m_data.c_str(), std::ios::binary | std::ios::ate);
+		std::ifstream f( p.string_type.c_str(), std::ios::binary | std::ios::ate);
 		return (size_t)f.tellg();
 	}
 
@@ -179,8 +200,8 @@ namespace yyFS
 #ifdef YY_PLATFORM_WINDOWS
 		TCHAR szFileName[MAX_PATH];
 		GetModuleFileName( NULL, szFileName, MAX_PATH );
-		result.m_data = szFileName;
-		util::stringPopBackBefore(result.m_data, '\\' );
+		result.string_type = szFileName;
+		util::stringPopBackBefore(result.string_type, '\\' );
 #else
 #error Need implement
 #endif
@@ -190,9 +211,9 @@ namespace yyFS
 	YY_FORCE_INLINE bool create_directory(const path& p)
 	{
 		path _p = p;
-		util::stringFlipSlashBackSlash(_p.m_data);
+		util::stringFlipSlashBackSlash(_p.string_type);
 #ifdef YY_PLATFORM_WINDOWS
-		if (CreateDirectory(_p.m_data.c_str(), 0) != 0)
+		if (CreateDirectory(_p.string_type.c_str(), 0) != 0)
 			return true;
 #else
 #error Need implement
@@ -204,12 +225,12 @@ namespace yyFS
 	{
 		void _check()
 		{
-			if(m_path.m_data.size())
+			if(m_path.string_type.size())
 			{
 				if( !exists(m_path) )
 				{
-					if(m_path.m_data[m_path.m_data.size()-1] == '\\')
-						m_path.m_data.pop_back();
+					if(m_path.string_type[m_path.string_type.size()-1] == '\\')
+						m_path.string_type.pop_back();
 				}
 			}
 		}
@@ -298,8 +319,8 @@ namespace yyFS
 					auto listHead = m_subDirs.head();
 					if (listHead)
 					{
-						m_path.m_data = listHead->m_data.c_str();
-						m_path.m_data += L"\\";
+						m_path.string_type = listHead->m_data.c_str();
+						m_path.string_type += L"\\";
 						if (hFind)
 							FindClose(hFind);
 						begin();
@@ -318,7 +339,7 @@ namespace yyFS
 			else
 			{
 				m_begin.m_path = m_startPath;
-				m_begin.m_path.m_data += ffd.cFileName;
+				m_begin.m_path.string_type += ffd.cFileName;
 				m_begin._check();
 
 				if (m_isRecursiveIterator)
@@ -327,7 +348,7 @@ namespace yyFS
 						&& (lstrcmpW(L"..", ffd.cFileName) != 0)
 						)
 					{
-						m_subDirs.push_back(m_begin.m_path.m_data);
+						m_subDirs.push_back(m_begin.m_path.string_type);
 					}
 				}
 			}
@@ -364,8 +385,8 @@ namespace yyFS
 			m_startPath = m_path;
 #ifdef YY_PLATFORM_WINDOWS
 			WIN32_FIND_DATA ffd;
-			m_path.m_data += "*";
-			hFind = FindFirstFile( (wchar_t*)m_path.m_data.c_str(), &ffd );
+			m_path.string_type += "*";
+			hFind = FindFirstFile( (wchar_t*)m_path.string_type.c_str(), &ffd );
 			if( INVALID_HANDLE_VALUE == hFind )
 			{
 				DWORD error = GetLastError();

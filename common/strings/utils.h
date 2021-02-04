@@ -233,14 +233,16 @@ size_t str_len(const char_type* str)
 	}
 	return len;
 }
-YY_FORCE_INLINE s32 to_int(const char16_t* str, s32 size = -1)
+
+template<typename char_type>
+s32 to_int(const char_type* str, s32 size = -1)
 {
 	size_t len = size;
 	if( size == -1 )
 		len = str_len(str);
 	int result = 0;
 	int mul_val = 1;
-	bool is_neg = str[0]=='-';
+	bool is_neg = str[0] == (char_type)'-';
 	for(size_t i = 0, last = len-1; i < len; ++i)
 	{
 		int char_value = (int)str[last] - 0x30;

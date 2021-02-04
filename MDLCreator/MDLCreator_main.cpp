@@ -916,7 +916,7 @@ void newLayer(yyMDLObject* object, const char16_t* file)
 	yyFS::path path = file;
 	auto ext = path.extension();
 	
-	if (ext.m_data == L".smd")
+	if (ext.string_type == L".smd")
 	{
 		is_animated = true;
 		readSMD(object, stra.data());
@@ -1740,7 +1740,7 @@ int main(int argc, char* argv[])
 
 			g_videoDriver->UseDepth(false);
 			yyGUIDrawAll();
-			g_videoDriver->DrawLine2D(v3f(50.f, 50.f, 0.f), v3f(264.f, 264.f, 0.f), ColorRed);
+		//	g_videoDriver->DrawLine2D(v3f(50.f, 50.f, 0.f), v3f(264.f, 264.f, 0.f), ColorRed);
 
 
 			g_videoDriver->UseDepth(true);

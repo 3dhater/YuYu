@@ -6,6 +6,7 @@
 #include "yy_material.h"
 #include "yy_ptr.h"
 #include "yy_model.h"
+#include "yy_gui.h"
 
 #include "OpenGL.h"
 #include "OpenGL_texture.h"
@@ -861,6 +862,13 @@ void* GetTextureHandle(yyResource* res)
 	return &g_openGL->m_textures[res->m_index]->m_texture;
 }
 
+void SetGUIShaderData(yyGUIElement* guielement)
+{
+	assert(guielement);
+	glUniform2fv(g_openGL->m_shader_gui->m_uniform_Offset, 1, &guielement->m_offset.x);
+	glUniform4fv(g_openGL->m_shader_gui->m_uniform_Color, 1, &guielement->m_color.m_data[0]);
+}
+
 extern "C"
 {
 	YY_API yyVideoDriverAPI* YY_C_DECL GetAPI()
@@ -897,6 +905,7 @@ extern "C"
 		g_api.MapModelForWriteVerts = MapModelForWriteVerts;
 		g_api.SetBoneMatrix = SetBoneMatrix;
 		g_api.SetClearColor = SetClearColor;
+		g_api.SetGUIShaderData = SetGUIShaderData;
 		g_api.SetMaterial = SetMaterial;
 		g_api.SetMatrix = SetMatrix;
 		g_api.SetModel = SetModel;

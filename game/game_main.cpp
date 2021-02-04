@@ -256,9 +256,20 @@ vidOk:
 	spriteCameraScale->y = 1.7f;
 	
 	auto rtt = g_videoDriver->CreateRenderTargetTexture(v2f(128.f, 128.f), false, true);
-	auto gui_pictureBox = yyGUICreatePictureBox(v4f(0.f, 0.f, 256.f, 256.f), rtt, 1);
+	//auto gui_pictureBox = yyGUICreatePictureBox(v4f(0.f, 0.f, 256.f, 256.f), rtt, 1);
+	auto noto_font = yyGUILoadFont("../res/fonts/Noto/notosans.txt");
+	yyGUIText* gui_text = 0;
+	yyGUIText* gui_text_fps = 0;
+	if (noto_font)
+	{
+		gui_text = yyGUICreateText(v2f(100.f, 300.f), noto_font, L"Hello World!");
+		gui_text_fps = yyGUICreateText(v2f(0.f,0.f), noto_font, 0);
+	}
 	
 	f32 deltaTime = 0.f;
+	f32 fps_timer = 0.f;
+	u32 fps = 0;
+	u32 fps_counter = 0;
 	bool run = true;
 	while( run )
 	{
@@ -267,6 +278,16 @@ vidOk:
 		f32 m_tick = f32(t2 - t1);
 		t1 = t2;
 		deltaTime = m_tick / 1000.f;
+		
+		++fps_counter;
+		fps_timer += deltaTime;
+
+		if (fps_timer > 1.f)
+		{
+			fps_timer = 0.f;
+			fps = fps_counter;
+			fps_counter = 0;
+		}
 
 		updateInputContext();
 
@@ -281,6 +302,31 @@ vidOk:
 #else
 #error For windows
 #endif
+		if(gui_text_fps)
+			gui_text_fps->SetText(L"FPS: %u", fps);
+		
+		if (gui_text)
+		{
+			// move gui element
+			gui_text->m_offset.x += 50.f * deltaTime;
+			if (gui_text->m_offset.x > 100.f)
+				gui_text->m_offset.x = 0.f;
+
+			/*auto color_uint = gui_text->m_color.getAsInteger();
+			color_uint += 1;
+			if (color_uint == 0xffffffff || color_uint == 0)
+				color_uint = 0xff000000;
+			gui_text->m_color.setAsInteger(color_uint);
+				*/
+
+			static v3f  rgb = v3f(gui_text->m_color.m_data[0], gui_text->m_color.m_data[1], gui_text->m_color.m_data[2]);
+			static float f = 0.0;
+			f += 0.01;
+			rgb.x = 0.5 + sin(f + 3.1416*  0.0 / 180.0);
+			rgb.y = 0.5 + sin(f + 3.1416*120.0 / 180.0);
+			rgb.z = 0.5 + sin(f + 3.1416*240.0 / 180.0);
+			gui_text->m_color.set(rgb.x, rgb.y, rgb.z);
+		}
 
 
 		yyGUIUpdate(deltaTime);

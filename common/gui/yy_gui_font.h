@@ -1,0 +1,48 @@
+﻿#ifndef _YUYU_GUI_FONT_H_
+#define _YUYU_GUI_FONT_H_
+
+#include "containers\array.h"
+
+struct yyGUIFontGlyph
+{
+	yyGUIFontGlyph()
+	{
+		textureID = 0;
+		width = 0;
+		height = 0;
+		underhang = 0;
+		overhang = 0;
+		symbol = 0;
+	}
+
+	int textureID;
+	float width;
+	float height;
+	float underhang;
+	float overhang;
+	char16_t symbol;
+
+	// texture coords, left-top left-bottom etc.
+	v2f lt, lb, rt, rb;
+};
+
+class yyGUIFont : public yyGUIElement
+{
+public:
+	yyGUIFont();
+	virtual ~yyGUIFont();
+
+	yyArray<yyGUIFontGlyph*> m_glyphs;
+
+	yyGUIFontGlyph* GetGlyph(wchar_t ch);
+	
+	// from engine texture cache. do not delete
+	yyArraySmall<yyResource*> m_textures;
+
+	//yyResource* m_texture;
+	//yyResource* m_pictureBoxModel; // yyResourceType::Model
+
+	//yyGUICallback m_onClick; // LMB down
+};
+
+#endif

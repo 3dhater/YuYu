@@ -144,6 +144,8 @@ struct yyVideoDriverAPI
 
 	// Get ID3D11ShaderResourceView* or OpenGL texture ID
 	void* (*GetTextureHandle)(yyResource*);
+	
+	void (*SetGUIShaderData)(yyGUIElement*);
 
 };
 

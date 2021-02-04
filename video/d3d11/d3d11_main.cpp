@@ -6,6 +6,7 @@
 #include "yy_material.h"
 #include "yy_ptr.h"
 #include "yy_model.h"
+#include "yy_gui.h"
 
 #include "vid_d3d11.h"
 #include "d3d11_texture.h"
@@ -105,6 +106,7 @@ void LoadTexture(yyResource* r)
 	++r->m_refCount;
 	if(r->m_refCount == 1)
 	{
+		r->m_isLoaded = true;
 		if(r->m_source)
 		{
 			g_d3d11->m_textures[r->m_index] = CreateD3D11Texture((yyImage*)r->m_source,
@@ -288,6 +290,7 @@ void UnloadModel(yyResource* r)
 	--r->m_refCount;
 	if(!r->m_refCount)
 	{
+		r->m_isLoaded = false;
 		yyDestroy(g_d3d11->m_models[r->m_index]);
 		g_d3d11->m_models[r->m_index] = nullptr;
 	}
@@ -304,6 +307,7 @@ void LoadModel(yyResource* r)
 	++r->m_refCount;
 	if(r->m_refCount == 1)
 	{
+		r->m_isLoaded = true;
 		if(r->m_source)
 		{
 			g_d3d11->m_models[r->m_index] = CreateD3D11Model((yyModel*)r->m_source );
@@ -367,12 +371,6 @@ void BeginDrawGUI()
 	g_d3d11->m_d3d11DevCon->IAGetInputLayout(&old.InputLayout);
 
 
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	g_d3d11->m_d3d11DevCon->Map(g_d3d11->m_shaderGUI->m_cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	D3D11_BUFFER_DESC d;
-	g_d3d11->m_shaderGUI->m_cb->GetDesc(&d);
-	memcpy(mappedResource.pData, g_d3d11->m_guiProjectionMatrix.getPtr(), d.ByteWidth);
-	g_d3d11->m_d3d11DevCon->Unmap(g_d3d11->m_shaderGUI->m_cb, 0);
 
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -383,8 +381,6 @@ void BeginDrawGUI()
 	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
 
 	g_d3d11->SetShader(g_d3d11->m_shaderGUI);
-
-	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &g_d3d11->m_shaderGUI->m_cb);
 
 	g_d3d11->m_isGUI = true;
 }
@@ -482,6 +478,7 @@ void Draw()
 		g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
 	}
 	u32 offset = 0u;
+//	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerWireframeNoBackFaceCulling);
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	g_d3d11->m_d3d11DevCon->IASetVertexBuffers(0, 1, &g_d3d11->m_currentModel->m_vBuffer, &g_d3d11->m_currentModel->m_stride, &offset);
 	g_d3d11->m_d3d11DevCon->IASetIndexBuffer(g_d3d11->m_currentModel->m_iBuffer, g_d3d11->m_currentModel->m_indexType, 0);
@@ -791,6 +788,29 @@ void* GetTextureHandle(yyResource* res)
 	return g_d3d11->m_textures[res->m_index]->m_textureResView;
 }
 
+void SetGUIShaderData(yyGUIElement* guielement)
+{
+	assert(guielement);
+	
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	D3D11_BUFFER_DESC d;
+
+	g_d3d11->m_d3d11DevCon->Map(g_d3d11->m_shaderGUI->m_cbVertex, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		g_d3d11->m_shaderGUI->m_cbVertex->GetDesc(&d);
+		g_d3d11->m_shaderGUI->m_cbVertex_impl.m_ProjMtx = g_d3d11->m_guiProjectionMatrix;
+		g_d3d11->m_shaderGUI->m_cbVertex_impl.m_Offset = guielement->m_offset;
+		memcpy(mappedResource.pData, &g_d3d11->m_shaderGUI->m_cbVertex_impl, d.ByteWidth);
+	g_d3d11->m_d3d11DevCon->Unmap(g_d3d11->m_shaderGUI->m_cbVertex, 0);
+	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &g_d3d11->m_shaderGUI->m_cbVertex);
+
+	g_d3d11->m_d3d11DevCon->Map(g_d3d11->m_shaderGUI->m_cbPixel, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		g_d3d11->m_shaderGUI->m_cbPixel->GetDesc(&d);
+		g_d3d11->m_shaderGUI->m_cbPixel_impl.m_Color = guielement->m_color;
+		memcpy(mappedResource.pData, &g_d3d11->m_shaderGUI->m_cbPixel_impl, d.ByteWidth);
+	g_d3d11->m_d3d11DevCon->Unmap(g_d3d11->m_shaderGUI->m_cbPixel, 0);
+	g_d3d11->m_d3d11DevCon->PSSetConstantBuffers(0, 1, &g_d3d11->m_shaderGUI->m_cbPixel);
+}
+
 extern "C"
 {
 	YY_API yyVideoDriverAPI* YY_C_DECL GetAPI()
@@ -827,6 +847,7 @@ extern "C"
 		g_api.MapModelForWriteVerts = MapModelForWriteVerts;
 		g_api.SetBoneMatrix = SetBoneMatrix;
 		g_api.SetClearColor = SetClearColor;
+		g_api.SetGUIShaderData = SetGUIShaderData;
 		g_api.SetMaterial = SetMaterial;
 		g_api.SetMatrix = SetMatrix;
 		g_api.SetModel = SetModel;
