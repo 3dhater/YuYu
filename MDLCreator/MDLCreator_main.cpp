@@ -49,7 +49,53 @@ struct LayerInfo
 	yyStringA m_texturePathTextBuffer;
 	u32 m_texturePathTextBufferSize;
 };
-yyArraySmall<LayerInfo> g_layerInfo;
+
+// У движка есть только примитивы для создания более сложных объектов.
+// Например, тот объект который рисуется в редакторе не совсем простой. 
+// У него есть слои - подмодели со своими текстурами и шейдерами.
+// У объекта может быть анимация, много анимаций. Для каждой анимации
+//    нужен свой yyMDLObjectState.
+struct  SceneObject
+{
+	SceneObject() 
+	{
+		m_mdlObject = 0;
+	}
+	~SceneObject()
+	{
+		for (u16 i = 0, sz = m_MDLObjectStates.size(); i < sz; ++i)
+		{
+			yyDestroy(m_MDLObjectStates[i]);
+		}
+		if (m_mdlObject)
+		{
+			yyDestroy(m_mdlObject);
+		}
+	}
+	bool init()
+	{
+		m_mdlObject = yyCreate<yyMDLObject>();
+		m_mdlObject->m_mdl = yyCreate<yyMDL>();
+		return true;
+	}
+	void update(f32 dt)
+	{
+		m_mdlObject->Update(dt);
+	}
+	yyMDLObjectState* getState(const char* name)
+	{
+		for (u16 i = 0; i < m_MDLObjectStates.size(); ++i)
+		{
+			if (strcmp(m_MDLObjectStates[i]->m_name.data(), name) == 0)
+				return m_MDLObjectStates[i];
+		}
+		return nullptr;
+	}
+	yyMDLObject* m_mdlObject;
+	yyArraySmall<LayerInfo> m_layerInfo;
+	yyArraySmall<yyMDLObjectState*> m_MDLObjectStates;
+};
+SceneObject* g_sceneObject = 0;
 
 yyStringA g_renameTextBuffer;
 const u32 g_renameTextBufferSize = 128;
@@ -739,28 +785,6 @@ void readSMD(yyMDLObject* object, const char* file)
 		}
 	}
 
-	
-	// find parents
-	/*if (!isAnimation)
-	{
-		for (size_t i = 0, sz = nodes.size(); i < sz; ++i)
-		{
-			auto & node = nodes[i];
-			if (node.m_parentID == -1)
-				continue;
-
-			auto & parentNode = nodes[node.m_parentID];
-
-			auto joint = object->m_mdl->GetJointByName(node.m_name.data(), 0);
-
-			u32 parentNodeIndex = 0;
-			auto parentJoint = object->m_mdl->GetJointByName(parentNode.m_name.data(), &parentNodeIndex);
-			if (parentJoint && joint->m_parentIndex == -1)
-			{
-				joint->m_parentIndex = parentNodeIndex;
-			}
-		}
-	}*/
 	// need to find unique material names.
 	// every unique material name is new MDLLayer
 	std::vector<std::string> materialNames;
@@ -894,9 +918,21 @@ void readSMD(yyMDLObject* object, const char* file)
 			newMDLLayer->m_meshGPU = yyGetVideoDriverAPI()->CreateModel(newMDLLayer->m_model);
 
 			object->m_mdl->m_layers.push_back(newMDLLayer);
-			g_layerInfo.push_back(LayerInfo());
+			g_sceneObject->m_layerInfo.push_back(LayerInfo());
 		}
 	} // !isAnimation
+
+	if (isAnimation)
+	{
+		auto newState = g_sceneObject->m_mdlObject->AddState(newMDLAnimation->m_name.to_stringA().c_str());
+		
+		yyMDLObjectStateNode sn;
+		sn.m_animation = newMDLAnimation;
+		newState->m_animations.push_back(sn);
+
+		g_sceneObject->m_MDLObjectStates.push_back(newState);
+	//	g_sceneObject->m_mdlObject->SetState(newState);
+	}
 
 	delete deletePtr;
 }
@@ -1165,7 +1201,7 @@ void deleteLayer(yyMDLObject* object)
 {
 	auto layer = object->m_mdl->m_layers[g_selectedLayer];
 	object->m_mdl->m_layers.erase(g_selectedLayer);
-	g_layerInfo.erase(g_selectedLayer);
+	g_sceneObject->m_layerInfo.erase(g_selectedLayer);
 	if (layer->m_meshGPU)
 	{
 		yyGetVideoDriverAPI()->DeleteModel(layer->m_meshGPU);
@@ -1320,6 +1356,9 @@ int main(int argc, char* argv[])
 		p_window->SetTitle(t.data());
 	}
 
+	yyPtr<SceneObject> new_model = yyCreate<SceneObject>();
+	g_sceneObject = new_model.m_data;
+	g_sceneObject->init();
 
 	yyVideoDriverObjectD3D11* vdo = (yyVideoDriverObjectD3D11*)g_videoDriver->GetVideoDriverObjects();
 
@@ -1360,8 +1399,8 @@ int main(int argc, char* argv[])
 	window.m_data->SetFocus();
 	//window.m_data->ToFullscreenMode();
 	
-	yyPtr<yyMDLObject> mdlObject = yyCreate<yyMDLObject>();
-	mdlObject.m_data->m_mdl = yyCreate<yyMDL>();
+	//yyPtr<yyMDLObject> mdlObject = yyCreate<yyMDLObject>();
+	//mdlObject.m_data->m_mdl = yyCreate<yyMDL>();
 
 	auto defaultTexture = yyGetTextureResource("../res/textures/editor/white.dds", false, false, true);
 
@@ -1467,9 +1506,9 @@ int main(int argc, char* argv[])
 				ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(255, 0, 0, 100));
 				ImGui::BeginChild("ChildLayerList", ImVec2(ImGui::GetWindowContentRegionWidth(), 200), false, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoMove);
 				yyStringA stra;
-				for (int n = 0, nsz = mdlObject.m_data->m_mdl->m_layers.size(); n < nsz; ++n)
+				for (int n = 0, nsz = g_sceneObject->m_mdlObject->m_mdl->m_layers.size(); n < nsz; ++n)
 				{
-					auto layer = mdlObject.m_data->m_mdl->m_layers[n];
+					auto layer = g_sceneObject->m_mdlObject->m_mdl->m_layers[n];
 					stra = layer->m_model->m_name.data();
 
 					if (ImGui::Selectable(stra.data(), g_selectedLayer == n))
@@ -1486,7 +1525,7 @@ int main(int argc, char* argv[])
 					if (path)
 					{
 						//yyLogWriteInfo("OpenFileDialog: %s\n", path->to_stringA().data());
-						newLayer(mdlObject.m_data, path->data());
+						newLayer(g_sceneObject->m_mdlObject, path->data());
 
 						yyDestroy(path);
 					}
@@ -1494,12 +1533,12 @@ int main(int argc, char* argv[])
 				
 				if (g_selectedLayer != -1)
 				{
-					auto & currentLayerInfo = g_layerInfo[g_selectedLayer];
+					auto & currentLayerInfo = g_sceneObject->m_layerInfo[g_selectedLayer];
 					
 					ImGui::SameLine();
 					if (ImGui::Button("Rename"))
 					{
-						g_renameTextBuffer = mdlObject.m_data->m_mdl->m_layers[g_selectedLayer]->m_model->m_name.data();
+						g_renameTextBuffer = g_sceneObject->m_mdlObject->m_mdl->m_layers[g_selectedLayer]->m_model->m_name.data();
 						ImGui::OpenPopup("Rename");
 					}
 					ImVec2 center(ImGui::GetIO().DisplaySize.x * 0.5f, ImGui::GetIO().DisplaySize.y * 0.5f);
@@ -1511,7 +1550,7 @@ int main(int argc, char* argv[])
 
 						if (ImGui::Button("OK", ImVec2(120, 0))) 
 						{
-							mdlObject.m_data->m_mdl->m_layers[g_selectedLayer]->m_model->m_name = ModelCheckName(mdlObject.m_data, g_renameTextBuffer.data());
+							g_sceneObject->m_mdlObject->m_mdl->m_layers[g_selectedLayer]->m_model->m_name = ModelCheckName(g_sceneObject->m_mdlObject, g_renameTextBuffer.data());
 							ImGui::CloseCurrentPopup(); 
 						}
 						ImGui::SetItemDefaultFocus();
@@ -1525,7 +1564,7 @@ int main(int argc, char* argv[])
 					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 255, 255));
 					if (ImGui::Button("Delete"))
 					{
-						deleteLayer(mdlObject.m_data);
+						deleteLayer(g_sceneObject->m_mdlObject);
 					}
 					ImGui::PopStyleColor();
 					ImGui::PopStyleColor();
@@ -1551,20 +1590,20 @@ int main(int argc, char* argv[])
 								auto path = yyOpenFileDialog("Texture file", "Select", "png dds bmp tga", "Supported files");
 								if (path)
 								{
-									mdlObject.m_data->m_mdl->m_layers[g_selectedLayer]->m_texture1Path = path->data();
+									g_sceneObject->m_mdlObject->m_mdl->m_layers[g_selectedLayer]->m_texture1Path = path->data();
 									currentLayerInfo.m_texturePathTextBuffer = path->data();
-									reloadTexture(mdlObject.m_data, 0, (wchar_t*)path->data());
+									reloadTexture(g_sceneObject->m_mdlObject, 0, (wchar_t*)path->data());
 									yyDestroy(path);
 								}
 							}
 							if (ImGui::Button("Reload"))
 							{
-								mdlObject.m_data->m_mdl->m_layers[g_selectedLayer]->m_texture1Path = currentLayerInfo.m_texturePathTextBuffer.data();
-								reloadTexture(mdlObject.m_data, 0, (wchar_t*)currentLayerInfo.m_texturePathTextBuffer.to_string().data());
+								g_sceneObject->m_mdlObject->m_mdl->m_layers[g_selectedLayer]->m_texture1Path = currentLayerInfo.m_texturePathTextBuffer.data();
+								reloadTexture(g_sceneObject->m_mdlObject, 0, (wchar_t*)currentLayerInfo.m_texturePathTextBuffer.to_string().data());
 							}
-							if (mdlObject.m_data->m_mdl->m_layers[g_selectedLayer]->m_textureGPU1)
+							if (g_sceneObject->m_mdlObject->m_mdl->m_layers[g_selectedLayer]->m_textureGPU1)
 							{
-								auto th = yyGetVideoDriverAPI()->GetTextureHandle(mdlObject.m_data->m_mdl->m_layers[g_selectedLayer]->m_textureGPU1);
+								auto th = yyGetVideoDriverAPI()->GetTextureHandle(g_sceneObject->m_mdlObject->m_mdl->m_layers[g_selectedLayer]->m_textureGPU1);
 								ImTextureID my_tex_id = th;
 								float my_tex_w = 64.f;
 								float my_tex_h = 64.f;
@@ -1601,13 +1640,18 @@ int main(int argc, char* argv[])
 				ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(255, 0, 0, 100));
 				ImGui::BeginChild("ChildAnimationList", ImVec2(ImGui::GetWindowContentRegionWidth(), 200), false, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoMove);
 				yyStringA stra;
-				for (int n = 0, nsz = mdlObject.m_data->m_mdl->m_animations.size(); n < nsz; ++n)
+				for (int n = 0, nsz = g_sceneObject->m_mdlObject->m_mdl->m_animations.size(); n < nsz; ++n)
 				{
-					auto animation = mdlObject.m_data->m_mdl->m_animations[n];
+					auto animation = g_sceneObject->m_mdlObject->m_mdl->m_animations[n];
 					stra = animation->m_name.data();
 					if (ImGui::Selectable(stra.data(), g_selectedAnimation == n))
 					{
 						g_selectedAnimation = n;
+						auto newState = g_sceneObject->getState(stra.data());
+						if (newState)
+						{
+							g_sceneObject->m_mdlObject->SetState(newState);
+						}
 					}
 				}
 				ImGui::EndChild();
@@ -1653,18 +1697,18 @@ int main(int argc, char* argv[])
 				drawBind = true;
 			if (!drawBind)
 			{
-				mdlObject.m_data->Update(deltaTime);
+				g_sceneObject->update(deltaTime);
 			}
 
-			for (int n = 0, nsz = mdlObject.m_data->m_mdl->m_layers.size(); n < nsz; ++n)
+			for (int n = 0, nsz = g_sceneObject->m_mdlObject->m_mdl->m_layers.size(); n < nsz; ++n)
 			{
-				auto layer = mdlObject.m_data->m_mdl->m_layers[n];
+				auto layer = g_sceneObject->m_mdlObject->m_mdl->m_layers[n];
 				g_videoDriver->SetModel(layer->m_meshGPU);
 
 				Mat4 WorldMatrix;
 
-				WorldMatrix = mdlObject.m_data->m_mdl->m_preRotation * WorldMatrix;
-				WorldMatrix[3] = g_layerInfo[n].m_offset;
+				WorldMatrix = g_sceneObject->m_mdlObject->m_mdl->m_preRotation * WorldMatrix;
+				WorldMatrix[3] = g_sceneObject->m_layerInfo[n].m_offset;
 				WorldMatrix[3].w = 1.f;
 
 
@@ -1681,15 +1725,15 @@ int main(int argc, char* argv[])
 				/*Mat4 R;
 				R.setRotation(Quat(math::degToRad(90.f), 0.f, 0.f));*/
 
-				auto numJoints = mdlObject.m_data->m_joints.size();
+				auto numJoints = g_sceneObject->m_mdlObject->m_joints.size();
 				if (numJoints)
 				{
 					if (drawBind)
 					{
 						for (int i = 0; i < numJoints; ++i)
 						{
-							auto & objJoint = mdlObject.m_data->m_joints[i];
-							auto mdlJoint = mdlObject.m_data->m_mdl->m_joints[i];
+							auto & objJoint = g_sceneObject->m_mdlObject->m_joints[i];
+							auto mdlJoint = g_sceneObject->m_mdlObject->m_mdl->m_joints[i];
 							objJoint.m_finalTransformation.identity();
 							objJoint.m_globalTransformation = mdlJoint->m_matrixWorld;
 						}
@@ -1701,10 +1745,10 @@ int main(int argc, char* argv[])
 					g_videoDriver->UseDepth(false);
 					for (int i = 0; i < numJoints; ++i)
 					{
-						auto & objJoint = mdlObject.m_data->m_joints[i];
-						auto mdlJoint = mdlObject.m_data->m_mdl->m_joints[i];
+						auto & objJoint = g_sceneObject->m_mdlObject->m_joints[i];
+						auto mdlJoint = g_sceneObject->m_mdlObject->m_mdl->m_joints[i];
 
-						auto matrix = mdlObject.m_data->m_mdl->m_preRotation * objJoint.m_globalTransformation;
+						auto matrix = g_sceneObject->m_mdlObject->m_mdl->m_preRotation * objJoint.m_globalTransformation;
 						auto point = matrix[3];
 
 						matrix[3].set(0.f, 0.f, 0.f, 1.f);
@@ -1724,7 +1768,7 @@ int main(int argc, char* argv[])
 
 						if (mdlJoint->m_parentIndex != -1)
 						{
-							auto matrixP = mdlObject.m_data->m_mdl->m_preRotation * mdlObject.m_data->m_joints[mdlJoint->m_parentIndex].m_globalTransformation;
+							auto matrixP = g_sceneObject->m_mdlObject->m_mdl->m_preRotation * g_sceneObject->m_mdlObject->m_joints[mdlJoint->m_parentIndex].m_globalTransformation;
 							g_videoDriver->DrawLine3D(
 								point,
 								matrixP[3],
