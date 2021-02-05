@@ -15,6 +15,7 @@ struct yyInputContext
 		{
 		memset(m_key_hold, 0, sizeof(u8) * 256);
 		memset(m_key_pressed, 0, sizeof(u8) * 256);
+		memset(m_key_hit, 0, sizeof(u8) * 256);
 		m_isLMBUp = false;
 		m_isLMBDbl = false;
 	}
@@ -28,6 +29,12 @@ struct yyInputContext
 	v2f  m_cursorCoords;
 	v2f  m_cursorCoordsOld;
 	v2f  m_mouseDelta;
+
+	u8 m_key_hit[256];
+	bool isKeyHit(yyKey key)
+	{
+		return m_key_hit[(u32)key] != 0;
+	}
 
 	u8 m_key_hold[256];
 	bool isKeyHold(yyKey key)

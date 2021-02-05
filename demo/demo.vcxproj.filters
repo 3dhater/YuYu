@@ -27,9 +27,21 @@
     <ClCompile Include="demo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="demo_example.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="demo_example_sprite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="demo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="demo_example.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="demo_example_sprite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
