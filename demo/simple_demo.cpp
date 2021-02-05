@@ -59,28 +59,6 @@ void log_onInfo(const char* message)
 }
 
 yyVideoDriverAPI* g_videoDriver = nullptr;
-void asyncLoadEventHandler(u32 userIndex, void* data)
-{
-	switch (userIndex)
-	{
-	default:
-		break;
-	//case 1: g_img1 = (yyImage*)data; printf("1\n"); break;
-	//case 2: g_img2 = (yyImage*)data; printf("2\n"); break;
-	case 1:
-	{
-	}break;
-	case 2:
-	{
-	}break;
-	}
-}
-
-void pictureBox_load_onClick(yyGUIElement* elem, s32 m_id)
-{
-	yyLoadImageAsync("../res/grass.dds",1);
-	yyLoadImageAsync("../res/grass.png",2);
-}
 
 yyInputContext* g_inputContex = nullptr;
 void window_callbackMouse(yyWindow* w, s32 wheel, s32 x, s32 y, u32 click)
@@ -144,8 +122,6 @@ int main(int argc, char* argv[])
 	auto p_engineContext = engineContext.m_data;
 
 
-	yySetAsyncLoadEventHandler(asyncLoadEventHandler);
-
 	// set callbacks if you want to read some information 
 	yyLogSetErrorOutput(log_onError);
 	yyLogSetInfoOutput(log_onInfo);
@@ -172,9 +148,6 @@ int main(int argc, char* argv[])
 	if( !yyInitVideoDriver(videoDriverTypeStr.c_str(), p_window) )
 	{
 		yyLogWriteWarning("Can't load video driver : %s\n", videoDriverTypeStr.c_str());
-
-		// if failed, try to init other type
-		std::vector<std::string> vidDrivers;
 		
 		for(auto & entry : yyFS::directory_iterator(yyFS::current_path() ) )
 		{

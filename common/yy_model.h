@@ -461,10 +461,6 @@ struct yyMDLAnimation
 	struct _joint_info
 	{
 		s32  m_jointID;     // индекс yyMDL::m_joints
-		//Mat4 m_matrixFinal; // финальная матрица, которая пойдёт в шейдер
-
-		//v4f				m_position;
-		//Quat				m_rotation;
 		
 		// фреймы анимации для конкретного джоинта
 		yyMDLAnimationFrames m_animationFrames;

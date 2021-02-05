@@ -1,2 +1,2 @@
-game.exe -vid opengl.yyvd
+demo.exe -vid opengl.yyvd
 pause

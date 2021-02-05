@@ -23,14 +23,25 @@ struct yyMDLObjectStateNode {
 	}
 	f32 m_time;
 	yyMDLAnimation* m_animation;
+
+
+	// анимацию играют только те джоинты, которые указаны в m_animatedJointss
+	yyArraySmall<s32> m_animatedJoints;
 };
 struct yyMDLObjectState
 {
 	yyMDLObjectState() {}
+	~yyMDLObjectState() 
+	{
+		for (u16 i = 0, sz = m_animations.size(); i < sz; ++i)
+		{
+			yyDestroy(m_animations[i]);
+		}
+	}
 
 	yyStringA m_name;
 
-	yyArraySmall<yyMDLObjectStateNode> m_animations;
+	yyArraySmall<yyMDLObjectStateNode*> m_animations;
 };
 
 struct yyMDLObject
@@ -60,64 +71,58 @@ struct yyMDLObject
 		{
 			for (u16 ai = 0, aisz = m_currentState->m_animations.size(); ai < aisz; ++ai)
 			{
-				auto & animation = m_currentState->m_animations.at(ai);
-			//	printf("Time: [%f] Len: [%f] DT: [%f]\n", m_time, animation->m_len, dt);
+				auto & currentAnimation = m_currentState->m_animations.at(ai);
+				f32 fps_factor = currentAnimation->m_animation->m_fps * dt;
 
-				f32 fps_factor = animation.m_animation->m_fps * dt;
-				for (u16 i = 0, sz = animation.m_animation->m_animatedJoints.size(); i < sz; ++i)
+				for (u16 i = 0, sz = currentAnimation->m_animatedJoints.size(); i < sz; ++i)
 				{
-					auto jointID = animation.m_animation->m_animatedJoints[i]->m_jointID;
-					auto mdlJoint = m_mdl->m_joints[jointID];
-					auto & objJoint = m_joints[jointID];
+					auto jointID = currentAnimation->m_animatedJoints[i];
+					auto animatedJoint = currentAnimation->m_animation->m_animatedJoints[jointID];
+					auto mdlJoint = m_mdl->m_joints[animatedJoint->m_jointID];
+					auto & objJoint = m_joints[animatedJoint->m_jointID];
 
-					auto currentKey = animation.m_animation->m_animatedJoints[i]->m_animationFrames.getCurrentKeyFrame((s32)animation.m_time);
-					auto nextKey = animation.m_animation->m_animatedJoints[i]->m_animationFrames.getNextKeyFrame((s32)animation.m_time);
+					auto currentKey = animatedJoint->m_animationFrames.getCurrentKeyFrame((s32)currentAnimation->m_time);
+					auto nextKey = animatedJoint->m_animationFrames.getNextKeyFrame((s32)currentAnimation->m_time);
 
 					auto timeSize = (f32)(nextKey->m_time - currentKey->m_time);
-					auto timeLeft = (f32)nextKey->m_time - animation.m_time;
-					auto timeCoef = 1.f - math::get_0_1(timeSize, timeLeft );
+					auto timeLeft = (f32)nextKey->m_time - currentAnimation->m_time;
+					auto timeCoef = 1.f - math::get_0_1(timeSize, timeLeft);
 					timeCoef *= fps_factor;
-
 
 					f32 interpolation_factor = timeCoef;
 
 					objJoint.m_position.x = math::lerp(objJoint.m_position.x, nextKey->m_position.x, interpolation_factor);
 					objJoint.m_position.y = math::lerp(objJoint.m_position.y, nextKey->m_position.y, interpolation_factor);
 					objJoint.m_position.z = math::lerp(objJoint.m_position.z, nextKey->m_position.z, interpolation_factor);
-
-					objJoint.m_rotation = math::slerp(objJoint.m_rotation, nextKey->m_rotation, interpolation_factor);
+					objJoint.m_rotation   = math::slerp(objJoint.m_rotation, nextKey->m_rotation, interpolation_factor);
 
 					Mat4 TranslationM;
 					TranslationM[3] = objJoint.m_position;
 					TranslationM[3].w = 1.f;
-
 					Mat4 RotationM;
 					RotationM.setRotation(objJoint.m_rotation);
-
 					Mat4 NodeTransformation = TranslationM * RotationM;
-
 					if (mdlJoint->m_parentIndex != -1)
 					{
 						objJoint.m_globalTransformation =
-							m_joints[mdlJoint->m_parentIndex].m_globalTransformation
+						m_joints[mdlJoint->m_parentIndex].m_globalTransformation
 							* NodeTransformation;
 					}
 					else
 					{
 						objJoint.m_globalTransformation = NodeTransformation;
 					}
-
 					objJoint.m_finalTransformation =
-
-					objJoint.m_globalTransformation *  mdlJoint->m_matrixOffset;// *mdlJoint->m_matrixBindInverse;
+						objJoint.m_globalTransformation *  mdlJoint->m_matrixOffset;// *mdlJoint->m_matrixBindInverse;
 				}
-				animation.m_time += fps_factor;
-				if (animation.m_time >= animation.m_animation->m_len)
+				currentAnimation->m_time += fps_factor;
+
+				if (currentAnimation->m_time >= currentAnimation->m_animation->m_len)
 				{
-					animation.m_time = 0;
-					for (u16 i = 0, sz = animation.m_animation->m_animatedJoints.size(); i < sz; ++i)
+					currentAnimation->m_time = 0;
+					for (u16 i = 0, sz = currentAnimation->m_animation->m_animatedJoints.size(); i < sz; ++i)
 					{
-						auto jointID = animation.m_animation->m_animatedJoints[i]->m_jointID;
+						auto jointID = currentAnimation->m_animation->m_animatedJoints[i]->m_jointID;
 						auto mdlJoint = m_mdl->m_joints[jointID];
 						auto objJoint = m_joints[jointID];
 						objJoint.m_position = mdlJoint->m_matrixWorld[3];
@@ -126,6 +131,73 @@ struct yyMDLObject
 				}
 			}
 
+			//for (u16 ai = 0, aisz = m_currentState->m_animations.size(); ai < aisz; ++ai)
+			//{
+			//	auto & animation = m_currentState->m_animations.at(ai);
+			////	printf("Time: [%f] Len: [%f] DT: [%f]\n", m_time, animation->m_len, dt);
+
+			//	f32 fps_factor = animation.m_animation->m_fps * dt;
+			//	for (u16 i = 0, sz = animation.m_animation->m_animatedJoints.size(); i < sz; ++i)
+			//	{
+			//		auto jointID = animation.m_animation->m_animatedJoints[i]->m_jointID;
+			//		auto mdlJoint = m_mdl->m_joints[jointID];
+			//		auto & objJoint = m_joints[jointID];
+
+			//		auto currentKey = animation.m_animation->m_animatedJoints[i]->m_animationFrames.getCurrentKeyFrame((s32)animation.m_time);
+			//		auto nextKey = animation.m_animation->m_animatedJoints[i]->m_animationFrames.getNextKeyFrame((s32)animation.m_time);
+
+			//		auto timeSize = (f32)(nextKey->m_time - currentKey->m_time);
+			//		auto timeLeft = (f32)nextKey->m_time - animation.m_time;
+			//		auto timeCoef = 1.f - math::get_0_1(timeSize, timeLeft );
+			//		timeCoef *= fps_factor;
+
+
+			//		f32 interpolation_factor = timeCoef;
+
+			//		objJoint.m_position.x = math::lerp(objJoint.m_position.x, nextKey->m_position.x, interpolation_factor);
+			//		objJoint.m_position.y = math::lerp(objJoint.m_position.y, nextKey->m_position.y, interpolation_factor);
+			//		objJoint.m_position.z = math::lerp(objJoint.m_position.z, nextKey->m_position.z, interpolation_factor);
+
+			//		objJoint.m_rotation = math::slerp(objJoint.m_rotation, nextKey->m_rotation, interpolation_factor);
+
+			//		Mat4 TranslationM;
+			//		TranslationM[3] = objJoint.m_position;
+			//		TranslationM[3].w = 1.f;
+
+			//		Mat4 RotationM;
+			//		RotationM.setRotation(objJoint.m_rotation);
+
+			//		Mat4 NodeTransformation = TranslationM * RotationM;
+
+			//		if (mdlJoint->m_parentIndex != -1)
+			//		{
+			//			objJoint.m_globalTransformation =
+			//				m_joints[mdlJoint->m_parentIndex].m_globalTransformation
+			//				* NodeTransformation;
+			//		}
+			//		else
+			//		{
+			//			objJoint.m_globalTransformation = NodeTransformation;
+			//		}
+
+			//		objJoint.m_finalTransformation =
+
+			//		objJoint.m_globalTransformation *  mdlJoint->m_matrixOffset;// *mdlJoint->m_matrixBindInverse;
+			//	}
+			//	animation.m_time += fps_factor;
+			//	if (animation.m_time >= animation.m_animation->m_len)
+			//	{
+			//		animation.m_time = 0;
+			//		for (u16 i = 0, sz = animation.m_animation->m_animatedJoints.size(); i < sz; ++i)
+			//		{
+			//			auto jointID = animation.m_animation->m_animatedJoints[i]->m_jointID;
+			//			auto mdlJoint = m_mdl->m_joints[jointID];
+			//			auto objJoint = m_joints[jointID];
+			//			objJoint.m_position = mdlJoint->m_matrixWorld[3];
+			//			objJoint.m_rotation = math::matToQuat(mdlJoint->m_matrixWorld);
+			//		}
+			//	}
+			//}
 		}
 	}
 
@@ -140,9 +212,6 @@ struct yyMDLObject
 	};
 	yyArraySmall<JointInfo> m_joints; // должна быть в соответствии с m_mdl->m_joints
 										// Устанавливать mdl надо через SetMDL
-
-	// есть ли m_joints
-	//bool m_isAnimated;
 
 	yyMDL* m_mdl;
 
@@ -178,7 +247,7 @@ struct yyMDLObject
 		m_currentState = newState;
 		for (u16 i = 0, sz = m_currentState->m_animations.size(); i < sz; ++i)
 		{
-			m_currentState->m_animations[i].m_time = 0.f;
+			m_currentState->m_animations[i]->m_time = 0.f;
 		}
 	}
 	

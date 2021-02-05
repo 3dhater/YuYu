@@ -73,3 +73,5 @@ MDLCreator/Debug
 MDLCreator/Release
 MDLCreator/Production
 *.idb
+*.tlog
+*.lastbuildstate

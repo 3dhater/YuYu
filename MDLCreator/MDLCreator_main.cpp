@@ -926,12 +926,16 @@ void readSMD(yyMDLObject* object, const char* file)
 	{
 		auto newState = g_sceneObject->m_mdlObject->AddState(newMDLAnimation->m_name.to_stringA().c_str());
 		
-		yyMDLObjectStateNode sn;
-		sn.m_animation = newMDLAnimation;
+		yyMDLObjectStateNode* sn = yyCreate<yyMDLObjectStateNode>();
+		sn->m_animation = newMDLAnimation;
+		for (u16 i = 0, sz = newMDLAnimation->m_animatedJoints.size(); i < sz; ++i)
+		{
+			sn->m_animatedJoints.push_back((s32)i);
+		}
+
 		newState->m_animations.push_back(sn);
 
 		g_sceneObject->m_MDLObjectStates.push_back(newState);
-	//	g_sceneObject->m_mdlObject->SetState(newState);
 	}
 
 	delete deletePtr;
