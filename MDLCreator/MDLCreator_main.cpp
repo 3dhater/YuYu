@@ -107,6 +107,8 @@ bool g_bindPose = false;
 
 bool g_SMDIsZeroBased = true;
 
+void SaveMDL(const wchar_t* fileName);
+
 //Mat4 aiMatrixToGameMatrix(const aiMatrix4x4& a)
 //{
 //	Mat4 m;
@@ -212,10 +214,10 @@ void updateInputContext() // call before all callbacks
 	g_inputContex->m_mouseDelta.y = 0.f;
 }
 
-yyStringW AnimationCheckName(yyMDLObject* object, yyStringW name)
+yyStringA AnimationCheckName(yyMDLObject* object, yyStringA name)
 {
 	static int number = 0;
-	yyStringW newName = name;
+	yyStringA newName = name;
 
 check_again:;
 
@@ -233,10 +235,10 @@ check_again:;
 	}
 	return newName;
 }
-yyStringW ModelCheckName(yyMDLObject* object, yyStringW name)
+yyStringA ModelCheckName(yyMDLObject* object, yyStringA name)
 {
 	static int number = 0;
-	yyStringW newName = name;
+	yyStringA newName = name;
 
 check_again:;
 
@@ -461,8 +463,9 @@ void SMDReadNodes(std::vector<SMDNode>& nodes, char* fileBuffer)
 		nodes.push_back(newNode);
 	}
 }
-void SMDReadSkeleton(std::vector<SMDKeyFrame>& skeleton, char* fileBuffer)
+s32 SMDReadSkeleton(std::vector<SMDKeyFrame>& skeleton, char* fileBuffer)
 {
+	s32 num_of_frames = 0;
 	std::string word_time;
 	std::string word_frameNum;
 	std::string word_boneID;
@@ -488,6 +491,7 @@ void SMDReadSkeleton(std::vector<SMDKeyFrame>& skeleton, char* fileBuffer)
 
 		if (word_time == "time")
 		{
+			++num_of_frames;
 			savePtr = fileBuffer;
 			std::string checkNext;
 			fileBuffer = SMDReadWord(fileBuffer, checkNext);
@@ -533,6 +537,7 @@ void SMDReadSkeleton(std::vector<SMDKeyFrame>& skeleton, char* fileBuffer)
 		nt.m_rotation = rotation;
 		keyFramePtr->m_nodeTransforms.push_back(nt);
 	}
+	return num_of_frames;
 }
 bool SMDIsEndLine(char* fileBuffer)
 {
@@ -654,6 +659,7 @@ void readSMD(yyMDLObject* object, const char* file)
 	fread(fileBuffer, fileSz, 1, f);
 	fclose(f);
 
+	s32 num_of_frames = 0;
 	std::string word;
 	while (*fileBuffer)
 	{
@@ -681,7 +687,7 @@ void readSMD(yyMDLObject* object, const char* file)
 		}
 		else if (word == "skeleton")
 		{
-			SMDReadSkeleton(skeleton, fileBuffer);
+			num_of_frames = SMDReadSkeleton(skeleton, fileBuffer);
 		}
 		else if (word == "triangles")
 		{
@@ -711,7 +717,7 @@ void readSMD(yyMDLObject* object, const char* file)
 	if (isAnimation)
 	{
 		newMDLAnimation = yyCreate<yyMDLAnimation>();
-		newMDLAnimation->m_len = skeleton.size();
+		newMDLAnimation->m_len = num_of_frames - 1; 
 		yyFS::path p = file;
 		auto fn = p.filename();
 		newMDLAnimation->m_name = fn.generic_string().data();
@@ -739,7 +745,7 @@ void readSMD(yyMDLObject* object, const char* file)
 					Mat4 R;
 					SMDAngleMatrix(v3f(nt.m_rotation.y, nt.m_rotation.z, nt.m_rotation.x), R);
 					Quat q = math::matToQuat(R);
-					newMDLAnimation->AddKeyFrame(jointID, i, nt.m_position, q);
+					newMDLAnimation->AddKeyFrame(jointID, f.m_time, nt.m_position, q);
 				}
 				else
 				{
@@ -837,7 +843,7 @@ void readSMD(yyMDLObject* object, const char* file)
 					auto ch = tri.m_materialName[s];
 					if (ch == '.')
 						break;
-					newMDLLayer->m_model->m_name += (wchar_t)ch;
+					newMDLLayer->m_model->m_name += ch;
 				}
 
 				yyVertexAnimatedModel v1, v2, v3;
@@ -1486,6 +1492,15 @@ int main(int argc, char* argv[])
 		{
 			if (ImGui::BeginTabItem("File"))
 			{
+				if (ImGui::Button("Save"))
+				{
+					auto filePath = yySaveFileDialog("Save file", "Save", "MDL");
+					if (filePath)
+					{
+						SaveMDL((const wchar_t*)filePath->data());
+						yyDestroy(filePath);
+					}
+				}
 				ImGui::EndTabItem();
 			}
 			if (ImGui::BeginTabItem("View"))
@@ -1661,6 +1676,33 @@ int main(int argc, char* argv[])
 				ImGui::EndChild();
 				ImGui::PopStyleColor();
 				ImGui::Checkbox("Bind pose", &g_bindPose);
+				if (g_selectedAnimation != -1)
+				{
+					ImGui::DragFloat("FPS:", &g_sceneObject->m_mdlObject->m_mdl->m_animations[g_selectedAnimation]->m_fps, 1.f, 1.f, 60.f);
+				}
+				ImGui::EndTabItem();
+			}
+			if (ImGui::BeginTabItem("Hitboxes"))
+			{
+				ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(255, 0, 0, 100));
+				ImGui::BeginChild("ChildHitboxList", ImVec2(ImGui::GetWindowContentRegionWidth(), 200), false, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoMove);
+				yyStringA stra;
+				for (int n = 0, nsz = g_sceneObject->m_mdlObject->m_mdl->m_animations.size(); n < nsz; ++n)
+				{
+					auto animation = g_sceneObject->m_mdlObject->m_mdl->m_animations[n];
+					stra = animation->m_name.data();
+					if (ImGui::Selectable(stra.data(), g_selectedAnimation == n))
+					{
+						g_selectedAnimation = n;
+						auto newState = g_sceneObject->getState(stra.data());
+						if (newState)
+						{
+							g_sceneObject->m_mdlObject->SetState(newState);
+						}
+					}
+				}
+				ImGui::EndChild();
+				ImGui::PopStyleColor();
 				ImGui::EndTabItem();
 			}
 			ImGui::EndTabBar();
@@ -1822,4 +1864,9 @@ int main(int argc, char* argv[])
 	ImGui::DestroyContext();
 
 	return 0;
+}
+
+void SaveMDL(const wchar_t* fileName)
+{
+
 }

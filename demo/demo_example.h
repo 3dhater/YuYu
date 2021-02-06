@@ -14,7 +14,7 @@ public:
 	virtual const wchar_t* GetTitle() = 0;
 	virtual const wchar_t* GetDescription() = 0;
 
-	virtual void DemoStep(f32 deltaTime) = 0;
+	virtual bool DemoStep(f32 deltaTime) = 0;
 
 	yyVideoDriverAPI* m_gpu;
 	yyGUIText* m_guiTextTitle;

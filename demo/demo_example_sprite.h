@@ -3,7 +3,9 @@
 
 class DemoExample_Sprite : public DemoExample
 {
+	yyResource* m_textureLevel;
 	yySprite* m_spriteLevel;
+	yySprite* m_spriteHero;
 	v2f* m_spriteCameraPosition;
 	v2f* m_spriteCameraScale;
 
@@ -16,7 +18,7 @@ public:
 	virtual const wchar_t* GetTitle();
 	virtual const wchar_t* GetDescription();
 
-	virtual void DemoStep(f32 deltaTime);
+	virtual bool DemoStep(f32 deltaTime);
 };
 
 #endif

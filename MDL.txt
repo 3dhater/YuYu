@@ -1,0 +1,93 @@
+'ymdl'
+header
+string1 (zero end)
+string2 (zero end)
+string3 (zero end)
+layer1_header
+layer1_vertex_buffer
+layer1_index_buffer
+layer2_header
+layer2_vertex_buffer
+layer2_index_buffer
+joint1_header
+joint2_header
+joint3_header
+animation_header  // 1st animation
+joint_animation_header
+joint_animation_keyframe
+joint_animation_keyframe
+animation_header  //2nd animation
+joint_animation_header
+joint_animation_keyframe
+joint_animation_keyframe
+hitbox_header
+hitbox_vertex_data
+hitbox_index_data
+
+(all fields 4 bytes)
+header
+{
+	u32 version
+	u32 num_of_layers 
+	u32 num of strings
+	u32 num of joints     // if 0 - no skeleton and skip animations
+	u32 num of animations // file can be without animations
+	                  //  or can be only with skeleton and animations
+	u32 num of hitboxes
+	float3 aabb min
+	float3 aabb max
+}
+
+layer_header
+{
+	u32 shader_type
+	s32 texture1_string_id
+	s32 texture2_string_id
+	s32 texture3_string_id
+	s32 texture4_string_id
+	u32 vertex_count
+	u32 vertex_type
+	u32 vertex_data_size
+	u32 index_count
+	u32 index_type
+	u32 index_data_size
+}
+
+joint_header
+{
+	s32 name string id
+	s32 parent joint (-1 if no parent)
+	Mat4 bind_inverse
+	Mat4 offset
+	Mat4 world
+}
+
+animation_header
+{
+	u32 name string id
+	float length
+	float fps
+	u32 num of animated joints
+}
+
+joint_animation_header
+{
+	s32 jointID
+	u32 num of keyframes
+}
+
+joint_animation_keyframe
+{
+	s32 time
+	float3 position
+	float4 rotation
+}
+
+hitbox_header
+{
+	u32 type // 0 -mesh
+	s32 joint ID
+	
+	u32 vertex count // stride == vec3
+	u32 index count // u16
+}

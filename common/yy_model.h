@@ -104,7 +104,7 @@ struct yyModel
 	yyVertexType m_vertexType;
 
 	yyMaterial m_material;
-	yyStringW m_name;
+	yyStringA m_name;
 
 	
 
@@ -451,7 +451,7 @@ struct yyMDLAnimation
 			yyDestroy(m_animatedJoints[i]);
 		}
 	}
-	yyStringW m_name;
+	yyStringA m_name;
 
 
 	// анимация это список джоинтов которые задействованны в анимации
@@ -499,11 +499,68 @@ struct yyMDLAnimation
 	}
 };
 
+struct yyMDLHeader
+{
+	u32 m_version;
+	u32 m_numOfLayers;
+	u32 m_numOfJoints;
+	u32 m_numOfAnimations;
+	u32 m_numOfHitboxes;
+};
+struct yyMDLLayerHeader
+{
+	// 0 - simple
+	u32 m_shaderType;
+	s32 m_textureStrID[4];
+	u32 m_vertexCount;
+	// 0 - yyVertexModel
+	// 1 - yyVertexAnimatedModel
+	u32 m_vertexType;
+	u32 m_vertexDataSize;
+	u32 m_indexCount;
+	// 0 - 16bit
+	// 1 - 32bit
+	u32 m_indexType;
+	u32 m_indexDataSize;
+};
+struct yyMDLJointHeader
+{
+	s32 m_nameStrID;
+	s32 m_parentID;
+};
+struct yyMDLJointKeyframeHeader
+{
+	s32 m_time;
+	v3f m_position;
+	Quat m_rotation;
+};
+
+struct yyMDLHitboxHeader
+{
+	u32 m_type;
+	s32 m_jointID;
+	u32 m_vertexCount;
+	u32 m_indexCount;
+};
+struct yyMDLHitbox
+{
+	yyMDLHitbox() :m_mesh(0), m_jointID(-1), m_uniqueID(-1), m_userData(0) {}
+	enum HitboxType
+	{
+		Mesh,
+		End = 0xffffffff
+	}m_hitboxType;
+
+	yyModel* m_mesh; // if HitboxType::Mesh
+	s32 m_jointID;
+
+	s32 m_uniqueID; 
+	void* m_userData;
+};
+
 struct yyMDL
 {
 	yyMDL()
-	//	:
-	//	m_skeleton(0)
 	{
 	}
 
@@ -524,10 +581,7 @@ struct yyMDL
 		}
 	}
 
-	struct header
-	{
-
-	};
+	
 
 	yyArraySmall<yyMDLLayer*> m_layers;
 

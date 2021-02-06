@@ -252,7 +252,10 @@ void Demo::MainLoop()
 
 			if (m_activeExample)
 			{
-				m_activeExample->DemoStep(deltaTime);
+				if (!m_activeExample->DemoStep(deltaTime))
+				{
+					StopDemo();
+				}
 			}
 			else if(m_selectedExample != -1)
 			{
@@ -311,6 +314,12 @@ void Demo::_SelectExampleUpdateColors()
 	}
 }
 
+void Demo::StopDemo()
+{
+	m_activeExample->Shutdown();
+	m_activeExample = 0;
+	_showMainMenuGUI();
+}
 void Demo::StartDemo()
 {
 	m_activeExample = m_examples[m_selectedExample];

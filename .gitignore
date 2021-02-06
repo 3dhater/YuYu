@@ -75,3 +75,4 @@ MDLCreator/Production
 *.idb
 *.tlog
 *.lastbuildstate
+*.unsuccessfulbuild

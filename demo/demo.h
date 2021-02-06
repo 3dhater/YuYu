@@ -51,6 +51,7 @@ public:
 	void SelectExamplePressDown();
 	void SelectExamplePressUp();
 	void StartDemo();
+	void StopDemo();
 
 	yyInputContext * m_inputContext;
 

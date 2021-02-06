@@ -73,6 +73,7 @@ struct yyMDLObject
 			{
 				auto & currentAnimation = m_currentState->m_animations.at(ai);
 				f32 fps_factor = currentAnimation->m_animation->m_fps * dt;
+				//f32 fps_factor = 5.f * dt;
 
 				for (u16 i = 0, sz = currentAnimation->m_animatedJoints.size(); i < sz; ++i)
 				{
@@ -88,6 +89,12 @@ struct yyMDLObject
 					auto timeLeft = (f32)nextKey->m_time - currentAnimation->m_time;
 					auto timeCoef = 1.f - math::get_0_1(timeSize, timeLeft);
 					timeCoef *= fps_factor;
+
+					if (isinf(timeCoef))
+						continue;
+
+				//	if(i==0)
+				//	printf("timeSize: [%f] timeLeft: [%f] timeCoef: [%f]\n", timeSize, timeLeft, timeCoef);
 
 					f32 interpolation_factor = timeCoef;
 
@@ -120,84 +127,8 @@ struct yyMDLObject
 				if (currentAnimation->m_time >= currentAnimation->m_animation->m_len)
 				{
 					currentAnimation->m_time = 0;
-					for (u16 i = 0, sz = currentAnimation->m_animation->m_animatedJoints.size(); i < sz; ++i)
-					{
-						auto jointID = currentAnimation->m_animation->m_animatedJoints[i]->m_jointID;
-						auto mdlJoint = m_mdl->m_joints[jointID];
-						auto objJoint = m_joints[jointID];
-						objJoint.m_position = mdlJoint->m_matrixWorld[3];
-						objJoint.m_rotation = math::matToQuat(mdlJoint->m_matrixWorld);
-					}
 				}
 			}
-
-			//for (u16 ai = 0, aisz = m_currentState->m_animations.size(); ai < aisz; ++ai)
-			//{
-			//	auto & animation = m_currentState->m_animations.at(ai);
-			////	printf("Time: [%f] Len: [%f] DT: [%f]\n", m_time, animation->m_len, dt);
-
-			//	f32 fps_factor = animation.m_animation->m_fps * dt;
-			//	for (u16 i = 0, sz = animation.m_animation->m_animatedJoints.size(); i < sz; ++i)
-			//	{
-			//		auto jointID = animation.m_animation->m_animatedJoints[i]->m_jointID;
-			//		auto mdlJoint = m_mdl->m_joints[jointID];
-			//		auto & objJoint = m_joints[jointID];
-
-			//		auto currentKey = animation.m_animation->m_animatedJoints[i]->m_animationFrames.getCurrentKeyFrame((s32)animation.m_time);
-			//		auto nextKey = animation.m_animation->m_animatedJoints[i]->m_animationFrames.getNextKeyFrame((s32)animation.m_time);
-
-			//		auto timeSize = (f32)(nextKey->m_time - currentKey->m_time);
-			//		auto timeLeft = (f32)nextKey->m_time - animation.m_time;
-			//		auto timeCoef = 1.f - math::get_0_1(timeSize, timeLeft );
-			//		timeCoef *= fps_factor;
-
-
-			//		f32 interpolation_factor = timeCoef;
-
-			//		objJoint.m_position.x = math::lerp(objJoint.m_position.x, nextKey->m_position.x, interpolation_factor);
-			//		objJoint.m_position.y = math::lerp(objJoint.m_position.y, nextKey->m_position.y, interpolation_factor);
-			//		objJoint.m_position.z = math::lerp(objJoint.m_position.z, nextKey->m_position.z, interpolation_factor);
-
-			//		objJoint.m_rotation = math::slerp(objJoint.m_rotation, nextKey->m_rotation, interpolation_factor);
-
-			//		Mat4 TranslationM;
-			//		TranslationM[3] = objJoint.m_position;
-			//		TranslationM[3].w = 1.f;
-
-			//		Mat4 RotationM;
-			//		RotationM.setRotation(objJoint.m_rotation);
-
-			//		Mat4 NodeTransformation = TranslationM * RotationM;
-
-			//		if (mdlJoint->m_parentIndex != -1)
-			//		{
-			//			objJoint.m_globalTransformation =
-			//				m_joints[mdlJoint->m_parentIndex].m_globalTransformation
-			//				* NodeTransformation;
-			//		}
-			//		else
-			//		{
-			//			objJoint.m_globalTransformation = NodeTransformation;
-			//		}
-
-			//		objJoint.m_finalTransformation =
-
-			//		objJoint.m_globalTransformation *  mdlJoint->m_matrixOffset;// *mdlJoint->m_matrixBindInverse;
-			//	}
-			//	animation.m_time += fps_factor;
-			//	if (animation.m_time >= animation.m_animation->m_len)
-			//	{
-			//		animation.m_time = 0;
-			//		for (u16 i = 0, sz = animation.m_animation->m_animatedJoints.size(); i < sz; ++i)
-			//		{
-			//			auto jointID = animation.m_animation->m_animatedJoints[i]->m_jointID;
-			//			auto mdlJoint = m_mdl->m_joints[jointID];
-			//			auto objJoint = m_joints[jointID];
-			//			objJoint.m_position = mdlJoint->m_matrixWorld[3];
-			//			objJoint.m_rotation = math::matToQuat(mdlJoint->m_matrixWorld);
-			//		}
-			//	}
-			//}
 		}
 	}
 

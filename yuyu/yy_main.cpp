@@ -491,6 +491,57 @@ YY_API yyWindow* YY_C_DECL yyGetMainWindow()
 	return g_mainWindow;
 }
 
+YY_API yyString* YY_C_DECL yySaveFileDialog(const char* title, const char* okButtonLabel,
+	const char* extension)
+{
+	assert(g_engine);
+	assert(g_mainWindow);
+	assert(title);
+	assert(okButtonLabel);
+	yyString * returnPath = 0;
+	yyStringW titleW;
+	titleW = title;
+	yyStringW okButtonLabelW;
+	okButtonLabelW = okButtonLabel;
+	yyStringW extensionTitleW;
+	extensionTitleW = extension;
+#ifdef YY_PLATFORM_WINDOWS
+	g_engine->m_fileSaveDialog->SetTitle(titleW.data());
+	g_engine->m_fileSaveDialog->SetOkButtonLabel(okButtonLabelW.data());
+	COMDLG_FILTERSPEC rgSpec;
+	rgSpec.pszName = extensionTitleW.data();
+
+	yyStringW wstr;
+	wstr = "*.";
+	wstr += extension;
+	rgSpec.pszSpec = wstr.data();
+
+	g_engine->m_fileSaveDialog->SetFileTypes(1, &rgSpec);
+	auto hr = g_engine->m_fileSaveDialog->Show(g_mainWindow->m_hWnd);
+	if (SUCCEEDED(hr))
+	{
+		IShellItem *pItem;
+		hr = g_engine->m_fileSaveDialog->GetResult(&pItem);
+		if (SUCCEEDED(hr))
+		{
+			PWSTR pszFilePath;
+			hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+			if (SUCCEEDED(hr))
+			{
+				returnPath = yyCreate<yyString>();
+				returnPath->append((const char16_t*)pszFilePath);
+				CoTaskMemFree(pszFilePath);
+			}
+			pItem->Release();
+		}
+	}
+	g_engine->m_fileSaveDialog->Release();
+	CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_ALL, IID_IFileSaveDialog, reinterpret_cast<void**>(&g_engine->m_fileSaveDialog));
+#else
+#error Need to implement
+#endif
+	return returnPath;
+}
 YY_API yyString* YY_C_DECL yyOpenFileDialog(const char* title, const char* okButtonLabel,
 	const char* extensions, const char* extensionTitle)
 {

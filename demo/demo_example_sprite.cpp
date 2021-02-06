@@ -11,6 +11,8 @@ extern Demo* g_demo;
 DemoExample_Sprite::DemoExample_Sprite()
 {
 	m_spriteLevel = 0;
+	m_spriteHero = 0;
+	m_textureLevel = 0;
 }
 
 DemoExample_Sprite::~DemoExample_Sprite()
@@ -20,12 +22,12 @@ DemoExample_Sprite::~DemoExample_Sprite()
 
 bool DemoExample_Sprite::Init()
 {
-
-	auto texture = m_gpu->CreateTextureFromFile("../res/GA3E/level1_ground.png", false, false, true);
-	if (!texture)
+	m_textureLevel = m_gpu->CreateTextureFromFile("../res/GA3E/level1_ground.png", false, false, true);
+	if (!m_textureLevel)
 		return false;
 
-	m_spriteLevel = yyCreateSprite(v4f(0.f, 0.f, 1160.f, 224.f), texture, false);
+	m_spriteLevel = yyCreateSprite(v4f(0.f, 0.f, 1160.f, 224.f), m_textureLevel, false);
+//	m_spriteHero  = yyCreateSprite(v4f(0.f, 0.f, 1160.f, 224.f), m_textureLevel, false);
 	
 	m_spriteCameraPosition = m_gpu->GetSpriteCameraPosition();
 	m_spriteCameraPosition->x = 280.f;
@@ -40,6 +42,11 @@ bool DemoExample_Sprite::Init()
 
 void DemoExample_Sprite::Shutdown()
 {
+	if (m_textureLevel)
+	{
+		m_gpu->DeleteTexture(m_textureLevel);
+		m_textureLevel = 0;
+	}
 	if (m_spriteLevel)
 	{
 		yyDestroy(m_spriteLevel);
@@ -57,7 +64,7 @@ const wchar_t* DemoExample_Sprite::GetDescription()
 	return L"Everything about yySprite";
 }
 
-void DemoExample_Sprite::DemoStep(f32 deltaTime)
+bool DemoExample_Sprite::DemoStep(f32 deltaTime)
 {
 	f32  spriteCameraMoveSpeed = 50.f;
 	f32  heroMoveSpeed = 70.f;
@@ -94,4 +101,6 @@ void DemoExample_Sprite::DemoStep(f32 deltaTime)
 
 	m_gpu->UseDepth(false);
 	m_gpu->DrawSprite(m_spriteLevel);
+
+	return g_demo->m_inputContext->isKeyHit(yyKey::K_ESCAPE) == false;
 }

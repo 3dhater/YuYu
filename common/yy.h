@@ -40,6 +40,8 @@ extern "C"
 	// Before using call yySetMainWindow(yourWindow);
 	YY_API yyString* YY_C_DECL yyOpenFileDialog(const char* title, const char* okButtonLabel, 
 		const char* extensions, const char* extensionTitle);
+	YY_API yyString* YY_C_DECL yySaveFileDialog(const char* title, const char* okButtonLabel,
+		const char* extension);
 
 	YY_API const wchar_t* YY_C_DECL yyGetWorkingDir();
 	YY_API yyString* YY_C_DECL yyGetRelativePath(const wchar_t*);
