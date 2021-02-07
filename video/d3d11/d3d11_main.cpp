@@ -475,7 +475,6 @@ void Draw()
 			}
 			break;
 		}
-		g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
 	}
 	u32 offset = 0u;
 //	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerWireframeNoBackFaceCulling);
@@ -681,7 +680,7 @@ void EndDraw()
 
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
-//	const float blend_factor[4] = { 0.f, 0.f, 0.f, 1.f };
+	//	const float blend_factor[4] = { 0.f, 0.f, 0.f, 1.f };
 //	g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaEnabled, blend_factor, 0xffffffff);
 	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
 

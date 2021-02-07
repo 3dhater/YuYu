@@ -10,6 +10,7 @@ public:
 	GLuint m_program;
 	GLuint m_VAO;
 	GLint m_uniform_WVP;
+	GLint m_uniform_BaseColor;
 
 	bool init();
 };
@@ -24,6 +25,7 @@ public:
 	GLint m_uniform_WVP;
 	GLint m_uniform_World;
 	GLint m_uniform_Bones;
+	GLint m_uniform_BaseColor;
 
 	bool init();
 };

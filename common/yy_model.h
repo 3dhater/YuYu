@@ -545,6 +545,7 @@ struct yyMDLHitboxHeader
 struct yyMDLHitbox
 {
 	yyMDLHitbox() :m_mesh(0), m_jointID(-1), m_uniqueID(-1), m_userData(0) {}
+	~yyMDLHitbox() { if (m_mesh) yyDestroy(m_mesh); }
 	enum HitboxType
 	{
 		Mesh,

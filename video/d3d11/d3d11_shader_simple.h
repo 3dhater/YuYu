@@ -9,12 +9,18 @@ public:
 	D3D11ShaderSimple();
 	virtual ~D3D11ShaderSimple();
 	
-	ID3D11Buffer*		m_cb;
+	ID3D11Buffer*		m_cbVertex;
+	ID3D11Buffer*		m_cbPixel;
 
-	struct cb
+	struct cbVertex
 	{
 		Mat4 WVP;
-	}m_cbData;
+	}m_cbVertexData;
+
+	struct cbPixel
+	{
+		yyColor BaseColor;
+	}m_cbPixelData;
 
 	bool init();
 
@@ -29,13 +35,19 @@ public:
 	virtual void SetConstants(yyMaterial* material);
 	bool init();
 
-	ID3D11Buffer*		m_cb;
+	ID3D11Buffer*		m_cbVertex;
+	ID3D11Buffer*		m_cbPixel;
 
-	struct cb
+	struct cbVertex
 	{
 		Mat4 WVP;
 		Mat4 Bones[255];
-	}m_cbData;
+	}m_cbVertexData;
+
+	struct cbPixel
+	{
+		yyColor BaseColor;
+	}m_cbPixelData;
 
 };
 

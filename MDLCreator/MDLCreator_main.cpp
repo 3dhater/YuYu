@@ -35,6 +35,22 @@
 //#include <assimp/scene.h>       // Output data structure
 //#include <assimp/postprocess.h> // Post processing flags
 
+yyVideoDriverAPI* g_videoDriver = nullptr;
+yyInputContext* g_inputContex = nullptr;
+
+yyStringA g_renameTextBuffer;
+const u32 g_renameTextBufferSize = 128;
+int g_shaderCombo_item_current = 0;
+
+int g_selectedLayer = -1;
+int g_selectedAnimation = -1;
+int g_selectedHitbox = -1;
+bool g_bindPose = false;
+
+bool g_SMDIsZeroBased = true;
+
+void SaveMDL(const wchar_t* fileName);
+
 // для того чтобы настраивать модель в редакторе
 // например, можно изменить позицию
 // При сохранении нужно будет учитывать эти данные
@@ -50,6 +66,117 @@ struct LayerInfo
 	u32 m_texturePathTextBufferSize;
 };
 
+struct Hitbox
+{
+	Hitbox()
+	{
+		m_min.set(-0.1f, -0.1f, -0.1f);
+		m_max.set(0.1f, 0.1f, 0.1f);
+
+		m_type = type::Box;
+		m_gpuModel = 0;
+	}
+	~Hitbox()
+	{
+		if (m_gpuModel) g_videoDriver->DeleteModel(m_gpuModel);
+	}
+
+	enum type
+	{
+		Box
+	}m_type;
+
+	void rebuild()
+	{
+		if (m_gpuModel) g_videoDriver->DeleteModel(m_gpuModel);
+		if (m_hitbox.m_mesh) yyDestroy(m_hitbox.m_mesh);
+
+		if (m_type == type::Box)
+		{
+			m_hitbox.m_mesh = yyCreate<yyModel>();
+			m_hitbox.m_mesh->m_vertexType = yyVertexType::Model;
+			m_hitbox.m_mesh->m_indexType = yyMeshIndexType::u16;
+			m_hitbox.m_mesh->m_stride = sizeof(yyVertexModel);
+			m_hitbox.m_mesh->m_vCount = 8;
+			m_hitbox.m_mesh->m_iCount = 36;
+			m_hitbox.m_mesh->m_vertices = (u8*)yyMemAlloc(m_hitbox.m_mesh->m_vCount * m_hitbox.m_mesh->m_stride);
+			m_hitbox.m_mesh->m_indices = (u8*)yyMemAlloc(m_hitbox.m_mesh->m_iCount * sizeof(u16));
+
+			yyVertexModel* vertex = (yyVertexModel*)m_hitbox.m_mesh->m_vertices;
+			u16* index = (u16*)m_hitbox.m_mesh->m_indices;
+
+			vertex[0].Position.set(m_min.x, m_min.y, m_min.z);
+			vertex[1].Position.set(m_min.x, m_min.y, m_max.z);
+			vertex[2].Position.set(m_max.x, m_min.y, m_min.z);
+			vertex[3].Position.set(m_max.x, m_min.y, m_max.z);
+
+			vertex[4].Position.set(m_min.x, m_max.y, m_min.z);
+			vertex[5].Position.set(m_min.x, m_max.y, m_max.z);
+			vertex[6].Position.set(m_max.x, m_max.y, m_min.z);
+			vertex[7].Position.set(m_max.x, m_max.y, m_max.z);
+			
+			// Bottom
+			index[0] = 0;
+			index[1] = 1;
+			index[2] = 2;
+			index[3] = 2;
+			index[4] = 1;
+			index[5] = 3;
+
+			// Top
+			index[6]  = 4;
+			index[7]  = 6;
+			index[8]  = 5;
+			index[9]  = 6;
+			index[10] = 7;
+			index[11] = 5;
+
+			// Left
+			index[12] = 3;
+			index[13] = 6;
+			index[14] = 2;
+			index[15] = 3;
+			index[16] = 7;
+			index[17] = 6;
+
+			// Right
+			index[18] = 0;
+			index[19] = 5;
+			index[20] = 1;
+			index[21] = 0;
+			index[22] = 4;
+			index[23] = 5;
+
+			// front
+			index[24] = 2;
+			index[25] = 4;
+			index[26] = 0;
+			index[27] = 2;
+			index[28] = 6;
+			index[29] = 4;
+
+			// back
+			index[30] = 3;
+			index[31] = 5;
+			index[32] = 1;
+			index[33] = 3;
+			index[34] = 7;
+			index[35] = 5;
+
+			m_gpuModel = g_videoDriver->CreateModel(m_hitbox.m_mesh);
+		}
+	}
+
+
+	yyMDLHitbox m_hitbox;
+	yyResource* m_gpuModel;
+
+	v3f m_min;
+	v3f m_max;
+
+	yyStringA m_name;
+};
+
 // У движка есть только примитивы для создания более сложных объектов.
 // Например, тот объект который рисуется в редакторе не совсем простой. 
 // У него есть слои - подмодели со своими текстурами и шейдерами.
@@ -57,12 +184,16 @@ struct LayerInfo
 //    нужен свой yyMDLObjectState.
 struct  SceneObject
 {
-	SceneObject() 
+	SceneObject()
 	{
 		m_mdlObject = 0;
 	}
 	~SceneObject()
 	{
+		for (u16 i = 0, sz = m_hitboxes.size(); i < sz; ++i)
+		{
+			yyDestroy(m_hitboxes[i]);
+		}
 		for (u16 i = 0, sz = m_MDLObjectStates.size(); i < sz; ++i)
 		{
 			yyDestroy(m_MDLObjectStates[i]);
@@ -94,21 +225,9 @@ struct  SceneObject
 	yyMDLObject* m_mdlObject;
 	yyArraySmall<LayerInfo> m_layerInfo;
 	yyArraySmall<yyMDLObjectState*> m_MDLObjectStates;
+	yyArraySmall<Hitbox*> m_hitboxes;
 };
 SceneObject* g_sceneObject = 0;
-
-yyStringA g_renameTextBuffer;
-const u32 g_renameTextBufferSize = 128;
-int g_shaderCombo_item_current = 0;
-
-int g_selectedLayer = -1;
-int g_selectedAnimation = -1;
-bool g_bindPose = false;
-
-bool g_SMDIsZeroBased = true;
-
-void SaveMDL(const wchar_t* fileName);
-
 //Mat4 aiMatrixToGameMatrix(const aiMatrix4x4& a)
 //{
 //	Mat4 m;
@@ -167,8 +286,7 @@ void log_onInfo(const char* message)
 	fprintf(stdout, message);
 }
 
-yyVideoDriverAPI* g_videoDriver = nullptr;
-yyInputContext* g_inputContex = nullptr;
+
 void window_callbackMouse(yyWindow* w, s32 wheel, s32 x, s32 y, u32 click)
 {
 	g_inputContex->m_cursorCoords.x = (f32)x;
@@ -1221,9 +1339,7 @@ void deleteLayer(yyMDLObject* object)
 	// update MDL aabb
 
 	if (object->m_mdl->m_layers.size() == g_selectedLayer)
-	{
 		--g_selectedLayer;
-	}
 }
 void reloadTexture(yyMDLObject* object, int textureSlot, const wchar_t* path)
 {
@@ -1686,23 +1802,55 @@ int main(int argc, char* argv[])
 			{
 				ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(255, 0, 0, 100));
 				ImGui::BeginChild("ChildHitboxList", ImVec2(ImGui::GetWindowContentRegionWidth(), 200), false, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoMove);
-				yyStringA stra;
-				for (int n = 0, nsz = g_sceneObject->m_mdlObject->m_mdl->m_animations.size(); n < nsz; ++n)
+				for (int n = 0, nsz = g_sceneObject->m_hitboxes.size(); n < nsz; ++n)
 				{
-					auto animation = g_sceneObject->m_mdlObject->m_mdl->m_animations[n];
-					stra = animation->m_name.data();
-					if (ImGui::Selectable(stra.data(), g_selectedAnimation == n))
+					auto hitbox = g_sceneObject->m_hitboxes[n];
+					if (ImGui::Selectable(hitbox->m_name.data(), g_selectedHitbox == n))
 					{
-						g_selectedAnimation = n;
-						auto newState = g_sceneObject->getState(stra.data());
-						if (newState)
-						{
-							g_sceneObject->m_mdlObject->SetState(newState);
-						}
+						g_selectedHitbox = n;
 					}
 				}
 				ImGui::EndChild();
 				ImGui::PopStyleColor();
+				if (ImGui::Button("New"))
+				{
+					static int hitbox_counter = 0;
+					Hitbox* newHitBox = yyCreate<Hitbox>();
+					newHitBox->m_name += hitbox_counter++;
+					newHitBox->rebuild();
+					g_sceneObject->m_hitboxes.push_back(newHitBox);
+				}
+				if (g_selectedHitbox != -1)
+				{
+					ImGui::SameLine();
+					ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(255, 0, 0, 100));
+					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(255, 255, 0, 255));
+					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 255, 255));
+					if (ImGui::Button("Delete"))
+					{
+						g_sceneObject->m_hitboxes.erase(g_selectedHitbox);
+						if (g_sceneObject->m_hitboxes.size() == g_selectedHitbox)
+							--g_selectedHitbox;
+					}
+					ImGui::PopStyleColor();
+					ImGui::PopStyleColor();
+					ImGui::PopStyleColor();
+					
+					if (g_selectedHitbox != -1)
+					{
+						Hitbox* activeHitbox = g_sceneObject->m_hitboxes[g_selectedHitbox];
+						bool reb = false;
+						if (ImGui::SliderFloat("MinX", &activeHitbox->m_min.x, -1000.0f, -0.01f, "%.3f", ImGuiSliderFlags_Logarithmic ))reb = true;
+						if (ImGui::SliderFloat("MinY", &activeHitbox->m_min.y, -1000.0f, -0.01f, "%.3f", ImGuiSliderFlags_Logarithmic))reb = true;
+						if (ImGui::SliderFloat("MinZ", &activeHitbox->m_min.z, -1000.0f, -0.01f, "%.3f", ImGuiSliderFlags_Logarithmic))reb = true;
+						if (ImGui::SliderFloat("MaxX", &activeHitbox->m_max.x, 0.01f, 1000.f, "%.3f", ImGuiSliderFlags_Logarithmic))reb = true;
+						if (ImGui::SliderFloat("MaxY", &activeHitbox->m_max.y, 0.01f, 1000.f, "%.3f", ImGuiSliderFlags_Logarithmic))reb = true;
+						if (ImGui::SliderFloat("MaxZ", &activeHitbox->m_max.z, 0.01f, 1000.f, "%.3f", ImGuiSliderFlags_Logarithmic))reb = true;
+					
+						if(reb)
+							activeHitbox->rebuild();
+					}
+				}
 				ImGui::EndTabItem();
 			}
 			ImGui::EndTabBar();
@@ -1823,10 +1971,24 @@ int main(int argc, char* argv[])
 
 						g_videoDriver->SetBoneMatrix(i, objJoint.m_finalTransformation);
 					}
-					g_videoDriver->UseDepth(true);
 				}
-
 				g_videoDriver->Draw();
+				
+				yyMaterial matWireframe;
+				matWireframe.m_wireframe = true;
+				matWireframe.m_baseColor = ColorLime;
+				g_videoDriver->SetMaterial(&matWireframe);
+				for (int i = 0, sz = g_sceneObject->m_hitboxes.size(); i < sz; ++i)
+				{
+					auto hb = g_sceneObject->m_hitboxes[i];
+					Mat4 W;
+					g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::World, W);
+					g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection, camera.m_camera->m_projectionMatrix * camera.m_camera->m_viewMatrix * W);
+					g_videoDriver->SetModel(hb->m_gpuModel);
+					g_videoDriver->Draw();
+				}
+				g_videoDriver->SetMaterial(0);
+				g_videoDriver->UseDepth(true);
 			}
 
 			g_videoDriver->UseDepth(false);

@@ -1,6 +1,8 @@
 ﻿#ifndef _YY_MATERIAL_H__
 #define _YY_MATERIAL_H__
 
+#include "yy_color.h"
+
 enum class yyMaterialType
 {
 	Simple,
@@ -20,7 +22,8 @@ struct yyMaterial
 		m_opacity = 0.5f;
 
 		m_sunDir.set(0.3f, 0.6f, 0.3f);
-		m_ambientColor.set(1.f, 1.f, 1.f);
+		m_ambientColor = ColorGray;
+		m_baseColor = ColorWhite;
 		m_selfLight = 0.3f;
 	}
 	yyMaterialType m_type;
@@ -28,8 +31,10 @@ struct yyMaterial
 	bool m_cullBackFace;
 	f32 m_opacity;
 
+	yyColor m_baseColor;
+
 	v3f m_sunDir;        
-	v3f m_ambientColor;
+	yyColor m_ambientColor;
 	f32 m_selfLight;  // уровень освещённости 0.f...1.f
 };
 

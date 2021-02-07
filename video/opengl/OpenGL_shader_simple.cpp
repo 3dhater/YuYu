@@ -42,18 +42,19 @@ bool OpenGLShaderSimple::init()
 		"#version 330\n"
 		"in vec2 texCoord;\n"
 		"uniform sampler2D diffuseTexture;\n"
+		"uniform vec4 BaseColor;\n"
 		"out vec4 color;\n"
 		"void main(){\n"
-		"color = texture(diffuseTexture, texCoord);\n"
+		"color = texture(diffuseTexture, texCoord) * BaseColor;\n"
 		"}\n";
 	if( !createShader(text_v, text_f, nullptr, m_program) )
 		return false;
 
 	glUseProgram(m_program);
 	m_uniform_WVP = glGetUniformLocation(m_program, "WVP");
+	m_uniform_BaseColor = glGetUniformLocation(m_program, "BaseColor");
 	
 	glUniform1i(glGetUniformLocation(m_program, "diffuseTexture"), 0); 
-
 	glGenVertexArrays(1, &m_VAO);
 
 	return true;
@@ -117,9 +118,10 @@ bool OpenGLShaderSimpleAnimated::init()
 		"#version 330\n"
 		"in vec2 texCoord;\n"
 		"uniform sampler2D diffuseTexture;\n"
+		"uniform vec4 BaseColor;\n"
 		"out vec4 color;\n"
 		"void main(){\n"
-		"	color = texture(diffuseTexture, texCoord);\n"
+		"	color = texture(diffuseTexture, texCoord) * BaseColor;\n"
 		"}\n";
 	if (!createShader(text_v, text_f, nullptr, m_program))
 		return false;
@@ -128,6 +130,7 @@ bool OpenGLShaderSimpleAnimated::init()
 	m_uniform_WVP = glGetUniformLocation(m_program, "WVP");
 	m_uniform_World = glGetUniformLocation(m_program, "World");
 	m_uniform_Bones = glGetUniformLocation(m_program, "Bones");
+	m_uniform_BaseColor = glGetUniformLocation(m_program, "BaseColor");
 
 	glUniform1i(glGetUniformLocation(m_program, "diffuseTexture"), 0);
 

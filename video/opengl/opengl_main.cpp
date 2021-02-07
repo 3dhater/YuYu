@@ -584,6 +584,7 @@ void Draw()
 			{
 				glUseProgram(g_openGL->m_shader_simple->m_program);
 				glUniformMatrix4fv(g_openGL->m_shader_simple->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr());
+				glUniform4fv(g_openGL->m_shader_simple->m_uniform_BaseColor, 1, &material->m_baseColor.m_data[0]);
 			}break;
 			case yyVertexType::AnimatedModel:
 			{
@@ -591,6 +592,7 @@ void Draw()
 				glUniformMatrix4fv(g_openGL->m_shader_simpleAnimated->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr());
 				glUniformMatrix4fv(g_openGL->m_shader_simpleAnimated->m_uniform_World, 1, GL_FALSE, g_openGL->m_matrixWorld.getPtr());
 				glUniformMatrix4fv(g_openGL->m_shader_simpleAnimated->m_uniform_Bones, 255, GL_FALSE, g_openGL->m_matrixBones[0].getPtr());
+				glUniform4fv(g_openGL->m_shader_simpleAnimated->m_uniform_BaseColor, 1, &material->m_baseColor.m_data[0]);
 			}break;
 			}
 			glActiveTexture(GL_TEXTURE0);
@@ -811,6 +813,7 @@ void BeginDraw()
 	glBindFramebuffer(GL_FRAMEBUFFER, g_openGL->m_mainTarget->m_FBO);
 	glViewport(0, 0, g_openGL->m_mainTargetSize.x, g_openGL->m_mainTargetSize.y);
 	UseDepth(true);
+	
 }
 void ClearAll()
 {
@@ -835,6 +838,8 @@ void EndDraw()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_openGL->m_mainTarget->m_texture);
 	glBindVertexArray(g_openGL->m_mainTargetSurface->m_VAO);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDisable(GL_CULL_FACE);
 	glDrawElements(GL_TRIANGLES, g_openGL->m_mainTargetSurface->m_iCount, g_openGL->m_mainTargetSurface->m_indexType, 0);
 }
 

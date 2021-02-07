@@ -30,8 +30,11 @@ bool D3D11ShaderSimple::init()
 		"   float3 binormal : BINORMAL;\n"
 		"   float3 tangent : TANGENT;\n"
 		"};\n"
-		"cbuffer cbVertex  : register(b0) {\n"
+		"cbuffer cbVertex{\n"
 		"	float4x4 WVP;\n"
+		"};\n"
+		"cbuffer cbPixel{\n"
+		"	float4 BaseColor;\n"
 		"};\n"
 		"struct VSOut{\n"
 		"   float4 pos : SV_POSITION;\n"
@@ -49,7 +52,7 @@ bool D3D11ShaderSimple::init()
 		"}\n"
 		"PSOut PSMain(VSOut input){\n"
 		"    PSOut output;\n"
-		"    output.color = tex2d_1.Sample(tex2D_sampler_1, input.uv);\n"
+		"    output.color = tex2d_1.Sample(tex2D_sampler_1, input.uv) * BaseColor;\n"
 		"    return output;\n"
 		"}\n";
 	if (!D3D11_createShaders(
@@ -68,7 +71,13 @@ bool D3D11ShaderSimple::init()
 		return false;
 	}
 
-	if (!D3D11_createConstantBuffer(sizeof(cb), &m_cb))
+	if (!D3D11_createConstantBuffer(sizeof(cbVertex), &m_cbVertex))
+	{
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	if (!D3D11_createConstantBuffer(sizeof(cbPixel), &m_cbPixel))
 	{
 		YY_PRINT_FAILED;
 		return false;
@@ -79,15 +88,22 @@ bool D3D11ShaderSimple::init()
 
 void D3D11ShaderSimple::SetConstants(yyMaterial* material)
 {
-	m_cbData.WVP = g_d3d11->m_matrixWorldViewProjection;
+	m_cbVertexData.WVP = g_d3d11->m_matrixWorldViewProjection;
+	m_cbPixelData.BaseColor = material->m_baseColor;
 
-	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &m_cb);
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	g_d3d11->m_d3d11DevCon->Map(m_cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	D3D11_BUFFER_DESC d;
-	m_cb->GetDesc(&d);
-	memcpy(mappedResource.pData, &m_cbData, d.ByteWidth);
-	g_d3d11->m_d3d11DevCon->Unmap(m_cb, 0);
+	g_d3d11->m_d3d11DevCon->Map(m_cbVertex, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	m_cbVertex->GetDesc(&d);
+	memcpy(mappedResource.pData, &m_cbVertexData, d.ByteWidth);
+	g_d3d11->m_d3d11DevCon->Unmap(m_cbVertex, 0);
+	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &m_cbVertex);
+
+	g_d3d11->m_d3d11DevCon->Map(m_cbPixel, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	m_cbPixel->GetDesc(&d);
+	memcpy(mappedResource.pData, &m_cbPixelData, d.ByteWidth);
+	g_d3d11->m_d3d11DevCon->Unmap(m_cbPixel, 0);
+	g_d3d11->m_d3d11DevCon->PSSetConstantBuffers(0, 1, &m_cbPixel);
 }
 
 
@@ -99,16 +115,24 @@ D3D11ShaderSimpleAnimated::~D3D11ShaderSimpleAnimated() {
 
 }
 void D3D11ShaderSimpleAnimated::SetConstants(yyMaterial* material) {
-	m_cbData.WVP = g_d3d11->m_matrixWorldViewProjection;
-	memcpy(m_cbData.Bones, g_d3d11->m_matrixBones[0].getPtr(), 255 * sizeof(Mat4));
+	m_cbVertexData.WVP = g_d3d11->m_matrixWorldViewProjection;
+	memcpy(m_cbVertexData.Bones, g_d3d11->m_matrixBones[0].getPtr(), 255 * sizeof(Mat4));
+	m_cbPixelData.BaseColor = material->m_baseColor;
 
-	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &m_cb);
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	g_d3d11->m_d3d11DevCon->Map(m_cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	D3D11_BUFFER_DESC d;
-	m_cb->GetDesc(&d);
-	memcpy(mappedResource.pData, &m_cbData, d.ByteWidth);
-	g_d3d11->m_d3d11DevCon->Unmap(m_cb, 0);
+
+	g_d3d11->m_d3d11DevCon->Map(m_cbVertex, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	m_cbVertex->GetDesc(&d);
+	memcpy(mappedResource.pData, &m_cbVertexData, d.ByteWidth);
+	g_d3d11->m_d3d11DevCon->Unmap(m_cbVertex, 0);
+	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &m_cbVertex);
+
+	g_d3d11->m_d3d11DevCon->Map(m_cbPixel, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	m_cbPixel->GetDesc(&d);
+	memcpy(mappedResource.pData, &m_cbPixelData, d.ByteWidth);
+	g_d3d11->m_d3d11DevCon->Unmap(m_cbPixel, 0);
+	g_d3d11->m_d3d11DevCon->PSSetConstantBuffers(0, 1, &m_cbPixel);
 }
 bool D3D11ShaderSimpleAnimated::init() {
 	const char * text =
@@ -123,9 +147,12 @@ bool D3D11ShaderSimpleAnimated::init() {
 		"	float4 weights : WEIGHTS;\n"
 		"	uint4 bones : BONES;\n"
 		"};\n"
-		"cbuffer cbVertex  : register(b0) {\n"
+		"cbuffer cbVertex{\n"
 		"	float4x4 WVP;\n"
 		"	float4x4 Bones[255];\n"
+		"};\n"
+		"cbuffer cbPixel{\n"
+		"	float4 BaseColor;\n"
 		"};\n"
 		"struct VSOut{\n"
 		"   float4 pos : SV_POSITION;\n"
@@ -151,7 +178,7 @@ bool D3D11ShaderSimpleAnimated::init() {
 		"}\n"
 		"PSOut PSMain(VSOut input){\n"
 		"    PSOut output;\n"
-		"    output.color = tex2d_1.Sample(tex2D_sampler_1, input.uv);\n"
+		"    output.color = tex2d_1.Sample(tex2D_sampler_1, input.uv) * BaseColor;\n"
 		"    return output;\n"
 		"}\n";
 	if (!D3D11_createShaders(
@@ -170,7 +197,13 @@ bool D3D11ShaderSimpleAnimated::init() {
 		return false;
 	}
 
-	if (!D3D11_createConstantBuffer(sizeof(cb), &m_cb))
+	if (!D3D11_createConstantBuffer(sizeof(cbVertex), &m_cbVertex))
+	{
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	if (!D3D11_createConstantBuffer(sizeof(cbPixel), &m_cbPixel))
 	{
 		YY_PRINT_FAILED;
 		return false;

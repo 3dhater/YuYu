@@ -76,3 +76,6 @@ MDLCreator/Production
 *.tlog
 *.lastbuildstate
 *.unsuccessfulbuild
+demo/Debug
+demo/Release
+demo/Production
