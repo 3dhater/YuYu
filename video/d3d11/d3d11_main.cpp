@@ -216,30 +216,6 @@ void UseBlend(bool v)
 	}
 }
 
-yyResource* CreateModelFromFile(const char* fileName, bool load)
-{
-	assert(fileName);
-	yyResource * newRes = yyCreate<yyResource>();
-	newRes->m_type = yyResourceType::Model;
-	newRes->m_source = nullptr;
-	newRes->m_refCount = 0;
-	newRes->m_file = fileName;
-
-	if (g_d3d11->m_freeModelResourceIndex.head())
-	{
-		newRes->m_index = g_d3d11->m_freeModelResourceIndex.head()->m_data;
-		g_d3d11->m_freeModelResourceIndex.erase_node(g_d3d11->m_freeModelResourceIndex.head());
-	}
-	else
-	{
-		newRes->m_index = g_d3d11->m_models.size();
-		g_d3d11->m_models.push_back(nullptr);
-	}
-
-	if(load)
-		LoadModel(newRes);
-	return newRes;
-}
 yyResource* CreateModel(yyModel* model)
 {
 	assert(model);
@@ -311,13 +287,6 @@ void LoadModel(yyResource* r)
 		if(r->m_source)
 		{
 			g_d3d11->m_models[r->m_index] = CreateD3D11Model((yyModel*)r->m_source );
-			return;
-		}
-
-		if(r->m_file.size())
-		{
-			yyPtr<yyModel> model = yyLoadModel(r->m_file.c_str());
-			g_d3d11->m_models[r->m_index] = CreateD3D11Model(model.m_data);
 			return;
 		}
 	}
@@ -820,7 +789,6 @@ extern "C"
 		g_api.ClearColor = ClearColor;
 		g_api.ClearDepth = ClearDepth;
 		g_api.CreateModel = CreateModel;
-		g_api.CreateModelFromFile = CreateModelFromFile;
 		g_api.CreateRenderTargetTexture = CreateRenderTargetTexture;
 		g_api.CreateTexture = CreateTexture;
 		g_api.CreateTextureFromFile = CreateTextureFromFile;

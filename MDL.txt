@@ -1,8 +1,6 @@
 'ymdl'
+u32 version  // YY_MDL_VERSION
 header
-string1 (zero end)
-string2 (zero end)
-string3 (zero end)
 layer1_header
 layer1_vertex_buffer
 layer1_index_buffer
@@ -23,28 +21,28 @@ joint_animation_keyframe
 hitbox_header
 hitbox_vertex_data
 hitbox_index_data
+u32 num of strings
+string1 (zero end)
+string2 (zero end)
+string3 (zero end)
 
-(all fields 4 bytes)
 header
 {
-	u32 version
 	u32 num_of_layers 
-	u32 num of strings
 	u32 num of joints     // if 0 - no skeleton and skip animations
 	u32 num of animations // file can be without animations
 	                  //  or can be only with skeleton and animations
 	u32 num of hitboxes
 	float3 aabb min
 	float3 aabb max
+	
+	u32 strings offset
 }
 
 layer_header
 {
 	u32 shader_type
-	s32 texture1_string_id
-	s32 texture2_string_id
-	s32 texture3_string_id
-	s32 texture4_string_id
+	s32 texture_string_id[4]
 	u32 vertex_count
 	u32 vertex_type
 	u32 vertex_data_size
@@ -64,7 +62,7 @@ joint_header
 
 animation_header
 {
-	u32 name string id
+	s32 name string id
 	float length
 	float fps
 	u32 num of animated joints

@@ -1,6 +1,10 @@
 ﻿#ifndef _YUYU_SCENE_MDL_H_
 #define _YUYU_SCENE_MDL_H_
 
+#include "containers\array.h"
+#include "yy_model.h"
+#include "math\math.h"
+
 /*	Например, модель монстра одна, но монстров на сцене много.
 	При создании монстра надо грузить модель только один раз, увеличивая ref count
 	Соответственно, MDL загрузится один раз.
@@ -93,8 +97,8 @@ struct yyMDLObject
 					if (isinf(timeCoef))
 						continue;
 
-				//	if(i==0)
-				//	printf("timeSize: [%f] timeLeft: [%f] timeCoef: [%f]\n", timeSize, timeLeft, timeCoef);
+					//if(i==0)
+					//printf("T: [%f][%f] timeSize: [%f] timeLeft: [%f] timeCoef: [%f]\n", currentAnimation->m_time, currentAnimation->m_animation->m_len, timeSize, timeLeft, timeCoef);
 
 					f32 interpolation_factor = timeCoef;
 

@@ -59,10 +59,10 @@ extern "C"
 	YY_API void YY_C_DECL yyDeleteImage(yyImage*);
 	
 	// after loading, you must call yyDeleteModel
-	YY_API yyModel* YY_C_DECL yyLoadModel(const char*);
+	YY_API yyMDL* YY_C_DECL yyLoadModel(const char*);
 	// загрузить модель и поместить её в кеш. следующий вызов - получить из кеша
-	YY_API yyModel* YY_C_DECL yyGetModel(const char*);
-	YY_API void YY_C_DECL yyDeleteModel(yyModel*);
+	YY_API yyMDL* YY_C_DECL yyGetModel(const char*);
+	YY_API void YY_C_DECL yyDeleteModel(yyMDL*);
 
 	YY_API void YY_C_DECL yyUpdateAsyncLoader();
 

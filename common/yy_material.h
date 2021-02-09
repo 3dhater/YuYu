@@ -6,6 +6,9 @@
 enum class yyMaterialType
 {
 	Simple,
+
+
+
 	Default,
 	SimpleTransparentBlend,
 	Terrain,

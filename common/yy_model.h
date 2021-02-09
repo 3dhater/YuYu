@@ -80,8 +80,7 @@ struct yyModel
 		m_vCount(0),
 		m_iCount(0),
 		m_stride(0),
-		m_vertexType(yyVertexType::GUI),
-		m_refCount(0)
+		m_vertexType(yyVertexType::GUI)
 	{
 	}
 	~yyModel()
@@ -107,11 +106,6 @@ struct yyModel
 	yyStringA m_name;
 
 	
-
-		// используется в yyGetModel и yyDeleteModel
-		// если вызван yyGetModel то ++m_refCount
-		// если вызван yyDeleteModel то --m_refCount
-	u32 m_refCount;
 
 	void calculateTangents( v3f& normal, v3f& tangent, v3f& binormal,
 		const v3f& vt1, const v3f& vt2, const v3f& vt3, // vertices
@@ -318,14 +312,15 @@ struct yyModel
 
 // Идея такая - MDL это оболочка к yyModel
 // MDL может хранить множество слоёв (мешбуферов)
+#define YY_MDL_LAYER_NUM_OF_TEXTURES 4
 struct yyMDLLayer
 {
 	yyMDLLayer() {
 		m_model = 0;
-		m_textureGPU1 = 0;
-		m_textureGPU2 = 0;
-		m_textureGPU3 = 0;
-		m_textureGPU4 = 0;
+		for (u32 i = 0; i < YY_MDL_LAYER_NUM_OF_TEXTURES; ++i)
+		{
+			m_textureGPU[i] = 0;
+		}
 		m_meshGPU = 0;
 		m_gpu = yyGetVideoDriverAPI();
 	}
@@ -338,33 +333,26 @@ struct yyMDLLayer
 
 	yyModel * m_model;
 
-	yyStringA m_texture1Path;
-	yyStringA m_texture2Path;
-	yyStringA m_texture3Path;
-	yyStringA m_texture4Path;
-
-	yyResource* m_textureGPU1;
-	yyResource* m_textureGPU2;
-	yyResource* m_textureGPU3;
-	yyResource* m_textureGPU4;
+	yyStringA m_texturePath[YY_MDL_LAYER_NUM_OF_TEXTURES];
+	yyResource* m_textureGPU[YY_MDL_LAYER_NUM_OF_TEXTURES];
 
 	yyResource* m_meshGPU;
 
 	void Load()
 	{
-		if (m_textureGPU1) m_gpu->LoadTexture(m_textureGPU1);
-		if (m_textureGPU2) m_gpu->LoadTexture(m_textureGPU2);
-		if (m_textureGPU3) m_gpu->LoadTexture(m_textureGPU3);
-		if (m_textureGPU4) m_gpu->LoadTexture(m_textureGPU4);
+		for (u32 i = 0; i < YY_MDL_LAYER_NUM_OF_TEXTURES; ++i)
+		{
+			if (m_textureGPU[i])m_gpu->LoadTexture(m_textureGPU[i]);
+		}
 
 		if (m_meshGPU) m_gpu->LoadModel(m_meshGPU);
 	}
 	void Unload()
 	{
-		if (m_textureGPU1) m_gpu->UnloadTexture(m_textureGPU1);
-		if (m_textureGPU2) m_gpu->UnloadTexture(m_textureGPU2);
-		if (m_textureGPU3) m_gpu->UnloadTexture(m_textureGPU3);
-		if (m_textureGPU4) m_gpu->UnloadTexture(m_textureGPU4);
+		for (u32 i = 0; i < YY_MDL_LAYER_NUM_OF_TEXTURES; ++i)
+		{
+			if (m_textureGPU[i])m_gpu->UnloadTexture(m_textureGPU[i]);
+		}
 
 		if (m_meshGPU) m_gpu->UnloadModel(m_meshGPU);
 	}
@@ -499,13 +487,19 @@ struct yyMDLAnimation
 	}
 };
 
+#define YY_MDL_VERSION 1
+
 struct yyMDLHeader
 {
-	u32 m_version;
 	u32 m_numOfLayers;
 	u32 m_numOfJoints;
 	u32 m_numOfAnimations;
 	u32 m_numOfHitboxes;
+
+	v3f m_aabbMin;
+	v3f m_aabbMax;
+
+	u32 m_stringsOffset;
 };
 struct yyMDLLayerHeader
 {
@@ -527,6 +521,21 @@ struct yyMDLJointHeader
 {
 	s32 m_nameStrID;
 	s32 m_parentID;
+	Mat4					m_matrixBindInverse;
+	Mat4					m_matrixOffset;
+	Mat4					m_matrixWorld;
+};
+struct yyMDLAnimationHeader
+{
+	s32 m_nameStrID;
+	f32 m_length;
+	f32 m_fps;
+	u32 m_numOfAnimatedJoints;
+};
+struct yyMDLAnimatedJointHeader
+{
+	s32 m_jointID;
+	u32 m_numOfKeyFrames;
 };
 struct yyMDLJointKeyframeHeader
 {
@@ -563,10 +572,15 @@ struct yyMDL
 {
 	yyMDL()
 	{
+		m_refCount = 0;
 	}
 
 	~yyMDL()
 	{
+		for (u16 i = 0, sz = m_hitboxes.size(); i < sz; ++i)
+		{
+			yyDestroy(m_hitboxes[i]);
+		}
 		for (u16 i = 0, sz = m_layers.size(); i < sz; ++i)
 		{
 			yyDestroy(m_layers[i]);
@@ -585,6 +599,7 @@ struct yyMDL
 	
 
 	yyArraySmall<yyMDLLayer*> m_layers;
+	yyArraySmall<yyMDLHitbox*> m_hitboxes;
 
 	// так как объектов с одним и тем же yyModel может быть множество, и все они могут использовать
 	// один набор костей, то нужно хранить эти кости в одном экземпляре
@@ -633,6 +648,12 @@ struct yyMDL
 	//Mat4	m_rootTransformInvert;
 
 	Aabb m_aabb;
+
+
+	// используется в yyGetModel и yyDeleteModel
+	// если вызван yyGetModel то ++m_refCount
+	// если вызван yyDeleteModel то --m_refCount
+	u32 m_refCount;
 };
 
 #endif

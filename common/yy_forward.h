@@ -8,10 +8,15 @@ class yyGUIPictureBox;
 class yyGUIText;
 class yyWindow;
 class Mat4;
+class yyFileBuffer;
 //class yyAudioSource;
 
+struct yyMDLAnimation;
+struct yyMDLObject;
+struct yyMDLObjectState;
 struct yyMaterial;
 struct yyModel;
+struct yyMDL;
 //struct yyMeshBuffer;
 struct yyImage;
 struct yyInputContext;

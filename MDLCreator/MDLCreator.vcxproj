@@ -152,11 +152,16 @@
     <ClCompile Include="..\libs\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\libs\imgui\imgui_widgets.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="ImportAssimp.cpp" />
+    <ClCompile Include="ImportOBJ.cpp" />
+    <ClCompile Include="ImportSMD.cpp" />
     <ClCompile Include="MDLCreator_main.cpp" />
+    <ClCompile Include="SceneObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\libs\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="SceneObject.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

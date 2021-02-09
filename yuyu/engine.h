@@ -102,7 +102,6 @@ public:
 	yyVideoDriverAPI* m_videoAPI;
 
 	yyArraySmall<yyImageLoader> m_imageLoaders;
-	yyArraySmall<yyModelLoader> m_modelLoaders;
 
 	yyAsyncLoadEventHandler m_asyncEventHandler;
 	std::thread* m_backgroundWorker;
@@ -117,9 +116,9 @@ public:
 	u8* compressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size);
 	u8* decompressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size);
 
-	std::vector<CacheNode<yyResource>> m_modelGPUCache;
+	//std::vector<CacheNode<yyResource>> m_modelGPUCache;
 	std::vector<CacheNode<yyResource>> m_textureCache;
-	std::vector<CacheNode<yyModel>> m_modelCache;
+	std::vector<CacheNode<yyMDL>> m_modelCache;
 
 	yyStringW m_workingDir;
 

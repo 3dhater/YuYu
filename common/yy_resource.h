@@ -13,11 +13,11 @@ yyImage* ImageLoader_DDS(const char* p);
 yyImage* ImageLoader_PNG(const char* p);
 yyImage* ImageLoader_TGA(const char* p);
 yyImage* ImageLoader_BMP(const char* p); 
-yyModel* ModelLoader_TR3D(const char* p); // from my old game
 
 typedef yyImage*(*ImageLoaderFunction_t)(const char* p);
-typedef yyModel*(*ModelLoaderFunction_t)(const char* p);
 //using ImageLoaderExportFunction_t = bool(*)(yyImage* image, const char* fileName, const char* extName );
+
+void MDL_loadVersion1(yyMDL** mdl, yyFileBuffer* file);
 
 struct yyImageLoader
 {
@@ -28,17 +28,6 @@ struct yyImageLoader
 
 	yyStringA ext;
 	ImageLoaderFunction_t image_loader_callback;
-};
-
-struct yyModelLoader
-{
-	yyModelLoader()
-		:
-		model_loader_callback(nullptr)
-	{}
-
-	yyStringA ext;
-	ModelLoaderFunction_t model_loader_callback;
 };
 
 // for yyResource
@@ -72,8 +61,9 @@ struct yyResource
 	Aabb m_aabb; // for models/ must be
 
 	// for reload
-	yyStringA m_file; // from file
-	void * m_source; //from yyImage* or yyModel*
+	yyStringA m_file; // from image file
+	void * m_source; //from yyImage*
+
 	u32 m_flags;
 	enum flags{
 		texture_useLinearFilter = BIT(0),

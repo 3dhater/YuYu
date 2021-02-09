@@ -70,11 +70,6 @@ Engine::Engine()
 	imageLoader.image_loader_callback = ImageLoader_TGA;
 	m_imageLoaders.push_back(imageLoader);
 
-	yyModelLoader modelLoader;
-	modelLoader.ext = ".tr3d";
-	modelLoader.model_loader_callback = ModelLoader_TR3D;
-	m_modelLoaders.push_back(modelLoader);
-
 #ifdef YY_PLATFORM_WINDOWS
 	m_fileSaveDialog = nullptr;
 	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
@@ -219,41 +214,7 @@ YY_API void YY_C_DECL yyGetTextureSize(yyResource* r, v2i* s)
 	return g_engine->m_videoAPI->GetTextureSize(r, s);
 }
 
-YY_API yyResource* YY_C_DECL yyGetModelResource(const char* fileName, bool load)
-{
-	assert(fileName);
-	yyFS::path p = fileName;
-	for( auto & node : g_engine->m_modelGPUCache)
-	{
-		if (node.m_path == p)
-		{
-			if(node.m_resource->m_isLoaded)
-				++node.m_resource->m_refCount; // надо прибавлять только в случае если ресурс загружен
-			else
-			{
-				if (load)
-					g_engine->m_videoAPI->LoadModel(node.m_resource); // ++m_refCount inside
-			}
-			return node.m_resource;
-		}
-	}
 
-	auto res = g_engine->m_videoAPI->CreateModelFromFile(fileName, load);
-	
-	if( res )
-	{
-		CacheNode<yyResource> cache_node;
-		cache_node.m_resource = res;
-		cache_node.m_path    = p;
-		g_engine->m_modelGPUCache.push_back(cache_node);
-	}
-	else
-	{
-		YY_PRINT_FAILED;
-		return nullptr;
-	}
-	return res;
-}
 
 YY_API yySystemState* YY_C_DECL yyStart(yyInputContext* input)
 {

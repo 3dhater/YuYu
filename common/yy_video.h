@@ -92,7 +92,6 @@ struct yyVideoDriverAPI
 	void (*LoadTexture)(yyResource*); // ++m_refCount; or load
 
 	yyResource* (*CreateModel)(yyModel*);
-	yyResource* (*CreateModelFromFile)(const char* fileName, bool load);
 	void (*UnloadModel)(yyResource*);
 	void (*LoadModel)(yyResource*);
 	void(*DeleteModel)(yyResource* r);

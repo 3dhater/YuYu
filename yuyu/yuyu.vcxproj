@@ -318,9 +318,9 @@
     <ClCompile Include="image_loader_dds.cpp" />
     <ClCompile Include="image_loader_png.cpp" />
     <ClCompile Include="image_loader_tga.cpp" />
-    <ClCompile Include="model_loader_tr3d.cpp" />
     <ClCompile Include="yy_backgroundWorker.cpp" />
     <ClCompile Include="yy_dl.cpp" />
+    <ClCompile Include="yy_mdl.cpp" />
     <ClCompile Include="yy_memory.cpp" />
     <ClCompile Include="yy_resource.cpp" />
     <ClCompile Include="yy_log.cpp" />
