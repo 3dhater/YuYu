@@ -31,6 +31,8 @@ class yyGUIFont : public yyGUIElement
 public:
 	yyGUIFont();
 	virtual ~yyGUIFont();
+	virtual void OnUpdate() {}
+	virtual void OnDraw() {}
 
 	yyArray<yyGUIFontGlyph*> m_glyphs;
 

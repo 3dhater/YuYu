@@ -6,37 +6,27 @@ namespace math
 	const f32 PI = static_cast<f32>(3.14159265358979323846);
 	const f32 PIPI = 6.2831853f;
 
-	YY_FORCE_INLINE f32 degToRad(f32 degrees)
+	YY_FORCE_INLINE
+	bool pointInRect(float x, float y, const v4f& rect)
+	{
+		if (x>rect.x) { if (x<rect.z) { if (y>rect.y) { if (y<rect.w) { return true; } } } }
+		return false;
+	}
+
+	YY_FORCE_INLINE 
+	f32 degToRad(f32 degrees)
 	{
 		return degrees * (PI / 180.f);
 	}
 
-	YY_FORCE_INLINE f32 radToDeg(f32 radians)
+	YY_FORCE_INLINE 
+	f32 radToDeg(f32 radians)
 	{
 		return radians * (180.f / PI);
 	}
 
-	YY_FORCE_INLINE f32 radians(f32 degrees)
-	{
-		return degrees * static_cast<f32>(0.01745329251994329576923690768489);
-	}
-
-	YY_FORCE_INLINE f64 radians(f64 degrees)
-	{
-		return degrees * static_cast<f64>(0.01745329251994329576923690768489);
-	}
-
-	YY_FORCE_INLINE f32 degrees(f32 radians)
-	{
-		return radians * static_cast<f32>(57.295779513082320876798154814105);
-	}
-
-	YY_FORCE_INLINE f64 degrees(f64 radians)
-	{
-		return radians * static_cast<f64>(57.295779513082320876798154814105);
-	}
-
-	YY_FORCE_INLINE f32 clamp(f32 x, f32 min, f32 max)
+	YY_FORCE_INLINE 
+	f32 clamp(f32 x, f32 min, f32 max)
 	{
 		if (x < min)
 			return min;

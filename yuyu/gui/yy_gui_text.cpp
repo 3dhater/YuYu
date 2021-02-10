@@ -27,6 +27,24 @@ yyGUIText::~yyGUIText()
 	Clear();
 }
 
+void yyGUIText::OnUpdate()
+{
+
+}
+
+void yyGUIText::OnDraw()
+{
+	for (u16 k = 0, ksz = m_drawNodes.m_size; k < ksz; ++k)
+	{
+		auto & dn = m_drawNodes.m_data[k];
+		if (dn.m_texture)
+			g_engine->m_videoAPI->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, dn.m_texture);
+		if (dn.m_model)
+			g_engine->m_videoAPI->SetModel(dn.m_model);
+		g_engine->m_videoAPI->Draw();
+	}
+}
+
 void yyGUIText::SetBufferSize(u32 newSize)
 {
 	if (m_bufferSize == newSize)

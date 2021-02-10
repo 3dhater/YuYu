@@ -428,6 +428,8 @@ int main(int argc, char* argv[])
 		f32 m_tick = f32(t2 - t1);
 		t1 = t2;
 		deltaTime = m_tick / 1000.f;
+		if (deltaTime > 1.f)
+			deltaTime = 1.f;
 		updateInputContext();
 #ifdef YY_PLATFORM_WINDOWS
 		MSG msg;

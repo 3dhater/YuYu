@@ -10,12 +10,6 @@
 
 extern Engine * g_engine;
 
-bool pointInRect( float x, float y, const v4f& rect )
-{
-	if(x>rect.x){if(x<rect.z){if(y>rect.y){if(y<rect.w){return true;}}}}
-	return false;
-}
-
 YY_API void YY_C_DECL yyGUIDeleteElement(yyGUIElement* elem)
 {
 	g_engine->m_guiElements.erase_first(elem);
@@ -32,7 +26,9 @@ YY_API void YY_C_DECL yyGUIUpdate(f32 deltaTime)
 	auto guiElement = g_engine->m_guiElements.head();
 	for(size_t i = 0, sz = g_engine->m_guiElements.size(); i < sz; ++i)
 	{
-		switch (guiElement->m_data->m_type)
+		guiElement->m_data->OnUpdate();
+
+		/*switch (guiElement->m_data->m_type)
 		{
 		default:
 			break;
@@ -50,7 +46,7 @@ YY_API void YY_C_DECL yyGUIUpdate(f32 deltaTime)
 					pictureBox->m_onClick(guiElement->m_data, guiElement->m_data->m_id);
 			}
 		}break;
-		}
+		}*/
 		guiElement = guiElement->m_right;
 	}
 }
@@ -64,10 +60,10 @@ YY_API void YY_C_DECL yyGUIDrawAll()
 	{
 		g_engine->m_videoAPI->SetGUIShaderData(guiElement->m_data);
 
-		if (guiElement->m_data->m_visible)
+		if (guiElement->m_data->IsVisible())
 		{
-
-			switch (guiElement->m_data->m_type)
+			guiElement->m_data->OnDraw();
+			/*switch (guiElement->m_data->m_type)
 			{
 			default:
 				break;
@@ -93,7 +89,7 @@ YY_API void YY_C_DECL yyGUIDrawAll()
 					g_engine->m_videoAPI->Draw();
 				}
 			}break;
-			}
+			}*/
 		}
 		guiElement = guiElement->m_right;
 	}
@@ -101,3 +97,7 @@ YY_API void YY_C_DECL yyGUIDrawAll()
 	g_engine->m_videoAPI->EndDrawGUI();
 }
 
+YY_API yyGUIElement* YY_C_DECL yyGUIGetElementInMouseFocus()
+{
+	return g_engine->m_guiElementInMouseFocus;
+}

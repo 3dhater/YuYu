@@ -6,6 +6,8 @@ class yyGUIPictureBox : public yyGUIElement
 public:
 	yyGUIPictureBox();
 	virtual ~yyGUIPictureBox();
+	virtual void OnUpdate();
+	virtual void OnDraw();
 
 	yyResource* m_texture;
 	yyResource* m_pictureBoxModel; // yyResourceType::Model

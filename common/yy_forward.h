@@ -6,6 +6,7 @@ class yyGUIElement;
 class yyGUIFont;
 class yyGUIPictureBox;
 class yyGUIText;
+class yyGUIButton;
 class yyWindow;
 class Mat4;
 class yyFileBuffer;

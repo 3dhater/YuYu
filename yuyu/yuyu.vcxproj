@@ -310,6 +310,7 @@
     <ClCompile Include="..\libs\zstd\lib\decompress\zstd_ddict.c" />
     <ClCompile Include="..\libs\zstd\lib\decompress\zstd_decompress.c" />
     <ClCompile Include="..\libs\zstd\lib\decompress\zstd_decompress_block.c" />
+    <ClCompile Include="gui\yy_gui_button.cpp" />
     <ClCompile Include="gui\yy_gui_font.cpp" />
     <ClCompile Include="gui\yy_gui_pictureBox.cpp" />
     <ClCompile Include="gui\yy_gui.cpp" />

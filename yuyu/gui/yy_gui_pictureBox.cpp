@@ -1,6 +1,7 @@
 ﻿#include "yy.h"
 #include "yy_gui.h"
 #include "math/vec.h"
+#include "math/math.h"
 
 #include "yy_model.h"
 #include "yy_input.h"
@@ -76,4 +77,27 @@ YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResou
 	g_engine->addGuiElement(element);
 
 	return element;
+}
+
+void yyGUIPictureBox::OnUpdate()
+{
+	bool inRect = math::pointInRect(
+		g_engine->m_inputContext->m_cursorCoords.x,
+		g_engine->m_inputContext->m_cursorCoords.y,
+		m_rect);
+
+	if (m_onClick && g_engine->m_inputContext->m_isLMBDown)
+	{
+		if (inRect)
+			m_onClick(this, m_id);
+	}
+}
+
+void yyGUIPictureBox::OnDraw()
+{
+	if (m_texture)
+		g_engine->m_videoAPI->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, m_texture);
+	if (m_pictureBoxModel)
+		g_engine->m_videoAPI->SetModel(m_pictureBoxModel);
+	g_engine->m_videoAPI->Draw();
 }

@@ -111,6 +111,7 @@ public:
 
 	void addGuiElement(yyGUIElement*);
 	yyList<yyGUIElement*> m_guiElements;
+	yyGUIElement* m_guiElementInMouseFocus;
 
 	ZSTD_CCtx* m_cctx;
 	u8* compressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size);

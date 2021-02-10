@@ -50,6 +50,7 @@ Engine::Engine()
 	m_backgroundWorker(nullptr),
 	m_cctx(nullptr)
 {
+	m_guiElementInMouseFocus = 0;
 	m_sceneRootObject = new yySceneObjectBase;
 	m_cctx = ZSTD_createCCtx();
 

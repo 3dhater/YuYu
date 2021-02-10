@@ -194,10 +194,27 @@ vidOk:
 	return true;
 }
 
+void buttonExit_onClick(yyGUIElement* elem, s32 m_id)
+{
+//	yyQuit();
+}
+void buttonExit_onRelease(yyGUIElement* elem, s32 m_id)
+{
+	yyQuit();
+}
+
 void Demo::MainLoop()
 {
 	yyGUIText* gui_text_fps = yyGUICreateText(v2f(0.f, 0.f), m_defaultFont, 0);
-
+	
+	yyGUIButton* gui_button_exit = yyGUICreateButton(v4f(m_window->m_currentSize.x - 50, 0, m_window->m_currentSize.x, 25), yyGetTextureResource("../res/exit.png", false, false, true), 0);
+	gui_button_exit->SetMouseHoverTexture(yyGetTextureResource("../res/exit_hov.png", false, false, true));
+	gui_button_exit->SetMouseClickTexture(yyGetTextureResource("../res/exit_clk.png", false, false, true));
+	gui_button_exit->m_onClick = buttonExit_onClick;
+	gui_button_exit->m_onRelease = buttonExit_onRelease;
+	//gui_button_exit->m_useAsCheckbox = true;
+	//gui_button_exit->m_isChecked = true;
+	
 	f32 deltaTime = 0.f;
 	f32 fps_timer = 0.f;
 	u32 fps = 0;
@@ -342,13 +359,13 @@ void Demo::_hideMainMenuGUI()
 {
 	for (u16 i = 0, sz = m_examples.size(); i < sz; ++i)
 	{
-		m_examples[i]->m_guiTextTitle->m_visible = false;
+		m_examples[i]->m_guiTextTitle->SetVisible(false);
 	}
 }
 void Demo::_showMainMenuGUI()
 {
 	for (u16 i = 0, sz = m_examples.size(); i < sz; ++i)
 	{
-		m_examples[i]->m_guiTextTitle->m_visible = true;
+		m_examples[i]->m_guiTextTitle->SetVisible(true);
 	}
 }
