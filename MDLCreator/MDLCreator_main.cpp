@@ -994,7 +994,6 @@ void SaveMDL(const char* fileName)
 	fwrite(&version, sizeof(u32), 1, f);
 
 	yyMDLHeader mdl_header;
-	memset(&mdl_header, 0, sizeof(yyMDLHeader));
 	mdl_header.m_numOfLayers = g_sceneObject->m_mdlObject->m_mdl->m_layers.size();
 	mdl_header.m_numOfJoints = g_sceneObject->m_mdlObject->m_mdl->m_joints.size();
 	mdl_header.m_numOfAnimations = g_sceneObject->m_mdlObject->m_mdl->m_animations.size();
@@ -1007,7 +1006,6 @@ void SaveMDL(const char* fileName)
 		auto layer = g_sceneObject->m_mdlObject->m_mdl->m_layers[i];
 
 		yyMDLLayerHeader layerHeader;
-		memset(&layerHeader, 0, sizeof(yyMDLLayerHeader));
 		layerHeader.m_shaderType = (u32)layer->m_model->m_material.m_type;
 		for (u32 p = 0; p < YY_MDL_LAYER_NUM_OF_TEXTURES; ++p)
 		{

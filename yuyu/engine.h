@@ -89,9 +89,6 @@ public:
 	Engine();
 	~Engine();
 
-	yySceneObjectBase* m_sceneRootObject;
-	yyCamera* m_sceneActiveCamera;
-
 	yyInputContext* m_inputContext;
 
 	yySystemState m_state;

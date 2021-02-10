@@ -491,6 +491,14 @@ struct yyMDLAnimation
 
 struct yyMDLHeader
 {
+	yyMDLHeader()
+	{
+		m_numOfLayers = 0;
+		m_numOfJoints = 0;
+		m_numOfAnimations = 0;
+		m_numOfHitboxes = 0;
+		m_stringsOffset = 0;
+	}
 	u32 m_numOfLayers;
 	u32 m_numOfJoints;
 	u32 m_numOfAnimations;
@@ -503,9 +511,23 @@ struct yyMDLHeader
 };
 struct yyMDLLayerHeader
 {
+	yyMDLLayerHeader()
+	{
+		m_shaderType = 0;
+		for (s32 i = 0; i < YY_MDL_LAYER_NUM_OF_TEXTURES; ++i)
+		{
+			m_textureStrID[i] = -1;
+		}
+		m_vertexCount = 0;
+		m_vertexType = 0;
+		m_vertexDataSize = 0;
+		m_indexCount = 0;
+		m_indexType = 0;
+		m_indexDataSize = 0;
+	}
 	// 0 - simple
 	u32 m_shaderType;
-	s32 m_textureStrID[4];
+	s32 m_textureStrID[YY_MDL_LAYER_NUM_OF_TEXTURES];
 	u32 m_vertexCount;
 	// 0 - yyVertexModel
 	// 1 - yyVertexAnimatedModel
@@ -519,6 +541,11 @@ struct yyMDLLayerHeader
 };
 struct yyMDLJointHeader
 {
+	yyMDLJointHeader()
+	{
+		m_nameStrID = -1;
+		m_parentID = -1;
+	}
 	s32 m_nameStrID;
 	s32 m_parentID;
 	Mat4					m_matrixBindInverse;
@@ -527,6 +554,13 @@ struct yyMDLJointHeader
 };
 struct yyMDLAnimationHeader
 {
+	yyMDLAnimationHeader()
+	{
+		m_nameStrID = -1;
+		m_length = 0.f;
+		m_fps = 0.f;
+		m_numOfAnimatedJoints = 0;
+	}
 	s32 m_nameStrID;
 	f32 m_length;
 	f32 m_fps;
@@ -534,11 +568,20 @@ struct yyMDLAnimationHeader
 };
 struct yyMDLAnimatedJointHeader
 {
+	yyMDLAnimatedJointHeader()
+	{
+		m_jointID = -1;
+		m_jointID = m_numOfKeyFrames;
+	}
 	s32 m_jointID;
 	u32 m_numOfKeyFrames;
 };
 struct yyMDLJointKeyframeHeader
 {
+	yyMDLJointKeyframeHeader()
+	{
+		m_time = 0;
+	}
 	s32 m_time;
 	v3f m_position;
 	Quat m_rotation;
@@ -546,6 +589,13 @@ struct yyMDLJointKeyframeHeader
 
 struct yyMDLHitboxHeader
 {
+	yyMDLHitboxHeader()
+	{
+		m_type = 0;
+		m_jointID = -1;
+		m_vertexCount = 0;
+		m_indexCount = 0;
+	}
 	u32 m_type;
 	s32 m_jointID;
 	u32 m_vertexCount;

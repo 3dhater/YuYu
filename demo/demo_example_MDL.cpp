@@ -35,6 +35,11 @@ void DemoExample_MDL::Shutdown()
 		yyDestroy(m_flyCamera);
 		m_flyCamera = 0;
 	}
+	if (m_mdl_struct)
+	{
+		yyDeleteModel(m_mdl_struct);
+		m_mdl_struct = 0;
+	}
 }
 
 const wchar_t* DemoExample_MDL::GetTitle()

@@ -78,7 +78,7 @@ extern "C"
 	// ++m_refCount;
 	// call videoDriverAPI->UnloadTexture for --m_refCount;
 	YY_API yyResource* YY_C_DECL yyGetTextureResource(const char*, bool useFilter, bool useComparisonFilter, bool load);
-	YY_API yyResource* YY_C_DECL yyGetModelResource(const char*, bool load);
+	//YY_API yyResource* YY_C_DECL yyGetModelResource(const char*, bool load);
 
 	YY_API void YY_C_DECL yyGetTextureSize(yyResource*, v2i*);
 

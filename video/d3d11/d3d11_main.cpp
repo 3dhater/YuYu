@@ -86,8 +86,12 @@ void UnloadTexture(yyResource* r)
 	--r->m_refCount;
 	if(!r->m_refCount)
 	{
-		yyDestroy(g_d3d11->m_textures[r->m_index]);
-		g_d3d11->m_textures[r->m_index] = nullptr;
+		r->m_isLoaded = false;
+		if (g_d3d11->m_textures[r->m_index])
+		{
+			yyDestroy(g_d3d11->m_textures[r->m_index]);
+			g_d3d11->m_textures[r->m_index] = nullptr;
+		}
 	}
 }
 D3D11Texture* CreateD3D11Texture(yyImage* image, bool useLinearFilter, bool useComparisonFilter)
@@ -267,8 +271,11 @@ void UnloadModel(yyResource* r)
 	if(!r->m_refCount)
 	{
 		r->m_isLoaded = false;
-		yyDestroy(g_d3d11->m_models[r->m_index]);
-		g_d3d11->m_models[r->m_index] = nullptr;
+		if (g_d3d11->m_models[r->m_index])
+		{
+			yyDestroy(g_d3d11->m_models[r->m_index]);
+			g_d3d11->m_models[r->m_index] = nullptr;
+		}
 	}
 }
 void LoadModel(yyResource* r)
@@ -379,11 +386,17 @@ void EndDrawGUI()
 
 void SetTexture(u32 slot, yyResource* res)
 {
-	g_d3d11->m_currentTextures[(u32)slot] = g_d3d11->m_textures[ res->m_index ];
+	if (res)
+		g_d3d11->m_currentTextures[(u32)slot] = g_d3d11->m_textures[ res->m_index ];
+	else
+		g_d3d11->m_currentTextures[slot] = nullptr;
 }
 void SetModel(yyResource* res)
 {
-	g_d3d11->m_currentModel = g_d3d11->m_models[res->m_index];
+	if (res)
+		g_d3d11->m_currentModel = g_d3d11->m_models[res->m_index];
+	else
+		g_d3d11->m_currentModel = nullptr;
 }
 void Draw()
 {

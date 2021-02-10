@@ -8,13 +8,6 @@
 #include "math/aabb.h"
 
 
-extern "C"
-{
-	YY_API yySceneObjectBase* YY_C_DECL yySceneGetRootObject();
-	YY_API yyCamera* YY_C_DECL yySceneGetActiveCamera();
-	YY_API void YY_C_DECL yySceneSetActiveCamera(yyCamera*);
-}
-
 struct yySceneObjectFamily;
 struct yySceneObjectBase
 {
@@ -119,7 +112,7 @@ struct yySceneObjectFamily
 	yySceneObjectFamily* m_parent ;
 	yyList<yySceneObjectFamily*> m_children;
 
-	bool _removeChild(yySceneObjectFamily * child)
+	/*bool _removeChild(yySceneObjectFamily * child)
 	{
 		bool result = m_children.erase_first(child);
 		return result;
@@ -182,7 +175,7 @@ struct yySceneObjectFamily
 		if(result)
 			child->SetParent(nullptr);
 		return result;
-	}
+	}*/
 };
 
 YY_FORCE_INLINE void yySceneObjectBase::DeleteFamily()

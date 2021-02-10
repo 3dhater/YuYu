@@ -39,8 +39,6 @@ yyWindow* g_mainWindow = nullptr;
 
 Engine::Engine()
 	:
-	m_sceneRootObject(nullptr),
-	m_sceneActiveCamera(nullptr),
 	m_inputContext(nullptr),
 	m_state(yySystemState::Run),
 	m_videoDriverLib(nullptr),
@@ -51,7 +49,6 @@ Engine::Engine()
 	m_cctx(nullptr)
 {
 	m_guiElementInMouseFocus = 0;
-	m_sceneRootObject = new yySceneObjectBase;
 	m_cctx = ZSTD_createCCtx();
 
 	yyImageLoader imageLoader;
@@ -103,9 +100,6 @@ Engine::~Engine()
 	if (m_fileOpenDialog) m_fileOpenDialog->Release();
 	CoUninitialize();
 #endif
-
-	delete m_sceneRootObject;
-
 
 	auto guiNode = m_guiElements.head();
 	if(guiNode)
@@ -173,49 +167,6 @@ YY_API yyString* YY_C_DECL yyGetRelativePath(const wchar_t* path)
 
 	return returnPath;
 }
-
-YY_API yyResource* YY_C_DECL yyGetTextureResource(const char* fileName, bool useFilter, bool useComparisonFilter, bool load)
-{
-	assert(fileName);
-	yyFS::path p = fileName;
-	for( auto & node : g_engine->m_textureCache )
-	{
-		if (node.m_path == p)
-		{
-			if (node.m_resource->m_isLoaded)
-				++node.m_resource->m_refCount;
-			else
-			{
-				if (load)
-					g_engine->m_videoAPI->LoadTexture(node.m_resource); // ++m_refCount inside
-			}
-			return node.m_resource;
-		}
-	}
-
-	yyLogWriteInfo("Load texture: %s\n", fileName);
-	auto res = g_engine->m_videoAPI->CreateTextureFromFile(fileName, useFilter, useComparisonFilter, load);
-	
-	if( res )
-	{
-		CacheNode<yyResource> cache_node;
-		cache_node.m_resource = res;
-		cache_node.m_path    = p;
-		g_engine->m_textureCache.push_back(cache_node);
-	}
-	else
-	{
-		YY_PRINT_FAILED;
-		return nullptr;
-	}
-	return res;
-}
-
-YY_API void YY_C_DECL yyGetTextureSize(yyResource* r, v2i* s)
-{
-	return g_engine->m_videoAPI->GetTextureSize(r, s);
-}
-
 
 
 YY_API yySystemState* YY_C_DECL yyStart(yyInputContext* input)

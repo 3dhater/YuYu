@@ -153,69 +153,6 @@ YY_API yyMDL* YY_C_DECL yyLoadModel(const char* fileName, bool useLinearFilterFo
 	return newMDL;
 }
 
-/*
-yyResource* CreateModelFromFile(const char* fileName, bool load)
-{
-assert(fileName);
-yyResource * newRes = yyCreate<yyResource>();
-newRes->m_type = yyResourceType::Model;
-newRes->m_source = nullptr;
-newRes->m_refCount = 0;
-newRes->m_file = fileName;
-
-if (g_openGL->m_freeModelResourceIndex.head())
-{
-newRes->m_index = g_openGL->m_freeModelResourceIndex.head()->m_data;
-g_openGL->m_freeModelResourceIndex.erase_node(g_openGL->m_freeModelResourceIndex.head());
-}
-else
-{
-newRes->m_index = g_openGL->m_models.size();
-g_openGL->m_models.push_back(nullptr);
-}
-
-
-if(load)
-LoadModel(newRes);
-return newRes;
-}
-*/
-//YY_API yyResource* YY_C_DECL yyGetModelResource(const char* fileName, bool load)
-//{
-//	assert(fileName);
-//	yyFS::path p = fileName;
-//	for (auto & node : g_engine->m_modelGPUCache)
-//	{
-//		if (node.m_path == p)
-//		{
-//			if (node.m_resource->m_isLoaded)
-//				++node.m_resource->m_refCount; // надо прибавлять только в случае если ресурс загружен
-//			else
-//			{
-//				if (load)
-//					g_engine->m_videoAPI->LoadModel(node.m_resource); // ++m_refCount inside
-//			}
-//			return node.m_resource;
-//		}
-//	}
-//
-//	auto res = g_engine->m_videoAPI->CreateModelFromFile(fileName, load);
-//
-//	if (res)
-//	{
-//		CacheNode<yyResource> cache_node;
-//		cache_node.m_resource = res;
-//		cache_node.m_path = p;
-//		g_engine->m_modelGPUCache.push_back(cache_node);
-//	}
-//	else
-//	{
-//		YY_PRINT_FAILED;
-//		return nullptr;
-//	}
-//	return res;
-//}
-
 YY_API void YY_C_DECL yyDeleteModel(yyMDL* m)
 {
 	assert(m);
@@ -235,6 +172,48 @@ YY_API void YY_C_DECL yyDeleteModel(yyMDL* m)
 		yyDestroy( m );
 }
 
+YY_API yyResource* YY_C_DECL yyGetTextureResource(const char* fileName, bool useFilter, bool useComparisonFilter, bool load)
+{
+	assert(fileName);
+	yyFS::path p = fileName;
+	for (auto & node : g_engine->m_textureCache)
+	{
+		if (node.m_path == p)
+		{
+			if (node.m_resource->m_isLoaded)
+				++node.m_resource->m_refCount;
+			else
+			{
+				if (load)
+					g_engine->m_videoAPI->LoadTexture(node.m_resource); // ++m_refCount inside
+			}
+			return node.m_resource;
+		}
+	}
 
+	yyLogWriteInfo("Load texture: %s\n", fileName);
+	auto res = g_engine->m_videoAPI->CreateTextureFromFile(fileName, useFilter, useComparisonFilter, load);
+
+	if (res)
+	{
+		CacheNode<yyResource> cache_node;
+		cache_node.m_resource = res;
+		cache_node.m_path = p;
+		g_engine->m_textureCache.push_back(cache_node);
+	}
+	else
+	{
+		YY_PRINT_FAILED;
+		return nullptr;
+	}
+	return res;
+}
+
+YY_API void YY_C_DECL yyGetTextureSize(yyResource* r, v2i* s)
+{
+	return g_engine->m_videoAPI->GetTextureSize(r, s);
+}
 
 }
+
+

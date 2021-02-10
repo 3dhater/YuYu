@@ -21,19 +21,6 @@ YY_FORCE_INLINE v4f yySpriteMovePivotOnCenter(const v4f& rect)
 extern "C"
 {
 
-YY_API yySceneObjectBase* YY_C_DECL yySceneGetRootObject()
-{
-	return g_engine->m_sceneRootObject;
-}
-YY_API yyCamera* YY_C_DECL yySceneGetActiveCamera()
-{
-	return g_engine->m_sceneActiveCamera;
-}
-YY_API void YY_C_DECL yySceneSetActiveCamera(yyCamera* c)
-{
-	g_engine->m_sceneActiveCamera = c;
-}
-
 YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& r, yyResource* texture, bool pivotOnCenter)
 {
 	yySprite* newSprite = yyCreate<yySprite>();
