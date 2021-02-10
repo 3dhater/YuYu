@@ -59,9 +59,9 @@ extern "C"
 	YY_API void YY_C_DECL yyDeleteImage(yyImage*);
 	
 	// after loading, you must call yyDeleteModel
-	YY_API yyMDL* YY_C_DECL yyLoadModel(const char*);
+	YY_API yyMDL* YY_C_DECL yyLoadModel(const char*, bool useLinearFilterForTextures = true, bool loadTextures = true);
 	// загрузить модель и поместить её в кеш. следующий вызов - получить из кеша
-	YY_API yyMDL* YY_C_DECL yyGetModel(const char*);
+	YY_API yyMDL* YY_C_DECL yyGetModel(const char*, bool useLinearFilterForTextures = true, bool loadTextures = true);
 	YY_API void YY_C_DECL yyDeleteModel(yyMDL*);
 
 	YY_API void YY_C_DECL yyUpdateAsyncLoader();

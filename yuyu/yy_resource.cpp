@@ -53,7 +53,7 @@ YY_API void YY_C_DECL yyDeleteImage(yyImage* image)
 	yyDestroy( image );
 }
 
-YY_API yyMDL* YY_C_DECL yyGetModel(const char* fileName)
+YY_API yyMDL* YY_C_DECL yyGetModel(const char* fileName, bool useLinearFilterForTextures, bool loadTextures)
 {
 	assert(fileName);
 	if (!yyFS::exists(fileName))
@@ -73,7 +73,7 @@ YY_API yyMDL* YY_C_DECL yyGetModel(const char* fileName)
 		}
 	}
 
-	yyMDL* model = yyLoadModel(fileName);
+	yyMDL* model = yyLoadModel(fileName, useLinearFilterForTextures, loadTextures);
 	if (!model)
 	{
 		YY_PRINT_FAILED;
@@ -89,9 +89,10 @@ YY_API yyMDL* YY_C_DECL yyGetModel(const char* fileName)
 	return model;
 }
 
-YY_API yyMDL* YY_C_DECL yyLoadModel(const char* fileName)
+YY_API yyMDL* YY_C_DECL yyLoadModel(const char* fileName, bool useLinearFilterForTextures, bool loadTextures)
 {
 	assert(fileName);
+	yyLogWriteInfo("Load model: %s\n", fileName);
 	if(!yyFS::exists(fileName))
 	{
 		yyLogWriteWarning("File %s not found\n", fileName);
@@ -129,6 +130,24 @@ YY_API yyMDL* YY_C_DECL yyLoadModel(const char* fileName)
 	case 1:
 		MDL_loadVersion1(&newMDL, &fb);
 		break;
+	}
+
+
+	// попробую использовать такой способ обхода цикла
+	// без u16 i = 0, sz = newMDL->m_layers.size()
+	u16 size = newMDL->m_layers.size();
+	for (u16 i = 0; i < size; ++i)
+	{
+		auto layer = newMDL->m_layers[i];
+		for (u16 o = 0; o < YY_MDL_LAYER_NUM_OF_TEXTURES; ++o)
+		{
+			if (layer->m_texturePath[o].size())
+			{
+				layer->m_textureGPU[o] = yyGetTextureResource(layer->m_texturePath[o].data(), useLinearFilterForTextures, false, loadTextures);
+			}
+		}
+
+		layer->m_meshGPU = g_engine->m_videoAPI->CreateModel(layer->m_model);
 	}
 
 	return newMDL;

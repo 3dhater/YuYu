@@ -180,9 +180,9 @@ void ImportOBJ(yyMDLObject* object, const char* fileName)
 					auto u1 = uv[uv_index1];
 					auto u2 = uv[uv_index2];
 					auto u3 = uv[uv_index3];
-					newVertex1.TCoords.set(u1.x, u1.y);
-					newVertex2.TCoords.set(u2.x, u2.y);
-					newVertex3.TCoords.set(u3.x, u3.y);
+					newVertex1.TCoords.set(u1.x, 1.f - u1.y);
+					newVertex2.TCoords.set(u2.x, 1.f - u2.y);
+					newVertex3.TCoords.set(u3.x, 1.f - u3.y);
 				}
 
 				if (f.ft == OBJFaceType::pn || f.ft == OBJFaceType::pun)

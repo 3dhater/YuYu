@@ -38,7 +38,7 @@ void yyGUIText::OnDraw()
 	{
 		auto & dn = m_drawNodes.m_data[k];
 		if (dn.m_texture)
-			g_engine->m_videoAPI->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, dn.m_texture);
+			g_engine->m_videoAPI->SetTexture(0, dn.m_texture);
 		if (dn.m_model)
 			g_engine->m_videoAPI->SetModel(dn.m_model);
 		g_engine->m_videoAPI->Draw();

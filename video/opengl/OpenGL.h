@@ -1284,7 +1284,7 @@ public:
 
 	Mat4 m_guiProjectionMatrix;
 
-	OpenGLTexture* m_currentTextures[(u32)yyVideoDriverAPI::TextureSlot::Count];
+	OpenGLTexture* m_currentTextures[yyVideoDriverMaxTextures];
 	OpenGLModel*   m_currentModel;
 	yyMaterial * m_currentMaterial;
 

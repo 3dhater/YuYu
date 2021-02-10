@@ -28,7 +28,6 @@ class DemoExample;
 class Demo
 {
 	yyEngineContext* m_engineContext;
-	yyWindow*        m_window;
 
 	yyVideoDriverAPI* m_gpu;
 	yyGUIFont*        m_defaultFont;
@@ -54,6 +53,7 @@ public:
 	void StopDemo();
 
 	yyInputContext * m_inputContext;
+	yyWindow*        m_window;
 
 	friend void window_callbackMouse(yyWindow* w, s32 wheel, s32 x, s32 y, u32 click);
 	friend void updateInputContext();

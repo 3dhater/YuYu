@@ -193,6 +193,7 @@ YY_API yyResource* YY_C_DECL yyGetTextureResource(const char* fileName, bool use
 		}
 	}
 
+	yyLogWriteInfo("Load texture: %s\n", fileName);
 	auto res = g_engine->m_videoAPI->CreateTextureFromFile(fileName, useFilter, useComparisonFilter, load);
 	
 	if( res )

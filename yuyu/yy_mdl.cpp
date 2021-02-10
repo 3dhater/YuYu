@@ -31,15 +31,19 @@ void MDL_loadVersion1(yyMDL** _mdl, yyFileBuffer* f)
 		std::string newString;
 		for (u32 i = 0; i < numOfStrings; ++i)
 		{
-			u8 chr = f->getNextSymbol();
-			if (chr != 0)
+			for(u32 o = 0; o < 1000; ++o)
 			{
-				newString += (char)chr;
-			}
-			else
-			{
-				strings.push_back(newString);
-				newString.clear();
+				u8 chr = f->getNextSymbol();
+				if (chr != 0)
+				{
+					newString += (char)chr;
+				}
+				else
+				{
+					strings.push_back(newString);
+					newString.clear();
+					break;
+				}
 			}
 		}
 	}

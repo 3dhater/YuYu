@@ -45,6 +45,7 @@ public:
 		m_data = (u8*)yyMemAlloc(m_dataSize);
 		fread(m_data, m_dataSize, 1, f);
 		fclose(f);
+		return true;
 	}
 
 	void read(void* _Buffer, size_t _ElementSize)

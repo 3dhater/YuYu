@@ -113,7 +113,7 @@ public:
 	void UpdateGUIProjectionMatrix(const v2i& windowSize);
 	Mat4 m_guiProjectionMatrix;
 
-	D3D11Texture* m_currentTextures[(u32)yyVideoDriverAPI::TextureSlot::Count];
+	D3D11Texture* m_currentTextures[yyVideoDriverMaxTextures];
 	D3D11Model*   m_currentModel;
 	yyMaterial * m_currentMaterial;
 	

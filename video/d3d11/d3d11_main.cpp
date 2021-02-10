@@ -377,7 +377,7 @@ void EndDrawGUI()
 	g_d3d11->m_d3d11DevCon->IASetInputLayout(old.InputLayout); if (old.InputLayout) old.InputLayout->Release();
 }
 
-void SetTexture(yyVideoDriverAPI::TextureSlot slot, yyResource* res)
+void SetTexture(u32 slot, yyResource* res)
 {
 	g_d3d11->m_currentTextures[(u32)slot] = g_d3d11->m_textures[ res->m_index ];
 }
@@ -486,7 +486,7 @@ void DrawSprite(yySprite* sprite)
 
 	if(sprite->m_texture)
 	{
-		SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, sprite->m_texture);
+		SetTexture(0, sprite->m_texture);
 		g_d3d11->m_d3d11DevCon->PSSetShaderResources(0, 1, &g_d3d11->m_currentTextures[0]->m_textureResView);
 		g_d3d11->m_d3d11DevCon->PSSetSamplers(0, 1, &g_d3d11->m_currentTextures[0]->m_samplerState);
 	}

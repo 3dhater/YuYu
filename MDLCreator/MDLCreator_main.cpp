@@ -459,8 +459,8 @@ int main(int argc, char* argv[])
 
 		if (g_inputContex->m_isRMBHold)
 		{
-			camera.rotate(v2f(-g_inputContex->m_mouseDelta.x, -g_inputContex->m_mouseDelta.y), deltaTime);
 	//		printf("%f %f\n", io.MouseDelta.x, io.MouseDelta.y);
+			camera.rotate(v2f(-g_inputContex->m_mouseDelta.x, -g_inputContex->m_mouseDelta.y), deltaTime);
 
 			if (io.KeysDownDuration[(int)yyKey::K_W] >= 0.0f)
 				camera.moveForward(deltaTime, io.KeyShift);
@@ -845,21 +845,10 @@ int main(int argc, char* argv[])
 				
 				for (u32 t = 0; t < YY_MDL_LAYER_NUM_OF_TEXTURES; ++t)
 				{
-					yyVideoDriverAPI::TextureSlot slot;
-					switch (t)
-					{
-					default:
-					case 0: slot = yyVideoDriverAPI::TextureSlot::Texture0; break;
-					case 1: slot = yyVideoDriverAPI::TextureSlot::Texture1; break;
-					case 2: slot = yyVideoDriverAPI::TextureSlot::Texture2; break;
-					case 3: slot = yyVideoDriverAPI::TextureSlot::Texture3; break;
-					}
-
-
 					if(layer->m_textureGPU[t])
-						g_videoDriver->SetTexture(slot, layer->m_textureGPU[t]);
+						g_videoDriver->SetTexture(t, layer->m_textureGPU[t]);
 					else
-						g_videoDriver->SetTexture(slot, defaultTexture);
+						g_videoDriver->SetTexture(t, defaultTexture);
 				}
 
 			
@@ -925,7 +914,7 @@ int main(int argc, char* argv[])
 				
 				
 				
-				g_videoDriver->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, defaultTexture);
+				g_videoDriver->SetTexture(0, defaultTexture);
 				for (int i = 0, sz = g_sceneObject->m_hitboxes.size(); i < sz; ++i)
 				{
 					auto hb = g_sceneObject->m_hitboxes[i];
@@ -1131,8 +1120,8 @@ void SaveMDL(const char* fileName)
 		fwrite(&nul, 1, 1, f);
 	}
 
-	fseek(f, 4, SEEK_SET);
+	fseek(f, 8, SEEK_SET);
 	fwrite(&mdl_header, sizeof(yyMDLHeader), 1, f);
-
+	
 	fclose(f);
 }

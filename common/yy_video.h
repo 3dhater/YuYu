@@ -16,35 +16,9 @@ struct yyVideoDriverObjectD3D11
 };
 
 const u32 yyVideoDriverAPIVersion = 1;
+const u32 yyVideoDriverMaxTextures = 16;
 struct yyVideoDriverAPI
 {
-	enum class TextureSlot : u32
-	{
-		Texture0,
-		Texture1,
-		Texture2,
-		Texture3,
-		Texture4,
-		Texture5,
-		Texture6,
-		Texture7,
-		Texture8,
-		Texture9,
-		Texture10,
-		Texture11,
-		Texture12,
-		Texture13,
-		Texture14,
-		Texture15,
-		Texture16,
-		Texture17,
-		Texture18,
-		Texture19,
-		Texture20,
-
-		Count
-	};
-
 	u32 (*GetAPIVersion)();
 
 	bool (*Init)(yyWindow*);
@@ -98,7 +72,8 @@ struct yyVideoDriverAPI
 	void(*DeleteTexture)(yyResource* r);
 
 	// yyResource::m_type MUST BE yyResourceType::Texture
-	void (*SetTexture)(yyVideoDriverAPI::TextureSlot, yyResource*);
+	// slot < yyVideoDriverMaxTextures
+	void (*SetTexture)(u32 slot, yyResource*);
 	// yyResource::m_type MUST BE yyResourceType::Model
 	void (*SetModel)(yyResource*);
 	void (*SetMaterial)(yyMaterial* mat);

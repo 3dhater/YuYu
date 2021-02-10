@@ -96,7 +96,7 @@ void yyGUIPictureBox::OnUpdate()
 void yyGUIPictureBox::OnDraw()
 {
 	if (m_texture)
-		g_engine->m_videoAPI->SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, m_texture);
+		g_engine->m_videoAPI->SetTexture(0, m_texture);
 	if (m_pictureBoxModel)
 		g_engine->m_videoAPI->SetModel(m_pictureBoxModel);
 	g_engine->m_videoAPI->Draw();

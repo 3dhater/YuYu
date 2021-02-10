@@ -480,12 +480,12 @@ void SetViewport(f32 x, f32 y, f32 width, f32 height)
 {
 	glViewport(x, y, width, height);
 }
-void SetTexture(yyVideoDriverAPI::TextureSlot slot, yyResource* res)
+void SetTexture(u32 slot, yyResource* res)
 {
 	if(res)
-		g_openGL->m_currentTextures[(u32)slot] = g_openGL->m_textures[res->m_index];
+		g_openGL->m_currentTextures[slot] = g_openGL->m_textures[res->m_index];
 	else
-		g_openGL->m_currentTextures[(u32)slot] = nullptr;
+		g_openGL->m_currentTextures[slot] = nullptr;
 }
 void SetModel(yyResource* res)
 {
@@ -645,7 +645,7 @@ void DrawSprite(yySprite* sprite)
 
 	if(sprite->m_texture)
 	{
-		SetTexture(yyVideoDriverAPI::TextureSlot::Texture0, sprite->m_texture);
+		SetTexture(0, sprite->m_texture);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);
 	}

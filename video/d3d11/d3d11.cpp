@@ -38,7 +38,7 @@ D3D11::D3D11()
 {
 	m_mainTarget = 0;
 	m_mainTargetSurface = 0;
-	for (u32 i = 0; i < (u32)yyVideoDriverAPI::TextureSlot::Count; ++i)
+	for (u32 i = 0; i < yyVideoDriverMaxTextures; ++i)
 	{
 		m_currentTextures[i] = nullptr;
 	}

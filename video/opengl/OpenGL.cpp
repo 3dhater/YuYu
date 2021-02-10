@@ -134,7 +134,7 @@ OpenGL::OpenGL()
 	m_windowDC = nullptr;
 	m_renderingContext = nullptr;
 #endif
-	for( u32 i = 0; i < (u32)yyVideoDriverAPI::TextureSlot::Count; ++i)
+	for( u32 i = 0; i < yyVideoDriverMaxTextures; ++i)
 	{
 		m_currentTextures[i] = nullptr;
 	}
