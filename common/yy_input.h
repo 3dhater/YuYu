@@ -27,6 +27,7 @@ struct yyInputContext
 	bool m_isRMBDown;
 	bool m_isRMBHold;
 	v2f  m_cursorCoords;
+	v2f  m_cursorCoordsForGUI;
 	v2f  m_cursorCoordsOld;
 	v2f  m_mouseDelta;
 

@@ -427,7 +427,7 @@ void BeginDrawGUI()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_SCISSOR_TEST);
+//	glEnable(GL_SCISSOR_TEST);
 #ifdef GL_POLYGON_MODE
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 #endif
@@ -460,7 +460,7 @@ void EndDrawGUI()
 	glPolygonMode(GL_FRONT_AND_BACK, (GLenum)last_polygon_mode[0]);
 #endif
 	glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
-	glScissor(last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2], (GLsizei)last_scissor_box[3]);
+//	glScissor(last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2], (GLsizei)last_scissor_box[3]);
 }
 void SetRenderTarget(yyResource* rtt)
 {

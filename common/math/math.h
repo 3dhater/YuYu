@@ -9,7 +9,7 @@ namespace math
 	YY_FORCE_INLINE
 	bool pointInRect(float x, float y, const v4f& rect)
 	{
-		if (x>rect.x) { if (x<rect.z) { if (y>rect.y) { if (y<rect.w) { return true; } } } }
+		if (x>=rect.x) { if (x<=rect.z) { if (y>=rect.y) { if (y<=rect.w) { return true; } } } }
 		return false;
 	}
 

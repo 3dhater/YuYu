@@ -9,6 +9,7 @@ public:
 	virtual void OnUpdate();
 	virtual void OnDraw();
 	virtual void SetVisible(bool v);
+	virtual void SetOffset(const v2f& o);
 
 	virtual void SetMouseHoverTexture(yyResource*);
 	virtual void SetMouseClickTexture(yyResource*);

@@ -29,11 +29,13 @@ yyGUIText::~yyGUIText()
 
 void yyGUIText::OnUpdate()
 {
-
+	if (!m_visible) return;
+	if (m_ignoreInput) return;
 }
 
 void yyGUIText::OnDraw()
 {
+	if (!m_visible) return;
 	for (u16 k = 0, ksz = m_drawNodes.m_size; k < ksz; ++k)
 	{
 		auto & dn = m_drawNodes.m_data[k];

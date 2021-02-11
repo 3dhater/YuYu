@@ -18,19 +18,23 @@ class yyGUIElement
 {
 protected:
 	bool m_visible;
+	bool m_ignoreInput;
 public:
 
 	yyGUIElement()
 	:
 		m_id(-1),
 		m_visible(true),
+		m_ignoreInput(false),
 		m_type(yyGUIElementType::Unknown)
 	{
 		m_color = ColorWhite;
 	}
 	virtual ~yyGUIElement(){}
 	
+	virtual void SetOffset(const v2f& o) { m_offset = o; }
 	virtual void SetVisible(bool v) { m_visible = v; }
+	virtual void IgnoreInput(bool v) { m_ignoreInput = v; }
 	bool IsVisible() { return m_visible; }
 
 	virtual void OnUpdate() = 0;
@@ -59,7 +63,8 @@ extern "C"
 	YY_API yyGUIFont* YY_C_DECL yyGUILoadFont(const char* path);
 	YY_API yyGUIText* YY_C_DECL yyGUICreateText(const v2f& position, yyGUIFont* font, const wchar_t* text);
 	YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* baseTexture, s32 id);
-	YY_API void YY_C_DECL yyGUIDeleteElement(yyGUIElement*);
+	YY_API void YY_C_DECL yyGUIDeleteElement(yyGUIElement* elem);
+	YY_API void YY_C_DECL yyGUIRemoveElement(yyGUIElement* elem); // without yyDestroy(elem);
 	YY_API yyGUIElement* YY_C_DECL yyGUIGetElementInMouseFocus();
 }
 
