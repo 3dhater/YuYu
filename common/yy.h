@@ -17,6 +17,8 @@ enum class yySystemState : u32
 	Quit
 };
 
+
+
 enum class yyCompressType : u32
 {
 	WithoutCompress,
@@ -72,7 +74,14 @@ extern "C"
 	YY_API void YY_C_DECL yyFreeLybrary(dl_handle);
 	YY_API dl_function YY_C_DECL yyGetProcAddress(dl_handle,const char* functionName);
 	
-	YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& rect, yyResource* texture, bool pivotOnCenter);
+	/* pivotPosition
+		0--1--2
+		|  |  |
+		7--8--3
+		|  |  |
+		6--5--4
+	*/
+	YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& rect, yyResource* texture, u8 pivotPosition = 0);
 
 	// get from cache. if not found, create GPU resource, add to cache.
 	// ++m_refCount;
@@ -89,5 +98,23 @@ extern "C"
 	//YY_API yyAudioSource* YY_C_DECL	yyLoadAudioRaw(const char*);
 }
 
+// for auto create\delete
+struct yyEngineContext
+{
+	yyEngineContext()
+	{
+		m_state = nullptr;
+	}
+	~yyEngineContext()
+	{
+		yyStop(); // destroy main class, free memory
+	}
 
+	void init(yyInputContext* input)
+	{
+		m_state = yyStart(input); // allocate memory for main class inside yuyu.dll
+	}
+
+	yySystemState * m_state;
+};
 #endif

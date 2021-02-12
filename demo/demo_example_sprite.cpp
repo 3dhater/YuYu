@@ -13,6 +13,11 @@ DemoExample_Sprite::DemoExample_Sprite()
 	m_spriteLevel = 0;
 	m_spriteHero = 0;
 	m_textureLevel = 0;
+
+	for (u32 i = 0; i < 9; ++i)
+	{
+		m_spriteTest[i] = 0;
+	}
 }
 
 DemoExample_Sprite::~DemoExample_Sprite()
@@ -29,6 +34,25 @@ bool DemoExample_Sprite::Init()
 	m_spriteLevel = yyCreateSprite(v4f(0.f, 0.f, 1160.f, 224.f), m_textureLevel, false);
 //	m_spriteHero  = yyCreateSprite(v4f(0.f, 0.f, 1160.f, 224.f), m_textureLevel, false);
 	
+	m_spriteTest[0] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyGetTextureResource("../res/image.dds", false, false, true));
+	m_spriteTest[1] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyGetTextureResource("../res/image.dds", false, false, true), 1);
+	m_spriteTest[2] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyGetTextureResource("../res/image.dds", false, false, true), 2);
+	m_spriteTest[3] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyGetTextureResource("../res/image.dds", false, false, true), 3);
+	m_spriteTest[4] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyGetTextureResource("../res/image.dds", false, false, true), 4);
+	m_spriteTest[5] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyGetTextureResource("../res/image.dds", false, false, true), 5);
+	m_spriteTest[6] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyGetTextureResource("../res/image.dds", false, false, true), 6);
+	m_spriteTest[7] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyGetTextureResource("../res/image.dds", false, false, true), 7);
+	m_spriteTest[8] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyGetTextureResource("../res/image.dds", false, false, true), 8);
+	m_spriteTest[0]->m_objectBase.m_localPosition.set(0.f, 0.f, 0.f, 0.f);
+	m_spriteTest[1]->m_objectBase.m_localPosition.set(100.f, 0.f, 0.f, 0.f);
+	m_spriteTest[2]->m_objectBase.m_localPosition.set(200.f, 0.f, 0.f, 0.f);
+	m_spriteTest[3]->m_objectBase.m_localPosition.set(300.f, 0.f, 0.f, 0.f);
+	m_spriteTest[4]->m_objectBase.m_localPosition.set(400.f, 0.f, 0.f, 0.f);
+	m_spriteTest[5]->m_objectBase.m_localPosition.set(500.f, 0.f, 0.f, 0.f);
+	m_spriteTest[6]->m_objectBase.m_localPosition.set(600.f, 0.f, 0.f, 0.f);
+	m_spriteTest[7]->m_objectBase.m_localPosition.set(700.f, 0.f, 0.f, 0.f);
+	m_spriteTest[8]->m_objectBase.m_localPosition.set(800.f, 0.f, 0.f, 0.f);
+
 	m_spriteCameraPosition = m_gpu->GetSpriteCameraPosition();
 	m_spriteCameraPosition->x = 280.f;
 	m_spriteCameraPosition->y = 35.f;
@@ -51,6 +75,14 @@ void DemoExample_Sprite::Shutdown()
 	{
 		yyDestroy(m_spriteLevel);
 		m_spriteLevel = 0;
+	}
+	for (u32 i = 0; i < 9; ++i)
+	{
+		if (m_spriteTest[i])
+		{
+			yyDestroy(m_spriteTest[i]);
+			m_spriteTest[i] = 0;
+		}
 	}
 }
 
@@ -101,6 +133,14 @@ bool DemoExample_Sprite::DemoStep(f32 deltaTime)
 
 	m_gpu->UseDepth(false);
 	m_gpu->DrawSprite(m_spriteLevel);
+
+	for (u32 i = 0; i < 9; ++i)
+	{
+		m_spriteTest[i]->m_objectBase.SetRotation(m_spriteTest[i]->m_objectBase.m_rotation + v4f(0.f, 0.f, 1.f * deltaTime, 0.f));
+		m_spriteTest[i]->Update(deltaTime);
+		m_spriteTest[i]->m_objectBase.UpdateBase();
+		m_gpu->DrawSprite(m_spriteTest[i]);
+	}
 
 	return g_demo->m_inputContext->isKeyHit(yyKey::K_ESCAPE) == false;
 }

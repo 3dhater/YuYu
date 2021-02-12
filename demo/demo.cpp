@@ -61,6 +61,7 @@ void updateInputContext() // call before all callbacks
 	g_demo->m_inputContext->m_isLMBUp = false;
 	g_demo->m_inputContext->m_mouseDelta.x = 0.f;
 	g_demo->m_inputContext->m_mouseDelta.y = 0.f;
+	g_demo->m_inputContext->m_cursorCoordsForGUI = g_demo->m_inputContext->m_cursorCoords;
 	memset(g_demo->m_inputContext->m_key_pressed, 0, sizeof(u8) * 256);
 	memset(g_demo->m_inputContext->m_key_hit, 0, sizeof(u8) * 256);
 }

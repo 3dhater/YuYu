@@ -4,26 +4,6 @@
 #include "yy.h"
 #include "containers\array.h"
 
-// for auto create\delete
-struct yyEngineContext
-{
-	yyEngineContext()
-	{
-		m_state = nullptr;
-	}
-	~yyEngineContext()
-	{
-		yyStop(); // destroy main class, free memory
-	}
-
-	void init(yyInputContext* input)
-	{
-		m_state = yyStart(input); // allocate memory for main class inside yuyu.dll
-	}
-
-	yySystemState * m_state;
-};
-
 class DemoExample;
 class Demo
 {

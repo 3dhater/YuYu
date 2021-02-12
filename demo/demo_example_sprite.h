@@ -6,6 +6,9 @@ class DemoExample_Sprite : public DemoExample
 	yyResource* m_textureLevel;
 	yySprite* m_spriteLevel;
 	yySprite* m_spriteHero;
+
+	yySprite* m_spriteTest[9];
+
 	v2f* m_spriteCameraPosition;
 	v2f* m_spriteCameraScale;
 

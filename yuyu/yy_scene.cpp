@@ -6,28 +6,86 @@
 #include "engine.h"
 extern Engine * g_engine;
 
-YY_FORCE_INLINE v4f yySpriteMovePivotOnCenter(const v4f& rect)
-{
-	f32 w = (rect.z - rect.x) * 0.5f;
-	f32 h = (rect.w - rect.y) * 0.5f;
-	return v4f(
-		rect.x - w,
-		rect.y - h,
-		rect.z - w,
-		rect.w - h
-	);
-}
-
 extern "C"
 {
 
-YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& r, yyResource* texture, bool pivotOnCenter)
+YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& r, yyResource* texture, u8 pivotPosition)
 {
+	assert(pivotPosition < 9);
+
+	f32 half_w = (r.z - r.x) * 0.5f;
+	f32 half_h = (r.w - r.y) * 0.5f;
+
 	yySprite* newSprite = yyCreate<yySprite>();
 
 	auto rect = r;
-	if(pivotOnCenter)
-		rect = yySpriteMovePivotOnCenter(r);
+	switch (pivotPosition)
+	{
+	case 1:
+		rect = v4f(
+			rect.x - half_w,
+			rect.y,
+			rect.z - half_w,
+			rect.w
+		);
+		break;
+	case 2:
+		rect = v4f(
+			rect.x - half_w - half_w,
+			rect.y,
+			rect.z - half_w - half_w,
+			rect.w
+		);
+		break;
+	case 3:
+		rect = v4f(
+			rect.x - half_w - half_w,
+			rect.y - half_h,
+			rect.z - half_w - half_w,
+			rect.w - half_h
+		);
+		break;
+	case 4:
+		rect = v4f(
+			rect.x - half_w - half_w,
+			rect.y - half_h - half_h,
+			rect.z - half_w - half_w,
+			rect.w - half_h - half_h
+		);
+		break;
+	case 5:
+		rect = v4f(
+			rect.x - half_w,
+			rect.y - half_h - half_h,
+			rect.z - half_w,
+			rect.w - half_h - half_h
+		);
+		break;
+	case 6:
+		rect = v4f(
+			rect.x,
+			rect.y - half_h - half_h,
+			rect.z,
+			rect.w - half_h - half_h
+		);
+		break;
+	case 7:
+		rect = v4f(
+			rect.x,
+			rect.y - half_h,
+			rect.z,
+			rect.w - half_h
+		);
+		break;
+	case 8:
+		rect = v4f(
+			rect.x - half_w,
+			rect.y - half_h,
+			rect.z - half_w,
+			rect.w - half_h
+		);
+	break;
+	}
 
 	auto vAPI = yyGetVideoDriverAPI();
 	auto model = yyCreate<yyModel>();
