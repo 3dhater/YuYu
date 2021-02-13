@@ -658,7 +658,7 @@ struct yyMDL
 	// нужно использовать yyMDL (другого-то способа и нет)
 	// скорее всего при рисовании нужно будет передавать что-то
 	// ещё, чтобы работал нужный шейдер и т.д.
-	std::vector<yyJoint*> m_joints;
+	yyArraySmall<yyJoint*> m_joints;
 	//yyJoint* m_skeleton; // иерархия
 	yyJoint* GetJointByName(const char* name, s32* index)
 	{

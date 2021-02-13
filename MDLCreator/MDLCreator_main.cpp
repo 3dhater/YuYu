@@ -81,24 +81,6 @@ SceneObject* g_sceneObject = 0;
 //	return 0;
 //}
 
-struct yyEngineContext
-{
-	yyEngineContext()
-	{
-		m_state = nullptr;
-	}
-	~yyEngineContext()
-	{
-		yyStop(); // destroy main class, free memory
-	}
-
-	void init(yyInputContext* input)
-	{
-		m_state = yyStart(input); // allocate memory for main class inside yuyu.dll
-	}
-
-	yySystemState * m_state;
-};
 void window_onCLose(yyWindow* window)
 {
 	window->Hide();

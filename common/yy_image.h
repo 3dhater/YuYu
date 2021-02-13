@@ -114,7 +114,7 @@ struct yyImage
 		
 		rgb* rgb_data = (rgb*)m_data;
 		rgba* rgba_data = (rgba*)new_data;
-		u32 num_of_pixels = m_width * m_height;
+		s32 num_of_pixels = m_width * m_height;
 		for (s32 i = 0; i < num_of_pixels; ++i)
 		{
 			rgba_data->r = rgb_data->r;

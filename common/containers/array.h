@@ -456,6 +456,21 @@ public:
 		return &m_data[index];
 	}
 
+	template<class _Pr>
+	void sort_insertion(_Pr _pred)
+	{
+		u32 i, j;
+		type t;
+		for (i = 1; i < m_size; ++i)
+		{
+			for (j = i; j > 0 && _pred(m_data[j - 1], m_data[j]); --j)
+			{
+				t = m_data[j];
+				m_data[j] = m_data[j - 1];
+				m_data[j - 1] = t;
+			}
+		}
+	}
 	
 
 	pointer m_data;
