@@ -456,6 +456,16 @@ public:
 		return &m_data[index];
 	}
 
+	/*
+	struct _pred
+	{
+		bool operator() (const Map::renderNode& a, const Map::renderNode& b) const
+		{
+			return a.m_position.y > b.m_position.y;
+		}
+	};
+	m_renderSprites.sort_insertion(_pred());
+	*/
 	template<class _Pr>
 	void sort_insertion(_Pr _pred)
 	{

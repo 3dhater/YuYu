@@ -152,13 +152,15 @@ YY_API const wchar_t* YY_C_DECL yyGetWorkingDir()
 }
 YY_API yyString* YY_C_DECL yyGetRelativePath(const wchar_t* path)
 {
-	yyString * returnPath = 0;
+	yyString * returnPath = yyCreate<yyString>();
+	returnPath->append((const char16_t*)path);
+
 #ifdef YY_PLATFORM_WINDOWS
 	wchar_t szOut[MAX_PATH] = L"";
 	if (PathRelativePathTo(szOut, yyGetWorkingDir(), FILE_ATTRIBUTE_DIRECTORY, path, FILE_ATTRIBUTE_NORMAL)
 		== TRUE)
 	{
-		returnPath = yyCreate<yyString>();
+		returnPath->clear();
 		returnPath->append((const char16_t*)szOut);
 	}
 #else

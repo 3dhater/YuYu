@@ -226,6 +226,24 @@ public:
 		return Iterator();
 	}
 
+	u32 find_size()
+	{
+		u32 size = 0;
+		if (m_head)
+		{
+			auto curr = m_head;
+			auto last = m_head->m_left;
+			while (true)
+			{
+				++size;
+				if (curr == last)
+					break;
+				curr = curr->m_right;
+			}
+		}
+		return size;
+	}
+
 	yyListNode<T>* find(u32 index)
 	{
 		if (m_head)
