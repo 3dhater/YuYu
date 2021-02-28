@@ -2,6 +2,7 @@
 #define __DEMO_EXAMPLE_MDL_H__
 
 #include "scene\fly_camera.h"
+#include "scene\mdl_object.h"
 
 class DemoExample_MDL : public DemoExample
 {
@@ -30,6 +31,9 @@ public:
 	//  то просто удалит (так-как m_refCount уже == 0)
 	// При удалении, деструктор yyMDL вызовет m_gpu->UnloadTexture и m_gpu->UnloadModel
 	yyMDL* m_mdl_struct;
+
+	// Класс-обёртка который играет анимацию.
+	yyMDLObject* m_mdl_object;
 
 	yyFlyCamera* m_flyCamera;
 };

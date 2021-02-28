@@ -58,16 +58,19 @@ struct yyMDLObject
 		m_objectBase.m_implementationPtr = this;
 		m_objectBase.m_updateImplementation = yyMDLObject_update; 
 	//	m_isAnimated = false;
+		m_onUpdate = 0;
 	}
 	~yyMDLObject()
 	{
 		if (m_mdl)
 		{
 			// destroy or release like yyUnloadMDL ???
-			yyDestroy(m_mdl);
+			//yyDestroy(m_mdl);
+			yyDeleteModel(m_mdl);
 		}
 	}
 
+	Mat4(*m_onUpdate)(yyJoint* mdlJoint, s32 jointIndex, const Mat4& translationMatrix, const Mat4& rotationMatrix, const Mat4& scaleMatrix);
 
 	void Update(float dt)
 	{
@@ -94,7 +97,7 @@ struct yyMDLObject
 					auto timeCoef = 1.f - math::get_0_1(timeSize, timeLeft);
 					timeCoef *= fps_factor;
 
-					if (isinf(timeCoef))
+					if (math::isinf(timeCoef))
 						continue;
 
 					//if(i==0)
@@ -105,14 +108,34 @@ struct yyMDLObject
 					objJoint.m_position.x = math::lerp(objJoint.m_position.x, nextKey->m_position.x, interpolation_factor);
 					objJoint.m_position.y = math::lerp(objJoint.m_position.y, nextKey->m_position.y, interpolation_factor);
 					objJoint.m_position.z = math::lerp(objJoint.m_position.z, nextKey->m_position.z, interpolation_factor);
+					objJoint.m_scale.x = math::lerp(objJoint.m_scale.x, nextKey->m_scale.x, interpolation_factor);
+					objJoint.m_scale.y = math::lerp(objJoint.m_scale.y, nextKey->m_scale.y, interpolation_factor);
+					objJoint.m_scale.z = math::lerp(objJoint.m_scale.z, nextKey->m_scale.z, interpolation_factor);
 					objJoint.m_rotation   = math::slerp(objJoint.m_rotation, nextKey->m_rotation, interpolation_factor);
 
 					Mat4 TranslationM;
 					TranslationM[3] = objJoint.m_position;
 					TranslationM[3].w = 1.f;
+
+					Mat4 ScaleM;
+					ScaleM[0].x = objJoint.m_scale.x;
+					ScaleM[1].y = objJoint.m_scale.y;
+					ScaleM[2].z = objJoint.m_scale.z;
+
 					Mat4 RotationM;
 					RotationM.setRotation(objJoint.m_rotation);
-					Mat4 NodeTransformation = TranslationM * RotationM;
+					Mat4 NodeTransformation = TranslationM * RotationM * ScaleM;
+
+					if (m_onUpdate)
+					{
+						NodeTransformation = m_onUpdate(mdlJoint, animatedJoint->m_jointID, 
+							TranslationM, RotationM, ScaleM);
+					}
+					else
+					{
+						NodeTransformation = TranslationM * RotationM * ScaleM;
+					}
+
 					if (mdlJoint->m_parentIndex != -1)
 					{
 						objJoint.m_globalTransformation =
@@ -139,7 +162,12 @@ struct yyMDLObject
 	// при проигрывании анимации состояние каждого джоинта надо запомнить
 	struct JointInfo
 	{
-		v4f m_position;
+		JointInfo()
+		{
+			m_scale.set(1.f);
+		}
+		v3f m_position;
+		v3f m_scale;
 		Quat m_rotation;
 
 		Mat4 m_globalTransformation;

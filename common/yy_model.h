@@ -363,7 +363,8 @@ struct yyMDLAnimationKeyFrame
 	yyMDLAnimationKeyFrame() :m_time(0) {}
 	yyMDLAnimationKeyFrame(s32 time) :m_time(time) {}
 	s32 m_time;
-	v4f m_position;
+	v3f m_position;
+	v3f m_scale;
 	Quat m_rotation;
 };
 struct yyMDLAnimationFrames
@@ -407,6 +408,13 @@ struct yyMDLAnimationFrames
 		if (!keyFrame)
 			keyFrame = insertKeyFrame(time);
 		keyFrame->m_rotation = rotation;
+	}
+	void insertScale(const v3f& scale, s32 time)
+	{
+		auto keyFrame = getKeyFrame(time);
+		if (!keyFrame)
+			keyFrame = insertKeyFrame(time);
+		keyFrame->m_scale = scale;
 	}
 
 	yyMDLAnimationKeyFrame* getCurrentKeyFrame(s32 time)
@@ -461,7 +469,7 @@ struct yyMDLAnimation
 	f32 m_fps;
 
 
-	void AddKeyFrame(s32 jointID, s32 time, const v3f& position, const Quat& rotation)
+	void AddKeyFrame(s32 jointID, s32 time, const v3f& position, const Quat& rotation, const v3f& scale)
 	{
 		_joint_info* ji = _get_joint_info(jointID);
 		if (!ji)
@@ -471,6 +479,7 @@ struct yyMDLAnimation
 		}
 		ji->m_animationFrames.insertPosition(position, time);
 		ji->m_animationFrames.insertRotation(rotation, time);
+		ji->m_animationFrames.insertScale(scale, time);
 	}
 
 	_joint_info* _get_joint_info(s32 jointID)
@@ -508,6 +517,8 @@ struct yyMDLHeader
 	v3f m_aabbMax;
 
 	u32 m_stringsOffset;
+
+	Mat4 m_preRotation;
 };
 struct yyMDLLayerHeader
 {
@@ -581,9 +592,11 @@ struct yyMDLJointKeyframeHeader
 	yyMDLJointKeyframeHeader()
 	{
 		m_time = 0;
+		m_scale.set(1.f);
 	}
 	s32 m_time;
 	v3f m_position;
+	v3f m_scale;
 	Quat m_rotation;
 };
 
@@ -673,6 +686,15 @@ struct yyMDL
 	}
 	
 	yyArraySmall<yyMDLAnimation*> m_animations;
+	yyMDLAnimation* GetAnimationByName(const char* name)
+	{
+		for (u16 i = 0, sz = m_animations.size(); i < sz; ++i)
+		{
+			if (strcmp(name, m_animations[i]->m_name.data()) == 0)
+				return m_animations[i];
+		}
+		return 0;
+	}
 
 	// Я планирую использовать yyMDL везде и всегда
 	// Так-же изначально была идея о выгрузке ресурсов как это было ранее

@@ -78,6 +78,7 @@ joint_animation_keyframe
 {
 	s32 time
 	float3 position
+	float3 scale
 	float4 rotation
 }
 

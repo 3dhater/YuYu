@@ -470,6 +470,8 @@ int main(int argc, char* argv[])
 		}
 	//	printf("%f\n", deltaTime);
 		camera.update();
+
+		// for 3d line
 		g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::ViewProjection, camera.m_camera->m_viewProjectionMatrix);
 		
 
@@ -980,6 +982,7 @@ void SaveMDL(const char* fileName)
 	mdl_header.m_numOfJoints = g_sceneObject->m_mdlObject->m_mdl->m_joints.size();
 	mdl_header.m_numOfAnimations = g_sceneObject->m_mdlObject->m_mdl->m_animations.size();
 	mdl_header.m_numOfHitboxes = g_sceneObject->m_mdlObject->m_mdl->m_hitboxes.size();
+	mdl_header.m_preRotation = g_sceneObject->m_mdlObject->m_mdl->m_preRotation;
 	fwrite(&mdl_header, sizeof(yyMDLHeader), 1, f);
 	
 	std::vector<std::string> strings;

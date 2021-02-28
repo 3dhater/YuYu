@@ -17,6 +17,7 @@ void MDL_loadVersion1(yyMDL** _mdl, yyFileBuffer* f)
 	yyMDLHeader mdlHeader;
 	f->read(&mdlHeader, sizeof(yyMDLHeader));
 
+	newMDL->m_preRotation = mdlHeader.m_preRotation;
 	newMDL->m_aabb.m_min = mdlHeader.m_aabbMin;
 	newMDL->m_aabb.m_max = mdlHeader.m_aabbMax;
 
@@ -129,6 +130,7 @@ void MDL_loadVersion1(yyMDL** _mdl, yyFileBuffer* f)
 				f->read(&keyFrameHeader, sizeof(yyMDLJointKeyframeHeader));
 				yyMDLAnimationKeyFrame keyFrame;
 				keyFrame.m_position = keyFrameHeader.m_position;
+				keyFrame.m_scale = keyFrameHeader.m_scale;
 				keyFrame.m_rotation = keyFrameHeader.m_rotation;
 				keyFrame.m_time = keyFrameHeader.m_time;
 				newJointInfo->m_animationFrames.m_keyFrames.push_back(keyFrame);

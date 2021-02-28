@@ -491,7 +491,7 @@ void ImportSMD(yyMDLObject* object, const char* file)
 					Mat4 R;
 					SMDAngleMatrix(v3f(nt.m_rotation.y, nt.m_rotation.z, nt.m_rotation.x), R);
 					Quat q = math::matToQuat(R);
-					newMDLAnimation->AddKeyFrame(jointID, f.m_time, nt.m_position, q);
+					newMDLAnimation->AddKeyFrame(jointID, f.m_time, nt.m_position, q, v3f(1.f,1.f,1.f));
 				}
 				else
 				{

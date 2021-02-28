@@ -215,9 +215,6 @@ void Demo::MainLoop()
 	//gui_button_exit->m_useAsCheckbox = true;
 	//gui_button_exit->m_isChecked = true;
 
-	auto m_GUIMenuBG = yyGUICreatePictureBox(v4f(0.f, 0.f, 512.f, 512.f), yyGetTextureResource("E:\\Code\\RTS\\res\\gui\\menubg.png", false, false, true), -1);
-	m_GUIMenuBG->SetVisible(true);
-	m_GUIMenuBG->IgnoreInput(true);
 	
 	f32 deltaTime = 0.f;
 	f32 fps_timer = 0.f;

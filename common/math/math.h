@@ -6,6 +6,38 @@ namespace math
 	const f32 PI = static_cast<f32>(3.14159265358979323846);
 	const f32 PIPI = 6.2831853f;
 
+	namespace _internal
+	{
+		/*
+		https://stackoverflow.com/questions/6235847/how-to-generate-nan-infinity-and-infinity-in-ansi-c
+		unsigned int p = 0x7F800000; // 0xFF << 23
+		unsigned int n = 0xFF800000; // 0xFF8 << 20
+		unsigned int pnan = 0x7F800001; // or anything above this up to 0x7FFFFFFF
+		unsigned int nnan = 0xFF800001; // or anything above this up to 0xFFFFFFFF
+
+		float positiveInfinity = *(float *)&p;
+		float negativeInfinity = *(float *)&n;
+		float positiveNaN = *(float *)&pnan;
+		float negativeNaN = *(float *)&nnan;
+		*/
+		YY_FORCE_INLINE
+		f32 get_infinity()
+		{
+			unsigned int p = 0x7F800000;
+			f32 inf = *(float *)&p;
+			return inf;
+		}
+	}
+
+//#define YY_INFINITY HUGE_VAL
+	const f32 YY_INFINITY = _internal::get_infinity();
+
+	YY_FORCE_INLINE
+	bool isinf(f32 v)
+	{	
+		return v == YY_INFINITY;
+	}
+
 	YY_FORCE_INLINE
 	bool pointInRect(float x, float y, const v4f& rect)
 	{
