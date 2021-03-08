@@ -19,7 +19,7 @@ yyGUIButton::yyGUIButton()
 	m_onClick(nullptr)
 {
 	m_type = yyGUIElementType::Button;
-	m_mouseInRect = false;
+	m_inRect = false;
 	m_isClicked = false;
 	m_isChecked = false;
 	m_useAsCheckbox = false;
@@ -43,7 +43,7 @@ void yyGUIButton::OnUpdate()
 	if (!m_visible) return;
 	if (m_ignoreInput) return;
 
-	m_mouseInRect = math::pointInRect(
+	m_inRect = math::pointInRect(
 		g_engine->m_inputContext->m_cursorCoordsForGUI.x,
 		g_engine->m_inputContext->m_cursorCoordsForGUI.y,
 		v4f(
@@ -62,7 +62,7 @@ void yyGUIButton::OnUpdate()
 		}
 
 
-		if (m_onRelease && m_mouseInRect
+		if (m_onRelease && m_inRect
 			&& (g_engine->m_guiElementInMouseFocus == (yyGUIElement*)this))
 			m_onRelease(this, m_id);
 		
@@ -70,7 +70,7 @@ void yyGUIButton::OnUpdate()
 
 	if (g_engine->m_inputContext->m_isLMBDown)
 	{
-		if (m_mouseInRect)
+		if (m_inRect)
 		{
 			if (m_useAsCheckbox)
 			{
@@ -113,7 +113,7 @@ void yyGUIButton::OnDraw()
 	{
 		if (m_mouseHoverPB)
 		{
-			if (m_mouseInRect)
+			if (m_inRect)
 			{
 				m_mouseHoverPB->OnDraw();
 			}

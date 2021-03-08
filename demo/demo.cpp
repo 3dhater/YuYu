@@ -116,8 +116,10 @@ Demo::~Demo()
 	if (m_inputContext) yyDestroy(m_inputContext);
 }
 
+
 bool Demo::Init(const char* videoDriver)
 {
+
 	m_inputContext  = yyCreate<yyInputContext>();
 	m_engineContext = yyCreate<yyEngineContext>();
 	m_engineContext->init(m_inputContext);

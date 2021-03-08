@@ -1237,6 +1237,7 @@ extern PFNGLTEXTURESTORAGE3DMULTISAMPLEEXTPROC gglTextureStorage3DMultisampleEXT
 
 class OpenGLShaderGUI;
 class OpenGLShaderSprite;
+class OpenGLShaderSprite2;
 class OpenGLShaderLine3D;
 class OpenGLShaderStd;
 class OpenGLShaderTerrain;
@@ -1274,6 +1275,7 @@ public:
 
 	OpenGLShaderGUI* m_shader_gui;
 	OpenGLShaderSprite* m_shader_sprite;
+	OpenGLShaderSprite2* m_shader_sprite2;
 	OpenGLShaderLine3D* m_shader_line3d;
 	OpenGLShaderStd* m_shader_std;
 	OpenGLShaderTerrain* m_shader_terrain;

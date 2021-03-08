@@ -9,6 +9,7 @@
 #include "OpenGL_model.h"
 #include "OpenGL_shader_GUI.h"
 #include "OpenGL_shader_sprite.h"
+#include "OpenGL_shader_sprite2.h"
 #include "OpenGL_shader_Line3D.h"
 #include "OpenGL_shader_standart.h"
 #include "OpenGL_shader_terrain.h"
@@ -118,6 +119,7 @@ OpenGL::OpenGL()
 	//m_window(nullptr),
 	m_shader_gui(nullptr),
 	m_shader_sprite(nullptr),
+	m_shader_sprite2(nullptr),
 	m_shader_line3d(nullptr),
 	m_shader_std(nullptr),
 	m_shader_terrain(nullptr),
@@ -155,6 +157,7 @@ OpenGL::~OpenGL()
 	if (m_shader_screenQuad) yyDestroy(m_shader_screenQuad);
 	if (m_shader_gui) yyDestroy(m_shader_gui);
 	if (m_shader_sprite) yyDestroy(m_shader_sprite);
+	if (m_shader_sprite2) yyDestroy(m_shader_sprite2);
 	if (m_shader_line3d) yyDestroy(m_shader_line3d);
 	if (m_shader_std) yyDestroy(m_shader_std);
 	if (m_shader_terrain) yyDestroy(m_shader_terrain);
@@ -466,6 +469,14 @@ bool OpenGL::Init(yyWindow* window)
 	if(!m_shader_sprite->init())
 	{
 		yyLogWriteError("Can't create sprite shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	m_shader_sprite2 = yyCreate<OpenGLShaderSprite2>();
+	if (!m_shader_sprite2->init())
+	{
+		yyLogWriteError("Can't create sprite2 shader...");
 		YY_PRINT_FAILED;
 		return false;
 	}

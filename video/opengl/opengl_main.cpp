@@ -13,6 +13,7 @@
 #include "OpenGL_model.h"
 #include "OpenGL_shader_GUI.h"
 #include "OpenGL_shader_sprite.h"
+#include "OpenGL_shader_sprite2.h"
 #include "OpenGL_shader_Line3D.h"
 #include "OpenGL_shader_standart.h"
 #include "OpenGL_shader_terrain.h"
@@ -22,6 +23,7 @@
 
 #include "scene/common.h"
 #include "scene/sprite.h"
+#include "scene/sprite2.h"
 
 yyVideoDriverAPI g_api;
 bool g_useDepth = true;
@@ -653,6 +655,25 @@ void DrawSprite(yySprite* sprite)
 	glBindVertexArray(g_openGL->m_currentModel->m_VAO);
 	glDrawElements(GL_TRIANGLES, g_openGL->m_currentModel->m_iCount, GL_UNSIGNED_SHORT, 0);
 }
+void DrawSprite2(yySprite2* sprite)
+{
+	assert(sprite);
+	glUseProgram(g_openGL->m_shader_sprite2->m_program);
+	glUniformMatrix4fv(g_openGL->m_shader_sprite2->m_uniform_ProjMtx, 1, GL_FALSE, g_openGL->m_guiProjectionMatrix.getPtr());
+	glUniformMatrix4fv(g_openGL->m_shader_sprite2->m_uniform_WorldMtx, 1, GL_FALSE, sprite->m_objectBase.m_globalMatrix.getPtr());
+	glUniform2fv(g_openGL->m_shader_sprite2->m_uniform_CameraPosition, 1, &g_openGL->m_spriteCameraPosition.x);
+	glUniform2fv(g_openGL->m_shader_sprite2->m_uniform_CameraScale, 1, &g_openGL->m_spriteCameraScale.x);
+
+	if (sprite->m_texture)
+	{
+		SetTexture(0, sprite->m_texture);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, g_openGL->m_currentTextures[0]->m_texture);
+	}
+	SetModel(sprite->m_currentState->m_activeFrameGPU);
+	glBindVertexArray(g_openGL->m_currentModel->m_VAO);
+	glDrawElements(GL_TRIANGLES, g_openGL->m_currentModel->m_iCount, GL_UNSIGNED_SHORT, 0);
+}
 void DrawLine2D(const v3f& _p1, const v3f& _p2, const yyColor& color)
 {
 	v4f p1 = _p1;
@@ -861,6 +882,7 @@ extern "C"
 		g_api.DrawLine2D = DrawLine2D;
 		g_api.DrawLine3D = DrawLine3D;
 		g_api.DrawSprite = DrawSprite;
+		g_api.DrawSprite2 = DrawSprite2;
 		g_api.EndDraw = EndDraw;
 		g_api.EndDrawGUI = EndDrawGUI;
 		g_api.GetAPIVersion = GetAPIVersion;

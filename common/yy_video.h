@@ -81,6 +81,7 @@ struct yyVideoDriverAPI
 	void (*Draw)();
 	
 	void (*DrawSprite)(yySprite*);
+	void (*DrawSprite2)(yySprite2*);
 	void (*DrawLine3D)(const v4f& _p1, const v4f& _p2, const yyColor& color);
 	void (*DrawLine2D)(const v3f& _p1, const v3f& _p2, const yyColor& color);
 

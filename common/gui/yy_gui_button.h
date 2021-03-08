@@ -22,7 +22,7 @@ public:
 	yyGUICallback m_onClick; // LMB down
 	yyGUICallback m_onRelease; // LMB up
 
-	bool m_mouseInRect;
+	//bool m_mouseInRect;
 	bool m_isClicked;
 	bool m_isChecked;
 

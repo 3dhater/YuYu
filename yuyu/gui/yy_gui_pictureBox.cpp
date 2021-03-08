@@ -83,7 +83,7 @@ void yyGUIPictureBox::OnUpdate()
 {
 	if (!m_visible) return;
 	if (m_ignoreInput) return;
-	bool inRect = math::pointInRect(
+	m_inRect = math::pointInRect(
 		g_engine->m_inputContext->m_cursorCoordsForGUI.x,
 		g_engine->m_inputContext->m_cursorCoordsForGUI.y,
 		v4f(
@@ -96,7 +96,7 @@ void yyGUIPictureBox::OnUpdate()
 
 	if (m_onClick && g_engine->m_inputContext->m_isLMBDown)
 	{
-		if (inRect)
+		if (m_inRect)
 			m_onClick(this, m_id);
 	}
 }

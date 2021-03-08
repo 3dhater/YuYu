@@ -8,6 +8,7 @@
 #include "d3d11_texture.h"
 #include "d3d11_shader_GUI.h"
 #include "d3d11_shader_sprite.h"
+#include "d3d11_shader_sprite2.h"
 #include "d3d11_shader_ScreenQuad.h"
 #include "d3d11_shader_simple.h"
 #include "d3d11_shader_Line3D.h"
@@ -49,6 +50,7 @@ D3D11::D3D11()
 	m_shaderScreenQuad = 0;
 	m_shaderGUI = nullptr;
 	m_shaderSprite = nullptr;
+	m_shaderSprite2 = nullptr;
 	m_shaderSimple = 0;
 	m_shaderSimpleAnimated = 0;
 	m_shaderLine3D = 0;
@@ -83,6 +85,7 @@ D3D11::~D3D11()
 	if (m_shaderSimple) yyDestroy(m_shaderSimple);
 	if (m_shaderScreenQuad)yyDestroy(m_shaderScreenQuad);
 	if (m_shaderSprite)yyDestroy(m_shaderSprite);
+	if (m_shaderSprite2)yyDestroy(m_shaderSprite2);
 	if (m_shaderGUI) yyDestroy(m_shaderGUI);
 
 	if (m_blendStateAlphaDisabled)              m_blendStateAlphaDisabled->Release();
@@ -410,6 +413,14 @@ bool D3D11::Init(yyWindow* window)
 	if (!m_shaderSprite->init())
 	{
 		yyLogWriteError("Can't create sprite shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	m_shaderSprite2 = yyCreate<D3D11ShaderSprite2>();
+	if (!m_shaderSprite2->init())
+	{
+		yyLogWriteError("Can't create sprite2 shader...");
 		YY_PRINT_FAILED;
 		return false;
 	}

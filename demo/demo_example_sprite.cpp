@@ -4,6 +4,7 @@
 
 #include "scene\common.h"
 #include "scene\sprite.h"
+#include "scene\sprite2.h"
 #include "yy_input.h"
 
 extern Demo* g_demo;
@@ -13,6 +14,8 @@ DemoExample_Sprite::DemoExample_Sprite()
 	m_spriteLevel = 0;
 	m_spriteHero = 0;
 	m_textureLevel = 0;
+
+	m_spriteHero = 0;
 
 	for (u32 i = 0; i < 9; ++i)
 	{
@@ -61,11 +64,44 @@ bool DemoExample_Sprite::Init()
 	m_spriteCameraScale->x = 1.7f;
 	m_spriteCameraScale->y = 1.7f;
 
+	m_spriteHero = yyCreateSprite2(yyGetTextureResource("../res/GA3E/hero0.png", false, false, true));
+//	m_spriteHero->SetState(m_spriteHero->AddStateSingleFrame("0", v4f(82.f, 0.f, 120.f, 84.f), 5, false, false));
+	v4f spriteHeroAnimation[] = {
+		v4f(0.f, 0.f, 38.f, 84.f),
+		v4f(41.f, 0.f, 79.f, 84.f),
+		v4f(82.f, 0.f, 120.f, 84.f),
+		v4f(124.f, 0.f, 173.f, 84.f),
+		v4f(176.f, 0.f, 221.f, 84.f),
+		v4f(226.f, 0.f, 294.f, 84.f),
+		v4f(298.f, 0.f, 362.f, 84.f),
+	};
+	v2f spriteHeroAnimationOffsets[] = {
+		v2f(0.f, 0.f),
+		v2f(0.f, 0.f),
+		v2f(0.f, 0.f),
+		v2f(5.f, 0.f),
+		v2f(3.f, 0.f),
+		v2f(-15.f, 0.f),
+		v2f(-12.f, 0.f),
+	};
+	m_spriteHero->SetState( m_spriteHero->AddStateAnimation("0", spriteHeroAnimation, spriteHeroAnimationOffsets, 
+		7, 5, false, false ) );
+	m_spriteHero->m_currentState->SetFPS(6.f);
+
 	return true;
 }
 
+/* Спрайт не удаляет текстуры.
+	За текстурами нужно следить вручную.
+*/
 void DemoExample_Sprite::Shutdown()
 {
+	if (m_spriteHero)
+	{
+		yyDestroy(m_spriteHero);
+		m_spriteHero = 0;
+	}
+
 	if (m_textureLevel)
 	{
 		m_gpu->DeleteTexture(m_textureLevel);
@@ -141,6 +177,10 @@ bool DemoExample_Sprite::DemoStep(f32 deltaTime)
 		m_spriteTest[i]->m_objectBase.UpdateBase();
 		m_gpu->DrawSprite(m_spriteTest[i]);
 	}
+
+	m_spriteHero->Update(deltaTime);
+	m_spriteHero->m_objectBase.UpdateBase();
+	m_gpu->DrawSprite2(m_spriteHero);
 
 	return g_demo->m_inputContext->isKeyHit(yyKey::K_ESCAPE) == false;
 }

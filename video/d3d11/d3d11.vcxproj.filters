@@ -15,6 +15,7 @@
     <ClCompile Include="d3d11_texture.cpp" />
     <ClCompile Include="d3d11_shader_ScreenQuad.cpp" />
     <ClCompile Include="d3d11_shader_simple.cpp" />
+    <ClCompile Include="d3d11_shader_sprite2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vid_d3d11.h" />
@@ -27,6 +28,7 @@
     <ClInclude Include="d3d11_texture.h" />
     <ClInclude Include="d3d11_shader_ScreenQuad.h" />
     <ClInclude Include="d3d11_shader_simple.h" />
+    <ClInclude Include="d3d11_shader_sprite2.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="DirectXTK">

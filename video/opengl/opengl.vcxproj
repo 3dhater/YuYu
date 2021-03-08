@@ -273,6 +273,7 @@
     <ClCompile Include="OpenGL_shader_depth.cpp" />
     <ClCompile Include="OpenGL_shader_ScreenQuad.cpp" />
     <ClCompile Include="OpenGL_shader_simple.cpp" />
+    <ClCompile Include="OpenGL_shader_sprite2.cpp" />
     <ClCompile Include="OpenGL_shader_standart.cpp" />
     <ClCompile Include="OpenGL_shader_GUI.cpp" />
     <ClCompile Include="OpenGL_shader_Line3D.cpp" />
@@ -286,6 +287,7 @@
     <ClInclude Include="OpenGL_shader_depth.h" />
     <ClInclude Include="OpenGL_shader_ScreenQuad.h" />
     <ClInclude Include="OpenGL_shader_simple.h" />
+    <ClInclude Include="OpenGL_shader_sprite2.h" />
     <ClInclude Include="OpenGL_shader_standart.h" />
     <ClInclude Include="OpenGL_shader_GUI.h" />
     <ClInclude Include="OpenGL_shader_Line3D.h" />

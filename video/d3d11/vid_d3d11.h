@@ -75,6 +75,7 @@ class D3D11Model;
 class D3D11ShaderCommon;
 class D3D11ShaderGUI;
 class D3D11ShaderSprite;
+class D3D11ShaderSprite2;
 class D3D11ShaderScreenQuad;
 class D3D11ShaderSimple;
 class D3D11ShaderSimpleAnimated;
@@ -129,6 +130,7 @@ public:
 
 	D3D11ShaderGUI* m_shaderGUI;
 	D3D11ShaderSprite* m_shaderSprite;
+	D3D11ShaderSprite2* m_shaderSprite2;
 	D3D11ShaderScreenQuad* m_shaderScreenQuad;
 	D3D11ShaderSimple* m_shaderSimple;
 	D3D11ShaderSimpleAnimated* m_shaderSimpleAnimated;

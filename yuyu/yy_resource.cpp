@@ -211,7 +211,7 @@ YY_API yyResource* YY_C_DECL yyGetTextureResource(const char* fileName, bool use
 
 YY_API void YY_C_DECL yyGetTextureSize(yyResource* r, v2i* s)
 {
-	return g_engine->m_videoAPI->GetTextureSize(r, s);
+	g_engine->m_videoAPI->GetTextureSize(r, s);
 }
 
 }

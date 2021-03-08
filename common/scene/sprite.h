@@ -11,7 +11,7 @@ struct yySpriteState
 	yySpriteState()
 		:
 		m_frameCurrent(0),
-		m_frameSize(0),
+		m_frameNum(0),
 		m_invertX(false),
 		m_invertY(false),
 		m_isAnimation(false),
@@ -24,7 +24,7 @@ struct yySpriteState
 	
 	yyArraySmall<v4f> m_frames; // координаты UV
 	u16 m_frameCurrent;
-	u16 m_frameSize;
+	u16 m_frameNum;
 
 	bool m_invertX;
 	bool m_invertY;
@@ -83,7 +83,7 @@ struct yySprite
 				{
 					timer = 0.f;
 					++m_currentState->m_frameCurrent;
-					if(m_currentState->m_frameCurrent == m_currentState->m_frameSize)
+					if(m_currentState->m_frameCurrent == m_currentState->m_frameNum)
 						m_currentState->m_frameCurrent = 0;
 					m_tcoords_1.x = m_currentState->m_frames[m_currentState->m_frameCurrent].x;
 					m_tcoords_1.y = m_currentState->m_frames[m_currentState->m_frameCurrent].y;
@@ -203,7 +203,7 @@ YY_FORCE_INLINE void yySpriteState::AddAnimationFrame(int leftTopX, int leftTopY
 {
 	if(!m_sprite->m_texture)
 		return;
-
+	
 	v2i textureSize;
 	yyGetTextureSize(m_sprite->m_texture, &textureSize);
 
@@ -221,7 +221,7 @@ YY_FORCE_INLINE void yySpriteState::AddAnimationFrame(int leftTopX, int leftTopY
 	newFrame.z = (f32)(rightBottomX+1) * xMulFactor;
 	newFrame.w = ((f32)(rightBottomY+1) * yMulFactor);
 	this->m_frames.push_back(newFrame);
-	m_frameSize = m_frames.size();
+	m_frameNum = m_frames.size();
 }
 
 #endif

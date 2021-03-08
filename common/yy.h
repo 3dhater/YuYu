@@ -82,6 +82,7 @@ extern "C"
 		6--5--4
 	*/
 	YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& rect, yyResource* texture, u8 pivotPosition = 0);
+	YY_API yySprite2* YY_C_DECL yyCreateSprite2(yyResource* texture);
 
 	// get from cache. if not found, create GPU resource, add to cache.
 	// ++m_refCount;

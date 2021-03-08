@@ -18,6 +18,7 @@ class yyGUIElement
 {
 protected:
 	bool m_visible;
+	bool m_inRect;
 	bool m_ignoreInput;
 public:
 
@@ -36,6 +37,7 @@ public:
 	virtual void SetVisible(bool v) { m_visible = v; }
 	virtual void IgnoreInput(bool v) { m_ignoreInput = v; }
 	bool IsVisible() { return m_visible; }
+	bool IsInRect() { return m_inRect; }
 
 	virtual void OnUpdate() = 0;
 	virtual void OnDraw() = 0;

@@ -90,6 +90,7 @@ struct yySceneObjectBase
 		Dummy,
 		Camera,
 		Sprite,
+		Sprite2,
 		MDL,
 	};
 	ObjectType m_objectType;

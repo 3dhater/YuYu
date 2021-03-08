@@ -37,6 +37,7 @@
     <ClCompile Include="d3d11_shader_ScreenQuad.cpp" />
     <ClCompile Include="d3d11_shader_simple.cpp" />
     <ClCompile Include="d3d11_shader_sprite.cpp" />
+    <ClCompile Include="d3d11_shader_sprite2.cpp" />
     <ClCompile Include="d3d11_shader_standart.cpp" />
     <ClCompile Include="d3d11_texture.cpp" />
   </ItemGroup>
@@ -44,6 +45,7 @@
     <ClInclude Include="d3d11_shader.h" />
     <ClInclude Include="d3d11_shader_ScreenQuad.h" />
     <ClInclude Include="d3d11_shader_simple.h" />
+    <ClInclude Include="d3d11_shader_sprite2.h" />
     <ClInclude Include="vid_d3d11.h" />
     <ClInclude Include="d3d11_model.h" />
     <ClInclude Include="d3d11_shader_GUI.h" />
