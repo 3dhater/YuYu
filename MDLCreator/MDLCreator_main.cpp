@@ -678,6 +678,20 @@ int main(int argc, char* argv[])
 				if (g_selectedAnimation != -1)
 				{
 					ImGui::DragFloat("FPS:", &g_sceneObject->m_mdlObject->m_mdl->m_animations[g_selectedAnimation]->m_fps, 1.f, 1.f, 60.f);
+					bool d = g_sceneObject->m_mdlObject->m_mdl->m_animations[g_selectedAnimation]->m_flags & yyMDLAnimation::flag_disableSmoothLoop;
+					ImGui::Checkbox("Disable smooth loop", &d);
+					if (d)
+					{
+						if((g_sceneObject->m_mdlObject->m_mdl->m_animations[g_selectedAnimation]->m_flags & yyMDLAnimation::flag_disableSmoothLoop)
+							== 0)
+							g_sceneObject->m_mdlObject->m_mdl->m_animations[g_selectedAnimation]->m_flags |= yyMDLAnimation::flag_disableSmoothLoop;
+					}
+					else
+					{
+						if ((g_sceneObject->m_mdlObject->m_mdl->m_animations[g_selectedAnimation]->m_flags & yyMDLAnimation::flag_disableSmoothLoop)
+							== 1)
+							g_sceneObject->m_mdlObject->m_mdl->m_animations[g_selectedAnimation]->m_flags ^= yyMDLAnimation::flag_disableSmoothLoop;
+					}
 				}
 				ImGui::EndTabItem();
 			}
@@ -1044,6 +1058,7 @@ void SaveMDL(const char* fileName)
 		auto animation = g_sceneObject->m_mdlObject->m_mdl->m_animations[i];
 		yyMDLAnimationHeader animHeader;
 		animHeader.m_fps = animation->m_fps;
+		animHeader.m_flags = animation->m_flags;
 		animHeader.m_length = animation->m_len;
 		animHeader.m_nameStrID = strings.size();
 		strings.push_back(animation->m_name.data());

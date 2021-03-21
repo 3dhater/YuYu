@@ -440,7 +440,7 @@ struct yyMDLAnimationFrames
 };
 struct yyMDLAnimation
 {
-	yyMDLAnimation() :m_len(0.f), m_fps(30.f){}
+	yyMDLAnimation() :m_len(0.f), m_fps(30.f), m_flags(0){}
 	~yyMDLAnimation() {
 		for (u16 i = 0, sz = m_animatedJoints.size(); i < sz; ++i)
 		{
@@ -454,8 +454,7 @@ struct yyMDLAnimation
 	// вычисление анимации должно происходить раз за кадр, результат
 	//  должен быть сохранён где-то, например надо создать 
 	//   дополнительную структуру
-	struct _joint_info
-	{
+	struct _joint_info{
 		s32  m_jointID;     // индекс yyMDL::m_joints
 		
 		// фреймы анимации для конкретного джоинта
@@ -465,12 +464,14 @@ struct yyMDLAnimation
 
 	// длинна анимации
 	f32 m_len;
-
 	f32 m_fps;
+	u32 m_flags;
+	enum {
+		flag_disableSmoothLoop = BIT(0)
+	};
 
 
-	void AddKeyFrame(s32 jointID, s32 time, const v3f& position, const Quat& rotation, const v3f& scale)
-	{
+	void AddKeyFrame(s32 jointID, s32 time, const v3f& position, const Quat& rotation, const v3f& scale){
 		_joint_info* ji = _get_joint_info(jointID);
 		if (!ji)
 		{
@@ -571,11 +572,13 @@ struct yyMDLAnimationHeader
 		m_length = 0.f;
 		m_fps = 0.f;
 		m_numOfAnimatedJoints = 0;
+		m_flags = 0;
 	}
 	s32 m_nameStrID;
 	f32 m_length;
 	f32 m_fps;
 	u32 m_numOfAnimatedJoints;
+	u32 m_flags;
 };
 struct yyMDLAnimatedJointHeader
 {

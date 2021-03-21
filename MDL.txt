@@ -66,6 +66,7 @@ animation_header
 	float length
 	float fps
 	u32 num of animated joints
+	u32 flags
 }
 
 joint_animation_header

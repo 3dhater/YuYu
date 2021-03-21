@@ -154,6 +154,24 @@ struct yyMDLObject
 				if (currentAnimation->m_time >= currentAnimation->m_animation->m_len)
 				{
 					currentAnimation->m_time = 0;
+
+					if (currentAnimation->m_animation->m_flags & yyMDLAnimation::flag_disableSmoothLoop)
+					{
+					//	currentAnimation->m_animation->
+						for (u16 i = 0, sz = currentAnimation->m_animatedJoints.size(); i < sz; ++i)
+						{
+							auto jointID = currentAnimation->m_animatedJoints[i];
+							auto animatedJoint = currentAnimation->m_animation->m_animatedJoints[jointID];
+
+							//auto mdlJoint = m_mdl->m_joints[jointID];
+							auto & objJoint = m_joints[jointID];
+
+							
+							objJoint.m_position = animatedJoint->m_animationFrames.m_keyFrames.m_data[0].m_position;
+							objJoint.m_rotation = animatedJoint->m_animationFrames.m_keyFrames.m_data[0].m_rotation;
+							objJoint.m_scale = animatedJoint->m_animationFrames.m_keyFrames.m_data[0].m_scale;
+						}
+					}
 				}
 			}
 		}
@@ -210,7 +228,18 @@ struct yyMDLObject
 		m_currentState = newState;
 		for (u16 i = 0, sz = m_currentState->m_animations.size(); i < sz; ++i)
 		{
-			m_currentState->m_animations[i]->m_time = 0.f;
+			auto & currentAnimation = m_currentState->m_animations.at(i);
+
+			currentAnimation->m_time = 0.f;
+			for (u16 i2 = 0, sz2 = currentAnimation->m_animatedJoints.size(); i2 < sz2; ++i2)
+			{
+				auto jointID = currentAnimation->m_animatedJoints[i2];
+				auto animatedJoint = currentAnimation->m_animation->m_animatedJoints[jointID];
+				auto & objJoint = m_joints[jointID];
+				objJoint.m_position = animatedJoint->m_animationFrames.m_keyFrames.m_data[0].m_position;
+				objJoint.m_rotation = animatedJoint->m_animationFrames.m_keyFrames.m_data[0].m_rotation;
+				objJoint.m_scale = animatedJoint->m_animationFrames.m_keyFrames.m_data[0].m_scale;
+			}
 		}
 	}
 	

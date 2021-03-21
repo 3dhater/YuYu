@@ -116,6 +116,7 @@ void MDL_loadVersion1(yyMDL** _mdl, yyFileBuffer* f)
 
 		yyMDLAnimation* newAnimation = yyCreate<yyMDLAnimation>();
 		newAnimation->m_fps = animHeader.m_fps;
+		newAnimation->m_flags = animHeader.m_flags;
 		newAnimation->m_len = animHeader.m_length;
 		newAnimation->m_name = strings[animHeader.m_nameStrID].data();
 		for (u32 o = 0; o < animHeader.m_numOfAnimatedJoints; ++o)

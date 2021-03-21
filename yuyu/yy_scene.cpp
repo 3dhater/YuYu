@@ -19,6 +19,9 @@ YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& r, yyResource* texture, u8 
 	newSprite->m_model = vAPI->CreateModel(model);
 	newSprite->m_texture = texture;
 	yyDestroy(model);
+
+	yyLogWriteInfo("Create sprite\n");
+
 	return newSprite;
 }
 
@@ -26,6 +29,7 @@ YY_API yySprite2* YY_C_DECL yyCreateSprite2(yyResource* texture)
 {
 	yySprite2* newSprite = yyCreate<yySprite2>();
 	newSprite->m_texture = texture;
+	yyLogWriteInfo("Create sprite2\n");
 	return newSprite;
 }
 
