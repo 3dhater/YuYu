@@ -686,7 +686,7 @@ void ImportSMD(yyMDLObject* object, const char* file)
 			sn->m_animatedJoints.push_back((s32)i);
 		}
 
-		newState->m_animations.push_back(sn);
+		newState->m_stateNodesWithAnimations.push_back(sn);
 
 		g_sceneObject->m_MDLObjectStates.push_back(newState);
 	}

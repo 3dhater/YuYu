@@ -37,15 +37,15 @@ struct yyMDLObjectState
 	yyMDLObjectState() {}
 	~yyMDLObjectState() 
 	{
-		for (u16 i = 0, sz = m_animations.size(); i < sz; ++i)
+		for (u16 i = 0, sz = m_stateNodesWithAnimations.size(); i < sz; ++i)
 		{
-			yyDestroy(m_animations[i]);
+			yyDestroy(m_stateNodesWithAnimations[i]);
 		}
 	}
 
 	yyStringA m_name;
 
-	yyArraySmall<yyMDLObjectStateNode*> m_animations;
+	yyArraySmall<yyMDLObjectStateNode*> m_stateNodesWithAnimations;
 };
 
 struct yyMDLObject
@@ -59,6 +59,9 @@ struct yyMDLObject
 		m_objectBase.m_updateImplementation = yyMDLObject_update; 
 	//	m_isAnimated = false;
 		m_onUpdate = 0;
+		m_onAnimationEnd = 0;
+		m_userData = 0;
+
 	}
 	~yyMDLObject()
 	{
@@ -76,24 +79,27 @@ struct yyMDLObject
 	{
 		if (m_currentState)
 		{
-			for (u16 ai = 0, aisz = m_currentState->m_animations.size(); ai < aisz; ++ai)
+			// there's many animations...
+			bool isLoopEnd = false;
+
+			for (u16 ai = 0, aisz = m_currentState->m_stateNodesWithAnimations.size(); ai < aisz; ++ai)
 			{
-				auto & currentAnimation = m_currentState->m_animations.at(ai);
-				f32 fps_factor = currentAnimation->m_animation->m_fps * dt;
+				auto & currentNodeAnimation = m_currentState->m_stateNodesWithAnimations.at(ai);
+				f32 fps_factor = currentNodeAnimation->m_animation->m_fps * dt;
 				//f32 fps_factor = 5.f * dt;
 
-				for (u16 i = 0, sz = currentAnimation->m_animatedJoints.size(); i < sz; ++i)
+				for (u16 i = 0, sz = currentNodeAnimation->m_animatedJoints.size(); i < sz; ++i)
 				{
-					auto jointID = currentAnimation->m_animatedJoints[i];
-					auto animatedJoint = currentAnimation->m_animation->m_animatedJoints[jointID];
+					auto jointID = currentNodeAnimation->m_animatedJoints[i];
+					auto animatedJoint = currentNodeAnimation->m_animation->m_animatedJoints[jointID];
 					auto mdlJoint = m_mdl->m_joints[animatedJoint->m_jointID];
 					auto & objJoint = m_joints[animatedJoint->m_jointID];
 
-					auto currentKey = animatedJoint->m_animationFrames.getCurrentKeyFrame((s32)currentAnimation->m_time);
-					auto nextKey = animatedJoint->m_animationFrames.getNextKeyFrame((s32)currentAnimation->m_time);
+					auto currentKey = animatedJoint->m_animationFrames.getCurrentKeyFrame((s32)currentNodeAnimation->m_time);
+					auto nextKey = animatedJoint->m_animationFrames.getNextKeyFrame((s32)currentNodeAnimation->m_time);
 
 					auto timeSize = (f32)(nextKey->m_time - currentKey->m_time);
-					auto timeLeft = (f32)nextKey->m_time - currentAnimation->m_time;
+					auto timeLeft = (f32)nextKey->m_time - currentNodeAnimation->m_time;
 					auto timeCoef = 1.f - math::get_0_1(timeSize, timeLeft);
 					timeCoef *= fps_factor;
 
@@ -149,19 +155,21 @@ struct yyMDLObject
 					objJoint.m_finalTransformation =
 						objJoint.m_globalTransformation *  mdlJoint->m_matrixOffset;// *mdlJoint->m_matrixBindInverse;
 				}
-				currentAnimation->m_time += fps_factor;
+				currentNodeAnimation->m_time += fps_factor;
 
-				if (currentAnimation->m_time >= currentAnimation->m_animation->m_len)
+				if (currentNodeAnimation->m_time >= currentNodeAnimation->m_animation->m_len)
 				{
-					currentAnimation->m_time = 0;
+					currentNodeAnimation->m_time = 0;
+					isLoopEnd = true;
 
-					if (currentAnimation->m_animation->m_flags & yyMDLAnimation::flag_disableSmoothLoop)
+					if (currentNodeAnimation->m_animation->m_flags & yyMDLAnimation::flag_disableSmoothLoop
+						&& !m_onAnimationEnd)
 					{
 					//	currentAnimation->m_animation->
-						for (u16 i = 0, sz = currentAnimation->m_animatedJoints.size(); i < sz; ++i)
+						for (u16 i = 0, sz = currentNodeAnimation->m_animatedJoints.size(); i < sz; ++i)
 						{
-							auto jointID = currentAnimation->m_animatedJoints[i];
-							auto animatedJoint = currentAnimation->m_animation->m_animatedJoints[jointID];
+							auto jointID = currentNodeAnimation->m_animatedJoints[i];
+							auto animatedJoint = currentNodeAnimation->m_animation->m_animatedJoints[jointID];
 
 							//auto mdlJoint = m_mdl->m_joints[jointID];
 							auto & objJoint = m_joints[jointID];
@@ -173,6 +181,11 @@ struct yyMDLObject
 						}
 					}
 				}
+			}
+			if (m_onAnimationEnd && isLoopEnd)
+			{
+		//		printf("End \n");
+				m_onAnimationEnd(m_userData);
 			}
 		}
 	}
@@ -197,8 +210,7 @@ struct yyMDLObject
 	yyMDL* m_mdl;
 
 	// никакого удаления предидущего m_mdl нет, надо следить за этим самому
-	void SetMDL(yyMDL* mdl)
-	{
+	void SetMDL(yyMDL* mdl){
 		m_mdl = mdl;
 
 		m_joints.clear();
@@ -217,28 +229,54 @@ struct yyMDLObject
 	yySceneObjectBase m_objectBase;
 	yyMDLObjectState* m_currentState;
 
-	yyMDLObjectState* AddState(const char* name)
-	{
+	void * m_userData;
+	void(*m_onAnimationEnd)(void*);
+	void SetOnAnimationEnd(void(*onAnimationEnd)(void*), void * userData) {
+		m_onAnimationEnd = onAnimationEnd;
+		m_userData = userData;
+	}
+
+	yyMDLObjectState* AddState(const char* name){
+		assert(name);
 		auto s = yyCreate<yyMDLObjectState>();
 		s->m_name = name;
 		return s;
 	}
-	void SetState(yyMDLObjectState* newState)
+
+	yyMDLObjectState* AddStateWithAnimation(const char* name, yyMDLAnimation* ani){
+		assert(name);
+		assert(ani);
+		auto s = yyCreate<yyMDLObjectState>();
+		s->m_name = name;
+		yyMDLObjectStateNode* newStateNode = yyCreate<yyMDLObjectStateNode>();
+		newStateNode->m_animation = ani;
+		for (u16 i = 0, sz = ani->m_animatedJoints.size(); i < sz; ++i)
+		{
+			newStateNode->m_animatedJoints.push_back((s32)i);
+		}
+		s->m_stateNodesWithAnimations.push_back(newStateNode);
+		return s;
+	}
+	void SetState(yyMDLObjectState* newState, bool resetTransforms)
 	{
 		m_currentState = newState;
-		for (u16 i = 0, sz = m_currentState->m_animations.size(); i < sz; ++i)
+		for (u16 i = 0, sz = m_currentState->m_stateNodesWithAnimations.size(); i < sz; ++i)
 		{
-			auto & currentAnimation = m_currentState->m_animations.at(i);
+			auto & currentNodeAnimation = m_currentState->m_stateNodesWithAnimations.at(i);
 
-			currentAnimation->m_time = 0.f;
-			for (u16 i2 = 0, sz2 = currentAnimation->m_animatedJoints.size(); i2 < sz2; ++i2)
+			currentNodeAnimation->m_time = 0.f;
+
+			if (resetTransforms)
 			{
-				auto jointID = currentAnimation->m_animatedJoints[i2];
-				auto animatedJoint = currentAnimation->m_animation->m_animatedJoints[jointID];
-				auto & objJoint = m_joints[jointID];
-				objJoint.m_position = animatedJoint->m_animationFrames.m_keyFrames.m_data[0].m_position;
-				objJoint.m_rotation = animatedJoint->m_animationFrames.m_keyFrames.m_data[0].m_rotation;
-				objJoint.m_scale = animatedJoint->m_animationFrames.m_keyFrames.m_data[0].m_scale;
+				for (u16 i2 = 0, sz2 = currentNodeAnimation->m_animatedJoints.size(); i2 < sz2; ++i2)
+				{
+					auto jointID = currentNodeAnimation->m_animatedJoints[i2];
+					auto animatedJoint = currentNodeAnimation->m_animation->m_animatedJoints[jointID];
+					auto & objJoint = m_joints[jointID];
+					objJoint.m_position = animatedJoint->m_animationFrames.m_keyFrames.m_data[0].m_position;
+					objJoint.m_rotation = animatedJoint->m_animationFrames.m_keyFrames.m_data[0].m_rotation;
+					objJoint.m_scale = animatedJoint->m_animationFrames.m_keyFrames.m_data[0].m_scale;
+				}
 			}
 		}
 	}

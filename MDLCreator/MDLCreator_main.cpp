@@ -668,7 +668,7 @@ int main(int argc, char* argv[])
 						auto newState = g_sceneObject->getState(stra.data());
 						if (newState)
 						{
-							g_sceneObject->m_mdlObject->SetState(newState);
+							g_sceneObject->m_mdlObject->SetState(newState, true);
 						}
 					}
 				}

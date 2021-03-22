@@ -41,6 +41,7 @@ public:
 	// from engine texture cache. do not delete
 	yyArraySmall<yyResource*> m_textures;
 
+	u32 m_maxHeight;
 	//yyResource* m_texture;
 	//yyResource* m_pictureBoxModel; // yyResourceType::Model
 

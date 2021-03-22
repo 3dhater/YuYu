@@ -34,8 +34,22 @@ public:
 
 	// Класс-обёртка который играет анимацию.
 	yyMDLObject* m_mdl_object;
+	
+	yyMDLObject* m_mdl_playerGun;
+	yyMDLObjectState* m_playerGunState_idle;
+	yyMDLObjectState* m_playerGunState_idleempty;
+	yyMDLObjectState* m_playerGunState_shot;
+	yyMDLObjectState* m_playerGunState_shotlast;
+	yyMDLObjectState* m_playerGunState_reload;
+	s32 m_gunBulletMax;
+	s32 m_gunBulletCurr;
+	bool m_gunReady;
+	yyMDLObjectState* m_playerGunState_curr;
+	yyGUIText* m_guiTextBullets;
 
 	yyFlyCamera* m_flyCamera;
+	
+	yyFlyCamera* m_handsCamera;
 };
 
 #endif

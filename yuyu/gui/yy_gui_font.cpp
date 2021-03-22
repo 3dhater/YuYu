@@ -12,6 +12,7 @@ extern Engine * g_engine;
 
 yyGUIFont::yyGUIFont()
 {
+	m_maxHeight = 0;
 	m_glyphs.reserve(0xffff);
 	for (u32 i = 0; i < 0xffff; ++i)
 	{
@@ -198,6 +199,10 @@ YY_API yyGUIFont* YY_C_DECL yyGUILoadFont(const char* fileName)
 
 			glyph->width = ci.rect.z - ci.rect.x ;
 			glyph->height = ci.rect.w - ci.rect.y;
+
+			if (glyph->height > newFont->m_maxHeight)
+				newFont->m_maxHeight = glyph->height;
+
 			glyph->overhang = ci.overhang;
 			glyph->underhang = ci.underhang;
 			glyph->textureID = ci.textureSlot;

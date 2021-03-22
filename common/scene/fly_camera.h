@@ -23,16 +23,15 @@ void yyFlyCamera_onUpdate(yyCamera* camera)
 
 class yyFlyCamera
 {
-	void _moveCamera(v4f& vel)
-	{
+	void _moveCamera(v4f& vel){
 		auto RotInv = m_camera->m_rotationMatrix;
 		RotInv.invert();
 		vel = math::mul(vel, RotInv);
 		m_camera->m_objectBase.m_localPosition += vel;
 	}
 public:
-	yyFlyCamera()
-	{
+
+	yyFlyCamera(){
 		m_camera = 0;
 		m_moveSpeed = 5.f;
 
@@ -43,19 +42,31 @@ public:
 		m_camera->m_near = 0.1f;
 		m_camera->m_far = 3000.f;
 	}
-	~yyFlyCamera()
-	{
+
+	~yyFlyCamera(){
 		if (m_camera) yyDestroy(m_camera);
 	}
 
-	void Update()
-	{
+	void Update(){
 		m_camera->m_objectBase.UpdateBase();
 		m_camera->Update();
 	}
 
-	void Rotate(const v2f& mouseDelta, f32 dt)
-	{
+	void SetPosition(f32 x, f32 y, f32 z){
+		m_camera->m_objectBase.m_localPosition.set(x, y, z, 1.f);
+	}
+
+	void SetRotation(f32 x, f32 y, f32 z){
+		Mat4 RX;
+		Mat4 RY;
+		//Mat4 RZ;
+		RY.setRotation(Quat(v4f(0.f, math::degToRad(y), 0.f, 0.f)));
+		RX.setRotation(Quat(v4f(math::degToRad(x), 0.f, 0.f, 0.f)));
+		//RZ.setRotation(Quat(v4f(0.f, 0.f, math::degToRad(z), 0.f)));
+		m_camera->m_rotationMatrix = RX * m_camera->m_rotationMatrix * RY;
+	}
+
+	void Rotate(const v2f& mouseDelta, f32 dt){
 		f32 speed = 5.f;
 		Mat4 RX;
 		Mat4 RY;
@@ -75,37 +86,35 @@ public:
 			m_camera->m_rotationMatrix = RX * m_camera->m_rotationMatrix * RY;
 	}
 
-	void MoveLeft(f32 dt)
-	{
+	void MoveLeft(f32 dt){
 		auto speed = m_moveSpeed;
 		_moveCamera(v4f(-speed * dt, 0.f, 0.f, 1.f));
 	}
-	void MoveRight(f32 dt)
-	{
+
+	void MoveRight(f32 dt){
 		auto speed = m_moveSpeed; 
 		_moveCamera(v4f(speed * dt, 0.f, 0.f, 1.f));
 	}
-	void MoveUp(f32 dt)
-	{
+
+	void MoveUp(f32 dt){
 		auto speed = m_moveSpeed; 
 		_moveCamera(v4f(0.f, speed * dt, 0.f, 1.f));
 	}
-	void MoveDown(f32 dt)
-	{
+
+	void MoveDown(f32 dt){
 		auto speed = m_moveSpeed;
 		_moveCamera(v4f(0.f, -speed * dt, 0.f, 1.f));
 	}
-	void MoveBackward(f32 dt)
-	{
+
+	void MoveBackward(f32 dt){
 		auto speed = m_moveSpeed;
 		_moveCamera(v4f(0.f, 0.f, speed * dt, 1.f));
 	}
-	void MoveForward(f32 dt)
-	{
+
+	void MoveForward(f32 dt){
 		auto speed = m_moveSpeed;
 		_moveCamera(v4f(0.f, 0.f, -speed * dt, 1.f));
 	}
-
 
 	yyCamera* m_camera;
 	f32 m_moveSpeed;
