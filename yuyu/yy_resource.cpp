@@ -24,7 +24,7 @@ YY_API void YY_C_DECL yyLoadImageAsync(const char* fn, s32 id)
 YY_API yyImage* YY_C_DECL yyLoadImage(const char* fileName)
 {
 	assert(fileName);
-	if(!yyFS::exists(fileName))
+	if(!yy_fs::exists(fileName))
 	{
 		yyLogWriteWarning("File %s not found\n", fileName);
 		YY_PRINT_FAILED;
@@ -56,14 +56,14 @@ YY_API void YY_C_DECL yyDeleteImage(yyImage* image)
 YY_API yyMDL* YY_C_DECL yyGetModel(const char* fileName, bool useLinearFilterForTextures, bool loadTextures)
 {
 	assert(fileName);
-	if (!yyFS::exists(fileName))
+	if (!yy_fs::exists(fileName))
 	{
 		yyLogWriteWarning("File %s not found\n", fileName);
 		YY_PRINT_FAILED;
 		return nullptr;
 	}
 
-	yyFS::path p = fileName;
+	yy_fs::path p = fileName;
 	for (auto & node : g_engine->m_modelCache)
 	{
 		if (node.m_path == p)
@@ -93,7 +93,7 @@ YY_API yyMDL* YY_C_DECL yyLoadModel(const char* fileName, bool useLinearFilterFo
 {
 	assert(fileName);
 	yyLogWriteInfo("Load model: %s\n", fileName);
-	if(!yyFS::exists(fileName))
+	if(!yy_fs::exists(fileName))
 	{
 		yyLogWriteWarning("File %s not found\n", fileName);
 		YY_PRINT_FAILED;
@@ -175,7 +175,7 @@ YY_API void YY_C_DECL yyDeleteModel(yyMDL* m)
 YY_API yyResource* YY_C_DECL yyGetTextureResource(const char* fileName, bool useFilter, bool useComparisonFilter, bool load)
 {
 	assert(fileName);
-	yyFS::path p = fileName;
+	yy_fs::path p = fileName;
 	for (auto & node : g_engine->m_textureCache)
 	{
 		if (node.m_path == p)

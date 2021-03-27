@@ -214,7 +214,7 @@ void newLayer(yyMDLObject* object, const char16_t* file){
 	yyStringA stra;
 	stra = file;
 
-	yyFS::path path = file;
+	yy_fs::path path = file;
 	auto ext = path.extension();
 	
 	if (ext.string_type == L".smd")
@@ -253,7 +253,7 @@ void deleteLayer(yyMDLObject* object){
 void reloadTexture(yyMDLObject* object, int textureSlot, const wchar_t* path){
 	auto layer = object->m_mdl->m_layers[g_selectedLayer];
 
-	if (!yyFS::exists(yyFS::path(path)))
+	if (!yy_fs::exists(yy_fs::path(path)))
 	{
 		printf("Not exist\n");
 		if (layer->m_textureGPU[textureSlot])
@@ -969,7 +969,7 @@ int main(int argc, char* argv[])
 
 void SaveMDL(const char* fileName)
 {
-	yyFS::path p = fileName;
+	yy_fs::path p = fileName;
 	if (!p.has_extension())
 	{
 		p.string_type += ".mdl";
@@ -1007,7 +1007,7 @@ void SaveMDL(const char* fileName)
 			if (layer->m_texturePath[p].size())
 			{
 				layerHeader.m_textureStrID[p] = strings.size();
-				yyFS::path fspath = layer->m_texturePath[p].data();
+				yy_fs::path fspath = layer->m_texturePath[p].data();
 				auto relPath = yyGetRelativePath(fspath.string_type.data());
 				if (relPath)
 				{

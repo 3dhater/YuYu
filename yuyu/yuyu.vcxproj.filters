@@ -240,5 +240,8 @@
     <ClCompile Include="gui\yy_gui_button.cpp">
       <Filter>Source Files\gui</Filter>
     </ClCompile>
+    <ClCompile Include="yy_fs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

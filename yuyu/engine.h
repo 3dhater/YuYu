@@ -75,7 +75,7 @@ struct CacheNode
 		:
 		m_resource(nullptr)
 	{}
-	yyFS::path m_path;
+	yy_fs::path m_path;
 	T* m_resource;
 };
 

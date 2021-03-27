@@ -66,7 +66,7 @@ void decompress8BitRLE(u8*& rleData, u8*& inds, u32 size, u32 width, u32 height)
 
 yyImage* ImageLoader_BMP(const char* p)
 {
-	auto file_size = yyFS::file_size(p);
+	auto file_size = yy_fs::file_size(p);
 
 	FILE * file = fopen(p, "rb");
 	if (!file) 

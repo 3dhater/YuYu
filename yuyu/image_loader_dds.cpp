@@ -39,7 +39,7 @@
 yyImage* ImageLoader_DDS(const char* p)
 {
 	//auto file_size = std::filesystem::file_size(p);
-	auto file_size = yyFS::file_size(p);
+	auto file_size = yy_fs::file_size(p);
 
 	if( file_size < sizeof(u32) + sizeof(DDS_HEADER) )
 	{

@@ -46,7 +46,7 @@ void PNGAPI user_read_fn( png_structp png_ptr, png_bytep data, png_size_t length
 yyImage* ImageLoader_PNG(const char* p)
 {
 	//auto file_size = std::filesystem::file_size(p);
-	auto file_size = yyFS::file_size(p);
+	auto file_size = yy_fs::file_size(p);
 	std::ifstream in(p, std::ios::binary);
 	if(!in)
 	{

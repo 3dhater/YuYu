@@ -142,7 +142,7 @@ bool Demo::Init(const char* videoDriver){
 	if (!yyInitVideoDriver(videoDriver, m_window))
 	{
 		yyLogWriteWarning("Can't load video driver : %s\n", videoDriver);
-		for (auto & entry : yyFS::directory_iterator(yyFS::current_path()))
+		for (auto & entry : yy_fs::directory_iterator(yy_fs::current_path()))
 		{
 			auto path = entry.path();
 			if (path.has_extension())

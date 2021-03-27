@@ -1,4 +1,11 @@
-﻿  demo_main.cpp
+﻿  yy_window.cpp
+  Generating Code...
+  Compiling...
+  demo_main.cpp
+  demo_example_sprite.cpp
+  demo_example_MDL.cpp
+e:\code\yuyu\demo\demo_example_mdl.cpp(167): warning C4244: 'argument' : conversion from 'u32' to 'f32', possible loss of data
+  demo_example.cpp
   demo.cpp
 e:\code\yuyu\demo\demo.cpp(206): warning C4244: 'argument' : conversion from 's32' to 'f32', possible loss of data
 e:\code\yuyu\demo\demo.cpp(206): warning C4244: 'argument' : conversion from 'int' to 'f32', possible loss of data

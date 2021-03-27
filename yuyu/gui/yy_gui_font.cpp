@@ -46,15 +46,15 @@ yyGUIFontGlyph* yyGUIFont::GetGlyph(wchar_t ch)
 
 YY_API yyGUIFont* YY_C_DECL yyGUILoadFont(const char* fileName)
 {
-	yyFS::path p = fileName;
-	if (!yyFS::exists(p))
+	yy_fs::path p = fileName;
+	if (!yy_fs::exists(p))
 	{
 		yyLogWriteWarning("Font file [%s] not exist\n", fileName);
 		YY_PRINT_FAILED;
 		return nullptr;
 	}
 
-	yyFS::path parentPath = p.parent_path();
+	yy_fs::path parentPath = p.parent_path();
 
 	yyFileIO file;
 	file.open(fileName, "rb");

@@ -15,7 +15,6 @@ int main(int argc, char* argv[])
 			}
 		}
 	}
-
 	Demo* demo = new Demo;
 	if (!demo->Init(videoDriverTypeStr.c_str()))
 	{

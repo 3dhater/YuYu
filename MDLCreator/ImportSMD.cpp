@@ -395,7 +395,7 @@ void ImportSMD(yyMDLObject* object, const char* file)
 	std::vector<SMDKeyFrame> skeleton;
 	std::vector<SMDTriangle> triangles;
 
-	auto fileSz = yyFS::file_size(file);
+	auto fileSz = yy_fs::file_size(file);
 	char * fileBuffer = new char[fileSz + 1];
 	fileBuffer[fileSz] = 0;
 
@@ -464,7 +464,7 @@ void ImportSMD(yyMDLObject* object, const char* file)
 	{
 		newMDLAnimation = yyCreate<yyMDLAnimation>();
 		newMDLAnimation->m_len = num_of_frames - 1; 
-		yyFS::path p = file;
+		yy_fs::path p = file;
 		auto fn = p.filename();
 		newMDLAnimation->m_name = fn.generic_string().data();
 		util::stringPopBackBefore(newMDLAnimation->m_name, '.');

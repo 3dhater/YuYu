@@ -50,7 +50,7 @@ u8 * OBJReadWord(u8 * ptr, yyStringA& str);
 void ImportOBJ(yyMDLObject* object, const char* fileName)
 {
 	FILE* file = fopen(fileName, "rb");
-	auto file_size = (size_t)yyFS::file_size(fileName);
+	auto file_size = (size_t)yy_fs::file_size(fileName);
 
 	yyArray<u8> file_byte_array;
 	file_byte_array.reserve((u32)file_size + 2);
