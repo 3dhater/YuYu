@@ -2,7 +2,7 @@
 
 int main(int argc, char* argv[])
 {
-	const char * videoDriverType = "d3d11.yyvd"; // for example read name from .ini
+	const char * videoDriverType = "vdd3d11.dll"; // for example read name from .ini
 	yyStringA videoDriverTypeStr = videoDriverType;
 	for (int i = 0; i < argc; ++i)
 	{

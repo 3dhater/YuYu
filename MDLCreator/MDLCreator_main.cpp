@@ -81,23 +81,21 @@ SceneObject* g_sceneObject = 0;
 //	return 0;
 //}
 
-void window_onCLose(yyWindow* window)
-{
+void window_onCLose(yyWindow* window){
 	window->Hide();
 	yyQuit(); // change yySystemState - set yySystemState::Quit
 }
-void log_onError(const char* message)
-{
+
+void log_onError(const char* message){
 	fprintf(stderr, message);
 }
-void log_onInfo(const char* message)
-{
+
+void log_onInfo(const char* message){
 	fprintf(stdout, message);
 }
 
 
-void window_callbackMouse(yyWindow* w, s32 wheel, s32 x, s32 y, u32 click)
-{
+void window_callbackMouse(yyWindow* w, s32 wheel, s32 x, s32 y, u32 click){
 	g_inputContex->m_cursorCoords.x = (f32)x;
 	g_inputContex->m_cursorCoords.y = (f32)y;
 
@@ -131,8 +129,8 @@ void window_callbackMouse(yyWindow* w, s32 wheel, s32 x, s32 y, u32 click)
 		g_inputContex->m_isRMBHold = false;
 	}
 }
-void updateInputContext() // call before all callbacks
-{
+
+void updateInputContext(){
 	g_inputContex->m_isLMBDbl = false;
 	g_inputContex->m_isLMBDown = false;
 	g_inputContex->m_isRMBDown = false;
@@ -141,8 +139,7 @@ void updateInputContext() // call before all callbacks
 	g_inputContex->m_mouseDelta.y = 0.f;
 }
 
-yyStringA AnimationCheckName(yyMDLObject* object, yyStringA name)
-{
+yyStringA AnimationCheckName(yyMDLObject* object, yyStringA name){
 	static int number = 0;
 	yyStringA newName = name;
 
@@ -162,8 +159,8 @@ check_again:;
 	}
 	return newName;
 }
-yyStringA ModelCheckName(yyMDLObject* object, yyStringA name)
-{
+
+yyStringA ModelCheckName(yyMDLObject* object, yyStringA name){
 	static int number = 0;
 	yyStringA newName = name;
 
@@ -204,8 +201,7 @@ check_again:;
 //}
 
 // load model, create new layer
-void newLayerAssimp(yyMDLObject* object, const char16_t* file)
-{
+void newLayerAssimp(yyMDLObject* object, const char16_t* file){
 	yyStringA stra;
 	stra = file;
 	ImportAssimp(object, stra.data());
@@ -213,8 +209,8 @@ void newLayerAssimp(yyMDLObject* object, const char16_t* file)
 	object->SetMDL(object->m_mdl);
 	// update MDL aabb
 }
-void newLayer(yyMDLObject* object, const char16_t* file)
-{
+
+void newLayer(yyMDLObject* object, const char16_t* file){
 	yyStringA stra;
 	stra = file;
 
@@ -237,8 +233,8 @@ void newLayer(yyMDLObject* object, const char16_t* file)
 	object->SetMDL(object->m_mdl);
 	// update MDL aabb
 }
-void deleteLayer(yyMDLObject* object)
-{
+
+void deleteLayer(yyMDLObject* object){
 	auto layer = object->m_mdl->m_layers[g_selectedLayer];
 	object->m_mdl->m_layers.erase(g_selectedLayer);
 	g_sceneObject->m_layerInfo.erase(g_selectedLayer);
@@ -253,8 +249,8 @@ void deleteLayer(yyMDLObject* object)
 	if (object->m_mdl->m_layers.size() == g_selectedLayer)
 		--g_selectedLayer;
 }
-void reloadTexture(yyMDLObject* object, int textureSlot, const wchar_t* path)
-{
+
+void reloadTexture(yyMDLObject* object, int textureSlot, const wchar_t* path){
 	auto layer = object->m_mdl->m_layers[g_selectedLayer];
 
 	if (!yyFS::exists(yyFS::path(path)))
@@ -267,8 +263,7 @@ void reloadTexture(yyMDLObject* object, int textureSlot, const wchar_t* path)
 		}
 		return;
 	}
-
-
+	
 	yyResource* texture = 0;
 	texture = layer->m_textureGPU[textureSlot];
 	
@@ -283,12 +278,13 @@ void reloadTexture(yyMDLObject* object, int textureSlot, const wchar_t* path)
 
 	layer->m_textureGPU[textureSlot] = texture;
 }
+
 int main(int argc, char* argv[])
 {
 	bool useOpenGL = false;
 	for (int i = 0; i < argc; ++i)
 	{
-		if (strcmp(argv[i], "opengl") == 0)
+		if (strcmp(argv[i], "vdopengl") == 0)
 		{
 			useOpenGL = true;
 		}
@@ -333,9 +329,9 @@ int main(int argc, char* argv[])
 	//p_window->ToFullscreenMode();
 
 	// init video driver
-	const char * videoDriverType = "d3d11.yyvd";
+	const char * videoDriverType = "vdd3d11.dll";
 	if(useOpenGL)
-		videoDriverType = "opengl.yyvd";
+		videoDriverType = "vdopengl.dll";
 	if (!yyInitVideoDriver(videoDriverType, p_window))
 	{
 		YY_PRINT_FAILED;

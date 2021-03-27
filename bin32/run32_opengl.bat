@@ -1,2 +1,2 @@
-demo.exe -vid opengl.yyvd
+demo.exe -vid vdopengl.dll
 pause

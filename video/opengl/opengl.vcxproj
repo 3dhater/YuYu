@@ -101,32 +101,38 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>../../bin32/</OutDir>
-    <TargetExt>.yyvd</TargetExt>
+    <TargetExt>.dll</TargetExt>
+    <TargetName>vd$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>../../bin32/</OutDir>
-    <TargetExt>.yyvd</TargetExt>
+    <TargetExt>.dll</TargetExt>
+    <TargetName>vd$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Production|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>../../bin32/</OutDir>
-    <TargetExt>.yyvd</TargetExt>
+    <TargetExt>.dll</TargetExt>
+    <TargetName>vd$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>../../bin64/</OutDir>
-    <TargetExt>.yyvd</TargetExt>
+    <TargetExt>.dll</TargetExt>
+    <TargetName>vd$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>../../bin64/</OutDir>
-    <TargetExt>.yyvd</TargetExt>
+    <TargetExt>.dll</TargetExt>
+    <TargetName>vd$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Production|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>../../bin64/</OutDir>
-    <TargetExt>.yyvd</TargetExt>
+    <TargetExt>.dll</TargetExt>
+    <TargetName>vd$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

@@ -10,16 +10,15 @@
 Demo* g_demo = 0;
 
 // you can implement what you want (write to file, write to game console)
-void log_onError(const char* message)
-{
+void log_onError(const char* message){
 	fprintf(stderr, message);
 }
-void log_onInfo(const char* message)
-{
+
+void log_onInfo(const char* message){
 	fprintf(stdout, message);
 }
-void window_callbackMouse(yyWindow* w, s32 wheel, s32 x, s32 y, u32 click)
-{
+
+void window_callbackMouse(yyWindow* w, s32 wheel, s32 x, s32 y, u32 click){
 	g_demo->m_inputContext->m_cursorCoords.x = (f32)x;
 	g_demo->m_inputContext->m_cursorCoords.y = (f32)y;
 
@@ -53,8 +52,9 @@ void window_callbackMouse(yyWindow* w, s32 wheel, s32 x, s32 y, u32 click)
 		g_demo->m_inputContext->m_isRMBHold = false;
 	}
 }
-void updateInputContext() // call before all callbacks
-{
+
+// call before all callbacks
+void updateInputContext(){
 	g_demo->m_inputContext->m_isLMBDbl = false;
 	g_demo->m_inputContext->m_isLMBDown = false;
 	g_demo->m_inputContext->m_isRMBDown = false;
@@ -65,8 +65,8 @@ void updateInputContext() // call before all callbacks
 	memset(g_demo->m_inputContext->m_key_pressed, 0, sizeof(u8) * 256);
 	memset(g_demo->m_inputContext->m_key_hit, 0, sizeof(u8) * 256);
 }
-void window_callbackKeyboard(yyWindow*, bool isPress, u32 key, char16_t character)
-{
+
+void window_callbackKeyboard(yyWindow*, bool isPress, u32 key, char16_t character){
 	if (isPress)
 	{
 		if (key < 256)
@@ -84,13 +84,12 @@ void window_callbackKeyboard(yyWindow*, bool isPress, u32 key, char16_t characte
 		}
 	}
 }
-void window_onCLose(yyWindow* window)
-{
+
+void window_onCLose(yyWindow* window){
 	yyQuit(); // change yySystemState - set yySystemState::Quit
 }
 
-Demo::Demo()
-{
+Demo::Demo(){
 	m_inputContext = 0;
 	m_engineContext = 0;
 	m_window = 0;
@@ -102,8 +101,7 @@ Demo::Demo()
 	m_selectedExample = -1;
 }
 
-Demo::~Demo()
-{
+Demo::~Demo(){
 	if (m_activeExample) m_activeExample->Shutdown();
 
 	for (u32 i = 0, sz = m_examples.size(); i < sz; ++i)
@@ -117,9 +115,7 @@ Demo::~Demo()
 }
 
 
-bool Demo::Init(const char* videoDriver)
-{
-
+bool Demo::Init(const char* videoDriver){
 	m_inputContext  = yyCreate<yyInputContext>();
 	m_engineContext = yyCreate<yyEngineContext>();
 	m_engineContext->init(m_inputContext);
@@ -152,7 +148,7 @@ bool Demo::Init(const char* videoDriver)
 			if (path.has_extension())
 			{
 				auto ex = path.extension();
-				if (ex == ".yyvd")
+				if (ex == ".dll" && yyIsValidVideoDriver(path.generic_string().c_str()))
 				{
 					yyLogWriteWarning("Trying to load video driver : %s\n", path.generic_string().c_str());
 
@@ -196,17 +192,15 @@ vidOk:
 	return true;
 }
 
-void buttonExit_onClick(yyGUIElement* elem, s32 m_id)
-{
+void buttonExit_onClick(yyGUIElement* elem, s32 m_id){
 //	yyQuit();
 }
-void buttonExit_onRelease(yyGUIElement* elem, s32 m_id)
-{
+
+void buttonExit_onRelease(yyGUIElement* elem, s32 m_id){
 	yyQuit();
 }
 
-void Demo::MainLoop()
-{
+void Demo::MainLoop(){
 	yyGUIText* gui_text_fps = yyGUICreateText(v2f(0.f, 0.f), m_defaultFont, 0);
 	
 	yyGUIButton* gui_button_exit = yyGUICreateButton(v4f(m_window->m_currentSize.x - 50, 0, m_window->m_currentSize.x, 25), yyGetTextureResource("../res/exit.png", false, false, true), 0);
@@ -299,32 +293,28 @@ void Demo::MainLoop()
 	}
 }
 
-void Demo::AddExample(DemoExample* e)
-{
+void Demo::AddExample(DemoExample* e){
 	static v2f gui_text_position = v2f(0.f, 20.f);
 	e->m_guiTextTitle = yyGUICreateText(gui_text_position, m_defaultFont, e->GetTitle());
 	gui_text_position.y += 10.f;
 	m_examples.push_back(e);
 }
 
-void Demo::SelectExamplePressDown()
-{
+void Demo::SelectExamplePressDown(){
 	++m_selectedExample;
 	if (m_selectedExample == m_examples.size())
 		m_selectedExample = 0;
 	_SelectExampleUpdateColors();
 }
 
-void Demo::SelectExamplePressUp()
-{
+void Demo::SelectExamplePressUp(){
 	--m_selectedExample;
 	if (m_selectedExample == -1)
 		m_selectedExample = m_examples.size() - 1;
 	_SelectExampleUpdateColors();
 }
 
-void Demo::_SelectExampleUpdateColors()
-{
+void Demo::_SelectExampleUpdateColors(){
 	for (u16 i = 0, sz = m_examples.size(); i < sz; ++i)
 	{
 		if(i == m_selectedExample)
@@ -334,14 +324,13 @@ void Demo::_SelectExampleUpdateColors()
 	}
 }
 
-void Demo::StopDemo()
-{
+void Demo::StopDemo(){
 	m_activeExample->Shutdown();
 	m_activeExample = 0;
 	_showMainMenuGUI();
 }
-void Demo::StartDemo()
-{
+
+void Demo::StartDemo(){
 	m_activeExample = m_examples[m_selectedExample];
 	if (!m_activeExample->Init())
 	{
@@ -358,15 +347,14 @@ void Demo::StartDemo()
 	}
 }
 
-void Demo::_hideMainMenuGUI()
-{
+void Demo::_hideMainMenuGUI(){
 	for (u16 i = 0, sz = m_examples.size(); i < sz; ++i)
 	{
 		m_examples[i]->m_guiTextTitle->SetVisible(false);
 	}
 }
-void Demo::_showMainMenuGUI()
-{
+
+void Demo::_showMainMenuGUI(){
 	for (u16 i = 0, sz = m_examples.size(); i < sz; ++i)
 	{
 		m_examples[i]->m_guiTextTitle->SetVisible(true);

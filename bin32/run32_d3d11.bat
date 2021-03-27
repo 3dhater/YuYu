@@ -1,2 +1,2 @@
-demo.exe -vid d3d11.yyvd
+demo.exe -vid vdd3d11.dll
 pause

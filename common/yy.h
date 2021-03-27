@@ -45,6 +45,9 @@ extern "C"
 	YY_API yyString* YY_C_DECL yySaveFileDialog(const char* title, const char* okButtonLabel,
 		const char* extension);
 
+	// true if dll file is video driver
+	YY_API bool YY_C_DECL yyIsValidVideoDriver( const char* dll_file_name);
+
 	YY_API const wchar_t* YY_C_DECL yyGetWorkingDir();
 	YY_API yyString* YY_C_DECL yyGetRelativePath(const wchar_t*);
 
@@ -70,8 +73,8 @@ extern "C"
 
 	typedef void* dl_handle;
 	typedef void* dl_function;
-	YY_API dl_handle YY_C_DECL yyLoadLybrary(const char* libraryName);
-	YY_API void YY_C_DECL yyFreeLybrary(dl_handle);
+	YY_API dl_handle YY_C_DECL yyLoadLibrary(const char* libraryName);
+	YY_API void YY_C_DECL yyFreeLibrary(dl_handle);
 	YY_API dl_function YY_C_DECL yyGetProcAddress(dl_handle,const char* functionName);
 	
 	/* pivotPosition
