@@ -208,6 +208,7 @@ void Demo::MainLoop(){
 	gui_button_exit->SetMouseClickTexture(yyGetTextureResource("../res/exit_clk.png", false, false, true));
 	gui_button_exit->m_onClick = buttonExit_onClick;
 	gui_button_exit->m_onRelease = buttonExit_onRelease;
+	gui_button_exit->m_isAnimated = true;
 	//gui_button_exit->m_useAsCheckbox = true;
 	//gui_button_exit->m_isChecked = true;
 

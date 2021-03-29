@@ -23,23 +23,20 @@ yyGUIButton::yyGUIButton()
 	m_isClicked = false;
 	m_isChecked = false;
 	m_useAsCheckbox = false;
+	m_isAnimated = false;
+	m_gpu = yyGetVideoDriverAPI();
 }
 
-yyGUIButton::~yyGUIButton()
-{
-	auto vAPI = yyGetVideoDriverAPI();
-}
+yyGUIButton::~yyGUIButton(){}
 
-void yyGUIButton::SetOffset(const v2f& o)
-{
+void yyGUIButton::SetOffset(const v2f& o){
 	m_offset = o;
 	if (m_mouseClickPB) m_mouseClickPB->m_offset = o;
 	if (m_mouseHoverPB) m_mouseHoverPB->m_offset = o;
 	if (m_basePB) m_basePB->m_offset = o;
 }
 
-void yyGUIButton::OnUpdate()
-{
+void yyGUIButton::OnUpdate(f32 dt){
 	if (!m_visible) return;
 	if (m_ignoreInput) return;
 
@@ -53,6 +50,23 @@ void yyGUIButton::OnUpdate()
 			m_rect.w + m_offset.y
 		)
 		);
+
+	if (m_isAnimated && m_mouseHoverPB)
+	{
+		f32 sp = 10.f  * dt;
+		if (m_inRect)
+		{
+			m_mouseHoverPB->m_color.m_data[3] += sp;
+			if (m_mouseHoverPB->m_color.m_data[3] > 1.f)
+				m_mouseHoverPB->m_color.m_data[3] = 1.f;
+		}
+		else
+		{
+			m_mouseHoverPB->m_color.m_data[3] -= sp;
+			if (m_mouseHoverPB->m_color.m_data[3] < 0.f)
+				m_mouseHoverPB->m_color.m_data[3] = 0.f;
+		}
+	}
 
 	if (g_engine->m_inputContext->m_isLMBUp)
 	{
@@ -95,9 +109,12 @@ void yyGUIButton::OnUpdate()
 	}
 }
 
-void yyGUIButton::OnDraw()
-{
+void yyGUIButton::OnDraw(){
 	if (!m_visible) return;
+	
+	if(m_isAnimated)
+		m_basePB->OnDraw();
+
 	if (m_isClicked || m_isChecked)
 	{
 		if (m_mouseClickPB)
@@ -113,8 +130,9 @@ void yyGUIButton::OnDraw()
 	{
 		if (m_mouseHoverPB)
 		{
-			if (m_inRect)
+			if (m_inRect || m_mouseHoverPB->m_color.m_data[3] < 1.f)
 			{
+				m_gpu->SetGUIShaderData(m_mouseHoverPB); // maybe call only if m_isAnimated == true
 				m_mouseHoverPB->OnDraw();
 			}
 			else
@@ -129,30 +147,29 @@ void yyGUIButton::OnDraw()
 	}
 }
 
-YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* baseTexture, s32 id)
-{
+YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* baseTexture, s32 id){
 	yyGUIButton* element = yyCreate<yyGUIButton>();
 	element->m_rect = rect;
 	element->m_id = id;
 	element->m_basePB = yyGUICreatePictureBox(rect, baseTexture, -1);
 	element->m_basePB->IgnoreInput(true);
+
 	yyGUIRemoveElement(element->m_basePB);
 	g_engine->addGuiElement(element);
 	return element;
 }
 
-void yyGUIButton::SetVisible(bool v) 
-{
+void yyGUIButton::SetVisible(bool v) {
 	m_visible = v; 
 	//if (m_basePB) m_basePB->SetVisible(v);
 }
 
-void yyGUIButton::SetMouseHoverTexture(yyResource* t)
-{
+void yyGUIButton::SetMouseHoverTexture(yyResource* t){
 	if (!m_mouseHoverPB)
 	{
 		m_mouseHoverPB = yyGUICreatePictureBox(m_rect, t, -1);
 		m_mouseHoverPB->IgnoreInput(true);
+
 		yyGUIRemoveElement(m_mouseHoverPB);
 		//m_mouseHoverPB->SetVisible(false);
 	}
@@ -162,12 +179,12 @@ void yyGUIButton::SetMouseHoverTexture(yyResource* t)
 	}
 }
 
-void yyGUIButton::SetMouseClickTexture(yyResource* t)
-{
+void yyGUIButton::SetMouseClickTexture(yyResource* t){
 	if (!m_mouseClickPB)
 	{
 		m_mouseClickPB = yyGUICreatePictureBox(m_rect, t, -1);
 		m_mouseClickPB->IgnoreInput(true);
+		
 		yyGUIRemoveElement(m_mouseClickPB);
 		//m_mouseClickPB->SetVisible(false);
 	}

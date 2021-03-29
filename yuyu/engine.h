@@ -92,7 +92,7 @@ public:
 	yyInputContext* m_inputContext;
 
 	yySystemState m_state;
-	dl_handle m_videoDriverLib;
+	dll_handle m_videoDriverLib;
 	
 	typedef yyVideoDriverAPI*(*videoGetApi)();
 	videoGetApi m_videoDriverGetApi;

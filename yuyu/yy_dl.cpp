@@ -10,16 +10,16 @@
 extern "C"
 {
 
-	YY_API dl_handle YY_C_DECL yyLoadLibrary(const char* libraryName){
+	YY_API dll_handle YY_C_DECL yyLoadLibrary(const char* libraryName){
 #ifdef YY_PLATFORM_WINDOWS
-		return (dl_handle)LoadLibraryA(libraryName);
+		return (dll_handle)LoadLibraryA(libraryName);
 #else
 #error For Windows
 #endif
 		//return nullptr;
 	}
 
-	YY_API void YY_C_DECL yyFreeLibrary(dl_handle lib){
+	YY_API void YY_C_DECL yyFreeLibrary(dll_handle lib){
 #ifdef YY_PLATFORM_WINDOWS
 		FreeLibrary((HMODULE)lib);
 #else
@@ -27,9 +27,9 @@ extern "C"
 #endif
 	}
 
-	YY_API dl_function YY_C_DECL yyGetProcAddress(dl_handle lib,const char* functionName){
+	YY_API dll_function YY_C_DECL yyGetProcAddress(dll_handle lib,const char* functionName){
 #ifdef YY_PLATFORM_WINDOWS
-		return (dl_function)GetProcAddress((HMODULE)lib, functionName);
+		return (dll_function)GetProcAddress((HMODULE)lib, functionName);
 #else
 #error For Windows
 #endif

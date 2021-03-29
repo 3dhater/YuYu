@@ -25,6 +25,7 @@ struct yyVideoDriverAPI;
 struct yySceneObjectBase;
 struct yyCamera;
 struct yySprite;
+struct yySpriteState;
 struct yySprite2;
 struct v4f;
 struct v2f;

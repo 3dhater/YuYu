@@ -10,22 +10,20 @@
 
 extern Engine * g_engine;
 
-YY_API void YY_C_DECL yyGUIDeleteElement(yyGUIElement* elem)
-{
+YY_API void YY_C_DECL yyGUIDeleteElement(yyGUIElement* elem){
 	g_engine->m_guiElements.erase_first(elem);
 	yyDestroy(elem);
 }
-YY_API void YY_C_DECL yyGUIRemoveElement(yyGUIElement* elem)
-{
+
+YY_API void YY_C_DECL yyGUIRemoveElement(yyGUIElement* elem){
 	g_engine->m_guiElements.erase_first(elem);
 }
 
-YY_API void YY_C_DECL yyGUIUpdate(f32 deltaTime)
-{
+YY_API void YY_C_DECL yyGUIUpdate(f32 deltaTime){
 	auto guiElement = g_engine->m_guiElements.head();
 	for(size_t i = 0, sz = g_engine->m_guiElements.size(); i < sz; ++i)
 	{
-		guiElement->m_data->OnUpdate();
+		guiElement->m_data->OnUpdate(deltaTime);
 		guiElement = guiElement->m_right;
 	}
 
@@ -35,8 +33,7 @@ YY_API void YY_C_DECL yyGUIUpdate(f32 deltaTime)
 	}
 }
 
-YY_API void YY_C_DECL yyGUIDrawAll()
-{
+YY_API void YY_C_DECL yyGUIDrawAll(){
 	g_engine->m_videoAPI->BeginDrawGUI();
 	
 	auto guiElement = g_engine->m_guiElements.head();
@@ -50,7 +47,6 @@ YY_API void YY_C_DECL yyGUIDrawAll()
 	g_engine->m_videoAPI->EndDrawGUI();
 }
 
-YY_API yyGUIElement* YY_C_DECL yyGUIGetElementInMouseFocus()
-{
+YY_API yyGUIElement* YY_C_DECL yyGUIGetElementInMouseFocus(){
 	return g_engine->m_guiElementInMouseFocus;
 }

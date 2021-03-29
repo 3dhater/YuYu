@@ -17,7 +17,7 @@ class yyGUIText: public yyGUIElement
 public:
 	yyGUIText();
 	virtual ~yyGUIText();
-	virtual void OnUpdate();
+	virtual void OnUpdate(f32 dt);
 	virtual void OnDraw();
 
 	virtual void SetText(const wchar_t* text, ...);

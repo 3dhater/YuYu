@@ -9,16 +9,14 @@
 
 extern Engine * g_engine;
 
-yyGUIText::yyGUIText()
-{
+yyGUIText::yyGUIText(){
 	m_font = 0;
 	m_type = yyGUIElementType::Text;
 	m_buffer = 0;
 	SetBufferSize(1024);
 }
 
-yyGUIText::~yyGUIText()
-{
+yyGUIText::~yyGUIText(){
 	if (m_buffer)
 	{
 		yyMemFree(m_buffer);
@@ -27,14 +25,12 @@ yyGUIText::~yyGUIText()
 	Clear();
 }
 
-void yyGUIText::OnUpdate()
-{
+void yyGUIText::OnUpdate(f32 dt){
 	if (!m_visible) return;
 	if (m_ignoreInput) return;
 }
 
-void yyGUIText::OnDraw()
-{
+void yyGUIText::OnDraw(){
 	if (!m_visible) return;
 	for (u16 k = 0, ksz = m_drawNodes.m_size; k < ksz; ++k)
 	{
@@ -47,8 +43,7 @@ void yyGUIText::OnDraw()
 	}
 }
 
-void yyGUIText::SetBufferSize(u32 newSize)
-{
+void yyGUIText::SetBufferSize(u32 newSize){
 	if (m_bufferSize == newSize)
 		return;
 	if (m_buffer)
@@ -126,8 +121,7 @@ struct _yyGui_text_model {
 };
 _yyGui_text_model g_text_models[YY_MAX_FONT_TEXTURES];
 
-void yyGUIText::SetText(const wchar_t* format, ...)
-{
+void yyGUIText::SetText(const wchar_t* format, ...){
 	assert(m_font);
 	Clear();
 
@@ -212,8 +206,7 @@ void yyGUIText::SetText(const wchar_t* format, ...)
 	}
 }
 
-void yyGUIText::Clear()
-{
+void yyGUIText::Clear(){
 	for (int i = 0; i < YY_MAX_FONT_TEXTURES; ++i)
 	{
 		if (!g_text_models[i].m_model) {
@@ -240,8 +233,7 @@ void yyGUIText::Clear()
 }
 
 
-YY_API yyGUIText* YY_C_DECL yyGUICreateText(const v2f& position, yyGUIFont* font, const wchar_t* text)
-{
+YY_API yyGUIText* YY_C_DECL yyGUICreateText(const v2f& position, yyGUIFont* font, const wchar_t* text){
 	yyGUIText* element = yyCreate<yyGUIText>();
 	element->m_font = font;
 	element->m_position = position;

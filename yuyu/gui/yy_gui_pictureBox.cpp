@@ -19,8 +19,7 @@ yyGUIPictureBox::yyGUIPictureBox()
 	m_type = yyGUIElementType::PictureBox;
 }
 
-yyGUIPictureBox::~yyGUIPictureBox()
-{
+yyGUIPictureBox::~yyGUIPictureBox(){
 	auto vAPI = yyGetVideoDriverAPI();
 	if( this->m_pictureBoxModel )
 		vAPI->UnloadModel(this->m_pictureBoxModel);
@@ -29,8 +28,7 @@ yyGUIPictureBox::~yyGUIPictureBox()
 		vAPI->UnloadTexture(this->m_texture);
 }
 
-YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResource* texture, s32 id)
-{
+YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResource* texture, s32 id){
 	yyGUIPictureBox* element = yyCreate<yyGUIPictureBox>();
 	element->m_rect = rect;
 	element->m_texture = texture;
@@ -79,8 +77,7 @@ YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResou
 	return element;
 }
 
-void yyGUIPictureBox::OnUpdate()
-{
+void yyGUIPictureBox::OnUpdate(f32 dt){
 	if (!m_visible) return;
 	if (m_ignoreInput) return;
 	m_inRect = math::pointInRect(
@@ -101,8 +98,7 @@ void yyGUIPictureBox::OnUpdate()
 	}
 }
 
-void yyGUIPictureBox::OnDraw()
-{
+void yyGUIPictureBox::OnDraw(){
 	if (!m_visible) return;
 	if (m_texture)
 		g_engine->m_videoAPI->SetTexture(0, m_texture);

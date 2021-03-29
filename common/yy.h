@@ -71,11 +71,11 @@ extern "C"
 
 	YY_API void YY_C_DECL yyUpdateAsyncLoader();
 
-	typedef void* dl_handle;
-	typedef void* dl_function;
-	YY_API dl_handle YY_C_DECL yyLoadLibrary(const char* libraryName);
-	YY_API void YY_C_DECL yyFreeLibrary(dl_handle);
-	YY_API dl_function YY_C_DECL yyGetProcAddress(dl_handle,const char* functionName);
+	typedef void* dll_handle;
+	typedef void* dll_function;
+	YY_API dll_handle YY_C_DECL yyLoadLibrary(const char* libraryName);
+	YY_API void YY_C_DECL yyFreeLibrary(dll_handle);
+	YY_API dll_function YY_C_DECL yyGetProcAddress(dll_handle,const char* functionName);
 	
 	/* pivotPosition
 		0--1--2

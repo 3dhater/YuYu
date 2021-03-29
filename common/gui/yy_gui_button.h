@@ -3,10 +3,11 @@
 
 class yyGUIButton : public yyGUIElement
 {
+	yyVideoDriverAPI* m_gpu;
 public:
 	yyGUIButton();
 	virtual ~yyGUIButton();
-	virtual void OnUpdate();
+	virtual void OnUpdate(f32 dt);
 	virtual void OnDraw();
 	virtual void SetVisible(bool v);
 	virtual void SetOffset(const v2f& o);
@@ -27,6 +28,10 @@ public:
 	bool m_isChecked;
 
 	bool m_useAsCheckbox;
+
+	// fade in\out for m_mouseHoverPB
+	bool m_isAnimated;
+
 };
 
 #endif

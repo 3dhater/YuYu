@@ -39,7 +39,7 @@ public:
 	bool IsVisible() { return m_visible; }
 	bool IsInRect() { return m_inRect; }
 
-	virtual void OnUpdate() = 0;
+	virtual void OnUpdate(f32 dt) = 0;
 	virtual void OnDraw() = 0;
 
 	s32 m_id;
