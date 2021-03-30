@@ -82,6 +82,10 @@ extern "C"
 	YY_API void YY_C_DECL yyGUIRemoveElement(yyGUIElement* elem); // without yyDestroy(elem);
 	YY_API yyGUIElement* YY_C_DECL yyGUIGetElementInMouseFocus();
 	YY_API yyGUIDrawGroup* YY_C_DECL yyGUICreateDrawGroup();
+	// delete with all elements
+	YY_API void YY_C_DECL yyGUIDeleteDrawGroup(yyGUIDrawGroup*);
+	YY_API void YY_C_DECL yyGUIDrawGroupMoveBack(yyGUIDrawGroup*);
+	YY_API void YY_C_DECL yyGUIDrawGroupMoveFront(yyGUIDrawGroup*);
 }
 
 class yyGUIDrawGroup 

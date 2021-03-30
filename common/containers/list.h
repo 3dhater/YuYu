@@ -323,28 +323,28 @@ public:
 	{
 		if(m_head)
 		{
-			auto head = m_head;
+			auto node = m_head;
 			auto last = m_head->m_left;
 			while(true)
 			{
-				auto next = head->m_right;
-				if(head->m_data == object)
+				auto next = node->m_right;
+				if(node->m_data == object)
 				{
-					if(head == m_head)
+					if(node == m_head)
 						pop_front();
 					else
 					{
 						--m_size;
-						head->m_left->m_right = head->m_right;
-						head->m_right->m_left = head->m_left;
-						m_allocator.destruct(head);
-						m_allocator.deallocate(head);
+						node->m_left->m_right = node->m_right;
+						node->m_right->m_left = node->m_left;
+						m_allocator.destruct(node);
+						m_allocator.deallocate(node);
 					}
 					return true;
 				}
-				if(head == last)
+				if(node == last)
 					break;
-				head = next;
+				node = next;
 			}
 		}
 		return false;
@@ -410,6 +410,29 @@ public:
 		}
 	}
 
+	void push_front(const T& data)
+	{
+		yyListNode<T>* node = m_allocator.allocate(1);
+		m_allocator.construct(node, yyListNode<T>());
+		node->m_data = data;
+
+		++m_size;
+		if (!m_head)
+		{
+			m_head = node;
+			m_head->m_right = m_head;
+			m_head->m_left = m_head;
+		}
+		else
+		{
+			node->m_right = m_head;
+			node->m_left = m_head->m_left;
+			m_head->m_left->m_right = node;
+			m_head->m_left = node;
+			m_head = node;
+		}
+	}
+
 	/*void insert_after(const T& data, const T& after)
 	{
 		if (!m_head)
@@ -419,24 +442,6 @@ public:
 		}
 
 	}*/
-
-	//void push_front( const T& data )
-	//{
-	//	/*yyListNode<T>* node = m_allocator.allocate(1);
-	//	m_allocator.construct(node, data);
-	//	++m_size;
-	//	if(!m_first)
-	//	{
-	//		m_first = node;
-	//		m_last  = node;
-	//	}
-	//	else
-	//	{
-	//		node->m_next = m_first;
-	//		m_first->m_prev = node;
-	//		m_first = node;
-	//	}*/
-	//}
 
 	size_t size() const 
 	{
@@ -474,7 +479,8 @@ public:
 		return m_size == 0u; 
 	}
 
-	yyListNode<T>* head(){ return m_head; }
+	yyListNode<T>* head() { return m_head; }
+	yyListNode<T>* tail(){ return m_head ? m_head->m_left : nullptr; }
 
 	class Iterator
 	{

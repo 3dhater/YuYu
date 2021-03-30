@@ -112,6 +112,8 @@ public:
 	void GUIUpdateDrawGroup(yyGUIDrawGroup*, f32 dt);
 	void GUIDrawDrawGroup(yyGUIDrawGroup*);
 	bool m_cursorInGUI;
+	// input only elements on top
+	bool m_guiIgnoreUpdateInput;
 	yyGUIElement* m_guiElementInMouseFocus;
 
 	ZSTD_CCtx* m_cctx;

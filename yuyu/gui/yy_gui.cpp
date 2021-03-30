@@ -31,24 +31,55 @@ void yyGUIElement::CheckCursorInRect() {
 		)
 	);
 	if (m_isInActiveAreaRect)
+	{
 		g_engine->m_cursorInGUI = true;
+		g_engine->m_guiIgnoreUpdateInput = true;
+	}
 }
 
 YY_API void YY_C_DECL yyGUIDeleteElement(yyGUIElement* elem){
+	assert(elem);
 	//g_engine->m_guiElements.erase_first(elem);
 	elem->m_drawGroup->RemoveElement(elem);
 	yyDestroy(elem);
 }
 
 YY_API void YY_C_DECL yyGUIRemoveElement(yyGUIElement* elem){
+	assert(elem);
 	elem->m_drawGroup->RemoveElement(elem);
 	//g_engine->m_guiElements.erase_first(elem);
 }
 
 YY_API yyGUIDrawGroup* YY_C_DECL yyGUICreateDrawGroup() {
 	yyGUIDrawGroup* new_dg = yyCreate<yyGUIDrawGroup>();
-	g_engine->m_GUIDrawGroups.push_back(new_dg);
+	if (!g_engine->m_mainGUIDrawGroup)
+		g_engine->m_mainGUIDrawGroup = new_dg;
+	else
+		g_engine->m_GUIDrawGroups.push_back(new_dg);
 	return new_dg;
+}
+
+YY_API void YY_C_DECL yyGUIDeleteDrawGroup(yyGUIDrawGroup* dg) {
+	assert(dg);
+	yyDestroy(dg);
+	if (dg == g_engine->m_mainGUIDrawGroup)
+	{
+		g_engine->m_mainGUIDrawGroup = 0;
+		return;
+	}
+	g_engine->m_GUIDrawGroups.erase_first(dg);
+}
+
+YY_API void YY_C_DECL yyGUIDrawGroupMoveBack(yyGUIDrawGroup* dg) {
+	assert(dg);
+	g_engine->m_GUIDrawGroups.erase_first(dg);
+	g_engine->m_GUIDrawGroups.push_back(dg);
+}
+
+YY_API void YY_C_DECL yyGUIDrawGroupMoveFront(yyGUIDrawGroup* dg) {
+	assert(dg);
+	g_engine->m_GUIDrawGroups.erase_first(dg);
+	g_engine->m_GUIDrawGroups.push_front(dg);
 }
 
 void Engine::GUIUpdateDrawGroup(yyGUIDrawGroup* dg, f32 dt) {
@@ -56,7 +87,8 @@ void Engine::GUIUpdateDrawGroup(yyGUIDrawGroup* dg, f32 dt) {
 	auto guiElement = elements.head();
 	for (size_t i = 0, sz = elements.size(); i < sz; ++i)
 	{
-		guiElement->m_data->OnUpdate(dt);
+		if (!g_engine->m_guiIgnoreUpdateInput)
+			guiElement->m_data->OnUpdate(dt);
 		guiElement = guiElement->m_right;
 	}
 }
@@ -74,8 +106,7 @@ void Engine::GUIDrawDrawGroup(yyGUIDrawGroup* dg) {
 
 YY_API bool YY_C_DECL yyGUIUpdate(f32 deltaTime){
 	g_engine->m_cursorInGUI = false;
-
-	g_engine->GUIUpdateDrawGroup(g_engine->m_mainGUIDrawGroup, deltaTime);
+	g_engine->m_guiIgnoreUpdateInput = false;
 	
 	auto dg = g_engine->m_GUIDrawGroups.head();
 	for(size_t i = 0, sz = g_engine->m_GUIDrawGroups.size(); i < sz; ++i)
@@ -85,6 +116,7 @@ YY_API bool YY_C_DECL yyGUIUpdate(f32 deltaTime){
 		dg = dg->m_right;
 	}
 	
+	g_engine->GUIUpdateDrawGroup(g_engine->m_mainGUIDrawGroup, deltaTime);
 
 	if (g_engine->m_inputContext->m_isLMBUp)
 	{
@@ -97,12 +129,12 @@ YY_API void YY_C_DECL yyGUIDrawAll(){
 	g_engine->m_videoAPI->BeginDrawGUI();
 	g_engine->GUIDrawDrawGroup(g_engine->m_mainGUIDrawGroup);
 
-	auto dg = g_engine->m_GUIDrawGroups.head();
+	auto dg = g_engine->m_GUIDrawGroups.tail();
 	for (size_t i = 0, sz = g_engine->m_GUIDrawGroups.size(); i < sz; ++i)
 	{
 		if (dg->m_data->m_isDraw)
 			g_engine->GUIDrawDrawGroup(dg->m_data);
-		dg = dg->m_right;
+		dg = dg->m_left;
 	}
 
 	g_engine->m_videoAPI->EndDrawGUI();

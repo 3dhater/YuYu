@@ -137,7 +137,10 @@ void yyGUIText::SetText(const wchar_t* format, ...){
 		return;
 
 	v2f text_pointer = m_position;
+	m_buildingRect.x = m_position.x;
+	m_buildingRect.y = m_position.y;
 
+	f32 glyph_max_height = 0.f;
 	for (size_t i = 0; i < len; ++i)
 	{
 		wchar_t ch = m_buffer[i];
@@ -155,10 +158,16 @@ void yyGUIText::SetText(const wchar_t* format, ...){
 		auto TYN = text_pointer.y;
 		auto TYP = TYN + glyph->height;
 
+		if (glyph->height > glyph_max_height)
+			glyph_max_height = glyph->height;
+
 		model.AddChar(v4f(TXN, TYN, TXP, TYP), glyph);
 
 		text_pointer.x += glyph->width;
 	}
+
+	m_buildingRect.z = text_pointer.x;
+	m_buildingRect.w = text_pointer.y + glyph_max_height;
 
 	u32 array_index_counter = 0;
 	for (int i = 0; i < YY_MAX_FONT_TEXTURES; ++i)
