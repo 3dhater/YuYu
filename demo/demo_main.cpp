@@ -26,5 +26,5 @@ int main(int argc, char* argv[])
 	
 	delete demo;
 
-	return 0;
+	return 1;
 }

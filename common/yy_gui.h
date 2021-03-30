@@ -18,7 +18,7 @@ class yyGUIElement
 {
 protected:
 	bool m_visible;
-	bool m_inRect;
+	bool m_isInActiveAreaRect;
 	bool m_ignoreInput;
 public:
 
@@ -30,6 +30,7 @@ public:
 		m_type(yyGUIElementType::Unknown)
 	{
 		m_color = ColorWhite;
+		m_drawGroup = 0;
 	}
 	virtual ~yyGUIElement(){}
 	
@@ -37,14 +38,25 @@ public:
 	virtual void SetVisible(bool v) { m_visible = v; }
 	virtual void IgnoreInput(bool v) { m_ignoreInput = v; }
 	bool IsVisible() { return m_visible; }
-	bool IsInRect() { return m_inRect; }
+	bool IsInRect() { return m_isInActiveAreaRect; }
 
 	virtual void OnUpdate(f32 dt) = 0;
 	virtual void OnDraw() = 0;
 
+	void CheckCursorInRect();
+	void SetDrawGroup(yyGUIDrawGroup* gr);
+
 	s32 m_id;
 	yyGUIElementType m_type;
-	v4f m_rect;
+	yyGUIDrawGroup* m_drawGroup;
+
+	// element reacts when cursor in this rect
+	v4f m_activeAreaRect;
+	// for rebuild
+	v4f m_buildingRect;
+	// for scissor 
+	v4f m_clipRect;
+
 	v2f m_offset;
 	yyColor m_color;
 };
@@ -56,18 +68,60 @@ public:
 
 #include "gui\yy_gui_button.h"
 
-
 extern "C"
 {
-	YY_API void YY_C_DECL yyGUIUpdate(f32 deltaTime);
+	// return true if cursor in gui element
+	YY_API bool YY_C_DECL yyGUIUpdate(f32 deltaTime);
+
 	YY_API void YY_C_DECL yyGUIDrawAll();
-	YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResource* texture, s32 id);
+	YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResource* texture, s32 id, yyGUIDrawGroup* drawGroup);
 	YY_API yyGUIFont* YY_C_DECL yyGUILoadFont(const char* path);
-	YY_API yyGUIText* YY_C_DECL yyGUICreateText(const v2f& position, yyGUIFont* font, const wchar_t* text);
-	YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* baseTexture, s32 id);
+	YY_API yyGUIText* YY_C_DECL yyGUICreateText(const v2f& position, yyGUIFont* font, const wchar_t* text, yyGUIDrawGroup* drawGroup);
+	YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* baseTexture, s32 id, yyGUIDrawGroup* drawGroup);
 	YY_API void YY_C_DECL yyGUIDeleteElement(yyGUIElement* elem);
 	YY_API void YY_C_DECL yyGUIRemoveElement(yyGUIElement* elem); // without yyDestroy(elem);
 	YY_API yyGUIElement* YY_C_DECL yyGUIGetElementInMouseFocus();
+	YY_API yyGUIDrawGroup* YY_C_DECL yyGUICreateDrawGroup();
 }
+
+class yyGUIDrawGroup 
+{
+public:
+	yyGUIDrawGroup() {
+		m_isDraw  = true;
+		m_isInput = true;
+	};
+	~yyGUIDrawGroup() {
+		auto guiNode = m_guiElements.head();
+		if (guiNode)
+		{
+			for (size_t i = 0, sz = m_guiElements.size(); i < sz; ++i)
+			{
+				yyDestroy(guiNode->m_data);
+				guiNode = guiNode->m_right;
+			}
+		}
+	};
+
+	void AddElement(yyGUIElement*e) { m_guiElements.push_back(e); }
+	void RemoveElement(yyGUIElement*e) { m_guiElements.erase_first(e); }
+	yyList<yyGUIElement*>& GetElements() { return m_guiElements; }
+
+	void SetDraw(bool v) { m_isDraw = v; }
+	void SetInput(bool v) { m_isInput = v; }
+	bool IsDraw() { return m_isDraw; }
+	bool IsInput() { return m_isInput; }
+
+
+	friend YY_API bool YY_C_DECL yyGUIUpdate(f32 deltaTime);
+	friend YY_API void YY_C_DECL yyGUIDrawAll();
+
+private:
+	yyList<yyGUIElement*> m_guiElements;
+	bool m_isDraw;
+	bool m_isInput;
+};
+
+
 
 #endif

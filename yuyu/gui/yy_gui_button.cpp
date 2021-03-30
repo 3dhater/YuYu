@@ -19,7 +19,7 @@ yyGUIButton::yyGUIButton()
 	m_onClick(nullptr)
 {
 	m_type = yyGUIElementType::Button;
-	m_inRect = false;
+	m_isInActiveAreaRect = false;
 	m_isClicked = false;
 	m_isChecked = false;
 	m_useAsCheckbox = false;
@@ -38,9 +38,9 @@ void yyGUIButton::SetOffset(const v2f& o){
 
 void yyGUIButton::OnUpdate(f32 dt){
 	if (!m_visible) return;
-	if (m_ignoreInput) return;
 
-	m_inRect = math::pointInRect(
+	yyGUIElement::CheckCursorInRect();
+	/*m_inRect = math::pointInRect(
 		g_engine->m_inputContext->m_cursorCoordsForGUI.x,
 		g_engine->m_inputContext->m_cursorCoordsForGUI.y,
 		v4f(
@@ -49,12 +49,14 @@ void yyGUIButton::OnUpdate(f32 dt){
 			m_rect.z + m_offset.x,
 			m_rect.w + m_offset.y
 		)
-		);
+		);*/
+
+	if (m_ignoreInput) return;
 
 	if (m_isAnimated && m_mouseHoverPB)
 	{
 		f32 sp = 10.f  * dt;
-		if (m_inRect)
+		if (m_isInActiveAreaRect)
 		{
 			m_mouseHoverPB->m_color.m_data[3] += sp;
 			if (m_mouseHoverPB->m_color.m_data[3] > 1.f)
@@ -76,7 +78,7 @@ void yyGUIButton::OnUpdate(f32 dt){
 		}
 
 
-		if (m_onRelease && m_inRect
+		if (m_onRelease && m_isInActiveAreaRect
 			&& (g_engine->m_guiElementInMouseFocus == (yyGUIElement*)this))
 			m_onRelease(this, m_id);
 		
@@ -84,7 +86,7 @@ void yyGUIButton::OnUpdate(f32 dt){
 
 	if (g_engine->m_inputContext->m_isLMBDown)
 	{
-		if (m_inRect)
+		if (m_isInActiveAreaRect)
 		{
 			if (m_useAsCheckbox)
 			{
@@ -130,7 +132,7 @@ void yyGUIButton::OnDraw(){
 	{
 		if (m_mouseHoverPB)
 		{
-			if (m_inRect || m_mouseHoverPB->m_color.m_data[3] < 1.f)
+			if (m_isInActiveAreaRect || m_mouseHoverPB->m_color.m_data[3] < 1.f)
 			{
 				m_gpu->SetGUIShaderData(m_mouseHoverPB); // maybe call only if m_isAnimated == true
 				m_mouseHoverPB->OnDraw();
@@ -147,31 +149,31 @@ void yyGUIButton::OnDraw(){
 	}
 }
 
-YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* baseTexture, s32 id){
+YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* baseTexture, s32 id, yyGUIDrawGroup* drawGroup){
 	yyGUIButton* element = yyCreate<yyGUIButton>();
-	element->m_rect = rect;
+	element->SetDrawGroup(drawGroup);
+	element->m_activeAreaRect = rect;
+	element->m_clipRect = rect;
+	element->m_buildingRect = rect;
 	element->m_id = id;
-	element->m_basePB = yyGUICreatePictureBox(rect, baseTexture, -1);
+	element->m_basePB = yyGUICreatePictureBox(element->m_buildingRect, baseTexture, -1, element->m_drawGroup);
 	element->m_basePB->IgnoreInput(true);
 
 	yyGUIRemoveElement(element->m_basePB);
-	g_engine->addGuiElement(element);
+	
 	return element;
 }
 
 void yyGUIButton::SetVisible(bool v) {
 	m_visible = v; 
-	//if (m_basePB) m_basePB->SetVisible(v);
 }
 
 void yyGUIButton::SetMouseHoverTexture(yyResource* t){
 	if (!m_mouseHoverPB)
 	{
-		m_mouseHoverPB = yyGUICreatePictureBox(m_rect, t, -1);
+		m_mouseHoverPB = yyGUICreatePictureBox(m_buildingRect, t, -1, m_drawGroup);
 		m_mouseHoverPB->IgnoreInput(true);
-
 		yyGUIRemoveElement(m_mouseHoverPB);
-		//m_mouseHoverPB->SetVisible(false);
 	}
 	else
 	{
@@ -182,11 +184,9 @@ void yyGUIButton::SetMouseHoverTexture(yyResource* t){
 void yyGUIButton::SetMouseClickTexture(yyResource* t){
 	if (!m_mouseClickPB)
 	{
-		m_mouseClickPB = yyGUICreatePictureBox(m_rect, t, -1);
+		m_mouseClickPB = yyGUICreatePictureBox(m_buildingRect, t, -1, m_drawGroup);
 		m_mouseClickPB->IgnoreInput(true);
-		
 		yyGUIRemoveElement(m_mouseClickPB);
-		//m_mouseClickPB->SetVisible(false);
 	}
 	else
 	{

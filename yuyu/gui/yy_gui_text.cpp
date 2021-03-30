@@ -233,8 +233,9 @@ void yyGUIText::Clear(){
 }
 
 
-YY_API yyGUIText* YY_C_DECL yyGUICreateText(const v2f& position, yyGUIFont* font, const wchar_t* text){
+YY_API yyGUIText* YY_C_DECL yyGUICreateText(const v2f& position, yyGUIFont* font, const wchar_t* text, yyGUIDrawGroup* drawGroup){
 	yyGUIText* element = yyCreate<yyGUIText>();
+	element->SetDrawGroup(drawGroup);
 	element->m_font = font;
 	element->m_position = position;
 	
@@ -243,7 +244,7 @@ YY_API yyGUIText* YY_C_DECL yyGUICreateText(const v2f& position, yyGUIFont* font
 	if (wstr.size())
 		element->SetText(text);
 
-	g_engine->addGuiElement(element);
+//	g_engine->addGuiElement(element);
 
 	return element;
 }

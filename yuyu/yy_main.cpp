@@ -48,7 +48,10 @@ Engine::Engine()
 	m_backgroundWorker(nullptr),
 	m_cctx(nullptr)
 {
+	m_cursorInGUI = false;
 	m_guiElementInMouseFocus = 0;
+	m_mainGUIDrawGroup = yyCreate<yyGUIDrawGroup>();
+
 	m_cctx = ZSTD_createCCtx();
 
 	yyImageLoader imageLoader;
@@ -101,7 +104,23 @@ Engine::~Engine(){
 	CoUninitialize();
 #endif
 
-	auto guiNode = m_guiElements.head();
+	if (m_mainGUIDrawGroup) {
+		yyDestroy(m_mainGUIDrawGroup);
+	}
+
+	{
+		auto guiNode = m_GUIDrawGroups.head();
+		if (guiNode)
+		{
+			for (size_t i = 0, sz = m_GUIDrawGroups.size(); i < sz; ++i)
+			{
+				yyDestroy(guiNode->m_data);
+				guiNode = guiNode->m_right;
+			}
+		}
+	}
+	
+	/*auto guiNode = m_guiElements.head();
 	if(guiNode)
 	{
 		for(size_t i = 0, sz = m_guiElements.size(); i < sz; ++i)
@@ -109,7 +128,7 @@ Engine::~Engine(){
 			yyDestroy( guiNode->m_data );
 			guiNode = guiNode->m_right;
 		}
-	}
+	}*/
 
 	if(m_videoDriverLib)
 	{
@@ -122,9 +141,10 @@ Engine::~Engine(){
 }
 
 
-void Engine::addGuiElement(yyGUIElement* el){
-	m_guiElements.push_back(el);
-}
+//void Engine::addGuiElement(yyGUIElement* el, yyGUIDrawGroup* gr){
+//	gr->AddElement(el);
+//	//m_guiElements.push_back(el);
+//}
 
 class EngineDestroyer
 {
@@ -202,7 +222,7 @@ extern "C"
 		g_engine = yyCreate<Engine>();
 		g_engine->m_inputContext = input;
 		//g_engine->m_resourceManager = new yyResourceManager;
-		g_engine->m_backgroundWorker = new std::thread(yyBackgroundWorkerFunction);
+	//	g_engine->m_backgroundWorker = new std::thread(yyBackgroundWorkerFunction);
 		//g_engine->m_inputContext = yyCreate<yyInputContext>();
 
 		return &g_engine->m_state;

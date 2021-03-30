@@ -10,8 +10,7 @@
 
 extern Engine * g_engine;
 
-yyGUIFont::yyGUIFont()
-{
+yyGUIFont::yyGUIFont(){
 	m_maxHeight = 0;
 	m_glyphs.reserve(0xffff);
 	for (u32 i = 0; i < 0xffff; ++i)
@@ -20,8 +19,7 @@ yyGUIFont::yyGUIFont()
 	}
 }
 
-yyGUIFont::~yyGUIFont()
-{
+yyGUIFont::~yyGUIFont(){
 	for (u32 i = 0, sz = m_glyphs.size(); i < sz; ++i)
 	{
 		if (m_glyphs[i])
@@ -31,8 +29,7 @@ yyGUIFont::~yyGUIFont()
 	}
 }
 
-yyGUIFontGlyph* yyGUIFont::GetGlyph(wchar_t ch)
-{
+yyGUIFontGlyph* yyGUIFont::GetGlyph(wchar_t ch){
 	auto glyph = m_glyphs[(u32)ch];
 	if (!glyph)
 	{
@@ -44,8 +41,7 @@ yyGUIFontGlyph* yyGUIFont::GetGlyph(wchar_t ch)
 }
 
 
-YY_API yyGUIFont* YY_C_DECL yyGUILoadFont(const char* fileName)
-{
+YY_API yyGUIFont* YY_C_DECL yyGUILoadFont(const char* fileName){
 	yy_fs::path p = fileName;
 	if (!yy_fs::exists(p))
 	{
@@ -209,7 +205,10 @@ YY_API yyGUIFont* YY_C_DECL yyGUILoadFont(const char* fileName)
 			
 		//	printf("[%c] [%f]\n", ci.symbol, glyph->height);
 		}
-		g_engine->addGuiElement(newFont);
+
+		//g_engine->addGuiElement(newFont);
+		g_engine->m_mainGUIDrawGroup->AddElement(newFont);
+
 		return newFont;
 	}
 	return nullptr;

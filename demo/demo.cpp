@@ -201,9 +201,9 @@ void buttonExit_onRelease(yyGUIElement* elem, s32 m_id){
 }
 
 void Demo::MainLoop(){
-	yyGUIText* gui_text_fps = yyGUICreateText(v2f(0.f, 0.f), m_defaultFont, 0);
+	yyGUIText* gui_text_fps = yyGUICreateText(v2f(0.f, 0.f), m_defaultFont, 0, 0);
 	
-	yyGUIButton* gui_button_exit = yyGUICreateButton(v4f(m_window->m_currentSize.x - 50, 0, m_window->m_currentSize.x, 25), yyGetTextureResource("../res/exit.png", false, false, true), 0);
+	yyGUIButton* gui_button_exit = yyGUICreateButton(v4f(m_window->m_currentSize.x - 50, 0, m_window->m_currentSize.x, 25), yyGetTextureResource("../res/exit.png", false, false, true), 0, 0);
 	gui_button_exit->SetMouseHoverTexture(yyGetTextureResource("../res/exit_hov.png", false, false, true));
 	gui_button_exit->SetMouseClickTexture(yyGetTextureResource("../res/exit_clk.png", false, false, true));
 	gui_button_exit->m_onClick = buttonExit_onClick;
@@ -296,7 +296,7 @@ void Demo::MainLoop(){
 
 void Demo::AddExample(DemoExample* e){
 	static v2f gui_text_position = v2f(0.f, 20.f);
-	e->m_guiTextTitle = yyGUICreateText(gui_text_position, m_defaultFont, e->GetTitle());
+	e->m_guiTextTitle = yyGUICreateText(gui_text_position, m_defaultFont, e->GetTitle(), 0);
 	gui_text_position.y += 10.f;
 	m_examples.push_back(e);
 }

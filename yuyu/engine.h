@@ -84,7 +84,6 @@ struct IFileOpenDialog;
 
 class Engine
 {
-
 public:
 	Engine();
 	~Engine();
@@ -106,8 +105,13 @@ public:
 	
 	yyFixedFIFOThread<BackgroundWorkerResults, 20> m_workerResults;
 
-	void addGuiElement(yyGUIElement*);
-	yyList<yyGUIElement*> m_guiElements;
+	//void addGuiElement(yyGUIElement*, yyGUIDrawGroup*);
+	//yyList<yyGUIElement*> m_guiElements;
+	yyGUIDrawGroup* m_mainGUIDrawGroup;
+	yyList<yyGUIDrawGroup*> m_GUIDrawGroups;
+	void GUIUpdateDrawGroup(yyGUIDrawGroup*, f32 dt);
+	void GUIDrawDrawGroup(yyGUIDrawGroup*);
+	bool m_cursorInGUI;
 	yyGUIElement* m_guiElementInMouseFocus;
 
 	ZSTD_CCtx* m_cctx;

@@ -165,7 +165,7 @@ bool DemoExample_MDL::Init()
 	
 	m_guiTextBullets =
 		yyGUICreateText(v2f(0.f, g_demo->m_window->m_currentSize.y - g_demo->m_defaultFont->m_maxHeight),
-			g_demo->m_defaultFont, L" ");
+			g_demo->m_defaultFont, L" ", 0);
 	m_guiTextBullets->SetText(L"Bullets: %i", m_gunBulletCurr);
 
 	return true;

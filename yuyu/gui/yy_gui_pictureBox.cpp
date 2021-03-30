@@ -28,9 +28,12 @@ yyGUIPictureBox::~yyGUIPictureBox(){
 		vAPI->UnloadTexture(this->m_texture);
 }
 
-YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResource* texture, s32 id){
+YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResource* texture, s32 id, yyGUIDrawGroup* drawGroup){
 	yyGUIPictureBox* element = yyCreate<yyGUIPictureBox>();
-	element->m_rect = rect;
+	element->SetDrawGroup(drawGroup);
+	element->m_activeAreaRect = rect;
+	element->m_clipRect = rect;
+	element->m_buildingRect = rect;
 	element->m_texture = texture;
 	element->m_id = id;
 
@@ -49,16 +52,16 @@ YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResou
 	u16* inds = (u16*)model->m_indices;
 
 	yyVertexGUI * vertex = (yyVertexGUI*)model->m_vertices;
-	vertex->m_position.set(rect.x, rect.w);
+	vertex->m_position.set(element->m_buildingRect.x, element->m_buildingRect.w);
 	vertex->m_tcoords.set(0.f, 1.f);
 	vertex++;
-	vertex->m_position.set(rect.x, rect.y);
+	vertex->m_position.set(element->m_buildingRect.x, element->m_buildingRect.y);
 	vertex->m_tcoords.set(0.f, 0.f);
 	vertex++;
-	vertex->m_position.set(rect.z, rect.y);
+	vertex->m_position.set(element->m_buildingRect.z, element->m_buildingRect.y);
 	vertex->m_tcoords.set(1.f, 0.f);
 	vertex++;
-	vertex->m_position.set(rect.z, rect.w);
+	vertex->m_position.set(element->m_buildingRect.z, element->m_buildingRect.w);
 	vertex->m_tcoords.set(1.f, 1.f);
 	vertex++;
 
@@ -72,15 +75,15 @@ YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResou
 	element->m_pictureBoxModel = vAPI->CreateModel(model);
 	yyDestroy(model);
 
-	g_engine->addGuiElement(element);
+	//g_engine->addGuiElement(element);
 
 	return element;
 }
 
 void yyGUIPictureBox::OnUpdate(f32 dt){
 	if (!m_visible) return;
-	if (m_ignoreInput) return;
-	m_inRect = math::pointInRect(
+	
+	/*m_inRect = math::pointInRect(
 		g_engine->m_inputContext->m_cursorCoordsForGUI.x,
 		g_engine->m_inputContext->m_cursorCoordsForGUI.y,
 		v4f(
@@ -89,11 +92,14 @@ void yyGUIPictureBox::OnUpdate(f32 dt){
 			m_rect.z + m_offset.x,
 			m_rect.w + m_offset.y
 		)
-	);
+	);*/
+	yyGUIElement::CheckCursorInRect();
+
+	if (m_ignoreInput) return;
 
 	if (m_onClick && g_engine->m_inputContext->m_isLMBDown)
 	{
-		if (m_inRect)
+		if (m_isInActiveAreaRect)
 			m_onClick(this, m_id);
 	}
 }
