@@ -40,16 +40,6 @@ void yyGUIButton::OnUpdate(f32 dt){
 	if (!m_visible) return;
 
 	yyGUIElement::CheckCursorInRect();
-	/*m_inRect = math::pointInRect(
-		g_engine->m_inputContext->m_cursorCoordsForGUI.x,
-		g_engine->m_inputContext->m_cursorCoordsForGUI.y,
-		v4f(
-			m_rect.x + m_offset.x,  
-			m_rect.y + m_offset.y,
-			m_rect.z + m_offset.x,
-			m_rect.w + m_offset.y
-		)
-		);*/
 
 	if (m_ignoreInput) return;
 

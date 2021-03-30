@@ -31,8 +31,8 @@ public:
 
 	yyArraySimple<yyGUITextDrawNode> m_drawNodes; // yyResourceType::Model
 
-
-	//yyGUICallback m_onClick; // LMB down
+	yyGUICallback m_onMouseInRect;
+	yyGUICallback m_onClick; // LMB down
 };
 
 #endif

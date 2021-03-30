@@ -296,9 +296,19 @@ void Demo::MainLoop(){
 	}
 }
 
+void Demo_TextTitle_onMouseInRect(yyGUIElement* elem, s32 m_id){
+	g_demo->m_selectedExample = m_id;
+	g_demo->_SelectExampleUpdateColors();
+}
+void Demo_TextTitle_onClick(yyGUIElement* elem, s32 m_id) {
+	g_demo->StartDemo();
+}
 void Demo::AddExample(DemoExample* e){
 	static v2f gui_text_position = v2f(0.f, 20.f);
 	e->m_guiTextTitle = yyGUICreateText(gui_text_position, m_defaultFont, e->GetTitle(), 0);
+	e->m_guiTextTitle->m_onMouseInRect = Demo_TextTitle_onMouseInRect;
+	e->m_guiTextTitle->m_onClick = Demo_TextTitle_onClick;
+	e->m_guiTextTitle->m_id = m_examples.size();
 	gui_text_position.y += 10.f;
 	m_examples.push_back(e);
 }

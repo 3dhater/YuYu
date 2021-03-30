@@ -51,11 +51,9 @@ bool DemoExample_GUI::Init(){
 	return true;
 }
 
-/* Спрайт не удаляет текстуры.
-	За текстурами нужно следить вручную.
-*/
-void DemoExample_GUI::Shutdown(){
 
+void DemoExample_GUI::Shutdown(){
+	// yyGUIDeleteDrawGroup will delete all GUI elements in this group
 	if (m_drawGroup1)
 	{
 		yyGUIDeleteDrawGroup(m_drawGroup1);

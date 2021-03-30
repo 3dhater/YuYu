@@ -14,6 +14,8 @@ yyGUIText::yyGUIText(){
 	m_type = yyGUIElementType::Text;
 	m_buffer = 0;
 	SetBufferSize(1024);
+	m_onMouseInRect = 0;
+	m_onClick = 0;
 }
 
 yyGUIText::~yyGUIText(){
@@ -27,7 +29,21 @@ yyGUIText::~yyGUIText(){
 
 void yyGUIText::OnUpdate(f32 dt){
 	if (!m_visible) return;
+	yyGUIElement::CheckCursorInRect();
 	if (m_ignoreInput) return;
+
+	if (m_isInActiveAreaRect)
+	{
+
+		if (m_onMouseInRect)
+			m_onMouseInRect(this,m_id);
+
+		if (g_engine->m_inputContext->m_isLMBDown)
+		{
+			if (m_onClick)
+				m_onClick(this, m_id);
+		}
+	}
 }
 
 void yyGUIText::OnDraw(){
@@ -168,6 +184,8 @@ void yyGUIText::SetText(const wchar_t* format, ...){
 
 	m_buildingRect.z = text_pointer.x;
 	m_buildingRect.w = text_pointer.y + glyph_max_height;
+	m_activeAreaRect = m_buildingRect;
+	m_clipRect = m_buildingRect;
 
 	u32 array_index_counter = 0;
 	for (int i = 0; i < YY_MAX_FONT_TEXTURES; ++i)

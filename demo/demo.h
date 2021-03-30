@@ -11,13 +11,16 @@ class Demo
 
 	yyVideoDriverAPI* m_gpu;
 
-	s32 m_selectedExample;
 	yyArray<DemoExample*> m_examples;
 	DemoExample* m_activeExample;
+	s32 m_selectedExample;
+	
 
 	void _SelectExampleUpdateColors();
 	void _hideMainMenuGUI();
 	void _showMainMenuGUI();
+
+	friend void Demo_TextTitle_onMouseInRect(yyGUIElement* elem, s32 m_id);
 public:
 	Demo();
 	~Demo();
