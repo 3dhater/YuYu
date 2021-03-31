@@ -94,6 +94,7 @@ Demo::Demo(){
 	m_inputContext = 0;
 	m_engineContext = 0;
 	m_window = 0;
+	m_dt = 0.f;
 
 	g_demo = this;
 	m_gpu = 0;
@@ -215,7 +216,6 @@ void Demo::MainLoop(){
 	//gui_button_exit->m_isChecked = true;
 
 	
-	f32 deltaTime = 0.f;
 	f32 fps_timer = 0.f;
 	u32 fps = 0;
 	u32 fps_counter = 0;
@@ -226,10 +226,11 @@ void Demo::MainLoop(){
 		u64 t2 = yyGetTime();
 		f32 m_tick = f32(t2 - t1);
 		t1 = t2;
-		deltaTime = m_tick / 1000.f;
+		m_dt = m_tick / 1000.f;
 
+		
 		++fps_counter;
-		fps_timer += deltaTime;
+		fps_timer += m_dt;
 
 		if (fps_timer > 1.f)
 		{
@@ -254,7 +255,7 @@ void Demo::MainLoop(){
 		if (gui_text_fps)
 			gui_text_fps->SetText(L"FPS: %u", fps);
 
-		yyGUIUpdate(deltaTime);
+		yyGUIUpdate(m_dt);
 
 		switch (*m_engineContext->m_state)
 		{
@@ -269,7 +270,7 @@ void Demo::MainLoop(){
 
 			if (m_activeExample)
 			{
-				if (!m_activeExample->DemoStep(deltaTime))
+				if (!m_activeExample->DemoStep(m_dt))
 				{
 					StopDemo();
 				}
@@ -300,9 +301,44 @@ void Demo_TextTitle_onMouseInRect(yyGUIElement* elem, s32 m_id){
 	g_demo->m_selectedExample = m_id;
 	g_demo->_SelectExampleUpdateColors();
 }
+
 void Demo_TextTitle_onClick(yyGUIElement* elem, s32 m_id) {
 	g_demo->StartDemo();
 }
+
+void Demo_TextTitle_onDraw_toRed(yyGUIElement* elem, s32 m_id) {
+	f32 sp = 5.f * g_demo->m_dt;
+	elem->m_color.m_data[1] -= sp;
+	elem->m_color.m_data[2] -= sp;
+	if (elem->m_color.m_data[1] < 0.f)
+		elem->m_color.m_data[1] = 0.f;
+	if (elem->m_color.m_data[2] < 0.f)
+		elem->m_color.m_data[2] = 0.f;
+	elem->m_offset.x += 1.f;
+	if (elem->m_offset.x > 5.f)
+		elem->m_offset.x = 5.f;
+	if (elem->m_color.m_data[1] == 0.f && elem->m_color.m_data[2] == 0.f)
+	{
+		elem->m_onDraw = 0;
+	}
+}
+void Demo_TextTitle_onDraw_toWhite(yyGUIElement* elem, s32 m_id) {
+	f32 sp = 5.f * g_demo->m_dt;
+	elem->m_color.m_data[1] += sp;
+	elem->m_color.m_data[2] += sp;
+	if (elem->m_color.m_data[1] > 1.f)
+		elem->m_color.m_data[1] = 1.f;
+	if (elem->m_color.m_data[2] > 1.f)
+		elem->m_color.m_data[2] = 1.f;
+	elem->m_offset.x -= 1.f;
+	if (elem->m_offset.x < 0.f)
+		elem->m_offset.x = 0.f;
+	if (elem->m_color.m_data[1] == 1.f && elem->m_color.m_data[2] == 1.f)
+	{
+		elem->m_onDraw = 0;
+	}
+}
+
 void Demo::AddExample(DemoExample* e){
 	static v2f gui_text_position = v2f(0.f, 20.f);
 	e->m_guiTextTitle = yyGUICreateText(gui_text_position, m_defaultFont, e->GetTitle(), 0);
@@ -330,10 +366,14 @@ void Demo::SelectExamplePressUp(){
 void Demo::_SelectExampleUpdateColors(){
 	for (u16 i = 0, sz = m_examples.size(); i < sz; ++i)
 	{
-		if(i == m_selectedExample)
+		/*if(i == m_selectedExample)
 			m_examples[i]->m_guiTextTitle->m_color = ColorRed;
 		else
-			m_examples[i]->m_guiTextTitle->m_color = ColorWhite;
+			m_examples[i]->m_guiTextTitle->m_color = ColorWhite;*/
+		if (i == m_selectedExample)
+			m_examples[i]->m_guiTextTitle->m_onDraw = Demo_TextTitle_onDraw_toRed;
+		else
+			m_examples[i]->m_guiTextTitle->m_onDraw = Demo_TextTitle_onDraw_toWhite;
 	}
 }
 

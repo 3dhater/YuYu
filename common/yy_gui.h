@@ -31,6 +31,7 @@ public:
 	{
 		m_color = ColorWhite;
 		m_drawGroup = 0;
+		m_onDraw = 0;
 	}
 	virtual ~yyGUIElement(){}
 	
@@ -59,6 +60,8 @@ public:
 
 	v2f m_offset;
 	yyColor m_color;
+
+	yyGUICallback m_onDraw;
 };
 
 #include "gui\yy_gui_font.h"

@@ -99,6 +99,8 @@ void Engine::GUIDrawDrawGroup(yyGUIDrawGroup* dg) {
 	for (size_t i = 0, sz = elements.size(); i < sz; ++i)
 	{
 		g_engine->m_videoAPI->SetGUIShaderData(guiElement->m_data);
+		if (guiElement->m_data->m_onDraw)
+			guiElement->m_data->m_onDraw(guiElement->m_data, guiElement->m_data->m_id);
 		guiElement->m_data->OnDraw();
 		guiElement = guiElement->m_right;
 	}

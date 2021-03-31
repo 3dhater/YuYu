@@ -37,6 +37,7 @@ public:
 	yyInputContext * m_inputContext;
 	yyWindow*        m_window;
 	yyGUIFont*        m_defaultFont;
+	f32 m_dt;
 
 	friend void window_callbackMouse(yyWindow* w, s32 wheel, s32 x, s32 y, u32 click);
 	friend void updateInputContext();
