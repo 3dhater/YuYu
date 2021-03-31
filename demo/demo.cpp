@@ -54,6 +54,12 @@ void window_callbackMouse(yyWindow* w, s32 wheel, s32 x, s32 y, u32 click){
 	}
 }
 
+void window_callbackOnSize(yyWindow* window) {
+	//yyGetVideoDriverAPI()->SetViewport(0.f, 0.f, window->m_currentSize.x, window->m_currentSize.y);
+	yyGetVideoDriverAPI()->UpdateMainRenderTarget(window->m_currentSize, 
+		v2f(window->m_currentSize.x, window->m_currentSize.y));
+}
+
 // call before all callbacks
 void updateInputContext(){
 	g_demo->m_inputContext->m_isLMBDbl = false;
@@ -128,7 +134,8 @@ bool Demo::Init(const char* videoDriver){
 	yyLogSetWarningOutput(log_onError);
 
 	m_window = yyCreate<yyWindow>();
-	if (!m_window->init(800, 600, 0))
+	u32 windowStyle = 0;
+	if (!m_window->init(800, 600, windowStyle))
 	{
 		YY_PRINT_FAILED;
 		return false;
@@ -139,6 +146,9 @@ bool Demo::Init(const char* videoDriver){
 	m_window->m_onClose = window_onCLose;
 	m_window->m_onMouseButton = window_callbackMouse;
 	m_window->m_onKeyboard = window_callbackKeyboard;
+	m_window->m_onSize = window_callbackOnSize;
+	m_window->m_onMaximize = window_callbackOnSize;
+	m_window->m_onRestore = window_callbackOnSize;
 
 	// init video driver	
 	if (!yyInitVideoDriver(videoDriver, m_window))

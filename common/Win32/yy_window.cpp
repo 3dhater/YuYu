@@ -12,6 +12,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 #endif
 
+v2i ClientResize(HWND hWnd, int nWidth, int nHeight);
+
 yyWindow::yyWindow()
 	:
 	m_onClose(nullptr),
@@ -29,6 +31,7 @@ yyWindow::yyWindow()
 	m_onKeyboard(nullptr)
 {
 	m_onRawInput = 0;
+	m_onMaximize = 0;
 
 	m_GPUData = 0;
 	m_isFullscreen = false;
@@ -98,11 +101,28 @@ bool yyWindow::init(int size_x, int size_y, u32 flags, yyWindow* parent)
 	//m_clientSize = m_creationSize;
 	m_currentSize = m_creationSize;
 
-	DWORD style = WS_BORDER | WS_CAPTION | WS_CLIPCHILDREN 
-		| WS_CLIPSIBLINGS | WS_SYSMENU;
+	DWORD style = WS_OVERLAPPEDWINDOW;
+	
+	if (flags & yyWindowFlag_popup)
+	{
+		style = WS_POPUP;
+	}
+	else
+	{
+		if(flags & yyWindowFlag_noMinimizeButton)
+			style ^= WS_MINIMIZEBOX;
+		if (flags & yyWindowFlag_noMaximizeButton)
+			style ^= WS_MAXIMIZEBOX;
 
-	if((flags & yyWindowFlag_noMinimizeButton) == 0)
-		style |= WS_MINIMIZEBOX;
+		if (flags & yyWindowFlag_noResize)
+		{
+			style ^= WS_SIZEBOX;
+			if (style & WS_MINIMIZEBOX)
+				style ^= WS_MINIMIZEBOX;
+			if (style & WS_MAXIMIZEBOX)
+				style ^= WS_MAXIMIZEBOX;
+		}
+	}
 
 	WNDCLASSEX wc;
 	ZeroMemory( &wc, sizeof( wc ) ); // memset Winows style
@@ -157,6 +177,8 @@ bool yyWindow::init(int size_x, int size_y, u32 flags, yyWindow* parent)
 	device.dwFlags = 0;
 	device.hwndTarget = 0;
 	RegisterRawInputDevices(&device, 1, sizeof device);
+	
+	ClientResize(m_hWnd, m_currentSize.x, m_currentSize.y);
 
 	return true;
 }
@@ -209,9 +231,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		if(pD)
 		{ 
-			/*LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
+			LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
 			lpMMI->ptMinTrackSize.x = 800;
-			lpMMI->ptMinTrackSize.y = 600;*/
+			lpMMI->ptMinTrackSize.y = 600;
 		}
 	}break;
 	case WM_ERASEBKGND:
@@ -300,11 +322,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if(pD->m_onSize)
 				pD->m_onSize(pD);
 		}
-
 		switch( wmId )
 		{
 		case SIZE_MAXIMIZED:
-			//ev.windowEvent.eventID = Game_EventWindowAction::Maximize;
+			if (pD)
+			{
+				if (pD->m_onMaximize)
+					pD->m_onMaximize(pD);
+			}
 			break;
 		case SIZE_MINIMIZED:
 			if(pD)
@@ -323,11 +348,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		if( pD )
 		{
-			//RECT rc;
-			//GetClientRect( hWnd, &rc );
-		//	pD->m_clientSize.x = rc.right - rc.left;
-			//pD->m_clientSize.y = rc.bottom - rc.top;
-			ClientResize(hWnd, pD->m_currentSize.x, pD->m_currentSize.y);
+			RECT rc;
+			GetClientRect( hWnd, &rc );
+			pD->m_currentSize.x = rc.right - rc.left;
+			pD->m_currentSize.y = rc.bottom - rc.top;
+	//		ClientResize(hWnd, pD->m_currentSize.x, pD->m_currentSize.y);
 
 			/*pD->m_client_rect.x = rc.left;
 			pD->m_client_rect.y = rc.top;
@@ -348,23 +373,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			if(pD->m_onSize)
 				pD->m_onSize(pD);
-		}
-		if( pD )
-		{
-			/*RECT rc;
-			GetClientRect( hWnd, &rc );
-			pD->m_clientSize.x = rc.right - rc.left;
-			pD->m_clientSize.y = rc.bottom - rc.top;*/
-			ClientResize(hWnd, pD->m_currentSize.x, pD->m_currentSize.y);
-			/*GetClientRect( hWnd, &rc );
-			pD->m_client_rect.x = rc.left;
-			pD->m_client_rect.y = rc.top;
-			pD->m_client_rect.z = rc.right;
-			pD->m_client_rect.w = rc.bottom;
 
-			pD->m_client_size.x = rc.right - rc.left;
-			pD->m_client_size.y = rc.bottom - rc.top;*/
+			RECT rc;
+			GetClientRect(hWnd, &rc);
+			pD->m_currentSize.x = rc.right - rc.left;
+			pD->m_currentSize.y = rc.bottom - rc.top;
 		}
+		//if( pD )
+		//{
+		//	/*RECT rc;
+		//	GetClientRect( hWnd, &rc );
+		//	pD->m_clientSize.x = rc.right - rc.left;
+		//	pD->m_clientSize.y = rc.bottom - rc.top;*/
+		////	ClientResize(hWnd, pD->m_currentSize.x, pD->m_currentSize.y);
+		//	/*GetClientRect( hWnd, &rc );
+		//	pD->m_client_rect.x = rc.left;
+		//	pD->m_client_rect.y = rc.top;
+		//	pD->m_client_rect.z = rc.right;
+		//	pD->m_client_rect.w = rc.bottom;
+
+		//	pD->m_client_size.x = rc.right - rc.left;
+		//	pD->m_client_size.y = rc.bottom - rc.top;*/
+		//}
 	}
 	break;
 	case WM_QUIT:

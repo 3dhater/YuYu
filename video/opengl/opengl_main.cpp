@@ -39,15 +39,13 @@ bool g_drawBegin = false;
 extern wglSwapIntervalEXT_t gwglSwapIntervalEXT;
 #endif
 
-u32 GetAPIVersion()
-{
+u32 GetAPIVersion(){
 	return yyVideoDriverAPIVersion;
 }
 
 OpenGL * g_openGL = nullptr;
 
-bool Init(yyWindow* window)
-{
+bool Init(yyWindow* window){
 	assert(window);
 	if(g_openGL)
 		return true;
@@ -61,8 +59,8 @@ bool Init(yyWindow* window)
 	}
 	return true;
 }
-void Destroy()
-{
+
+void Destroy(){
 	if(g_openGL)
 	{
 		yyDestroy(g_openGL);
@@ -70,14 +68,15 @@ void Destroy()
 	}
 }
 
-void SetClearColor(f32 r, f32 g, f32 b, f32 a)
-{
+void SetClearColor(f32 r, f32 g, f32 b, f32 a){
 	gglClearColor( r, g, b, a );
 }
 
+void SetScissorRect(const v4f& rect) {
+	glScissor((GLint)rect.x, (GLint)rect.y, (GLsizei)rect.z, (GLsizei)rect.w);
+}
 
-OpenGLModel* CreateOpenGLModel(yyModel* model)
-{
+OpenGLModel* CreateOpenGLModel(yyModel* model){
 	assert(model);
 	auto newModel = yyCreate<OpenGLModel>();
 	if(g_openGL->initModel(model, newModel))
@@ -85,15 +84,15 @@ OpenGLModel* CreateOpenGLModel(yyModel* model)
 	yyDestroy(newModel);
 	return nullptr;
 }
-void DeleteTexture(yyResource* r)
-{
+
+void DeleteTexture(yyResource* r){
 	yyDestroy(g_openGL->m_textures[r->m_index]);
 	g_openGL->m_textures[r->m_index] = nullptr;
 	g_openGL->m_freeTextureResourceIndex.push_back(r->m_index);
 	yyDestroy(r);
 }
-void UnloadTexture(yyResource* r)
-{
+
+void UnloadTexture(yyResource* r){
 	assert(r);
 	assert((r->m_type == yyResourceType::Texture) || (r->m_type == yyResourceType::RenderTargetTexture));
 	if(r->m_refCount == 0)
@@ -110,8 +109,8 @@ void UnloadTexture(yyResource* r)
 		}
 	}
 }
-OpenGLTexture* CreateOpenGLTexture(yyImage* image, bool useLinearFilter, bool useComparisonFilter)
-{
+
+OpenGLTexture* CreateOpenGLTexture(yyImage* image, bool useLinearFilter, bool useComparisonFilter){
 	assert(image);
 	auto newTexture = yyCreate<OpenGLTexture>();
 	if(g_openGL->initTexture(image, newTexture, useLinearFilter, useComparisonFilter))
@@ -119,8 +118,8 @@ OpenGLTexture* CreateOpenGLTexture(yyImage* image, bool useLinearFilter, bool us
 	yyDestroy(newTexture);
 	return nullptr;
 }
-void LoadTexture(yyResource* r)
-{
+
+void LoadTexture(yyResource* r){
 	assert(r);
 	assert((r->m_type == yyResourceType::Texture)|| (r->m_type == yyResourceType::RenderTargetTexture));
 	++r->m_refCount;
@@ -147,8 +146,8 @@ void LoadTexture(yyResource* r)
 		} 
 	}
 }
-yyResource* CreateTextureFromFile(const char* fileName, bool useLinearFilter, bool useComparisonFilter, bool load)
-{
+
+yyResource* CreateTextureFromFile(const char* fileName, bool useLinearFilter, bool useComparisonFilter, bool load){
 	assert(fileName);
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Texture;
@@ -176,8 +175,8 @@ yyResource* CreateTextureFromFile(const char* fileName, bool useLinearFilter, bo
 		LoadTexture(newRes);
 	return newRes;
 }
-yyResource* CreateTexture(yyImage* image, bool useLinearFilter, bool useComparisonFilter)
-{
+
+yyResource* CreateTexture(yyImage* image, bool useLinearFilter, bool useComparisonFilter){
 	assert(image);
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Texture;
@@ -218,23 +217,22 @@ yyResource* CreateTexture(yyImage* image, bool useLinearFilter, bool useComparis
 	return nullptr;
 }
 
-void UseVSync(bool v)
-{
+void UseVSync(bool v){
 #ifdef YY_PLATFORM_WINDOWS
 	gwglSwapIntervalEXT(v ? 1 : 0);
 #else
 #error For Windows
 #endif
 }
-void UseDepth(bool v)
-{
+
+void UseDepth(bool v){
 	if (g_useDepth == v)
 		return;
 	g_useDepth = v;
 	v ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
 }
-void UseBlend(bool v)
-{
+
+void UseBlend(bool v){
 	if (v)
 	{
 		glEnable(GL_BLEND);
@@ -247,8 +245,7 @@ void UseBlend(bool v)
 	}
 }
 
-yyResource* CreateRenderTargetTexture(const v2f& size, bool useLinearFilter, bool useComparisonFilter)
-{
+yyResource* CreateRenderTargetTexture(const v2f& size, bool useLinearFilter, bool useComparisonFilter){
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::RenderTargetTexture;
 	newRes->m_source = 0;
@@ -273,8 +270,7 @@ yyResource* CreateRenderTargetTexture(const v2f& size, bool useLinearFilter, boo
 	return nullptr;
 }
 
-yyResource* CreateModel(yyModel* model)
-{
+yyResource* CreateModel(yyModel* model){
 	assert(model);
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Model;
@@ -310,8 +306,8 @@ yyResource* CreateModel(yyModel* model)
 		yyDestroy( newRes );
 	return nullptr;
 }
-void UnloadModel(yyResource* r)
-{
+
+void UnloadModel(yyResource* r){
 	assert(r);
 #ifdef YY_DEBUG
 	if(r->m_type != yyResourceType::Model) YY_PRINT_FAILED;
@@ -332,8 +328,8 @@ void UnloadModel(yyResource* r)
 		}
 	}
 }
-void DeleteModel(yyResource* r)
-{
+
+void DeleteModel(yyResource* r){
 	assert(r);
 	assert(r->m_type == yyResourceType::Model);
 
@@ -359,8 +355,8 @@ void DeleteModel(yyResource* r)
 	g_openGL->m_freeModelResourceIndex.push_back(r->m_index);
 	yyDestroy(r); // удаление ресурса
 }
-void LoadModel(yyResource* r)
-{
+
+void LoadModel(yyResource* r){
 	assert(r);
 #ifdef YY_DEBUG
 	if(r->m_type != yyResourceType::Model)		YY_PRINT_FAILED;
@@ -397,8 +393,7 @@ GLboolean last_enable_blend;
 GLboolean last_enable_cull_face;
 GLboolean last_enable_depth_test;
 GLboolean last_enable_scissor_test;
-void BeginDrawGUI()
-{
+void BeginDrawGUI(){
 	gglGetIntegerv(GL_ACTIVE_TEXTURE, (GLint*)&last_active_texture);
 	gglActiveTexture(GL_TEXTURE0);
 	gglGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
@@ -439,8 +434,8 @@ void BeginDrawGUI()
 	
 	g_openGL->m_isGUI = true;
 }
-void EndDrawGUI()
-{
+
+void EndDrawGUI(){
 	g_openGL->m_isGUI = false;
 
 	// Restore modified GL state
@@ -462,10 +457,10 @@ void EndDrawGUI()
 	glPolygonMode(GL_FRONT_AND_BACK, (GLenum)last_polygon_mode[0]);
 #endif
 	glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
-//	glScissor(last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2], (GLsizei)last_scissor_box[3]);
+	glScissor(last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2], (GLsizei)last_scissor_box[3]);
 }
-void SetRenderTarget(yyResource* rtt)
-{
+
+void SetRenderTarget(yyResource* rtt){
 	if (rtt)
 	{
 		if (rtt->m_type == yyResourceType::RenderTargetTexture)
@@ -478,26 +473,26 @@ void SetRenderTarget(yyResource* rtt)
 		glBindFramebuffer(GL_FRAMEBUFFER, g_openGL->m_mainTarget->m_FBO);
 	}
 }
-void SetViewport(f32 x, f32 y, f32 width, f32 height)
-{
+
+void SetViewport(f32 x, f32 y, f32 width, f32 height){
 	glViewport(x, y, width, height);
 }
-void SetTexture(u32 slot, yyResource* res)
-{
+
+void SetTexture(u32 slot, yyResource* res){
 	if(res)
 		g_openGL->m_currentTextures[slot] = g_openGL->m_textures[res->m_index];
 	else
 		g_openGL->m_currentTextures[slot] = nullptr;
 }
-void SetModel(yyResource* res)
-{
+
+void SetModel(yyResource* res){
 	if (res)
 		g_openGL->m_currentModel = g_openGL->m_models[res->m_index];
 	else
 		g_openGL->m_currentModel = nullptr;
 }
-void Draw()
-{
+
+void Draw(){
 	if( !g_openGL->m_currentModel )
 		return;
 
@@ -623,8 +618,8 @@ void Draw()
 	glBindVertexArray(g_openGL->m_currentModel->m_VAO);
 	glDrawElements(GL_TRIANGLES, g_openGL->m_currentModel->m_iCount, g_openGL->m_currentModel->m_indexType, 0);
 }
-void DrawSprite(yySprite* sprite)
-{
+
+void DrawSprite(yySprite* sprite){
 	assert(sprite);
 	glUseProgram( g_openGL->m_shader_sprite->m_program );
 	glUniformMatrix4fv(g_openGL->m_shader_sprite->m_uniform_ProjMtx, 1, GL_FALSE, g_openGL->m_guiProjectionMatrix.getPtr() );
@@ -655,8 +650,8 @@ void DrawSprite(yySprite* sprite)
 	glBindVertexArray(g_openGL->m_currentModel->m_VAO);
 	glDrawElements(GL_TRIANGLES, g_openGL->m_currentModel->m_iCount, GL_UNSIGNED_SHORT, 0);
 }
-void DrawSprite2(yySprite2* sprite)
-{
+
+void DrawSprite2(yySprite2* sprite){
 	assert(sprite);
 	glUseProgram(g_openGL->m_shader_sprite2->m_program);
 	glUniformMatrix4fv(g_openGL->m_shader_sprite2->m_uniform_ProjMtx, 1, GL_FALSE, g_openGL->m_guiProjectionMatrix.getPtr());
@@ -674,8 +669,8 @@ void DrawSprite2(yySprite2* sprite)
 	glBindVertexArray(g_openGL->m_currentModel->m_VAO);
 	glDrawElements(GL_TRIANGLES, g_openGL->m_currentModel->m_iCount, GL_UNSIGNED_SHORT, 0);
 }
-void DrawLine2D(const v3f& _p1, const v3f& _p2, const yyColor& color)
-{
+
+void DrawLine2D(const v3f& _p1, const v3f& _p2, const yyColor& color){
 	v4f p1 = _p1;
 	v4f p2 = _p2;
 	glUseProgram(g_openGL->m_shader_line3d->m_program);
@@ -687,8 +682,8 @@ void DrawLine2D(const v3f& _p1, const v3f& _p2, const yyColor& color)
 	glBindVertexArray(g_openGL->m_shader_line3d->m_VAO);
 	glDrawArrays(GL_LINES, 0, 2);
 }
-void DrawLine3D(const v4f& _p1, const v4f& _p2, const yyColor& color)
-{
+
+void DrawLine3D(const v4f& _p1, const v4f& _p2, const yyColor& color){
 	glUseProgram( g_openGL->m_shader_line3d->m_program );
 	glUniformMatrix4fv(g_openGL->m_shader_line3d->m_uniform_ProjMtx, 1, GL_FALSE, g_openGL->m_matrixViewProjection.getPtr() );
 	glUniform4fv(g_openGL->m_shader_line3d->m_uniform_P1, 1, _p1.cdata());
@@ -698,8 +693,8 @@ void DrawLine3D(const v4f& _p1, const v4f& _p2, const yyColor& color)
 	glBindVertexArray(g_openGL->m_shader_line3d->m_VAO);
 	glDrawArrays(GL_LINES, 0, 2);
 }
-void SetMatrix(yyVideoDriverAPI::MatrixType mt, const Mat4& mat)
-{
+
+void SetMatrix(yyVideoDriverAPI::MatrixType mt, const Mat4& mat){
 	switch(mt)
 	{
 	case yyVideoDriverAPI::World:
@@ -728,21 +723,20 @@ void SetMatrix(yyVideoDriverAPI::MatrixType mt, const Mat4& mat)
 		break;
 	}
 }
-void SetBoneMatrix(u32 boneIndex, const Mat4& mat)
-{
+
+void SetBoneMatrix(u32 boneIndex, const Mat4& mat){
 	g_openGL->m_matrixBones[boneIndex] = mat;
 }
-v2f* GetSpriteCameraPosition()
-{
+
+v2f* GetSpriteCameraPosition(){
 	return &g_openGL->m_spriteCameraPosition;
 }
-v2f* GetSpriteCameraScale()
-{
+
+v2f* GetSpriteCameraScale(){
 	return &g_openGL->m_spriteCameraScale;
 }
 
-void GetTextureSize(yyResource* r, v2i* s)
-{
+void GetTextureSize(yyResource* r, v2i* s){
 	assert(r);
 	assert(s);
 	if(r->m_type != yyResourceType::Texture)
@@ -754,44 +748,40 @@ void GetTextureSize(yyResource* r, v2i* s)
 	s->y = t->m_h;
 }
 
-void SetActiveWindow(yyWindow* w)
-{
+void SetActiveWindow(yyWindow* w){
 	g_openGL->SetActive(w);
 }
-void InitWindow(yyWindow* w)
-{
+
+void InitWindow(yyWindow* w){
 	g_openGL->InitWindow(w);
 }
-void SetMaterial(yyMaterial* mat)
-{
+
+void SetMaterial(yyMaterial* mat){
 	g_openGL->m_currentMaterial = mat;
 }
-void MapModelForWriteVerts(yyResource* r, u8** v_ptr)
-{
+
+void MapModelForWriteVerts(yyResource* r, u8** v_ptr){
 	assert(r);
 	OpenGLModel* m = g_openGL->m_models[r->m_index];
 	glBindBuffer(GL_ARRAY_BUFFER, m->m_vBuffer);
 	*v_ptr = (u8*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 }
-void UnmapModelForWriteVerts(yyResource* r)
-{
+
+void UnmapModelForWriteVerts(yyResource* r){
 	glUnmapBuffer(GL_ARRAY_BUFFER);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 yyVideoDriverObjectOpenGL g_yyVideoDriverObjectOpenGL;
-void* GetVideoDriverObjects()
-{
+void* GetVideoDriverObjects(){
 	return &g_yyVideoDriverObjectOpenGL;
 }
 
-const char* GetVideoDriverName()
-{
+const char* GetVideoDriverName(){
 	return "OpenGL 3.3";
 }
 
-void BeginDraw()
-{
+void BeginDraw(){
 #ifdef YY_DEBUG
 	if(g_drawBegin)
 		yyLogWriteError("You forgot to call SwapBuffers()  Video driver: %s\n", GetVideoDriverName());
@@ -803,22 +793,23 @@ void BeginDraw()
 	UseDepth(true);
 	
 }
-void ClearAll()
-{
+
+void ClearAll(){
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 }
-void ClearColor()
-{
+
+void ClearColor(){
 	glClear(GL_COLOR_BUFFER_BIT);
 }
-void ClearDepth()
-{
+
+void ClearDepth(){
 	glClear(GL_DEPTH_BUFFER_BIT);
 }
-void EndDraw()
-{
+
+void EndDraw(){
 	glBindFramebuffer(GL_FRAMEBUFFER, 0); // window
 	glViewport(0, 0, g_openGL->m_windowSize.x, g_openGL->m_windowSize.y);
+	SetScissorRect(v4f(0.f, 0.f, (f32)g_openGL->m_windowSize.x, (f32)g_openGL->m_windowSize.y));
 
 	UseDepth(false);
 
@@ -831,8 +822,7 @@ void EndDraw()
 	glDrawElements(GL_TRIANGLES, g_openGL->m_mainTargetSurface->m_iCount, g_openGL->m_mainTargetSurface->m_indexType, 0);
 }
 
-void SwapBuffers()
-{
+void SwapBuffers(){
 #ifdef YY_DEBUG
 	g_drawBegin = false;
 #endif
@@ -843,20 +833,17 @@ void SwapBuffers()
 #endif
 }
 
-void UpdateMainRenderTarget(const v2i& windowsSize, const v2f& bufferSize)
-{
+void UpdateMainRenderTarget(const v2i& windowsSize, const v2f& bufferSize){
 	g_openGL->m_windowSize = windowsSize;
 	g_openGL->m_mainTargetSize = bufferSize;
 	g_openGL->updateMainTarget();
 }
 
-void* GetTextureHandle(yyResource* res)
-{
+void* GetTextureHandle(yyResource* res){
 	return &g_openGL->m_textures[res->m_index]->m_texture;
 }
 
-void SetGUIShaderData(yyGUIElement* guielement)
-{
+void SetGUIShaderData(yyGUIElement* guielement){
 	assert(guielement);
 	glUniform2fv(g_openGL->m_shader_gui->m_uniform_Offset, 1, &guielement->m_offset.x);
 	glUniform4fv(g_openGL->m_shader_gui->m_uniform_Color, 1, &guielement->m_color.m_data[0]);
@@ -903,6 +890,7 @@ extern "C"
 		g_api.SetMatrix = SetMatrix;
 		g_api.SetModel = SetModel;
 		g_api.SetRenderTarget = SetRenderTarget;
+		g_api.SetScissorRect = SetScissorRect;
 		g_api.SetTexture = SetTexture;
 		g_api.SetViewport = SetViewport;
 		g_api.SwapBuffers = SwapBuffers;

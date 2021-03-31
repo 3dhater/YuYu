@@ -36,7 +36,10 @@ enum yyWindow_mouseClickMask
 enum yyWindowFlags
 {
 	yyWindowFlag_noMinimizeButton = BIT(0),
-	yyWindowFlag_hide = BIT(1),
+	yyWindowFlag_noMaximizeButton = BIT(1),
+	yyWindowFlag_hide = BIT(2),
+	yyWindowFlag_noResize = BIT(3),
+	yyWindowFlag_popup = BIT(4),
 };
 
 // implementation must located in game/Win32
@@ -60,6 +63,7 @@ public:
 	yyWindow_callback m_onPaint;
 	yyWindow_callback m_onSize;
 	yyWindow_callback m_onMinimize;
+	yyWindow_callback m_onMaximize;
 	yyWindow_callback m_onRestore;
 
 	void(*m_onRawInput)(yyWindow*, bool inForeground, void* rawInput);

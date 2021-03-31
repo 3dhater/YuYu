@@ -32,15 +32,13 @@ void LoadModel(yyResource* r);
 
 void SetViewport(f32 x, f32 y, f32 width, f32 height);
 
-u32 GetAPIVersion()
-{
+u32 GetAPIVersion(){
 	return yyVideoDriverAPIVersion;
 }
 
 D3D11 * g_d3d11 = nullptr;
 
-bool Init(yyWindow* window)
-{
+bool Init(yyWindow* window){
 	assert(window);
 	if(g_d3d11)
 		return true;
@@ -54,8 +52,8 @@ bool Init(yyWindow* window)
 	}
 	return true;
 }
-void Destroy()
-{
+
+void Destroy(){
 	if(g_d3d11)
 	{
 		yyDestroy(g_d3d11);
@@ -63,14 +61,11 @@ void Destroy()
 	}
 }
 
-void SetClearColor(f32 r, f32 g, f32 b, f32 a)
-{
+void SetClearColor(f32 r, f32 g, f32 b, f32 a){
 	g_d3d11->m_clearColor.set(r, g, b, a);
 }
 
-
-D3D11Model* CreateD3D11Model(yyModel* model)
-{
+D3D11Model* CreateD3D11Model(yyModel* model){
 	assert(model);
 	auto newModel = yyCreate<D3D11Model>();
 	if(g_d3d11->initModel(model, newModel))
@@ -78,8 +73,8 @@ D3D11Model* CreateD3D11Model(yyModel* model)
 	yyDestroy(newModel);
 	return nullptr;
 }
-void UnloadTexture(yyResource* r)
-{
+
+void UnloadTexture(yyResource* r){
 	assert(r);
 	assert((r->m_type == yyResourceType::Texture) || (r->m_type == yyResourceType::RenderTargetTexture));
 	if(r->m_refCount == 0)
@@ -96,8 +91,8 @@ void UnloadTexture(yyResource* r)
 		}
 	}
 }
-D3D11Texture* CreateD3D11Texture(yyImage* image, bool useLinearFilter, bool useComparisonFilter)
-{
+
+D3D11Texture* CreateD3D11Texture(yyImage* image, bool useLinearFilter, bool useComparisonFilter){
 	assert(image);
 	auto newTexture = yyCreate<D3D11Texture>();
 	if(g_d3d11->initTexture(image, newTexture, useLinearFilter, useComparisonFilter))
@@ -105,8 +100,8 @@ D3D11Texture* CreateD3D11Texture(yyImage* image, bool useLinearFilter, bool useC
 	yyDestroy(newTexture);
 	return nullptr;
 }
-void LoadTexture(yyResource* r)
-{
+
+void LoadTexture(yyResource* r){
 	assert(r);
 	assert((r->m_type == yyResourceType::Texture) || (r->m_type == yyResourceType::RenderTargetTexture));
 	++r->m_refCount;
@@ -131,8 +126,8 @@ void LoadTexture(yyResource* r)
 		} 
 	}
 }
-yyResource* CreateTextureFromFile(const char* fileName, bool useLinearFilter, bool useComparisonFilter, bool load)
-{
+
+yyResource* CreateTextureFromFile(const char* fileName, bool useLinearFilter, bool useComparisonFilter, bool load){
 	assert(fileName);
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Texture;
@@ -159,8 +154,8 @@ yyResource* CreateTextureFromFile(const char* fileName, bool useLinearFilter, bo
 		LoadTexture(newRes);
 	return newRes;
 }
-yyResource* CreateTexture(yyImage* image, bool useLinearFilter, bool useComparisonFilter)
-{
+
+yyResource* CreateTexture(yyImage* image, bool useLinearFilter, bool useComparisonFilter){
 	assert(image);
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Texture;
@@ -200,17 +195,16 @@ yyResource* CreateTexture(yyImage* image, bool useLinearFilter, bool useComparis
 	return nullptr;
 }
 
-void UseVSync(bool v)
-{
+void UseVSync(bool v){
 	g_d3d11->m_vsync = v;
 }
-void UseDepth(bool v)
-{
+
+void UseDepth(bool v){
 	v ? g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateEnabled, 0)
 		: g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
 }
-void UseBlend(bool v)
-{
+
+void UseBlend(bool v){
 	if (v)
 	{
 		const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
@@ -222,8 +216,7 @@ void UseBlend(bool v)
 	}
 }
 
-yyResource* CreateModel(yyModel* model)
-{
+yyResource* CreateModel(yyModel* model){
 	assert(model);
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::Model;
@@ -257,8 +250,8 @@ yyResource* CreateModel(yyModel* model)
 		yyDestroy( newRes );
 	return nullptr;
 }
-void UnloadModel(yyResource* r)
-{
+
+void UnloadModel(yyResource* r){
 	assert(r);
 #ifdef YY_DEBUG
 	if(r->m_type != yyResourceType::Model)
@@ -280,8 +273,8 @@ void UnloadModel(yyResource* r)
 		}
 	}
 }
-void LoadModel(yyResource* r)
-{
+
+void LoadModel(yyResource* r){
 	assert(r);
 #ifdef YY_DEBUG
 	if(r->m_type != yyResourceType::Model)
@@ -327,8 +320,7 @@ struct BACKUP_DX11_STATE
 	ID3D11InputLayout*          InputLayout;
 };
 BACKUP_DX11_STATE old;
-void BeginDrawGUI()
-{
+void BeginDrawGUI(){
 	old.ScissorRectsCount = old.ViewportsCount = D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
 	g_d3d11->m_d3d11DevCon->RSGetScissorRects(&old.ScissorRectsCount, old.ScissorRects);
 	g_d3d11->m_d3d11DevCon->RSGetViewports(&old.ViewportsCount, old.Viewports);
@@ -362,8 +354,8 @@ void BeginDrawGUI()
 
 	g_d3d11->m_isGUI = true;
 }
-void EndDrawGUI()
-{
+
+void EndDrawGUI(){
 	g_d3d11->m_isGUI = false;
 
 	// Restore modified GL state
@@ -386,22 +378,30 @@ void EndDrawGUI()
 	g_d3d11->m_d3d11DevCon->IASetInputLayout(old.InputLayout); if (old.InputLayout) old.InputLayout->Release();
 }
 
-void SetTexture(u32 slot, yyResource* res)
-{
+void SetScissorRect(const v4f& rect) {
+	D3D11_RECT r;
+	r.left = rect.x;
+	r.top = rect.y;
+	r.right = rect.z;
+	r.bottom = rect.w;
+	g_d3d11->m_d3d11DevCon->RSSetScissorRects(1, &r);
+}
+
+void SetTexture(u32 slot, yyResource* res){
 	if (res)
 		g_d3d11->m_currentTextures[(u32)slot] = g_d3d11->m_textures[ res->m_index ];
 	else
 		g_d3d11->m_currentTextures[slot] = nullptr;
 }
-void SetModel(yyResource* res)
-{
+
+void SetModel(yyResource* res){
 	if (res)
 		g_d3d11->m_currentModel = g_d3d11->m_models[res->m_index];
 	else
 		g_d3d11->m_currentModel = nullptr;
 }
-void Draw()
-{
+
+void Draw(){
 	if( !g_d3d11->m_currentModel )
 		return;
 
@@ -467,8 +467,8 @@ void Draw()
 	g_d3d11->m_d3d11DevCon->IASetIndexBuffer(g_d3d11->m_currentModel->m_iBuffer, g_d3d11->m_currentModel->m_indexType, 0);
 	g_d3d11->m_d3d11DevCon->DrawIndexed(g_d3d11->m_currentModel->m_iCount, 0, 0);
 }
-void DrawSprite(yySprite* sprite)
-{
+
+void DrawSprite(yySprite* sprite){
 	assert(sprite);
 	g_d3d11->m_shaderSprite->m_structCB.ProjMtx = g_d3d11->m_guiProjectionMatrix;
 	g_d3d11->m_shaderSprite->m_structCB.World = sprite->m_objectBase.m_globalMatrix;
@@ -511,8 +511,8 @@ void DrawSprite(yySprite* sprite)
 	g_d3d11->m_d3d11DevCon->IASetIndexBuffer(g_d3d11->m_currentModel->m_iBuffer, g_d3d11->m_currentModel->m_indexType, 0);
 	g_d3d11->m_d3d11DevCon->DrawIndexed(g_d3d11->m_currentModel->m_iCount, 0, 0);
 }
-void DrawSprite2(yySprite2* sprite)
-{
+
+void DrawSprite2(yySprite2* sprite){
 	assert(sprite);
 	g_d3d11->m_shaderSprite2->m_structCB.ProjMtx = g_d3d11->m_guiProjectionMatrix;
 	g_d3d11->m_shaderSprite2->m_structCB.World = sprite->m_objectBase.m_globalMatrix;
@@ -545,8 +545,8 @@ void DrawSprite2(yySprite2* sprite)
 	g_d3d11->m_d3d11DevCon->IASetIndexBuffer(g_d3d11->m_currentModel->m_iBuffer, g_d3d11->m_currentModel->m_indexType, 0);
 	g_d3d11->m_d3d11DevCon->DrawIndexed(g_d3d11->m_currentModel->m_iCount, 0, 0);
 }
-void DrawLine2D(const v3f& _p1, const v3f& _p2, const yyColor& color)
-{
+
+void DrawLine2D(const v3f& _p1, const v3f& _p2, const yyColor& color){
 	v4f p1 = _p1;
 	v4f p2 = _p2;
 	g_d3d11->m_d3d11DevCon->IASetInputLayout(NULL);
@@ -558,8 +558,8 @@ void DrawLine2D(const v3f& _p1, const v3f& _p2, const yyColor& color)
 
 	g_d3d11->m_d3d11DevCon->Draw(2, 0);
 }
-void DrawLine3D(const v4f& p1, const v4f& p2, const yyColor& color)
-{
+
+void DrawLine3D(const v4f& p1, const v4f& p2, const yyColor& color){
 	g_d3d11->m_d3d11DevCon->IASetInputLayout(NULL);
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
@@ -569,8 +569,8 @@ void DrawLine3D(const v4f& p1, const v4f& p2, const yyColor& color)
 	
 	g_d3d11->m_d3d11DevCon->Draw(2, 0);
 }
-void SetMatrix(yyVideoDriverAPI::MatrixType mt, const Mat4& mat)
-{
+
+void SetMatrix(yyVideoDriverAPI::MatrixType mt, const Mat4& mat){
 	switch(mt)
 	{
 	case yyVideoDriverAPI::World:
@@ -593,21 +593,20 @@ void SetMatrix(yyVideoDriverAPI::MatrixType mt, const Mat4& mat)
 		break;
 	}
 }
-void SetBoneMatrix(u32 boneIndex, const Mat4& mat)
-{
+
+void SetBoneMatrix(u32 boneIndex, const Mat4& mat){
 	g_d3d11->m_matrixBones[boneIndex] = mat;
 }
-v2f* GetSpriteCameraPosition()
-{
+
+v2f* GetSpriteCameraPosition(){
 	return &g_d3d11->m_spriteCameraPosition;
 }
-v2f* GetSpriteCameraScale()
-{
+
+v2f* GetSpriteCameraScale(){
 	return &g_d3d11->m_spriteCameraScale;
 }
 
-void GetTextureSize(yyResource* r, v2i* s)
-{
+void GetTextureSize(yyResource* r, v2i* s){
 	assert(r);
 	assert(s);
 	if(r->m_type != yyResourceType::Texture)
@@ -619,12 +618,11 @@ void GetTextureSize(yyResource* r, v2i* s)
 	s->y = t->m_h;
 }
 
-void SetMaterial(yyMaterial* mat)
-{
+void SetMaterial(yyMaterial* mat){
 	g_d3d11->m_currentMaterial = mat;
 }
-void MapModelForWriteVerts(yyResource* r, u8** v_ptr)
-{
+
+void MapModelForWriteVerts(yyResource* r, u8** v_ptr){
 	assert(r);
 	D3D11Model* m = g_d3d11->m_models[r->m_index];
 	ID3D11Buffer* d3dbuffer = nullptr;
@@ -646,40 +644,38 @@ void MapModelForWriteVerts(yyResource* r, u8** v_ptr)
 	*v_ptr = (u8*)mapData.pData;
 	m->m_lockedResource = d3dbuffer;
 }
-void UnmapModelForWriteVerts(yyResource* r)
-{
+
+void UnmapModelForWriteVerts(yyResource* r){
 	D3D11Model* m = g_d3d11->m_models[r->m_index];
 	g_d3d11->m_d3d11DevCon->Unmap(m->m_lockedResource, 0);
 	m->m_lockedResource = nullptr;
 }
 
 yyVideoDriverObjectD3D11 g_yyVideoDriverObject;
-void* GetVideoDriverObjects()
-{
+void* GetVideoDriverObjects(){
 	g_yyVideoDriverObject.m_context = g_d3d11->m_d3d11DevCon;
 	g_yyVideoDriverObject.m_device = g_d3d11->m_d3d11Device;
 	return &g_yyVideoDriverObject;
 }
 
-const char* GetVideoDriverName()
-{
+const char* GetVideoDriverName(){
 	return "Direct3D 11";
 }
-void ClearAll()
-{
+
+void ClearAll(){
 	g_d3d11->m_d3d11DevCon->ClearRenderTargetView(g_d3d11->m_currentTargetView, g_d3d11->m_clearColor.data());
 	g_d3d11->m_d3d11DevCon->ClearDepthStencilView(g_d3d11->m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
-void ClearColor()
-{
+
+void ClearColor(){
 	g_d3d11->m_d3d11DevCon->ClearRenderTargetView(g_d3d11->m_currentTargetView, g_d3d11->m_clearColor.data());
 }
-void ClearDepth()
-{
+
+void ClearDepth(){
 	g_d3d11->m_d3d11DevCon->ClearDepthStencilView(g_d3d11->m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
-void BeginDraw()
-{
+
+void BeginDraw(){
 	 // !!! ??? m_depthStencilView должен быть свой на каждый RTT ???
 	g_d3d11->m_d3d11DevCon->OMSetRenderTargets(1, &g_d3d11->m_mainTarget->m_RTV, g_d3d11->m_depthStencilView);
 	SetViewport(0, 0, g_d3d11->m_mainTargetSize.x, g_d3d11->m_mainTargetSize.y);
@@ -687,12 +683,13 @@ void BeginDraw()
 
 	UseDepth(true);
 }
-void EndDraw()
-{
+
+void EndDraw(){
 	g_d3d11->m_d3d11DevCon->OMSetRenderTargets(1, &g_d3d11->m_MainTargetView, g_d3d11->m_depthStencilView);
 	g_d3d11->m_currentTargetView = g_d3d11->m_MainTargetView;
+	SetViewport(0, 0, g_d3d11->m_windowSize.x, g_d3d11->m_windowSize.y);
+	SetScissorRect(v4f(0.f, 0.f, (f32)g_d3d11->m_windowSize.x, (f32)g_d3d11->m_windowSize.y));
 	ClearColor();
-	SetViewport(0, 0, g_d3d11->m_swapChainSize.x, g_d3d11->m_swapChainSize.y);
 
 	UseDepth(false);
 
@@ -711,18 +708,21 @@ void EndDraw()
 	g_d3d11->m_d3d11DevCon->IASetVertexBuffers(0, 1, &g_d3d11->m_mainTargetSurface->m_vBuffer, &g_d3d11->m_mainTargetSurface->m_stride, &offset);
 	g_d3d11->m_d3d11DevCon->IASetIndexBuffer(g_d3d11->m_mainTargetSurface->m_iBuffer, g_d3d11->m_mainTargetSurface->m_indexType, 0);
 	g_d3d11->m_d3d11DevCon->DrawIndexed(g_d3d11->m_mainTargetSurface->m_iCount, 0, 0);
-
-	
 }
-void UpdateMainRenderTarget(const v2i& windowsSize, const v2f& bufferSize)
-{
+
+void UpdateMainRenderTarget(const v2i& windowsSize, const v2f& bufferSize){
 	g_d3d11->m_windowSize = windowsSize;
+	g_d3d11->m_swapChainSize = windowsSize;
 	g_d3d11->m_mainTargetSize = bufferSize;
 	g_d3d11->updateMainTarget();
+	
+	//SetViewport(0.f, 0.f, bufferSize.x, bufferSize.y);
+//	printf("%f\n", bufferSize.x);
+	/*
+	g_d3d11->UpdateGUIProjectionMatrix(windowsSize);*/
 }
 
-yyResource* CreateRenderTargetTexture(const v2f& size, bool useLinearFilter, bool useComparisonFilter)
-{
+yyResource* CreateRenderTargetTexture(const v2f& size, bool useLinearFilter, bool useComparisonFilter){
 	yyResource * newRes = yyCreate<yyResource>();
 	newRes->m_type = yyResourceType::RenderTargetTexture;
 	newRes->m_source = 0;
@@ -746,8 +746,8 @@ yyResource* CreateRenderTargetTexture(const v2f& size, bool useLinearFilter, boo
 		yyDestroy(newRes);
 	return nullptr;
 }
-void SetRenderTarget(yyResource* rtt)
-{
+
+void SetRenderTarget(yyResource* rtt){
 	if (rtt)
 	{
 		if (rtt->m_type == yyResourceType::RenderTargetTexture)
@@ -764,24 +764,24 @@ void SetRenderTarget(yyResource* rtt)
 		g_d3d11->m_currentTargetView = g_d3d11->m_mainTarget->m_RTV;
 	}
 }
-void SetViewport(f32 x, f32 y, f32 width, f32 height)
-{
+
+void SetViewport(f32 x, f32 y, f32 width, f32 height){
 	D3D11_VIEWPORT viewport;
-	viewport.Width = (f32)width;
-	viewport.Height = (f32)height;
+	viewport.Width = width;
+	viewport.Height = height;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	viewport.TopLeftX = x;
 	viewport.TopLeftY = y;
 	g_d3d11->m_d3d11DevCon->RSSetViewports(1, &viewport);
 }
-void SwapBuffers()
-{
+
+void SwapBuffers(){
 	g_d3d11->m_vsync ? g_d3d11->m_SwapChain->Present(1, 0)
 		: g_d3d11->m_SwapChain->Present(0, 0);
 }
-void DeleteModel(yyResource* r)
-{
+
+void DeleteModel(yyResource* r){
 	assert(r);
 	assert(r->m_type == yyResourceType::Model);
 	yyDestroy(g_d3d11->m_models[r->m_index]);
@@ -793,20 +793,19 @@ void DeleteModel(yyResource* r)
 	g_d3d11->m_freeModelResourceIndex.push_back(r->m_index);
 	yyDestroy(r); // удаление ресурса
 }
-void DeleteTexture(yyResource* r)
-{
+
+void DeleteTexture(yyResource* r){
 	yyDestroy(g_d3d11->m_textures[r->m_index]);
 	g_d3d11->m_textures[r->m_index] = nullptr;
 	g_d3d11->m_freeTextureResourceIndex.push_back(r->m_index);
 	yyDestroy(r);
 }
-void* GetTextureHandle(yyResource* res)
-{
+
+void* GetTextureHandle(yyResource* res){
 	return g_d3d11->m_textures[res->m_index]->m_textureResView;
 }
 
-void SetGUIShaderData(yyGUIElement* guielement)
-{
+void SetGUIShaderData(yyGUIElement* guielement){
 	assert(guielement);
 	
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -827,6 +826,8 @@ void SetGUIShaderData(yyGUIElement* guielement)
 	g_d3d11->m_d3d11DevCon->Unmap(g_d3d11->m_shaderGUI->m_cbPixel, 0);
 	g_d3d11->m_d3d11DevCon->PSSetConstantBuffers(0, 1, &g_d3d11->m_shaderGUI->m_cbPixel);
 }
+
+
 
 extern "C"
 {
@@ -869,6 +870,7 @@ extern "C"
 		g_api.SetMatrix = SetMatrix;
 		g_api.SetModel = SetModel;
 		g_api.SetRenderTarget = SetRenderTarget;
+		g_api.SetScissorRect = SetScissorRect;
 		g_api.SetTexture = SetTexture;
 		g_api.SetViewport = SetViewport;
 		g_api.SwapBuffers = SwapBuffers;

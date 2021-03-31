@@ -519,7 +519,9 @@ bool D3D11::updateMainTarget()
 	}
 	yyDestroy(model);
 
-	/*if (m_depthStencilBuffer)
+	m_d3d11DevCon->OMSetRenderTargets(0, 0, 0);
+
+	if (m_depthStencilBuffer)
 	{
 		m_depthStencilBuffer->Release();
 		m_depthStencilBuffer = 0;
@@ -533,10 +535,10 @@ bool D3D11::updateMainTarget()
 	{
 		m_MainTargetView->Release();
 		m_MainTargetView = 0;
-	}*/
+	}
 	
-	//m_SwapChain->ResizeBuffers(0, m_windowSize.x, m_windowSize.y, DXGI_FORMAT_UNKNOWN, 0);
-	//_createBackBuffer(m_windowSize.x, m_windowSize.y);
+	m_SwapChain->ResizeBuffers(0, m_windowSize.x, m_windowSize.y, DXGI_FORMAT_UNKNOWN, 0);
+	_createBackBuffer(m_windowSize.x, m_windowSize.y);
 
 	return true;
 }
@@ -559,7 +561,7 @@ bool D3D11::_createBackBuffer(int x, int y)
 		m_MainTargetView = 0;
 	}
 
-	ID3D11Texture2D* BackBuffer;
+	ID3D11Texture2D* BackBuffer = 0;
 	if (FAILED(m_SwapChain->GetBuffer(
 		0,
 		IID_ID3D11Texture2D,
