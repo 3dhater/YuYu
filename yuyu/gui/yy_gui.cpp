@@ -24,15 +24,18 @@ void yyGUIElement::CheckCursorInRect() {
 		g_engine->m_inputContext->m_cursorCoordsForGUI.x,
 		g_engine->m_inputContext->m_cursorCoordsForGUI.y,
 		v4f(
-			m_activeAreaRect.x + m_offset.x,
-			m_activeAreaRect.y + m_offset.y,
-			m_activeAreaRect.z + m_offset.x,
-			m_activeAreaRect.w + m_offset.y
+			m_activeAreaRect_global.x + m_offset.x,
+			m_activeAreaRect_global.y + m_offset.y,
+			m_activeAreaRect_global.z + m_offset.x,
+			m_activeAreaRect_global.w + m_offset.y
 		)
 	);
 	if (m_isInActiveAreaRect)
 	{
 		g_engine->m_cursorInGUI = true;
+		
+		if (m_ignoreInput) return;
+
 		g_engine->m_guiIgnoreUpdateInput = true;
 	}
 }
@@ -89,7 +92,7 @@ void Engine::GUIUpdateDrawGroup(yyGUIDrawGroup* dg, f32 dt) {
 	{
 		if (!g_engine->m_guiIgnoreUpdateInput)
 			guiElement->m_data->OnUpdate(dt);
-		guiElement = guiElement->m_right;
+		guiElement = guiElement->m_left;
 	}
 }
 
@@ -144,4 +147,84 @@ YY_API void YY_C_DECL yyGUIDrawAll(){
 
 YY_API yyGUIElement* YY_C_DECL yyGUIGetElementInMouseFocus(){
 	return g_engine->m_guiElementInMouseFocus;
+}
+
+void Engine::GUIRebuildElement(yyGUIElement* e) {
+	if (e->m_parent)
+	{
+
+	}
+	else
+	{
+		switch (e->m_align)
+		{
+		default:
+			YY_PRINT_FAILED;
+			break;
+		case yyGUIElement::Align::AlignLeftTop: {
+			// no need to rebuild because all elements created using this alignment
+		}break;
+		}
+	}
+
+	if (e->m_parent)
+	{
+		e->m_buildingRect_global = e->m_buildingRect;
+		e->m_buildingRect_global.x += e->m_parent->m_buildingRect_global.x;
+		e->m_buildingRect_global.z += e->m_parent->m_buildingRect_global.x;
+		e->m_buildingRect_global.y += e->m_parent->m_buildingRect_global.y;
+		e->m_buildingRect_global.w += e->m_parent->m_buildingRect_global.y;
+
+		e->m_activeAreaRect_global = e->m_activeAreaRect;
+		e->m_activeAreaRect_global.x += e->m_parent->m_activeAreaRect_global.x;
+		e->m_activeAreaRect_global.z += e->m_parent->m_activeAreaRect_global.x;
+		e->m_activeAreaRect_global.y += e->m_parent->m_activeAreaRect_global.y;
+		e->m_activeAreaRect_global.w += e->m_parent->m_activeAreaRect_global.y;
+
+		e->m_clipRect_global = e->m_clipRect;
+		e->m_clipRect_global.x += e->m_parent->m_clipRect_global.x; // ???
+		e->m_clipRect_global.z += e->m_parent->m_clipRect_global.x; // ???
+		e->m_clipRect_global.y += e->m_parent->m_clipRect_global.y; // ???
+		e->m_clipRect_global.w += e->m_parent->m_clipRect_global.y; // ???
+	}
+	
+	e->Rebuild();
+
+	auto child = e->m_children.head();
+	if (!child)
+		return;
+	for (size_t i2 = 0, sz2 = e->m_children.size(); i2 < sz2; ++i2)
+	{
+		GUIRebuildElement(child->m_data);
+		child = child->m_right;
+	}
+}
+
+void Engine::GUIRebuildDrawGroup(yyGUIDrawGroup* dg) {
+	auto & elements = dg->GetElements();
+	auto guiElement = elements.head();
+	for (size_t i = 0, sz = elements.size(); i < sz; ++i)
+	{
+		if (!guiElement->m_data->m_parent)
+		{
+			auto child = guiElement->m_data->m_children.head();
+			for (size_t i2 = 0, sz2 = guiElement->m_data->m_children.size(); i2 < sz2; ++i2)
+			{
+				GUIRebuildElement(child->m_data);
+				child = child->m_right;
+			}
+		}
+
+		guiElement = guiElement->m_right;
+	}
+}
+
+YY_API void YY_C_DECL yyGUIRebuild(){
+	g_engine->GUIRebuildDrawGroup(g_engine->m_mainGUIDrawGroup);
+	auto dg = g_engine->m_GUIDrawGroups.tail();
+	for (size_t i = 0, sz = g_engine->m_GUIDrawGroups.size(); i < sz; ++i)
+	{
+		g_engine->GUIRebuildDrawGroup(dg->m_data);
+		dg = dg->m_left;
+	}
 }

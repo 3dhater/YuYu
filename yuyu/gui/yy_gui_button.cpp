@@ -25,9 +25,13 @@ yyGUIButton::yyGUIButton()
 	m_useAsCheckbox = false;
 	m_isAnimated = false;
 	m_gpu = yyGetVideoDriverAPI();
+	m_baseTexture = 0;
 }
 
-yyGUIButton::~yyGUIButton(){}
+yyGUIButton::~yyGUIButton(){
+	if (m_mouseHoverPB) yyDestroy(m_mouseHoverPB);
+	if (m_mouseClickPB) yyDestroy(m_mouseClickPB);
+}
 
 void yyGUIButton::SetOffset(const v2f& o){
 	m_offset = o;
@@ -139,14 +143,50 @@ void yyGUIButton::OnDraw(){
 	}
 }
 
+void yyGUIButton::Rebuild(){
+	if (m_basePB)
+	{
+		m_baseTexture = m_basePB->DropTexture();
+		yyDestroy(m_basePB);
+	}
+	m_basePB = yyGUICreatePictureBox(m_buildingRect_global, m_baseTexture, m_id, m_drawGroup);
+	yyGUIRemoveElement(m_basePB);
+	m_basePB->IgnoreInput(true);
+
+	if (m_mouseHoverPB)
+	{
+		auto t = m_mouseHoverPB->DropTexture();
+		yyDestroy(m_mouseHoverPB);
+		m_mouseHoverPB = yyGUICreatePictureBox(m_buildingRect, t, -1, m_drawGroup);
+		m_mouseHoverPB->IgnoreInput(true);
+		yyGUIRemoveElement(m_mouseHoverPB);
+	}
+
+	if (m_mouseClickPB)
+	{
+		auto t = m_mouseClickPB->DropTexture();
+		yyDestroy(m_mouseClickPB);
+		m_mouseClickPB = yyGUICreatePictureBox(m_buildingRect, t, -1, m_drawGroup);
+		m_mouseClickPB->IgnoreInput(true);
+		yyGUIRemoveElement(m_mouseClickPB);
+	}
+}
+
 YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* baseTexture, s32 id, yyGUIDrawGroup* drawGroup){
 	yyGUIButton* element = yyCreate<yyGUIButton>();
 	element->SetDrawGroup(drawGroup);
 	element->m_activeAreaRect = rect;
 	element->m_clipRect = rect;
 	element->m_buildingRect = rect;
+	element->m_activeAreaRect_global = element->m_activeAreaRect;
+	element->m_clipRect_global = element->m_clipRect;
+	element->m_buildingRect_global = element->m_buildingRect;
 	element->m_id = id;
-	element->m_basePB = yyGUICreatePictureBox(element->m_buildingRect, baseTexture, -1, element->m_drawGroup);
+	element->m_baseTexture = baseTexture;
+
+	element->Rebuild();
+	//element->m_basePB = yyGUICreatePictureBox(element->m_buildingRect_global, baseTexture, -1, element->m_drawGroup);
+
 	element->m_basePB->IgnoreInput(true);
 
 	yyGUIRemoveElement(element->m_basePB);

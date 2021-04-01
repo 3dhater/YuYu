@@ -33,6 +33,7 @@ public:
 	virtual ~yyGUIFont();
 	virtual void OnUpdate(f32 dt) {}
 	virtual void OnDraw() {}
+	virtual void Rebuild();
 
 	yyArray<yyGUIFontGlyph*> m_glyphs;
 

@@ -86,6 +86,7 @@ struct IFileOpenDialog;
 
 class Engine
 {
+	void GUIRebuildElement(yyGUIElement*);
 public:
 	Engine();
 	~Engine();
@@ -119,6 +120,7 @@ public:
 	yyList<yyGUIDrawGroup*> m_GUIDrawGroups;
 	void GUIUpdateDrawGroup(yyGUIDrawGroup*, f32 dt);
 	void GUIDrawDrawGroup(yyGUIDrawGroup*);
+	void GUIRebuildDrawGroup(yyGUIDrawGroup*);
 	bool m_cursorInGUI;
 	// input only elements on top
 	bool m_guiIgnoreUpdateInput;

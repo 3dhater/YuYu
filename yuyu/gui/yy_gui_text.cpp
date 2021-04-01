@@ -29,7 +29,9 @@ yyGUIText::~yyGUIText(){
 
 void yyGUIText::OnUpdate(f32 dt){
 	if (!m_visible) return;
+	
 	yyGUIElement::CheckCursorInRect();
+
 	if (m_ignoreInput) return;
 
 	if (m_isInActiveAreaRect)
@@ -148,13 +150,15 @@ void yyGUIText::SetText(const wchar_t* format, ...){
 	_vsnwprintf(m_buffer, m_bufferSize, format, arg);
 	va_end(arg);
 
+	m_text = m_buffer;
+
 	auto len = util::str_len(m_buffer);
 	if (!len)
 		return;
 
-	v2f text_pointer = m_position;
-	m_buildingRect.x = m_position.x;
-	m_buildingRect.y = m_position.y;
+	v2f text_pointer;
+	text_pointer.x = m_buildingRect_global.x;
+	text_pointer.y = m_buildingRect_global.y;
 
 	f32 glyph_max_height = 0.f;
 	for (size_t i = 0; i < len; ++i)
@@ -186,6 +190,9 @@ void yyGUIText::SetText(const wchar_t* format, ...){
 	m_buildingRect.w = text_pointer.y + glyph_max_height;
 	m_activeAreaRect = m_buildingRect;
 	m_clipRect = m_buildingRect;
+	m_activeAreaRect_global = m_buildingRect;
+	m_clipRect_global = m_buildingRect;
+	m_buildingRect_global = m_buildingRect;
 
 	u32 array_index_counter = 0;
 	for (int i = 0; i < YY_MAX_FONT_TEXTURES; ++i)
@@ -259,13 +266,19 @@ void yyGUIText::Clear(){
 	m_drawNodes.clear();
 }
 
+void yyGUIText::Rebuild() {
+	SetText(L"%s", m_text.data());
+}
 
 YY_API yyGUIText* YY_C_DECL yyGUICreateText(const v2f& position, yyGUIFont* font, const wchar_t* text, yyGUIDrawGroup* drawGroup){
 	yyGUIText* element = yyCreate<yyGUIText>();
 	element->SetDrawGroup(drawGroup);
 	element->m_font = font;
 	element->m_position = position;
-	
+	element->m_buildingRect.x = element->m_position.x;
+	element->m_buildingRect.y = element->m_position.y;
+	element->m_buildingRect_global = element->m_buildingRect;
+
 	yyStringW wstr = text;
 
 	if (wstr.size())

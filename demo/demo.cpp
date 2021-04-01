@@ -280,6 +280,7 @@ void Demo::MainLoop(){
 				if (currentEvent.m_event_window.m_event == yyEvent_Window::size_changed) {
 					yyGetVideoDriverAPI()->UpdateMainRenderTarget(m_window->m_currentSize, 
 						v2f(m_window->m_currentSize.x, m_window->m_currentSize.y));
+					yyGUIRebuild();
 				}
 			}break;
 			}

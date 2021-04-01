@@ -16,6 +16,13 @@ void DemoExample_GUI_ButtonGr2_onClick(yyGUIElement* elem, s32 m_id) {
 	g_drawGroupToTop = elem->m_drawGroup;
 }
 
+void DemoExample_GUI_button1_onClick(yyGUIElement* elem, s32 m_id) {
+	yyLogWriteInfo("Button 1\n");
+}
+void DemoExample_GUI_button2_onClick(yyGUIElement* elem, s32 m_id) {
+	yyLogWriteInfo("Button 2\n");
+}
+
 DemoExample_GUI::DemoExample_GUI(){
 	m_text_hello = 0;
 	m_drawGroup1 = 0;
@@ -24,6 +31,9 @@ DemoExample_GUI::DemoExample_GUI(){
 	m_buttonGr2 = 0;
 	m_textGr1 = 0;
 	m_textGr2 = 0;
+	m_button1 = 0;
+	m_button2 = 0;
+	m_text1 = 0;
 }
 DemoExample_GUI::~DemoExample_GUI(){
 	Shutdown();
@@ -38,15 +48,32 @@ bool DemoExample_GUI::Init(){
 	auto textRect = m_text_hello->m_buildingRect;
 
 	m_buttonGr1 = yyGUICreateButton(v4f(textRect.z, 20.f, textRect.z + 60.f, 40.f), yyGetTextureResource("../res/textures/editor/red.dds", false, false, true), -1, m_drawGroup1);
-	m_buttonGr2 = yyGUICreateButton(v4f(textRect.z + 15.f, 25.f, textRect.z + 75.f, 45.f), yyGetTextureResource("../res/textures/editor/white.dds", false, false, true), -1, m_drawGroup2);
+	m_buttonGr2 = yyGUICreateButton(v4f(textRect.z + 15.f, 25.f, textRect.z + 35.f, 45.f), yyGetTextureResource("../res/textures/editor/white.dds", false, false, true), -1, m_drawGroup2);
 
 	m_buttonGr1->m_onClick = DemoExample_GUI_ButtonGr1_onClick;
 	m_buttonGr2->m_onClick = DemoExample_GUI_ButtonGr2_onClick;
 
-	m_textGr1 = yyGUICreateText(v2f(m_buttonGr1->m_buildingRect.x, m_buttonGr1->m_buildingRect.y), g_demo->m_defaultFont, L"Group 1", m_drawGroup1);
-	m_textGr2 = yyGUICreateText(v2f(m_buttonGr2->m_buildingRect.x, m_buttonGr2->m_buildingRect.y), g_demo->m_defaultFont, L"Group 2", m_drawGroup2);
+	m_textGr1 = yyGUICreateText(v2f(0.f, 0.f), g_demo->m_defaultFont, L"Group 1", m_drawGroup1);
+	m_textGr2 = yyGUICreateText(v2f(0.f, 0.f), g_demo->m_defaultFont, L"Group 2", m_drawGroup2);
+	m_textGr1->IgnoreInput(true);
+	m_textGr2->IgnoreInput(true);
 	m_textGr1->m_color = ColorWhite;
 	m_textGr2->m_color = ColorRed;
+
+	m_textGr1->SetParent(m_buttonGr1);
+	m_textGr2->SetParent(m_buttonGr2);
+	
+	m_button1 = yyGUICreateButton(v4f(m_buttonGr1->m_buildingRect_global.z, 20.f, m_buttonGr1->m_buildingRect_global.z + 80.f, 80.f), yyGetTextureResource("../res/textures/editor/red.dds", false, false, true), -1, 0);
+	m_button1->m_onClick = DemoExample_GUI_button1_onClick;
+	m_button2 = yyGUICreateButton(v4f(5.f, 5.f, 75.f, 75.f), yyGetTextureResource("../res/textures/editor/white.dds", false, false, true), -1, 0);
+	m_button2->m_onClick = DemoExample_GUI_button2_onClick;
+	m_button2->SetParent(m_button1);
+	m_text1 = yyGUICreateText(v2f(0.f, 0.f), g_demo->m_defaultFont, L"Button in button", 0);
+	m_text1->SetParent(m_button2);
+	m_text1->m_color = ColorBlue;
+	m_text1->IgnoreInput(true);
+
+	yyGUIRebuild();
 
 	return true;
 }

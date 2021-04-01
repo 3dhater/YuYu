@@ -9,6 +9,8 @@ public:
 	virtual ~yyGUIButton();
 	virtual void OnUpdate(f32 dt);
 	virtual void OnDraw();
+	virtual void Rebuild();
+
 	virtual void SetVisible(bool v);
 	virtual void SetOffset(const v2f& o);
 
@@ -18,7 +20,7 @@ public:
 	yyGUIPictureBox* m_basePB;
 	yyGUIPictureBox* m_mouseHoverPB;
 	yyGUIPictureBox* m_mouseClickPB;
-	//yyResource* m_baseTexture;
+	yyResource* m_baseTexture;
 
 	yyGUICallback m_onClick; // LMB down
 	yyGUICallback m_onRelease; // LMB up

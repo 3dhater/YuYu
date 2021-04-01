@@ -14,11 +14,13 @@ struct yyGUITextDrawNode
 
 class yyGUIText: public yyGUIElement
 {
+	yyStringW m_text;
 public:
 	yyGUIText();
 	virtual ~yyGUIText();
 	virtual void OnUpdate(f32 dt);
 	virtual void OnDraw();
+	virtual void Rebuild();
 
 	virtual void SetText(const wchar_t* text, ...);
 	virtual void Clear();

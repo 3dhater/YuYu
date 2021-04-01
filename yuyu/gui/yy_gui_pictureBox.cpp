@@ -28,18 +28,31 @@ yyGUIPictureBox::~yyGUIPictureBox(){
 		vAPI->UnloadTexture(this->m_texture);
 }
 
+yyResource* yyGUIPictureBox::DropTexture() {
+	auto t = this->m_texture;
+	this->m_texture = 0;
+	return t;
+}
+
+void yyGUIPictureBox::Rebuild() {
+
+}
+
+
 YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResource* texture, s32 id, yyGUIDrawGroup* drawGroup){
 	yyGUIPictureBox* element = yyCreate<yyGUIPictureBox>();
 	element->SetDrawGroup(drawGroup);
 	element->m_activeAreaRect = rect;
 	element->m_clipRect = rect;
 	element->m_buildingRect = rect;
+	element->m_activeAreaRect_global = element->m_activeAreaRect;
+	element->m_clipRect_global = element->m_clipRect;
+	element->m_buildingRect_global = element->m_buildingRect;
 	element->m_texture = texture;
 	element->m_id = id;
 
-
 	auto vAPI = yyGetVideoDriverAPI();
-
+	
 	auto model = yyCreate<yyModel>();
 
 
@@ -52,16 +65,16 @@ YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResou
 	u16* inds = (u16*)model->m_indices;
 
 	yyVertexGUI * vertex = (yyVertexGUI*)model->m_vertices;
-	vertex->m_position.set(element->m_buildingRect.x, element->m_buildingRect.w);
+	vertex->m_position.set(element->m_buildingRect_global.x, element->m_buildingRect_global.w);
 	vertex->m_tcoords.set(0.f, 1.f);
 	vertex++;
-	vertex->m_position.set(element->m_buildingRect.x, element->m_buildingRect.y);
+	vertex->m_position.set(element->m_buildingRect_global.x, element->m_buildingRect_global.y);
 	vertex->m_tcoords.set(0.f, 0.f);
 	vertex++;
-	vertex->m_position.set(element->m_buildingRect.z, element->m_buildingRect.y);
+	vertex->m_position.set(element->m_buildingRect_global.z, element->m_buildingRect_global.y);
 	vertex->m_tcoords.set(1.f, 0.f);
 	vertex++;
-	vertex->m_position.set(element->m_buildingRect.z, element->m_buildingRect.w);
+	vertex->m_position.set(element->m_buildingRect_global.z, element->m_buildingRect_global.w);
 	vertex->m_tcoords.set(1.f, 1.f);
 	vertex++;
 

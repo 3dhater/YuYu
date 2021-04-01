@@ -8,7 +8,9 @@ public:
 	virtual ~yyGUIPictureBox();
 	virtual void OnUpdate(f32 dt);
 	virtual void OnDraw();
+	virtual void Rebuild();
 
+	yyResource* DropTexture();
 	yyResource* m_texture;
 	yyResource* m_pictureBoxModel; // yyResourceType::Model
 

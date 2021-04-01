@@ -41,6 +41,8 @@ yyGUIFontGlyph* yyGUIFont::GetGlyph(wchar_t ch){
 }
 
 
+void yyGUIFont::Rebuild(){}
+
 YY_API yyGUIFont* YY_C_DECL yyGUILoadFont(const char* fileName){
 	yy_fs::path p = fileName;
 	if (!yy_fs::exists(p))

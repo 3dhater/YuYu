@@ -3,6 +3,7 @@
 
 #include "math/vec.h"
 #include "yy_color.h"
+#include "containers\list.h"
 
 typedef void(*yyGUICallback)(yyGUIElement* elem, s32 m_id);
 
@@ -29,9 +30,13 @@ public:
 		m_ignoreInput(false),
 		m_type(yyGUIElementType::Unknown)
 	{
+		m_window = yyGetMainWindow();
 		m_color = ColorWhite;
 		m_drawGroup = 0;
 		m_onDraw = 0;
+
+		m_align = AlignLeftTop;
+		m_parent = 0;
 	}
 	virtual ~yyGUIElement(){}
 	
@@ -43,6 +48,7 @@ public:
 
 	virtual void OnUpdate(f32 dt) = 0;
 	virtual void OnDraw() = 0;
+	virtual void Rebuild() = 0;
 
 	void CheckCursorInRect();
 	void SetDrawGroup(yyGUIDrawGroup* gr);
@@ -57,11 +63,33 @@ public:
 	v4f m_buildingRect;
 	// for scissor 
 	v4f m_clipRect;
+	v4f m_activeAreaRect_global;
+	v4f m_buildingRect_global;
+	v4f m_clipRect_global;
 
 	v2f m_offset;
 	yyColor m_color;
 
 	yyGUICallback m_onDraw;
+
+	enum Align {
+		AlignLeftTop
+	}m_align;
+	yyGUIElement* m_parent;
+	yyList<yyGUIElement*> m_children;
+	void SetParent(yyGUIElement* parent) {
+		m_parent = parent;
+		if (parent) 
+		{
+			parent->m_children.push_back(this);
+		}
+		else
+		{
+			parent->m_children.erase_first(this);
+		}
+	}
+
+	yyWindow* m_window;
 };
 
 #include "gui\yy_gui_font.h"
@@ -75,6 +103,8 @@ extern "C"
 {
 	// return true if cursor in gui element
 	YY_API bool YY_C_DECL yyGUIUpdate(f32 deltaTime);
+	// call this when windows size changed or when you add children to some gui element
+	YY_API void YY_C_DECL yyGUIRebuild();
 
 	YY_API void YY_C_DECL yyGUIDrawAll();
 	YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResource* texture, s32 id, yyGUIDrawGroup* drawGroup);
