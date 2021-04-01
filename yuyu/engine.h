@@ -82,6 +82,8 @@ struct CacheNode
 struct IFileSaveDialog;
 struct IFileOpenDialog;
 
+#define YY_EVENT_MAX 30
+
 class Engine
 {
 public:
@@ -96,6 +98,12 @@ public:
 	typedef yyVideoDriverAPI*(*videoGetApi)();
 	videoGetApi m_videoDriverGetApi;
 	yyVideoDriverAPI* m_videoAPI;
+
+	void AddEvent(const yyEvent&, bool unique);
+	bool PollEvent(yyEvent&);
+	yyEvent m_events[YY_EVENT_MAX];
+	u32 m_events_num;
+	u32 m_events_current;
 
 	yyArraySmall<yyImageLoader> m_imageLoaders;
 

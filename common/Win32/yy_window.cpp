@@ -41,8 +41,6 @@ yyWindow::yyWindow()
 	wsprintfW(m_class_name, L"Window%i", g_window_counter++);
 	m_visible = false;
 	m_title = "Window";
-
-	
 }
 
 yyWindow::~yyWindow()
@@ -100,6 +98,7 @@ bool yyWindow::init(int size_x, int size_y, u32 flags, yyWindow* parent)
 
 	//m_clientSize = m_creationSize;
 	m_currentSize = m_creationSize;
+	m_oldSize = m_creationSize;
 
 	DWORD style = WS_OVERLAPPEDWINDOW;
 	
@@ -317,11 +316,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	case WM_SIZE:
 	{
-		if(pD)
-		{
-			if(pD->m_onSize)
-				pD->m_onSize(pD);
-		}
 		switch( wmId )
 		{
 		case SIZE_MAXIMIZED:
@@ -352,16 +346,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			GetClientRect( hWnd, &rc );
 			pD->m_currentSize.x = rc.right - rc.left;
 			pD->m_currentSize.y = rc.bottom - rc.top;
-	//		ClientResize(hWnd, pD->m_currentSize.x, pD->m_currentSize.y);
 
-			/*pD->m_client_rect.x = rc.left;
-			pD->m_client_rect.y = rc.top;
-			pD->m_client_rect.z = rc.right;
-			pD->m_client_rect.w = rc.bottom;
+			if (pD->m_currentSize.x != pD->m_oldSize.x || pD->m_currentSize.y != pD->m_oldSize.y)
+			{
+				ClientResize(hWnd, pD->m_currentSize.x, pD->m_currentSize.y);
+				if (pD->m_onSize)
+					pD->m_onSize(pD);
+				pD->m_oldSize = pD->m_currentSize;
 
-			pD->m_client_size.x = rc.right - rc.left;
-			pD->m_client_size.y = rc.bottom - rc.top;
-			Game_AddEvent( ev );*/
+				if (wmId != SIZE_MINIMIZED)
+				{
+					yyEvent e;
+					e.m_type = yyEventType::Window;
+					e.m_event_window.m_event = yyEvent_Window::size_changed;
+					yyAddEvent(e, true);
+				}
+			}
 			return 1;
 		}
 		return 0;
@@ -378,23 +378,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			GetClientRect(hWnd, &rc);
 			pD->m_currentSize.x = rc.right - rc.left;
 			pD->m_currentSize.y = rc.bottom - rc.top;
+			if (pD->m_currentSize.x != pD->m_oldSize.x || pD->m_currentSize.y != pD->m_oldSize.y)
+			{
+				ClientResize(hWnd, pD->m_currentSize.x, pD->m_currentSize.y);
+				if (pD->m_onSize)
+					pD->m_onSize(pD);
+				pD->m_oldSize = pD->m_currentSize;
+				yyEvent e;
+				e.m_type = yyEventType::Window;
+				e.m_event_window.m_event = yyEvent_Window::size_changed;
+				yyAddEvent(e, true);
+			}
 		}
-		//if( pD )
-		//{
-		//	/*RECT rc;
-		//	GetClientRect( hWnd, &rc );
-		//	pD->m_clientSize.x = rc.right - rc.left;
-		//	pD->m_clientSize.y = rc.bottom - rc.top;*/
-		////	ClientResize(hWnd, pD->m_currentSize.x, pD->m_currentSize.y);
-		//	/*GetClientRect( hWnd, &rc );
-		//	pD->m_client_rect.x = rc.left;
-		//	pD->m_client_rect.y = rc.top;
-		//	pD->m_client_rect.z = rc.right;
-		//	pD->m_client_rect.w = rc.bottom;
-
-		//	pD->m_client_size.x = rc.right - rc.left;
-		//	pD->m_client_size.y = rc.bottom - rc.top;*/
-		//}
 	}
 	break;
 	case WM_QUIT:

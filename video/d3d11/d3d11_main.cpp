@@ -716,10 +716,7 @@ void UpdateMainRenderTarget(const v2i& windowsSize, const v2f& bufferSize){
 	g_d3d11->m_mainTargetSize = bufferSize;
 	g_d3d11->updateMainTarget();
 	
-	//SetViewport(0.f, 0.f, bufferSize.x, bufferSize.y);
-//	printf("%f\n", bufferSize.x);
-	/*
-	g_d3d11->UpdateGUIProjectionMatrix(windowsSize);*/
+	g_d3d11->UpdateGUIProjectionMatrix(windowsSize);
 }
 
 yyResource* CreateRenderTargetTexture(const v2f& size, bool useLinearFilter, bool useComparisonFilter){

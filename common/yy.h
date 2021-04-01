@@ -9,6 +9,7 @@
 #include "yy_log.h"
 #include "yy_resource.h"
 #include "yy_video.h"
+#include "yy_events.h"
 #include "yy_ptr.h"
 
 enum class yySystemState : u32 
@@ -97,6 +98,10 @@ extern "C"
 
 	YY_API void YY_C_DECL yySetMainWindow(yyWindow*);
 	YY_API yyWindow* YY_C_DECL yyGetMainWindow();
+
+	YY_API void YY_C_DECL yyAddEvent(const yyEvent&, bool unique);
+	YY_API bool YY_C_DECL yyPollEvent(yyEvent&);
+
 
 	// загрузить аудио но без инициализации m_implementation
 	//YY_API yyAudioSource* YY_C_DECL	yyLoadAudioRaw(const char*);

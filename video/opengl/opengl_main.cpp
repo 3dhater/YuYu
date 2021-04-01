@@ -837,6 +837,7 @@ void UpdateMainRenderTarget(const v2i& windowsSize, const v2f& bufferSize){
 	g_openGL->m_windowSize = windowsSize;
 	g_openGL->m_mainTargetSize = bufferSize;
 	g_openGL->updateMainTarget();
+	g_openGL->UpdateGUIProjectionMatrix(windowsSize);
 }
 
 void* GetTextureHandle(yyResource* res){

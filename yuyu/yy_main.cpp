@@ -90,6 +90,9 @@ Engine::Engine()
 	GetCurrentDirectory(512, wcharBuffer);
 	m_workingDir = wcharBuffer;
 #endif
+
+	m_events_num = 0;
+	m_events_current = 0;
 }
 
 Engine::~Engine(){
@@ -140,11 +143,40 @@ Engine::~Engine(){
 	ZSTD_freeCCtx(m_cctx);
 }
 
+void Engine::AddEvent(const yyEvent& event, bool unique) {
+	if (m_events_num == YY_EVENT_MAX)
+	{
+		yyLogWriteWarning("Too many events\n");
+		return;
+	}
+	if (unique)
+	{
+		for (u32 i = 0; i < m_events_num; ++i)
+		{
+			if (m_events[i].is_equal(event))
+			{
+				return;
+			}
+		}
+	}
 
-//void Engine::addGuiElement(yyGUIElement* el, yyGUIDrawGroup* gr){
-//	gr->AddElement(el);
-//	//m_guiElements.push_back(el);
-//}
+	m_events[m_events_num] = event;
+	++m_events_num;
+}
+
+bool Engine::PollEvent(yyEvent& event) {
+	if (m_events_num == 0) 
+	{
+		m_events_current = 0;
+		return false;
+	}
+
+	event = m_events[m_events_current];
+	--m_events_num;
+	++m_events_current;
+
+	return true;
+}
 
 class EngineDestroyer
 {
@@ -162,6 +194,13 @@ EngineDestroyer g_engineDestroyer;
 
 extern "C"
 {
+	YY_API void YY_C_DECL yyAddEvent(const yyEvent& event, bool unique) {
+		g_engine->AddEvent(event, unique);
+	}
+
+	YY_API bool YY_C_DECL yyPollEvent(yyEvent& event) {
+		return g_engine->PollEvent(event);
+	}
 
 	YY_API bool YY_C_DECL yyIsValidVideoDriver(const char* dll_file_name){
 		assert(dll_file_name);

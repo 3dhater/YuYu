@@ -55,9 +55,6 @@ void window_callbackMouse(yyWindow* w, s32 wheel, s32 x, s32 y, u32 click){
 }
 
 void window_callbackOnSize(yyWindow* window) {
-	//yyGetVideoDriverAPI()->SetViewport(0.f, 0.f, window->m_currentSize.x, window->m_currentSize.y);
-	yyGetVideoDriverAPI()->UpdateMainRenderTarget(window->m_currentSize, 
-		v2f(window->m_currentSize.x, window->m_currentSize.y));
 }
 
 // call before all callbacks
@@ -229,6 +226,9 @@ void Demo::MainLoop(){
 	f32 fps_timer = 0.f;
 	u32 fps = 0;
 	u32 fps_counter = 0;
+
+	yyEvent currentEvent;
+
 	bool run = true;
 	while (run)
 	{
@@ -266,6 +266,24 @@ void Demo::MainLoop(){
 			gui_text_fps->SetText(L"FPS: %u", fps);
 
 		yyGUIUpdate(m_dt);
+
+		while (yyPollEvent(currentEvent))
+		{
+			switch (currentEvent.m_type)
+			{
+			default:
+			case yyEventType::Engine:
+				break;
+			case yyEventType::System:
+				break;
+			case yyEventType::Window: {
+				if (currentEvent.m_event_window.m_event == yyEvent_Window::size_changed) {
+					yyGetVideoDriverAPI()->UpdateMainRenderTarget(m_window->m_currentSize, 
+						v2f(m_window->m_currentSize.x, m_window->m_currentSize.y));
+				}
+			}break;
+			}
+		}
 
 		switch (*m_engineContext->m_state)
 		{

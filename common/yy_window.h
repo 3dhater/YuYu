@@ -74,6 +74,7 @@ public:
 	yyWindow_callbackKeyboard m_onKeyboard;
 
 	v2i m_currentSize;
+	v2i m_oldSize;
 	v2i m_creationSize;
 	//v2i m_clientSize;
 
