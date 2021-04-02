@@ -213,12 +213,16 @@ void buttonExit_onRelease(yyGUIElement* elem, s32 m_id){
 void Demo::MainLoop(){
 	yyGUIText* gui_text_fps = yyGUICreateText(v2f(0.f, 0.f), m_defaultFont, 0, 0);
 	
-	yyGUIButton* gui_button_exit = yyGUICreateButton(v4f(m_window->m_currentSize.x - 50, 0, m_window->m_currentSize.x, 25), yyGetTextureResource("../res/exit.png", false, false, true), 0, 0);
+	yyGUIButton* gui_button_exit = yyGUICreateButton(
+		v4f(m_window->m_creationSize.x - 50, 0, m_window->m_creationSize.x, 25),
+		//v4f(0.f, m_window->m_creationSize.y-50, 50, m_window->m_creationSize.y),
+		yyGetTextureResource("../res/exit.png", false, false, true), 0, 0);
 	gui_button_exit->SetMouseHoverTexture(yyGetTextureResource("../res/exit_hov.png", false, false, true));
 	gui_button_exit->SetMouseClickTexture(yyGetTextureResource("../res/exit_clk.png", false, false, true));
 	gui_button_exit->m_onClick = buttonExit_onClick;
 	gui_button_exit->m_onRelease = buttonExit_onRelease;
 	gui_button_exit->m_isAnimated = true;
+	gui_button_exit->m_align = yyGUIElement::Align::AlignRightTop;
 	//gui_button_exit->m_useAsCheckbox = true;
 	//gui_button_exit->m_isChecked = true;
 
@@ -279,7 +283,7 @@ void Demo::MainLoop(){
 			case yyEventType::Window: {
 				if (currentEvent.m_event_window.m_event == yyEvent_Window::size_changed) {
 					yyGetVideoDriverAPI()->UpdateMainRenderTarget(m_window->m_currentSize, 
-						v2f(m_window->m_currentSize.x, m_window->m_currentSize.y));
+					v2f(m_window->m_currentSize.x, m_window->m_currentSize.y));
 					yyGUIRebuild();
 				}
 			}break;

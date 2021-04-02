@@ -63,8 +63,10 @@ bool DemoExample_GUI::Init(){
 	m_textGr1->SetParent(m_buttonGr1);
 	m_textGr2->SetParent(m_buttonGr2);
 	
-	m_button1 = yyGUICreateButton(v4f(m_buttonGr1->m_buildingRect_global.z, 20.f, m_buttonGr1->m_buildingRect_global.z + 80.f, 80.f), yyGetTextureResource("../res/textures/editor/red.dds", false, false, true), -1, 0);
+	m_button1 = yyGUICreateButton(v4f(m_buttonGr1->m_buildingRect_global.z, 20.f, m_buttonGr1->m_buildingRect_global.z + 80.f, 80.f),
+		yyGetTextureResource("../res/textures/editor/red.dds", false, false, true), -1, 0);
 	m_button1->m_onClick = DemoExample_GUI_button1_onClick;
+	m_button1->m_align = m_button1->AlignLeftBottom;
 	m_button2 = yyGUICreateButton(v4f(5.f, 5.f, 75.f, 75.f), yyGetTextureResource("../res/textures/editor/white.dds", false, false, true), -1, 0);
 	m_button2->m_onClick = DemoExample_GUI_button2_onClick;
 	m_button2->SetParent(m_button1);
@@ -80,6 +82,22 @@ bool DemoExample_GUI::Init(){
 
 
 void DemoExample_GUI::Shutdown(){
+	if (m_button1)
+	{
+		yyGUIDeleteElement(m_button1);
+		m_button1 = 0;
+	}
+	if (m_button2)
+	{
+		yyGUIDeleteElement(m_button2);
+		m_button2 = 0;
+	}
+	if (m_text1)
+	{
+		yyGUIDeleteElement(m_text1);
+		m_text1 = 0;
+	}
+
 	// yyGUIDeleteDrawGroup will delete all GUI elements in this group
 	if (m_drawGroup1)
 	{

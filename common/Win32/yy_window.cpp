@@ -178,6 +178,7 @@ bool yyWindow::init(int size_x, int size_y, u32 flags, yyWindow* parent)
 	RegisterRawInputDevices(&device, 1, sizeof device);
 	
 	ClientResize(m_hWnd, m_currentSize.x, m_currentSize.y);
+	m_creationSize = m_currentSize;
 
 	return true;
 }

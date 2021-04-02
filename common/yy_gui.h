@@ -50,7 +50,6 @@ public:
 	virtual void OnDraw() = 0;
 	virtual void Rebuild() = 0;
 
-	void CheckCursorInRect();
 	void SetDrawGroup(yyGUIDrawGroup* gr);
 
 	s32 m_id;
@@ -73,7 +72,10 @@ public:
 	yyGUICallback m_onDraw;
 
 	enum Align {
-		AlignLeftTop
+		AlignLeftTop,
+		AlignRightTop,
+		AlignLeftBottom,
+		AlignRightBottom,
 	}m_align;
 	yyGUIElement* m_parent;
 	yyList<yyGUIElement*> m_children;
@@ -88,6 +90,9 @@ public:
 			parent->m_children.erase_first(this);
 		}
 	}
+
+	// do not call
+	void CheckCursorInRect();
 
 	yyWindow* m_window;
 };

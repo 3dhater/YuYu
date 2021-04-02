@@ -1,2 +1,3 @@
-﻿  demo_example_gui.cpp
+﻿  demo_example_MDL.cpp
+e:\code\yuyu\demo\demo_example_mdl.cpp(171): warning C4244: 'argument' : conversion from 'u32' to 'f32', possible loss of data
   demo.vcxproj -> E:\Code\YuYu\demo\../bin32/demo.exe

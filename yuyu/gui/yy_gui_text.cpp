@@ -160,6 +160,8 @@ void yyGUIText::SetText(const wchar_t* format, ...){
 	text_pointer.x = m_buildingRect_global.x;
 	text_pointer.y = m_buildingRect_global.y;
 
+	v2f textLen;
+
 	f32 glyph_max_height = 0.f;
 	for (size_t i = 0; i < len; ++i)
 	{
@@ -178,21 +180,28 @@ void yyGUIText::SetText(const wchar_t* format, ...){
 		auto TYN = text_pointer.y;
 		auto TYP = TYN + glyph->height;
 
+
 		if (glyph->height > glyph_max_height)
 			glyph_max_height = glyph->height;
 
 		model.AddChar(v4f(TXN, TYN, TXP, TYP), glyph);
 
 		text_pointer.x += glyph->width;
+		textLen.x += glyph->width;
 	}
+	textLen.y = glyph_max_height;
 
-	m_buildingRect.z = text_pointer.x;
-	m_buildingRect.w = text_pointer.y + glyph_max_height;
+	m_buildingRect.z = m_buildingRect.x + textLen.x;
+	m_buildingRect.w = m_buildingRect.y + textLen.y;
 	m_activeAreaRect = m_buildingRect;
 	m_clipRect = m_buildingRect;
-	m_activeAreaRect_global = m_buildingRect;
-	m_clipRect_global = m_buildingRect;
-	m_buildingRect_global = m_buildingRect;
+
+	m_buildingRect_global.z = m_buildingRect_global.x + textLen.x;
+	m_buildingRect_global.w = m_buildingRect_global.y + textLen.y;
+
+	m_activeAreaRect_global = m_buildingRect_global;
+	m_clipRect_global = m_buildingRect_global;
+	//m_buildingRect_global = m_buildingRect;
 
 	u32 array_index_counter = 0;
 	for (int i = 0; i < YY_MAX_FONT_TEXTURES; ++i)
@@ -277,6 +286,11 @@ YY_API yyGUIText* YY_C_DECL yyGUICreateText(const v2f& position, yyGUIFont* font
 	element->m_position = position;
 	element->m_buildingRect.x = element->m_position.x;
 	element->m_buildingRect.y = element->m_position.y;
+
+	element->m_activeAreaRect = element->m_buildingRect;
+	element->m_clipRect = element->m_buildingRect;
+	element->m_activeAreaRect_global = element->m_activeAreaRect;
+	element->m_clipRect_global = element->m_clipRect;
 	element->m_buildingRect_global = element->m_buildingRect;
 
 	yyStringW wstr = text;

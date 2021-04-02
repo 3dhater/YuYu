@@ -67,7 +67,6 @@ DemoExample_MDL::DemoExample_MDL()
 	m_mdl_playerGun = 0;
 
 	m_gunBulletMax = 8;
-	m_gunBulletCurr = m_gunBulletMax;
 	m_gunReady = true;
 	m_guiTextBullets = 0;
 }
@@ -75,6 +74,10 @@ DemoExample_MDL::DemoExample_MDL()
 DemoExample_MDL::~DemoExample_MDL()
 {
 	Shutdown();
+}
+
+void DemoExample_MDL_bulletTextTestCallback(yyGUIElement* elem, s32 m_id) {
+	printf("i");
 }
 
 bool DemoExample_MDL::Init()
@@ -163,10 +166,15 @@ bool DemoExample_MDL::Init()
 	m_playerGunState_curr = m_playerGunState_idle;
 	m_mdl_playerGun->SetState(m_playerGunState_curr, true);
 	
+	m_gunBulletCurr = m_gunBulletMax;
 	m_guiTextBullets =
-		yyGUICreateText(v2f(0.f, g_demo->m_window->m_currentSize.y - g_demo->m_defaultFont->m_maxHeight),
+		yyGUICreateText(v2f(g_demo->m_window->m_creationSize.x - 50.f, g_demo->m_window->m_creationSize.y - g_demo->m_defaultFont->m_maxHeight),
 			g_demo->m_defaultFont, L" ", 0);
 	m_guiTextBullets->SetText(L"Bullets: %i", m_gunBulletCurr);
+	m_guiTextBullets->m_align = m_guiTextBullets->AlignRightBottom;
+	m_guiTextBullets->m_onMouseInRect = DemoExample_MDL_bulletTextTestCallback;
+	yyGUIRebuild();
+	
 
 	return true;
 }

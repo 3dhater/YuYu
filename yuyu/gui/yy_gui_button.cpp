@@ -157,7 +157,7 @@ void yyGUIButton::Rebuild(){
 	{
 		auto t = m_mouseHoverPB->DropTexture();
 		yyDestroy(m_mouseHoverPB);
-		m_mouseHoverPB = yyGUICreatePictureBox(m_buildingRect, t, -1, m_drawGroup);
+		m_mouseHoverPB = yyGUICreatePictureBox(m_buildingRect_global, t, -1, m_drawGroup);
 		m_mouseHoverPB->IgnoreInput(true);
 		yyGUIRemoveElement(m_mouseHoverPB);
 	}
@@ -166,7 +166,7 @@ void yyGUIButton::Rebuild(){
 	{
 		auto t = m_mouseClickPB->DropTexture();
 		yyDestroy(m_mouseClickPB);
-		m_mouseClickPB = yyGUICreatePictureBox(m_buildingRect, t, -1, m_drawGroup);
+		m_mouseClickPB = yyGUICreatePictureBox(m_buildingRect_global, t, -1, m_drawGroup);
 		m_mouseClickPB->IgnoreInput(true);
 		yyGUIRemoveElement(m_mouseClickPB);
 	}

@@ -150,44 +150,97 @@ YY_API yyGUIElement* YY_C_DECL yyGUIGetElementInMouseFocus(){
 }
 
 void Engine::GUIRebuildElement(yyGUIElement* e) {
-	if (e->m_parent)
+	switch (e->m_align)
 	{
-
-	}
-	else
-	{
-		switch (e->m_align)
+	default:
+		YY_PRINT_FAILED;
+		break;
+	case yyGUIElement::Align::AlignLeftTop: {
+		if (e->m_parent)
 		{
-		default:
-			YY_PRINT_FAILED;
-			break;
-		case yyGUIElement::Align::AlignLeftTop: {
-			// no need to rebuild because all elements created using this alignment
-		}break;
-		}
-	}
+			e->m_buildingRect_global = e->m_buildingRect;
+			e->m_buildingRect_global.x += e->m_parent->m_buildingRect_global.x;
+			e->m_buildingRect_global.z += e->m_parent->m_buildingRect_global.x;
+			e->m_buildingRect_global.y += e->m_parent->m_buildingRect_global.y;
+			e->m_buildingRect_global.w += e->m_parent->m_buildingRect_global.y;
 
-	if (e->m_parent)
-	{
+			e->m_activeAreaRect_global = e->m_activeAreaRect;
+			e->m_activeAreaRect_global.x += e->m_parent->m_activeAreaRect_global.x;
+			e->m_activeAreaRect_global.z += e->m_parent->m_activeAreaRect_global.x;
+			e->m_activeAreaRect_global.y += e->m_parent->m_activeAreaRect_global.y;
+			e->m_activeAreaRect_global.w += e->m_parent->m_activeAreaRect_global.y;
+
+			e->m_clipRect_global = e->m_clipRect;
+			e->m_clipRect_global.x += e->m_parent->m_clipRect_global.x; // ???
+			e->m_clipRect_global.z += e->m_parent->m_clipRect_global.x; // ???
+			e->m_clipRect_global.y += e->m_parent->m_clipRect_global.y; // ???
+			e->m_clipRect_global.w += e->m_parent->m_clipRect_global.y; // ???
+		}
+	}break;
+	case yyGUIElement::Align::AlignRightTop: {
+		s32 x_diff = e->m_window->m_currentSize.x - e->m_window->m_creationSize.x;
+
 		e->m_buildingRect_global = e->m_buildingRect;
-		e->m_buildingRect_global.x += e->m_parent->m_buildingRect_global.x;
-		e->m_buildingRect_global.z += e->m_parent->m_buildingRect_global.x;
-		e->m_buildingRect_global.y += e->m_parent->m_buildingRect_global.y;
-		e->m_buildingRect_global.w += e->m_parent->m_buildingRect_global.y;
+		e->m_buildingRect_global.x += x_diff;
+		e->m_buildingRect_global.z += x_diff;
 
 		e->m_activeAreaRect_global = e->m_activeAreaRect;
-		e->m_activeAreaRect_global.x += e->m_parent->m_activeAreaRect_global.x;
-		e->m_activeAreaRect_global.z += e->m_parent->m_activeAreaRect_global.x;
-		e->m_activeAreaRect_global.y += e->m_parent->m_activeAreaRect_global.y;
-		e->m_activeAreaRect_global.w += e->m_parent->m_activeAreaRect_global.y;
+		e->m_activeAreaRect_global.x += x_diff;
+		e->m_activeAreaRect_global.z += x_diff;
 
 		e->m_clipRect_global = e->m_clipRect;
-		e->m_clipRect_global.x += e->m_parent->m_clipRect_global.x; // ???
-		e->m_clipRect_global.z += e->m_parent->m_clipRect_global.x; // ???
-		e->m_clipRect_global.y += e->m_parent->m_clipRect_global.y; // ???
-		e->m_clipRect_global.w += e->m_parent->m_clipRect_global.y; // ???
+		e->m_clipRect_global.x += x_diff; // ???
+		e->m_clipRect_global.z += x_diff; // ???
+
+		if (e->m_parent)
+		{
+		}
+	}break;
+	case yyGUIElement::Align::AlignLeftBottom: {
+		s32 y_diff = e->m_window->m_currentSize.y - e->m_window->m_creationSize.y;
+		e->m_buildingRect_global = e->m_buildingRect;
+		e->m_buildingRect_global.y += y_diff;
+		e->m_buildingRect_global.w += y_diff;
+
+		e->m_activeAreaRect_global = e->m_activeAreaRect;
+		e->m_activeAreaRect_global.y += y_diff;
+		e->m_activeAreaRect_global.w += y_diff;
+
+		e->m_clipRect_global = e->m_clipRect;
+		e->m_clipRect_global.y += y_diff; // ???
+		e->m_clipRect_global.w += y_diff; // ???
+
+		if (e->m_parent)
+		{
+		}
+	}break;
+	case yyGUIElement::Align::AlignRightBottom: {
+		s32 x_diff = e->m_window->m_currentSize.x - e->m_window->m_creationSize.x;
+		s32 y_diff = e->m_window->m_currentSize.y - e->m_window->m_creationSize.y;
+		e->m_buildingRect_global = e->m_buildingRect;
+		e->m_buildingRect_global.x += x_diff;
+		e->m_buildingRect_global.z += x_diff;
+		e->m_buildingRect_global.y += y_diff;
+		e->m_buildingRect_global.w += y_diff;
+
+		e->m_activeAreaRect_global = e->m_activeAreaRect;
+		e->m_activeAreaRect_global.x += x_diff;
+		e->m_activeAreaRect_global.z += x_diff;
+		e->m_activeAreaRect_global.y += y_diff;
+		e->m_activeAreaRect_global.w += y_diff;
+
+		e->m_clipRect_global = e->m_clipRect;
+		e->m_clipRect_global.x += x_diff; // ???
+		e->m_clipRect_global.z += x_diff; // ???
+		e->m_clipRect_global.y += y_diff; // ???
+		e->m_clipRect_global.w += y_diff; // ???
+
+		if (e->m_parent)
+		{
+		}
+	}break;
 	}
-	
+
 	e->Rebuild();
 
 	auto child = e->m_children.head();
@@ -205,14 +258,17 @@ void Engine::GUIRebuildDrawGroup(yyGUIDrawGroup* dg) {
 	auto guiElement = elements.head();
 	for (size_t i = 0, sz = elements.size(); i < sz; ++i)
 	{
+		// here i need to rebuild only elements without parents
 		if (!guiElement->m_data->m_parent)
 		{
-			auto child = guiElement->m_data->m_children.head();
+			GUIRebuildElement(guiElement->m_data);
+
+			/*auto child = guiElement->m_data->m_children.head();
 			for (size_t i2 = 0, sz2 = guiElement->m_data->m_children.size(); i2 < sz2; ++i2)
 			{
 				GUIRebuildElement(child->m_data);
 				child = child->m_right;
-			}
+			}*/
 		}
 
 		guiElement = guiElement->m_right;
