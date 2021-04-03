@@ -17,8 +17,7 @@ public:
 		EMT_WARNING
 	};
 
-	void print(E_MessageType mt)
-	{
+	void print(E_MessageType mt){
 		char buffer[1054];
 		switch (mt)
 		{
@@ -60,36 +59,28 @@ Log::Log()
 	m_onError(nullptr),
 	m_onInfo(nullptr),
 	m_onWarning(nullptr)
-{
-}
+{}
 
-Log::~Log()
-{
-	yyLogWriteInfo("Destroy log\n");
-}
+Log::~Log(){}
 
 Log g_loger;
 
 extern "C"
 {
 
-YY_API void YY_C_DECL yyLogSetErrorOutput(void(*f)(const char* message))
-{
+YY_API void YY_C_DECL yyLogSetErrorOutput(void(*f)(const char* message)){
 	g_loger.m_onError = f;
 }
 
-YY_API void YY_C_DECL yyLogSetInfoOutput(void(*f)(const char* message))
-{
+YY_API void YY_C_DECL yyLogSetInfoOutput(void(*f)(const char* message)){
 	g_loger.m_onInfo = f;
 }
 
-YY_API void YY_C_DECL yyLogSetWarningOutput(void(*f)(const char* message))
-{
+YY_API void YY_C_DECL yyLogSetWarningOutput(void(*f)(const char* message)){
 	g_loger.m_onWarning = f;
 }
 
-YY_API void YY_C_DECL yyLogWriteInfo(const char* format,...)
-{
+YY_API void YY_C_DECL yyLogWriteInfo(const char* format,...){
 	va_list arg;
 	va_start(arg, format);
 	vsnprintf(g_loger.m_buffer,1024,format,arg);
@@ -97,8 +88,7 @@ YY_API void YY_C_DECL yyLogWriteInfo(const char* format,...)
 	g_loger.print(Log::EMT_INFO);
 }
 
-YY_API void YY_C_DECL yyLogWriteError(const char* format,...)
-{
+YY_API void YY_C_DECL yyLogWriteError(const char* format,...){
 	va_list arg;
 	va_start(arg, format);
 	vsnprintf(g_loger.m_buffer,1024,format,arg);
@@ -106,8 +96,7 @@ YY_API void YY_C_DECL yyLogWriteError(const char* format,...)
 	g_loger.print(Log::EMT_ERROR);
 }
 
-YY_API void YY_C_DECL yyLogWriteWarning(const char* format,...)
-{
+YY_API void YY_C_DECL yyLogWriteWarning(const char* format,...){
 	va_list arg;
 	va_start(arg, format);
 	vsnprintf(g_loger.m_buffer,1024,format,arg);
