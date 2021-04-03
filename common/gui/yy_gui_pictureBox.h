@@ -15,6 +15,8 @@ public:
 	yyResource* m_pictureBoxModel; // yyResourceType::Model
 
 	yyGUICallback m_onClick; // LMB down
+
+	v4i m_uvRect;
 };
 
 #endif

@@ -29,6 +29,7 @@ yyGUIButton::yyGUIButton()
 }
 
 yyGUIButton::~yyGUIButton(){
+	if (m_basePB) yyDestroy(m_basePB);
 	if (m_mouseHoverPB) yyDestroy(m_mouseHoverPB);
 	if (m_mouseClickPB) yyDestroy(m_mouseClickPB);
 }
@@ -149,15 +150,16 @@ void yyGUIButton::Rebuild(){
 		m_baseTexture = m_basePB->DropTexture();
 		yyDestroy(m_basePB);
 	}
-	m_basePB = yyGUICreatePictureBox(m_buildingRect_global, m_baseTexture, m_id, m_drawGroup);
+	m_basePB = yyGUICreatePictureBox(m_buildingRect_global, m_baseTexture, m_id, m_drawGroup, &m_uvRect);
 	yyGUIRemoveElement(m_basePB);
 	m_basePB->IgnoreInput(true);
 
 	if (m_mouseHoverPB)
 	{
 		auto t = m_mouseHoverPB->DropTexture();
+		auto uvRect = m_mouseHoverPB->m_uvRect;
 		yyDestroy(m_mouseHoverPB);
-		m_mouseHoverPB = yyGUICreatePictureBox(m_buildingRect_global, t, -1, m_drawGroup);
+		m_mouseHoverPB = yyGUICreatePictureBox(m_buildingRect_global, t, -1, m_drawGroup, &uvRect);
 		m_mouseHoverPB->IgnoreInput(true);
 		yyGUIRemoveElement(m_mouseHoverPB);
 	}
@@ -165,14 +167,16 @@ void yyGUIButton::Rebuild(){
 	if (m_mouseClickPB)
 	{
 		auto t = m_mouseClickPB->DropTexture();
+		auto uvRect = m_mouseHoverPB->m_uvRect;
 		yyDestroy(m_mouseClickPB);
-		m_mouseClickPB = yyGUICreatePictureBox(m_buildingRect_global, t, -1, m_drawGroup);
+		m_mouseClickPB = yyGUICreatePictureBox(m_buildingRect_global, t, -1, m_drawGroup, &uvRect);
 		m_mouseClickPB->IgnoreInput(true);
 		yyGUIRemoveElement(m_mouseClickPB);
 	}
 }
 
-YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* baseTexture, s32 id, yyGUIDrawGroup* drawGroup){
+YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* baseTexture, s32 id, yyGUIDrawGroup* drawGroup, v4i* uv){
+	assert(baseTexture);
 	yyGUIButton* element = yyCreate<yyGUIButton>();
 	element->SetDrawGroup(drawGroup);
 	element->m_activeAreaRect = rect;
@@ -183,6 +187,18 @@ YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* bas
 	element->m_buildingRect_global = element->m_buildingRect;
 	element->m_id = id;
 	element->m_baseTexture = baseTexture;
+	if (uv)
+	{
+		element->m_uvRect = *uv;
+	}
+	else
+	{
+		auto gpu = yyGetVideoDriverAPI();
+		v2i s;
+		gpu->GetTextureSize(baseTexture, &s);
+		element->m_uvRect.z = s.x;
+		element->m_uvRect.w = s.y;
+	}
 
 	element->Rebuild();
 	//element->m_basePB = yyGUICreatePictureBox(element->m_buildingRect_global, baseTexture, -1, element->m_drawGroup);
@@ -198,10 +214,10 @@ void yyGUIButton::SetVisible(bool v) {
 	m_visible = v; 
 }
 
-void yyGUIButton::SetMouseHoverTexture(yyResource* t){
+void yyGUIButton::SetMouseHoverTexture(yyResource* t, v4i* uv){
 	if (!m_mouseHoverPB)
 	{
-		m_mouseHoverPB = yyGUICreatePictureBox(m_buildingRect, t, -1, m_drawGroup);
+		m_mouseHoverPB = yyGUICreatePictureBox(m_buildingRect, t, -1, m_drawGroup, uv);
 		m_mouseHoverPB->IgnoreInput(true);
 		yyGUIRemoveElement(m_mouseHoverPB);
 	}
@@ -211,10 +227,10 @@ void yyGUIButton::SetMouseHoverTexture(yyResource* t){
 	}
 }
 
-void yyGUIButton::SetMouseClickTexture(yyResource* t){
+void yyGUIButton::SetMouseClickTexture(yyResource* t, v4i* uv){
 	if (!m_mouseClickPB)
 	{
-		m_mouseClickPB = yyGUICreatePictureBox(m_buildingRect, t, -1, m_drawGroup);
+		m_mouseClickPB = yyGUICreatePictureBox(m_buildingRect, t, -1, m_drawGroup, uv);
 		m_mouseClickPB->IgnoreInput(true);
 		yyGUIRemoveElement(m_mouseClickPB);
 	}

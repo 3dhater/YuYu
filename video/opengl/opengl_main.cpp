@@ -309,9 +309,7 @@ yyResource* CreateModel(yyModel* model){
 
 void UnloadModel(yyResource* r){
 	assert(r);
-#ifdef YY_DEBUG
-	if(r->m_type != yyResourceType::Model) YY_PRINT_FAILED;
-#endif
+	assert(r->m_type == yyResourceType::Model);
 	if(r->m_refCount == 0)
 		return;
 
