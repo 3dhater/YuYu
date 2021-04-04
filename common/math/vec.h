@@ -17,6 +17,7 @@ struct v4i
 {
 	v4i():x(0),y(0),z(0),w(0){}
 	v4i(s32 _x, s32 _y, s32 _z, s32 _w):x(_x),y(_y),z(_z),w(_w){}
+	void set(s32 _x, s32 _y, s32 _z, s32 _w) { x = _x; y = _y; z = _z; w = _w; }
 	s32* data() { return &x; }
 	s32 x, y, z, w;
 };

@@ -17,6 +17,9 @@ public:
 	virtual void SetMouseHoverTexture(yyResource*, v4i* uv = 0);
 	virtual void SetMouseClickTexture(yyResource*, v4i* uv = 0);
 
+
+	virtual void SetColor(const yyColor&);
+
 	yyGUIPictureBox* m_basePB;
 	yyGUIPictureBox* m_mouseHoverPB;
 	yyGUIPictureBox* m_mouseClickPB;

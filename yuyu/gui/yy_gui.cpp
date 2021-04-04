@@ -20,6 +20,12 @@ void yyGUIElement::SetDrawGroup(yyGUIDrawGroup* drawGroup){
 }
 
 void yyGUIElement::CheckCursorInRect() {
+	if (g_engine->m_guiIgnoreUpdateInput)
+	{
+		m_isInActiveAreaRect = false;
+		return;
+	}
+
 	m_isInActiveAreaRect = math::pointInRect(
 		g_engine->m_inputContext->m_cursorCoordsForGUI.x,
 		g_engine->m_inputContext->m_cursorCoordsForGUI.y,
@@ -90,8 +96,7 @@ void Engine::GUIUpdateDrawGroup(yyGUIDrawGroup* dg, f32 dt) {
 	auto guiElement = elements.head();
 	for (size_t i = 0, sz = elements.size(); i < sz; ++i)
 	{
-		if (!g_engine->m_guiIgnoreUpdateInput)
-			guiElement->m_data->OnUpdate(dt);
+		guiElement->m_data->OnUpdate(dt);
 		guiElement = guiElement->m_left;
 	}
 }

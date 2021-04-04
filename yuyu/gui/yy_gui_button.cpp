@@ -41,6 +41,11 @@ void yyGUIButton::SetOffset(const v2f& o){
 	if (m_basePB) m_basePB->m_offset = o;
 }
 
+void yyGUIButton::SetColor(const yyColor& c) {
+	m_basePB->m_color = c;
+	m_color = c;
+}
+
 void yyGUIButton::OnUpdate(f32 dt){
 	if (!m_visible) return;
 
@@ -118,6 +123,10 @@ void yyGUIButton::OnDraw(){
 		{
 			m_mouseClickPB->OnDraw();
 		}
+		else if(m_mouseHoverPB)
+		{
+			m_mouseHoverPB->OnDraw();
+		}
 		else
 		{
 			m_basePB->OnDraw();
@@ -125,21 +134,17 @@ void yyGUIButton::OnDraw(){
 	}
 	else
 	{
+		m_basePB->OnDraw();
 		if (m_mouseHoverPB)
 		{
-			if (m_isInActiveAreaRect || m_mouseHoverPB->m_color.m_data[3] < 1.f)
+			if (m_isInActiveAreaRect || (m_isAnimated && m_mouseHoverPB->m_color.m_data[3] > 0.f))
 			{
-				m_gpu->SetGUIShaderData(m_mouseHoverPB); // maybe call only if m_isAnimated == true
 				m_mouseHoverPB->OnDraw();
 			}
 			else
 			{
 				m_basePB->OnDraw();
 			}
-		}
-		else
-		{
-			m_basePB->OnDraw();
 		}
 	}
 }
@@ -148,11 +153,13 @@ void yyGUIButton::Rebuild(){
 	if (m_basePB)
 	{
 		m_baseTexture = m_basePB->DropTexture();
+		m_color = m_basePB->m_color;
 		yyDestroy(m_basePB);
 	}
 	m_basePB = yyGUICreatePictureBox(m_buildingRect_global, m_baseTexture, m_id, m_drawGroup, &m_uvRect);
 	yyGUIRemoveElement(m_basePB);
 	m_basePB->IgnoreInput(true);
+	m_basePB->m_color = m_color;
 
 	if (m_mouseHoverPB)
 	{
@@ -167,7 +174,7 @@ void yyGUIButton::Rebuild(){
 	if (m_mouseClickPB)
 	{
 		auto t = m_mouseClickPB->DropTexture();
-		auto uvRect = m_mouseHoverPB->m_uvRect;
+		auto uvRect = m_mouseClickPB->m_uvRect;
 		yyDestroy(m_mouseClickPB);
 		m_mouseClickPB = yyGUICreatePictureBox(m_buildingRect_global, t, -1, m_drawGroup, &uvRect);
 		m_mouseClickPB->IgnoreInput(true);

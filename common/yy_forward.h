@@ -2,6 +2,7 @@
 #define _YUYU_FORWARD_H_
 
 class yyColor;
+class yyGUIGroup;
 class yyGUIDrawGroup;
 class yyGUIElement;
 class yyGUIFont;

@@ -12,7 +12,8 @@ enum class yyGUIElementType  : u32
 	Unknown,
 	PictureBox,
 	Button,
-	Text
+	Text,
+	Group
 };
 
 class yyGUIElement
@@ -99,6 +100,7 @@ public:
 
 #include "gui\yy_gui_font.h"
 
+#include "gui\yy_gui_group.h"
 #include "gui\yy_gui_pictureBox.h"
 #include "gui\yy_gui_text.h"
 
@@ -120,6 +122,7 @@ extern "C"
 	YY_API void YY_C_DECL yyGUIRemoveElement(yyGUIElement* elem); // without yyDestroy(elem);
 	YY_API yyGUIElement* YY_C_DECL yyGUIGetElementInMouseFocus();
 	YY_API yyGUIDrawGroup* YY_C_DECL yyGUICreateDrawGroup();
+	YY_API yyGUIGroup* YY_C_DECL yyGUICreateGroup(const v4f& rect, s32 id, yyGUIDrawGroup* drawGroup);
 	// delete with all elements
 	YY_API void YY_C_DECL yyGUIDeleteDrawGroup(yyGUIDrawGroup*);
 	YY_API void YY_C_DECL yyGUIDrawGroupMoveBack(yyGUIDrawGroup*);
