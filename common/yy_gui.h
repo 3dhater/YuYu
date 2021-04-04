@@ -35,6 +35,7 @@ public:
 		m_color = ColorWhite;
 		m_drawGroup = 0;
 		m_onDraw = 0;
+		m_userData = 0;
 
 		m_align = AlignLeftTop;
 		m_parent = 0;
@@ -69,6 +70,8 @@ public:
 
 	v2f m_offset;
 	yyColor m_color;
+
+	void* m_userData;
 
 	yyGUICallback m_onDraw;
 
@@ -115,6 +118,7 @@ extern "C"
 
 	YY_API void YY_C_DECL yyGUIDrawAll();
 	YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResource* texture, s32 id, yyGUIDrawGroup* drawGroup, v4i* uv = 0);
+	// auto delete
 	YY_API yyGUIFont* YY_C_DECL yyGUILoadFont(const char* path);
 	YY_API yyGUIText* YY_C_DECL yyGUICreateText(const v2f& position, yyGUIFont* font, const wchar_t* text, yyGUIDrawGroup* drawGroup);
 	YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* baseTexture, s32 id, yyGUIDrawGroup* drawGroup, v4i* uv = 0);

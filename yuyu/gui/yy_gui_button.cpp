@@ -26,6 +26,8 @@ yyGUIButton::yyGUIButton()
 	m_isAnimated = false;
 	m_gpu = yyGetVideoDriverAPI();
 	m_baseTexture = 0;
+	m_onMouseEnter = 0;
+	m_onMouseLeave = 0;
 }
 
 yyGUIButton::~yyGUIButton(){
@@ -41,6 +43,23 @@ void yyGUIButton::SetOffset(const v2f& o){
 	if (m_basePB) m_basePB->m_offset = o;
 }
 
+void yyGUIButton::SetOpacity(f32 v, s32 pictureBox) {
+	switch (pictureBox)
+	{
+	default:
+	case 0:
+		m_basePB->m_color.m_data[3] = v;
+		m_color.m_data[3] = v;
+		break;
+	case 1:
+		if (m_mouseHoverPB) m_mouseHoverPB->m_color.m_data[3] = v;
+		break;
+	case 2:
+		if (m_mouseClickPB) m_mouseClickPB->m_color.m_data[3] = v;
+		break;
+	}
+}
+
 void yyGUIButton::SetColor(const yyColor& c) {
 	m_basePB->m_color = c;
 	m_color = c;
@@ -49,9 +68,24 @@ void yyGUIButton::SetColor(const yyColor& c) {
 void yyGUIButton::OnUpdate(f32 dt){
 	if (!m_visible) return;
 
+	bool mouseInRectBefore = m_isInActiveAreaRect;
+
 	yyGUIElement::CheckCursorInRect();
 
+	if (m_isInActiveAreaRect && !mouseInRectBefore)
+	{
+		if (m_onMouseEnter)
+			m_onMouseEnter(this, m_id);
+	}
+
+	if (!m_isInActiveAreaRect && mouseInRectBefore)
+	{
+		if (m_onMouseLeave)
+			m_onMouseLeave(this, m_id);
+	}
+
 	if (m_ignoreInput) return;
+
 
 	if (m_isAnimated && m_mouseHoverPB)
 	{
@@ -165,9 +199,11 @@ void yyGUIButton::Rebuild(){
 	{
 		auto t = m_mouseHoverPB->DropTexture();
 		auto uvRect = m_mouseHoverPB->m_uvRect;
+		auto color = m_mouseHoverPB->m_color;
 		yyDestroy(m_mouseHoverPB);
 		m_mouseHoverPB = yyGUICreatePictureBox(m_buildingRect_global, t, -1, m_drawGroup, &uvRect);
 		m_mouseHoverPB->IgnoreInput(true);
+		m_mouseHoverPB->m_color = color;
 		yyGUIRemoveElement(m_mouseHoverPB);
 	}
 
@@ -175,9 +211,11 @@ void yyGUIButton::Rebuild(){
 	{
 		auto t = m_mouseClickPB->DropTexture();
 		auto uvRect = m_mouseClickPB->m_uvRect;
+		auto color = m_mouseClickPB->m_color;
 		yyDestroy(m_mouseClickPB);
 		m_mouseClickPB = yyGUICreatePictureBox(m_buildingRect_global, t, -1, m_drawGroup, &uvRect);
 		m_mouseClickPB->IgnoreInput(true);
+		m_mouseClickPB->m_color = color;
 		yyGUIRemoveElement(m_mouseClickPB);
 	}
 }

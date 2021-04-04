@@ -19,6 +19,7 @@ public:
 
 
 	virtual void SetColor(const yyColor&);
+	virtual void SetOpacity(f32, s32 pictureBox);
 
 	yyGUIPictureBox* m_basePB;
 	yyGUIPictureBox* m_mouseHoverPB;
@@ -27,6 +28,8 @@ public:
 
 	yyGUICallback m_onClick; // LMB down
 	yyGUICallback m_onRelease; // LMB up
+	yyGUICallback m_onMouseEnter;
+	yyGUICallback m_onMouseLeave;
 
 	//bool m_mouseInRect;
 	bool m_isClicked;
