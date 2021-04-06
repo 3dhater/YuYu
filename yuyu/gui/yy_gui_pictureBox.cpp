@@ -35,6 +35,7 @@ yyResource* yyGUIPictureBox::DropTexture() {
 }
 
 void yyGUIPictureBox::Rebuild() {
+	yyGUIElement::CallOnRebuildSetRects();
 	auto vAPI = yyGetVideoDriverAPI();
 
 	if (this->m_pictureBoxModel)

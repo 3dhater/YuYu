@@ -184,6 +184,7 @@ void yyGUIButton::OnDraw(){
 }
 
 void yyGUIButton::Rebuild(){
+	yyGUIElement::CallOnRebuildSetRects();
 	if (m_basePB)
 	{
 		m_baseTexture = m_basePB->DropTexture();

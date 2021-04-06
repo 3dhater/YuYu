@@ -11,6 +11,11 @@
 
 extern Engine * g_engine;
 
+void yyGUIElement::CallOnRebuildSetRects() {
+	if (m_onRebuildSetRects)
+		m_onRebuildSetRects(this, m_id);
+}
+
 void yyGUIElement::SetDrawGroup(yyGUIDrawGroup* drawGroup){
 	yyGUIDrawGroup* dg = drawGroup;
 	if (!dg)
@@ -96,7 +101,10 @@ void Engine::GUIUpdateDrawGroup(yyGUIDrawGroup* dg, f32 dt) {
 	auto guiElement = elements.head();
 	for (size_t i = 0, sz = elements.size(); i < sz; ++i)
 	{
-		guiElement->m_data->OnUpdate(dt);
+		if (guiElement->m_data->IsVisible())
+		{
+			guiElement->m_data->OnUpdate(dt);
+		}
 		guiElement = guiElement->m_left;
 	}
 }
@@ -106,10 +114,13 @@ void Engine::GUIDrawDrawGroup(yyGUIDrawGroup* dg) {
 	auto guiElement = elements.head();
 	for (size_t i = 0, sz = elements.size(); i < sz; ++i)
 	{
-		g_engine->m_videoAPI->SetGUIShaderData(guiElement->m_data);
-		if (guiElement->m_data->m_onDraw)
-			guiElement->m_data->m_onDraw(guiElement->m_data, guiElement->m_data->m_id);
-		guiElement->m_data->OnDraw();
+		if (guiElement->m_data->IsVisible())
+		{
+			g_engine->m_videoAPI->SetGUIShaderData(guiElement->m_data);
+			if (guiElement->m_data->m_onDraw)
+				guiElement->m_data->m_onDraw(guiElement->m_data, guiElement->m_data->m_id);
+			guiElement->m_data->OnDraw();
+		}
 		guiElement = guiElement->m_right;
 	}
 }
@@ -155,6 +166,21 @@ YY_API yyGUIElement* YY_C_DECL yyGUIGetElementInMouseFocus(){
 }
 
 void Engine::GUIRebuildElement(yyGUIElement* e) {
+	v2i windowsSizeDiff = e->m_window->m_currentSize - e->m_window->m_creationSize;
+	
+	v2f windowsSizeHalf;// = e->m_window->m_currentSize * 0.5;
+	windowsSizeHalf.x = (f32)e->m_window->m_currentSize.x * 0.5f;
+	windowsSizeHalf.y = (f32)e->m_window->m_currentSize.y * 0.5f;
+	
+	v2f windowsCreationSizeHalf;// = e->m_window->m_creationSize * 0.5;
+	windowsCreationSizeHalf.x = std::floor((f32)e->m_window->m_creationSize.x * 0.5f);
+	windowsCreationSizeHalf.y = std::floor((f32)e->m_window->m_creationSize.y * 0.5f);
+
+	v2i windowCenterDiff;
+	windowCenterDiff.x = windowsSizeHalf.x - windowsCreationSizeHalf.x;
+	windowCenterDiff.y = windowsSizeHalf.y - windowsCreationSizeHalf.y;
+	//printf("%i %i\n", windowCenterDiff.x, windowCenterDiff.y);
+
 	switch (e->m_align)
 	{
 	default:
@@ -183,7 +209,7 @@ void Engine::GUIRebuildElement(yyGUIElement* e) {
 		}
 	}break;
 	case yyGUIElement::Align::AlignRightTop: {
-		s32 x_diff = e->m_window->m_currentSize.x - e->m_window->m_creationSize.x;
+		s32 x_diff = windowsSizeDiff.x;
 
 		e->m_buildingRect_global = e->m_buildingRect;
 		e->m_buildingRect_global.x += x_diff;
@@ -202,7 +228,7 @@ void Engine::GUIRebuildElement(yyGUIElement* e) {
 		}
 	}break;
 	case yyGUIElement::Align::AlignLeftBottom: {
-		s32 y_diff = e->m_window->m_currentSize.y - e->m_window->m_creationSize.y;
+		s32 y_diff = windowsSizeDiff.y;
 		e->m_buildingRect_global = e->m_buildingRect;
 		e->m_buildingRect_global.y += y_diff;
 		e->m_buildingRect_global.w += y_diff;
@@ -220,8 +246,8 @@ void Engine::GUIRebuildElement(yyGUIElement* e) {
 		}
 	}break;
 	case yyGUIElement::Align::AlignRightBottom: {
-		s32 x_diff = e->m_window->m_currentSize.x - e->m_window->m_creationSize.x;
-		s32 y_diff = e->m_window->m_currentSize.y - e->m_window->m_creationSize.y;
+		s32 x_diff = windowsSizeDiff.x;
+		s32 y_diff = windowsSizeDiff.y;
 		e->m_buildingRect_global = e->m_buildingRect;
 		e->m_buildingRect_global.x += x_diff;
 		e->m_buildingRect_global.z += x_diff;
@@ -239,10 +265,26 @@ void Engine::GUIRebuildElement(yyGUIElement* e) {
 		e->m_clipRect_global.z += x_diff; // ???
 		e->m_clipRect_global.y += y_diff; // ???
 		e->m_clipRect_global.w += y_diff; // ???
+	}break;
+	case yyGUIElement::Align::AlignCenter: {
+		
+		e->m_buildingRect_global = e->m_buildingRect;
+		e->m_buildingRect_global.x += windowCenterDiff.x;
+		e->m_buildingRect_global.z += windowCenterDiff.x;
+		e->m_buildingRect_global.y += windowCenterDiff.y;
+		e->m_buildingRect_global.w += windowCenterDiff.y;
 
-		if (e->m_parent)
-		{
-		}
+		e->m_activeAreaRect_global = e->m_activeAreaRect;
+		e->m_activeAreaRect_global.x += windowCenterDiff.x;
+		e->m_activeAreaRect_global.z += windowCenterDiff.x;
+		e->m_activeAreaRect_global.y += windowCenterDiff.y;
+		e->m_activeAreaRect_global.w += windowCenterDiff.y;
+
+		e->m_clipRect_global = e->m_clipRect;
+		e->m_clipRect_global.x += windowCenterDiff.x; // ???
+		e->m_clipRect_global.z += windowCenterDiff.x; // ???
+		e->m_clipRect_global.y += windowCenterDiff.y; // ???
+		e->m_clipRect_global.w += windowCenterDiff.y; // ???
 	}break;
 	}
 

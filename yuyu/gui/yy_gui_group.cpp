@@ -23,6 +23,7 @@ yyGUIGroup::~yyGUIGroup(){
 }
 
 void yyGUIGroup::Rebuild() {
+	yyGUIElement::CallOnRebuildSetRects();
 }
 
 

@@ -87,7 +87,11 @@ struct v2i
 	v2i(s32 X, s32 Y):x(X),y(Y){}
 	s32 x, y;
 	v2i operator/(const v2i& v)const{v2i r;r.x=x/v.x;r.y=y/v.y;return r;}
-	v2i operator/(int v)const{v2i r;r.x=x/v;r.y=y/v;return r;}
+	v2i operator/(int v)const { v2i r; r.x = x / v; r.y = y / v; return r; }
+	v2i operator*(f32 v)const{v2i r;r.x=(s32)((f32)x*v);r.y=(s32)((f32)y/v);return r;}
+	v2i operator*(const v2i& v)const { v2i r; r.x = x * v.x; r.y = y * v.y; return r; }
+	v2i operator-(const v2i& v)const { v2i r; r.x = x - v.x; r.y = y - v.y; return r; }
+	v2i operator+(const v2i& v)const { v2i r; r.x = x + v.x; r.y = y + v.y; return r; }
 };
 
 struct v2f

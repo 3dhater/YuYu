@@ -3,7 +3,9 @@ e:\code\yuyu\demo\demo.cpp(217): warning C4244: 'argument' : conversion from 's3
 e:\code\yuyu\demo\demo.cpp(217): warning C4244: 'argument' : conversion from 'int' to 'f32', possible loss of data
 e:\code\yuyu\demo\demo.cpp(286): warning C4244: 'argument' : conversion from 's32' to 'f32', possible loss of data
   Generating Code...
-  Skipping... (no relevant changes detected)
+  Compiling...
   demo_example_gui.cpp
   demo_example_MDL.cpp
+e:\code\yuyu\demo\demo_example_mdl.cpp(171): warning C4244: 'argument' : conversion from 'u32' to 'f32', possible loss of data
+  Generating Code...
   demo.vcxproj -> E:\Code\YuYu\demo\../bin32/demo.exe

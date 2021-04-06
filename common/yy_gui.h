@@ -35,6 +35,7 @@ public:
 		m_color = ColorWhite;
 		m_drawGroup = 0;
 		m_onDraw = 0;
+		m_onRebuildSetRects = 0;
 		m_userData = 0;
 
 		m_align = AlignLeftTop;
@@ -74,12 +75,16 @@ public:
 	void* m_userData;
 
 	yyGUICallback m_onDraw;
+	// if you want to calculate ___Rect by yourself
+	yyGUICallback m_onRebuildSetRects;
+	void CallOnRebuildSetRects();
 
 	enum Align {
 		AlignLeftTop,
 		AlignRightTop,
 		AlignLeftBottom,
 		AlignRightBottom,
+		AlignCenter,
 	}m_align;
 	yyGUIElement* m_parent;
 	yyList<yyGUIElement*> m_children;

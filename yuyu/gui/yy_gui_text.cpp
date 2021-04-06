@@ -276,6 +276,7 @@ void yyGUIText::Clear(){
 }
 
 void yyGUIText::Rebuild() {
+	yyGUIElement::CallOnRebuildSetRects();
 	SetText(L"%s", m_text.data());
 }
 
