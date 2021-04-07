@@ -102,6 +102,10 @@ extern "C"
 	YY_API void YY_C_DECL yyAddEvent(const yyEvent&, bool unique);
 	YY_API bool YY_C_DECL yyPollEvent(yyEvent&);
 
+	// using in:
+	//  - buttons without texture
+	YY_API void YY_C_DECL yySetDefaultTexture(yyResource*);
+	YY_API yyResource* YY_C_DECL yyGetDefaultTexture();
 
 	// загрузить аудио но без инициализации m_implementation
 	//YY_API yyAudioSource* YY_C_DECL	yyLoadAudioRaw(const char*);

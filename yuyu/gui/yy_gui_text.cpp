@@ -50,6 +50,7 @@ void yyGUIText::OnUpdate(f32 dt){
 
 void yyGUIText::OnDraw(){
 	if (!m_visible) return;
+	g_engine->m_videoAPI->SetGUIShaderData(this); 
 	for (u16 k = 0, ksz = m_drawNodes.m_size; k < ksz; ++k)
 	{
 		auto & dn = m_drawNodes.m_data[k];

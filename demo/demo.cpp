@@ -182,6 +182,8 @@ vidOk:
 	m_gpu->SetClearColor(0.3f, 0.3f, 0.74f, 1.f);
 	m_window->SetTitle(m_gpu->GetVideoDriverName());
 
+	yySetDefaultTexture(yyGetTextureResource("../res/textures/editor/white.dds", false, false, true));
+
 	m_defaultFont = yyGUILoadFont("../res/fonts/Noto/notosans.txt");
 	if (!m_defaultFont)
 	{

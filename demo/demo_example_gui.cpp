@@ -66,14 +66,20 @@ bool DemoExample_GUI::Init(){
 	m_button1 = yyGUICreateButton(v4f(m_buttonGr1->m_buildingRect_global.z, 20.f, m_buttonGr1->m_buildingRect_global.z + 80.f, 80.f),
 		yyGetTextureResource("../res/textures/editor/red.dds", false, false, true), -1, 0);
 	m_button1->m_onClick = DemoExample_GUI_button1_onClick;
-	m_button1->m_align = m_button1->AlignLeftBottom;
-	m_button2 = yyGUICreateButton(v4f(5.f, 5.f, 75.f, 75.f), yyGetTextureResource("../res/textures/editor/white.dds", false, false, true), -1, 0);
+	m_button1->m_align = m_button1->AlignCenter;
+	
+	m_button2 = yyGUICreateButton(v4f(5.f, 5.f, 75.f, 75.f), 0, -1, 0);
 	m_button2->m_onClick = DemoExample_GUI_button2_onClick;
 	m_button2->SetParent(m_button1);
-	m_text1 = yyGUICreateText(v2f(0.f, 0.f), g_demo->m_defaultFont, L"Button in button", 0);
+	m_button2->SetText(L"XXX", g_demo->m_defaultFont, true);
+	m_button2->SetColor(ColorBlue, 0);
+	m_button2->SetColor(ColorLightBlue, 1);
+	m_button2->SetColor(ColorCyan, 2);
+	m_button2->m_isAnimated = true;
+	/*m_text1 = yyGUICreateText(v2f(0.f, 0.f), g_demo->m_defaultFont, L"Button in button", 0);
 	m_text1->SetParent(m_button2);
 	m_text1->m_color = ColorBlue;
-	m_text1->IgnoreInput(true);
+	m_text1->IgnoreInput(true);*/
 
 	yyGUIRebuild();
 

@@ -126,6 +126,7 @@ extern "C"
 	// auto delete
 	YY_API yyGUIFont* YY_C_DECL yyGUILoadFont(const char* path);
 	YY_API yyGUIText* YY_C_DECL yyGUICreateText(const v2f& position, yyGUIFont* font, const wchar_t* text, yyGUIDrawGroup* drawGroup);
+	// baseTexture can be 0
 	YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* baseTexture, s32 id, yyGUIDrawGroup* drawGroup, v4i* uv = 0);
 	YY_API void YY_C_DECL yyGUIDeleteElement(yyGUIElement* elem);
 	YY_API void YY_C_DECL yyGUIRemoveElement(yyGUIElement* elem); // without yyDestroy(elem);

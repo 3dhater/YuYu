@@ -1,6 +1,8 @@
 ﻿#ifndef _YUYU_GUI_BUTTON_H_
 #define _YUYU_GUI_BUTTON_H_
 
+#include "../yy_color.h"
+
 class yyGUIButton : public yyGUIElement
 {
 	yyVideoDriverAPI* m_gpu;
@@ -18,7 +20,7 @@ public:
 	virtual void SetMouseClickTexture(yyResource*, v4i* uv = 0);
 
 
-	virtual void SetColor(const yyColor&);
+	virtual void SetColor(const yyColor&, s32 pictureBox);
 	virtual void SetOpacity(f32, s32 pictureBox);
 
 	yyGUIPictureBox* m_basePB;
@@ -36,6 +38,15 @@ public:
 	bool m_isChecked;
 
 	bool m_useAsCheckbox;
+
+	bool m_textResizeButton;
+	yyGUIText* m_textElement;
+	yyStringW m_text;
+	yyColor m_textColor;
+	yyColor m_textColorHover;
+	yyColor m_textColorPress;
+	virtual void SetText(const wchar_t*, yyGUIFont*, bool resizeButton);
+	virtual void SetTextColor(const yyColor&);
 
 	// fade in\out for m_mouseHoverPB
 	bool m_isAnimated;

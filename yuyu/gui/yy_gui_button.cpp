@@ -19,6 +19,7 @@ yyGUIButton::yyGUIButton()
 	m_onClick(nullptr)
 {
 	m_type = yyGUIElementType::Button;
+	m_textResizeButton = true;
 	m_isInActiveAreaRect = false;
 	m_isClicked = false;
 	m_isChecked = false;
@@ -28,12 +29,75 @@ yyGUIButton::yyGUIButton()
 	m_baseTexture = 0;
 	m_onMouseEnter = 0;
 	m_onMouseLeave = 0;
+	m_textElement = 0;
+	m_textColor = ColorWhite;
+	m_textColorHover = ColorRed;
+	m_textColorPress = ColorLime;
 }
 
 yyGUIButton::~yyGUIButton(){
+	if (m_textElement) yyDestroy(m_textElement);
 	if (m_basePB) yyDestroy(m_basePB);
 	if (m_mouseHoverPB) yyDestroy(m_mouseHoverPB);
 	if (m_mouseClickPB) yyDestroy(m_mouseClickPB);
+}
+
+void yyGUIButton::SetTextColor(const yyColor& c) {
+	m_textColor = c;
+	if (!m_textElement)
+		return;
+
+	m_textElement->m_color = c;
+}
+
+void yyGUIButton::SetText(const wchar_t* text, yyGUIFont* font, bool resizeButton) {
+	m_text = text;
+	
+	if (m_textElement) yyDestroy(m_textElement); m_textElement = 0;
+
+	if (!text)
+	{
+		m_text.clear();
+		return;
+	}
+
+	if (m_text.size() == 0)
+	{
+		yyLogWriteWarning("%s - text size == 0\n", YY_FUNCTION);
+		return;
+	}
+
+	m_textResizeButton = resizeButton;
+
+
+	m_textElement = yyGUICreateText(v2f(m_buildingRect_global.x, m_buildingRect_global.y), font, m_text.data(), m_drawGroup);
+	yyGUIRemoveElement(m_textElement); // remove from gui elements list
+	m_textElement->IgnoreInput(true);
+
+	v2f buttonRectHalf;
+	buttonRectHalf.x = (f32(m_buildingRect_global.z - m_buildingRect_global.x) * 0.5f);
+	buttonRectHalf.y = (f32(m_buildingRect_global.w - m_buildingRect_global.y) * 0.5f);
+	
+	v4f textBuildingRect = m_textElement->m_buildingRect_global;
+	v2f textBuildingRectHalf;
+	textBuildingRectHalf.x = (f32(textBuildingRect.z - textBuildingRect.x) * 0.5f);
+	textBuildingRectHalf.y = (f32(textBuildingRect.w - textBuildingRect.y) * 0.5f);
+	
+	m_textElement->m_buildingRect.x += buttonRectHalf.x - textBuildingRectHalf.x;
+	m_textElement->m_buildingRect.y += buttonRectHalf.y - textBuildingRectHalf.y;
+	m_textElement->m_buildingRect_global = m_textElement->m_buildingRect;
+
+	m_textElement->Rebuild();
+
+	m_textElement->m_color = m_textColor;
+
+
+	/*
+	// update clip rect here
+	*/
+
+
+
 }
 
 void yyGUIButton::SetOffset(const v2f& o){
@@ -60,9 +124,21 @@ void yyGUIButton::SetOpacity(f32 v, s32 pictureBox) {
 	}
 }
 
-void yyGUIButton::SetColor(const yyColor& c) {
-	m_basePB->m_color = c;
-	m_color = c;
+void yyGUIButton::SetColor(const yyColor& c, s32 pictureBox) {
+	switch (pictureBox)
+	{
+	default:
+	case 0:
+		m_basePB->m_color = c;
+		m_color = c;
+		break;
+	case 1:
+		if (m_mouseHoverPB) m_mouseHoverPB->m_color = c;
+		break;
+	case 2:
+		if (m_mouseClickPB) m_mouseClickPB->m_color = c;
+		break;
+	}
 }
 
 void yyGUIButton::OnUpdate(f32 dt){
@@ -181,6 +257,29 @@ void yyGUIButton::OnDraw(){
 			}
 		}
 	}
+
+	if (m_textElement)
+	{
+		if (m_textElement->m_onDraw)
+			m_textElement->m_onDraw(m_textElement, m_textElement->m_id);
+		
+		if (m_isClicked || m_isChecked)
+		{
+			m_textElement->m_color = m_textColorPress;
+		}
+		else
+		{
+			if (m_isInActiveAreaRect)
+			{
+				m_textElement->m_color = m_textColorHover;
+			}
+			else
+			{
+				m_textElement->m_color = m_textColor;
+			}
+		}
+		m_textElement->OnDraw();
+	}
 }
 
 void yyGUIButton::Rebuild(){
@@ -219,10 +318,14 @@ void yyGUIButton::Rebuild(){
 		m_mouseClickPB->m_color = color;
 		yyGUIRemoveElement(m_mouseClickPB);
 	}
+
+	if (m_textElement)
+	{
+		this->SetText(m_textElement->m_text.data(), m_textElement->m_font, m_textResizeButton);
+	}
 }
 
 YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* baseTexture, s32 id, yyGUIDrawGroup* drawGroup, v4i* uv){
-	assert(baseTexture);
 	yyGUIButton* element = yyCreate<yyGUIButton>();
 	element->SetDrawGroup(drawGroup);
 	element->m_activeAreaRect = rect;
@@ -233,6 +336,14 @@ YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* bas
 	element->m_buildingRect_global = element->m_buildingRect;
 	element->m_id = id;
 	element->m_baseTexture = baseTexture;
+
+	if (!baseTexture)
+	{
+		element->m_baseTexture = yyGetDefaultTexture();
+		element->SetMouseHoverTexture(element->m_baseTexture);
+		element->SetMouseClickTexture(element->m_baseTexture);
+	}
+
 	if (uv)
 	{
 		element->m_uvRect = *uv;
@@ -241,7 +352,7 @@ YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* bas
 	{
 		auto gpu = yyGetVideoDriverAPI();
 		v2i s;
-		gpu->GetTextureSize(baseTexture, &s);
+		gpu->GetTextureSize(element->m_baseTexture, &s);
 		element->m_uvRect.z = s.x;
 		element->m_uvRect.w = s.y;
 	}

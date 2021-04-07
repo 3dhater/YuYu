@@ -14,7 +14,6 @@ struct yyGUITextDrawNode
 
 class yyGUIText: public yyGUIElement
 {
-	yyStringW m_text;
 public:
 	yyGUIText();
 	virtual ~yyGUIText();
@@ -26,6 +25,7 @@ public:
 	virtual void Clear();
 	virtual void SetBufferSize(u32 newSize);
 
+	yyStringW m_text;
 	yyGUIFont* m_font;
 	v2f m_position;
 	wchar_t* m_buffer;

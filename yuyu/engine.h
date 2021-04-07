@@ -136,6 +136,8 @@ public:
 
 	yyStringW m_workingDir;
 
+	yyResource* m_defaultTexture;
+
 #ifdef YY_PLATFORM_WINDOWS
 	IFileSaveDialog * m_fileSaveDialog;
 	IFileOpenDialog * m_fileOpenDialog;

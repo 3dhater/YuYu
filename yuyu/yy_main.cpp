@@ -48,6 +48,7 @@ Engine::Engine()
 	m_backgroundWorker(nullptr),
 	m_cctx(nullptr)
 {
+	m_defaultTexture = 0;
 	m_cursorInGUI = false;
 	m_guiElementInMouseFocus = 0;
 	m_mainGUIDrawGroup = yyCreate<yyGUIDrawGroup>();
@@ -194,6 +195,13 @@ EngineDestroyer g_engineDestroyer;
 
 extern "C"
 {
+	YY_API yyResource* YY_C_DECL yyGetDefaultTexture() {
+		return g_engine->m_defaultTexture;
+	}
+	YY_API void YY_C_DECL yySetDefaultTexture(yyResource* r) {
+		g_engine->m_defaultTexture = r;
+	}
+
 	YY_API void YY_C_DECL yyAddEvent(const yyEvent& event, bool unique) {
 		g_engine->AddEvent(event, unique);
 	}
