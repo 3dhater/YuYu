@@ -22,6 +22,7 @@ public:
 
 	Mat4( const Quat& q )
 	{
+		identity();
 		setRotation(q);
 	}
 
