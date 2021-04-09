@@ -195,9 +195,94 @@ EngineDestroyer g_engineDestroyer;
 
 extern "C"
 {
+	YY_API bool YY_C_DECL yyRun(f32* deltaTime) {
+		static u64 t1 = 0;
+		u64 t2 = yyGetTime();
+		f32 tick = f32(t2 - t1);
+		t1 = t2;
+		*deltaTime = tick / 1000.f;
+
+		g_engine->m_inputContext->Reset();
+#ifdef YY_PLATFORM_WINDOWS
+		MSG msg;
+		while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE))
+		{
+			GetMessage(&msg, NULL, 0, 0);
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+#else
+#error For windows
+#endif
+		
+		static f32 lmb_dbl_timer = 0.f;
+		static f32 rmb_dbl_timer = 0.f;
+		static f32 mmb_dbl_timer = 0.f;
+		static f32 x1mb_dbl_timer = 0.f;
+		static f32 x2mb_dbl_timer = 0.f;
+		lmb_dbl_timer += *deltaTime;
+		rmb_dbl_timer += *deltaTime;
+		mmb_dbl_timer += *deltaTime;
+		x1mb_dbl_timer += *deltaTime;
+		x2mb_dbl_timer += *deltaTime;
+
+		if (g_engine->m_inputContext->m_isLMBDown)
+		{
+			++g_engine->m_inputContext->m_LMBClickCount;
+			lmb_dbl_timer = 0.f;
+		}
+
+		if (g_engine->m_inputContext->m_isRMBDown)
+		{
+			++g_engine->m_inputContext->m_RMBClickCount;
+			rmb_dbl_timer = 0.f;
+		}
+
+		if (g_engine->m_inputContext->m_isMMBDown)
+		{
+			++g_engine->m_inputContext->m_MMBClickCount;
+			mmb_dbl_timer = 0.f;
+		}
+
+		if (g_engine->m_inputContext->m_isX1MBDown)
+		{
+			++g_engine->m_inputContext->m_X1MBClickCount;
+			x1mb_dbl_timer = 0.f;
+		}
+
+		if (g_engine->m_inputContext->m_isX2MBDown)
+		{
+			++g_engine->m_inputContext->m_X2MBClickCount;
+			x2mb_dbl_timer = 0.f;
+		}
+
+		if (lmb_dbl_timer > g_engine->m_inputContext->m_LMBMultipleClickTime)
+			g_engine->m_inputContext->m_LMBClickCount = 0;
+
+		if (rmb_dbl_timer > g_engine->m_inputContext->m_RMBMultipleClickTime)
+			g_engine->m_inputContext->m_RMBClickCount = 0;
+
+		if (mmb_dbl_timer > g_engine->m_inputContext->m_MMBMultipleClickTime)
+			g_engine->m_inputContext->m_MMBClickCount = 0;
+
+		if (x1mb_dbl_timer > g_engine->m_inputContext->m_X1MBMultipleClickTime)
+			g_engine->m_inputContext->m_X1MBClickCount = 0;
+
+		if (x2mb_dbl_timer > g_engine->m_inputContext->m_X2MBMultipleClickTime)
+			g_engine->m_inputContext->m_X2MBClickCount = 0;
+
+
+		return g_engine->m_state != yySystemState::Quit;
+	}
+
+	YY_API yyInputContext* YY_C_DECL yyGetInputContext() {
+		return g_engine->m_inputContext;
+	}
+
 	YY_API yyResource* YY_C_DECL yyGetDefaultTexture() {
 		return g_engine->m_defaultTexture;
 	}
+
 	YY_API void YY_C_DECL yySetDefaultTexture(yyResource* r) {
 		g_engine->m_defaultTexture = r;
 	}

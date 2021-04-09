@@ -94,51 +94,6 @@ void log_onInfo(const char* message){
 	fprintf(stdout, message);
 }
 
-
-void window_callbackMouse(yyWindow* w, s32 wheel, s32 x, s32 y, u32 click){
-	g_inputContex->m_cursorCoords.x = (f32)x;
-	g_inputContex->m_cursorCoords.y = (f32)y;
-
-	g_inputContex->m_mouseDelta.x = (f32)x - g_inputContex->m_cursorCoordsOld.x;
-	g_inputContex->m_mouseDelta.y = (f32)y - g_inputContex->m_cursorCoordsOld.y;
-
-	g_inputContex->m_cursorCoordsOld = g_inputContex->m_cursorCoords;
-
-	if (click & yyWindow_mouseClickMask_LMB_DOWN)
-	{
-		g_inputContex->m_isLMBDown = true;
-		g_inputContex->m_isLMBHold = true;
-	}
-	if (click & yyWindow_mouseClickMask_LMB_UP)
-	{
-		g_inputContex->m_isLMBHold = false;
-		g_inputContex->m_isLMBUp = true;
-	}
-	if (click & yyWindow_mouseClickMask_LMB_DOUBLE)
-	{
-		g_inputContex->m_isLMBDbl = true;
-	}
-
-	if (click & yyWindow_mouseClickMask_RMB_DOWN)
-	{
-		g_inputContex->m_isRMBDown = true;
-		g_inputContex->m_isRMBHold = true;
-	}
-	if (click & yyWindow_mouseClickMask_RMB_UP)
-	{
-		g_inputContex->m_isRMBHold = false;
-	}
-}
-
-void updateInputContext(){
-	g_inputContex->m_isLMBDbl = false;
-	g_inputContex->m_isLMBDown = false;
-	g_inputContex->m_isRMBDown = false;
-	g_inputContex->m_isLMBUp = false;
-	g_inputContex->m_mouseDelta.x = 0.f;
-	g_inputContex->m_mouseDelta.y = 0.f;
-}
-
 yyStringA AnimationCheckName(yyMDLObject* object, yyStringA name){
 	static int number = 0;
 	yyStringA newName = name;
@@ -324,7 +279,6 @@ int main(int argc, char* argv[])
 	}
 
 	p_window->m_onClose = window_onCLose;
-	p_window->m_onMouseButton = window_callbackMouse;
 	yySetMainWindow(p_window);
 	//p_window->ToFullscreenMode();
 
@@ -398,29 +352,8 @@ int main(int argc, char* argv[])
 	auto defaultTexture = yyGetTextureResource("../res/textures/editor/white.dds", false, false, true);
 
 	f32 deltaTime = 0.f;
-	bool run = true;
-	while (run)
-	{		
-		static u64 t1 = 0u;
-		u64 t2 = yyGetTime();
-		f32 m_tick = f32(t2 - t1);
-		t1 = t2;
-		deltaTime = m_tick / 1000.f;
-		if (deltaTime > 1.f)
-			deltaTime = 1.f;
-		updateInputContext();
-#ifdef YY_PLATFORM_WINDOWS
-		MSG msg;
-		while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE))
-		{
-			GetMessage(&msg, NULL, 0, 0);
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-#else
-#error For windows
-#endif
-		
+	while (yyRun(&deltaTime))
+	{
 		
 
 		// Start the Dear ImGui frame
@@ -460,7 +393,6 @@ int main(int argc, char* argv[])
 
 			auto cursorX = std::floor((f32)window.m_data->m_currentSize.x / 2.f);
 			auto cursorY = std::floor((f32)window.m_data->m_currentSize.y / 2.f);
-			g_inputContex->m_cursorCoordsOld.set(cursorX, cursorY);
 
 			yySetCursorPosition(cursorX, cursorY, window.m_data);
 		}
@@ -793,7 +725,6 @@ int main(int argc, char* argv[])
 		switch(*p_engineContext->m_state)
 		{
 		default:
-			run = false;
 			break;
 		case yySystemState::Run:
 		{

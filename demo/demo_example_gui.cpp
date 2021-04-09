@@ -138,5 +138,5 @@ bool DemoExample_GUI::DemoStep(f32 deltaTime){
 		yyGUIDrawGroupMoveFront(g_drawGroupToTop);
 		g_drawGroupToTop = 0;
 	}
-	return g_demo->m_inputContext->isKeyHit(yyKey::K_ESCAPE) == false;
+	return g_demo->m_inputContext->IsKeyHit(yyKey::K_ESCAPE) == false;
 }

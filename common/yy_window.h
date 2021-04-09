@@ -14,25 +14,6 @@ typedef void(*yyWindow_callback)(yyWindow*);
 typedef void(*yyWindow_callbackMouse)(yyWindow*, s32 wheel, s32 x, s32 y, u32 click);
 typedef void(*yyWindow_callbackKeyboard)(yyWindow*, bool isPress, u32 key, char16_t character);
 
-enum yyWindow_mouseClickMask
-{
-	yyWindow_mouseClickMask_LMB_DOWN = BIT(0),
-	yyWindow_mouseClickMask_RMB_DOWN = BIT(1),
-	yyWindow_mouseClickMask_MMB_DOWN = BIT(2),
-	yyWindow_mouseClickMask_X1MB_DOWN = BIT(3),
-	yyWindow_mouseClickMask_X2MB_DOWN = BIT(4),
-	yyWindow_mouseClickMask_X1MB_UP = BIT(5),
-	yyWindow_mouseClickMask_X2MB_UP = BIT(6),
-	yyWindow_mouseClickMask_X1MB_DOUBLE = BIT(7),
-	yyWindow_mouseClickMask_X2MB_DOUBLE = BIT(8),
-	yyWindow_mouseClickMask_LMB_UP = BIT(9),
-	yyWindow_mouseClickMask_RMB_UP = BIT(10),
-	yyWindow_mouseClickMask_MMB_UP = BIT(11),
-	yyWindow_mouseClickMask_LMB_DOUBLE = BIT(12),
-	yyWindow_mouseClickMask_RMB_DOUBLE = BIT(13),
-	yyWindow_mouseClickMask_MMB_DOUBLE = BIT(14),
-};
-
 enum yyWindowFlags
 {
 	yyWindowFlag_noMinimizeButton = BIT(0),
@@ -66,12 +47,11 @@ public:
 	yyWindow_callback m_onMaximize;
 	yyWindow_callback m_onRestore;
 
-	void(*m_onRawInput)(yyWindow*, bool inForeground, void* rawInput);
+	//void(*m_onRawInput)(yyWindow*, bool inForeground, void* rawInput);
 
-	yyWindow_callbackMouse m_onMouseWheel;
-	yyWindow_callbackMouse m_onMouseButton;
-
-	yyWindow_callbackKeyboard m_onKeyboard;
+	//yyWindow_callbackMouse m_onMouseWheel;
+	//yyWindow_callbackMouse m_onMouseButton;
+	//yyWindow_callbackKeyboard m_onKeyboard;
 
 	v2i m_currentSize;
 	v2i m_oldSize;

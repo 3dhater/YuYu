@@ -3,6 +3,7 @@
 #ifdef YY_PLATFORM_WINDOWS
 
 #include "yy_window.h"
+#include "yy_input.h"
 #include "yy_keys.h"
 
 s32 g_window_counter = 0;
@@ -25,12 +26,12 @@ yyWindow::yyWindow()
 	m_onPaint(nullptr),
 	m_onSize(nullptr),
 	m_onMinimize(nullptr),
-	m_onRestore(nullptr),
-	m_onMouseWheel(nullptr),
-	m_onMouseButton(nullptr),
-	m_onKeyboard(nullptr)
+	m_onRestore(nullptr)
+	//m_onMouseWheel(nullptr),
+//	m_onMouseButton(nullptr),
+//	m_onKeyboard(nullptr)
 {
-	m_onRawInput = 0;
+//	m_onRawInput = 0;
 	m_onMaximize = 0;
 
 	m_GPUData = 0;
@@ -126,7 +127,7 @@ bool yyWindow::init(int size_x, int size_y, u32 flags, yyWindow* parent)
 	WNDCLASSEX wc;
 	ZeroMemory( &wc, sizeof( wc ) ); // memset Winows style
 	wc.cbSize			= sizeof(WNDCLASSEX);
-	wc.style			= CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
+	wc.style			= CS_HREDRAW | CS_VREDRAW /*| CS_DBLCLKS*/;
 	wc.lpfnWndProc		= WndProc;
 	wc.hInstance		= GetModuleHandle( 0 );
 	wc.hIcon			= nullptr;
@@ -250,10 +251,80 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_INPUT:
 		if (pD)
 		{
-			if (pD->m_onRawInput)
+			/*if (pD->m_onRawInput)
 				pD->m_onRawInput(pD,
 					GET_RAWINPUT_CODE_WPARAM(wParam) == RIM_INPUT,
-					(HRAWINPUT)lParam);
+					(HRAWINPUT)lParam);*/
+
+
+			static std::vector<char> m_RawInputMessageData;
+
+			HRAWINPUT hRawInput = (HRAWINPUT)lParam;
+			UINT dataSize;
+			GetRawInputData(
+				hRawInput, RID_INPUT, NULL, &dataSize, sizeof(RAWINPUTHEADER));
+
+			if (dataSize == 0)
+				break;
+			if (dataSize > m_RawInputMessageData.size())
+				m_RawInputMessageData.resize(dataSize);
+
+			void* dataBuf = &m_RawInputMessageData[0];
+			GetRawInputData(
+				hRawInput, RID_INPUT, dataBuf, &dataSize, sizeof(RAWINPUTHEADER));
+
+			const RAWINPUT *raw = (const RAWINPUT*)dataBuf;
+			if (raw->header.dwType == RIM_TYPEMOUSE)
+			{
+				auto input = yyGetInputContext();
+				HANDLE deviceHandle = raw->header.hDevice;
+
+				const RAWMOUSE& mouseData = raw->data.mouse;
+
+				USHORT flags = mouseData.usButtonFlags;
+				short wheelDelta = (short)mouseData.usButtonData;
+				LONG x = mouseData.lLastX, y = mouseData.lLastY;
+
+				/*wprintf(
+					L"Mouse: Device=0x%08X, Flags=%04x, WheelDelta=%d, X=%d, Y=%d\n",
+					deviceHandle, flags, wheelDelta, x, y);*/
+
+				input->m_mouseDelta.x = x;
+				input->m_mouseDelta.y = y;
+				input->m_wheelDelta = (f32)wheelDelta / (f32)WHEEL_DELTA;
+
+				POINT cursorPoint;
+				GetCursorPos(&cursorPoint);
+				ScreenToClient(hWnd, &cursorPoint);
+				input->m_cursorCoords.x = (f32)cursorPoint.x;
+				input->m_cursorCoords.y = (f32)cursorPoint.y;
+				input->m_cursorCoordsForGUI = input->m_cursorCoords;
+				
+				input->m_isLMBDown = (flags & 0x1) == 0x1;
+				input->m_isLMBUp   = (flags & 0x2) == 0x2;
+				if (input->m_isLMBDown) input->m_isLMBHold = true;
+				if(input->m_isLMBUp)    input->m_isLMBHold = false;
+
+				input->m_isRMBDown = (flags & 0x4) == 0x4;
+				input->m_isRMBUp   = (flags & 0x8) == 0x8;
+				if (input->m_isRMBDown)  input->m_isRMBHold = true;
+				if (input->m_isRMBUp)    input->m_isRMBHold = false;
+
+				input->m_isMMBDown = (flags & 0x10) == 0x10;
+				input->m_isMMBUp   = (flags & 0x20) == 0x20;
+				if (input->m_isMMBDown)  input->m_isMMBHold = true;
+				if (input->m_isMMBUp)    input->m_isMMBHold = false;
+
+				input->m_isX1MBDown = (flags & 0x100) == 0x100;
+				input->m_isX1MBUp   = (flags & 0x200) == 0x200;
+				if (input->m_isX1MBDown)  input->m_isX1MBHold = true;
+				if (input->m_isX1MBUp)    input->m_isX1MBHold = false;
+
+				input->m_isX2MBDown = (flags & 0x40) == 0x40;
+				input->m_isX2MBUp   = (flags & 0x80) == 0x80;
+				if (input->m_isX2MBDown)  input->m_isX2MBHold = true;
+				if (input->m_isX2MBUp)    input->m_isX2MBHold = false;
+			}
 		}
 		break;
 	case WM_MOVE:
@@ -423,25 +494,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		Game_AddEvent( ev );*/
 		return 0;
 	}
-	case WM_MOUSEWHEEL:
+	/*case WM_MOUSEWHEEL:
 		if(pD)
 		{
 			if(pD->m_onMouseWheel)
 				pD->m_onMouseWheel(pD, int( (f32)GET_WHEEL_DELTA_WPARAM(wParam) / (f32)WHEEL_DELTA ), LOWORD(lParam), HIWORD(lParam), 0);
 		}
-		return 0;
-	case WM_MOUSEMOVE:
-	{
-		if(pD)
-		{
-			//POINT point;
-			//GetCursorPos(&point);
-			//ScreenToClient(hWnd,&point);
-			if(pD->m_onMouseButton)
-				pD->m_onMouseButton(pD, 0, LOWORD(lParam), HIWORD(lParam), 0);
-		}
-	}return 0;
-	case WM_LBUTTONDBLCLK:
+		return 0;*/
+	//case WM_MOUSEMOVE:
+	//{
+	//	if(pD)
+	//	{
+	//		//POINT point;
+	//		//GetCursorPos(&point);
+	//		//ScreenToClient(hWnd,&point);
+	//		if(pD->m_onMouseButton)
+	//			pD->m_onMouseButton(pD, 0, LOWORD(lParam), HIWORD(lParam), 0);
+	//	}
+	//}return 0;
+	/*case WM_LBUTTONDBLCLK:
 	case WM_RBUTTONDBLCLK:
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:
@@ -490,7 +561,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			pD->m_onMouseButton(pD, 0, LOWORD(lParam), HIWORD(lParam), click);
 
 		return 0;
-	}break;
+	}break;*/
 
 	case WM_SYSKEYDOWN:
 	case WM_SYSKEYUP:
@@ -532,16 +603,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		GetKeyboardState( keys );
 		WORD chars[ 2 ];
 
-		char16_t character = 0;
 
+		auto input = yyGetInputContext();
 		if( ToAsciiEx( (UINT)wParam, HIWORD(lParam), keys, chars, 0, KEYBOARD_INPUT_HKL ) == 1 )
 		{
 			MultiByteToWideChar( KEYBOARD_INPUT_CODEPAGE, MB_PRECOMPOSED, (LPCSTR)chars,
-				sizeof(chars), (WCHAR*)&character, 1 );
+				sizeof(chars), (WCHAR*)&input->m_character, 1 );
 		}
 
-		if(pD->m_onKeyboard)
-			pD->m_onKeyboard(pD, isPress, (u32)key, character);
+		//if(pD->m_onKeyboard)
+		//	pD->m_onKeyboard(pD, isPress, (u32)key, character);
+		if (isPress)
+		{
+			if ((u32)key < 256)
+			{
+				input->m_key_hold[(u32)key] = 1;
+				input->m_key_hit[(u32)key] = 1;
+			}
+		}
+		else
+		{
+			if ((u32)key < 256)
+			{
+				input->m_key_hold[(u32)key] = 0;
+				input->m_key_pressed[(u32)key] = 1;
+			}
+		}
 
 		if( message == WM_SYSKEYDOWN || message == WM_SYSKEYUP )
 		{

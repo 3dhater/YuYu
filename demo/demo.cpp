@@ -19,74 +19,7 @@ void log_onInfo(const char* message){
 	fprintf(stdout, message);
 }
 
-void window_callbackMouse(yyWindow* w, s32 wheel, s32 x, s32 y, u32 click){
-	g_demo->m_inputContext->m_cursorCoords.x = (f32)x;
-	g_demo->m_inputContext->m_cursorCoords.y = (f32)y;
-
-	g_demo->m_inputContext->m_mouseDelta.x = (f32)x - g_demo->m_inputContext->m_cursorCoordsOld.x;
-	g_demo->m_inputContext->m_mouseDelta.y = (f32)y - g_demo->m_inputContext->m_cursorCoordsOld.y;
-
-	g_demo->m_inputContext->m_cursorCoordsOld = g_demo->m_inputContext->m_cursorCoords;
-
-	if (click & yyWindow_mouseClickMask_LMB_DOWN)
-	{
-		g_demo->m_inputContext->m_isLMBDown = true;
-		g_demo->m_inputContext->m_isLMBHold = true;
-	}
-	if (click & yyWindow_mouseClickMask_LMB_UP)
-	{
-		g_demo->m_inputContext->m_isLMBHold = false;
-		g_demo->m_inputContext->m_isLMBUp = true;
-	}
-	if (click & yyWindow_mouseClickMask_LMB_DOUBLE)
-	{
-		g_demo->m_inputContext->m_isLMBDbl = true;
-	}
-
-	if (click & yyWindow_mouseClickMask_RMB_DOWN)
-	{
-		g_demo->m_inputContext->m_isRMBDown = true;
-		g_demo->m_inputContext->m_isRMBHold = true;
-	}
-	if (click & yyWindow_mouseClickMask_RMB_UP)
-	{
-		g_demo->m_inputContext->m_isRMBHold = false;
-	}
-}
-
 void window_callbackOnSize(yyWindow* window) {
-}
-
-// call before all callbacks
-void updateInputContext(){
-	g_demo->m_inputContext->m_isLMBDbl = false;
-	g_demo->m_inputContext->m_isLMBDown = false;
-	g_demo->m_inputContext->m_isRMBDown = false;
-	g_demo->m_inputContext->m_isLMBUp = false;
-	g_demo->m_inputContext->m_mouseDelta.x = 0.f;
-	g_demo->m_inputContext->m_mouseDelta.y = 0.f;
-	g_demo->m_inputContext->m_cursorCoordsForGUI = g_demo->m_inputContext->m_cursorCoords;
-	memset(g_demo->m_inputContext->m_key_pressed, 0, sizeof(u8) * 256);
-	memset(g_demo->m_inputContext->m_key_hit, 0, sizeof(u8) * 256);
-}
-
-void window_callbackKeyboard(yyWindow*, bool isPress, u32 key, char16_t character){
-	if (isPress)
-	{
-		if (key < 256)
-		{
-			g_demo->m_inputContext->m_key_hold[key] = 1;
-			g_demo->m_inputContext->m_key_hit[key] = 1;
-		}
-	}
-	else
-	{
-		if (key < 256)
-		{
-			g_demo->m_inputContext->m_key_hold[key] = 0;
-			g_demo->m_inputContext->m_key_pressed[key] = 1;
-		}
-	}
 }
 
 void window_onCLose(yyWindow* window){
@@ -141,8 +74,6 @@ bool Demo::Init(const char* videoDriver){
 	// save pointer
 	yySetMainWindow(m_window);
 	m_window->m_onClose = window_onCLose;
-	m_window->m_onMouseButton = window_callbackMouse;
-	m_window->m_onKeyboard = window_callbackKeyboard;
 	m_window->m_onSize = window_callbackOnSize;
 	m_window->m_onMaximize = window_callbackOnSize;
 	m_window->m_onRestore = window_callbackOnSize;
@@ -235,16 +166,8 @@ void Demo::MainLoop(){
 
 	yyEvent currentEvent;
 
-	bool run = true;
-	while (run)
+	while (yyRun(&m_dt))
 	{
-		static u64 t1 = 0;
-		u64 t2 = yyGetTime();
-		f32 m_tick = f32(t2 - t1);
-		t1 = t2;
-		m_dt = m_tick / 1000.f;
-
-		
 		++fps_counter;
 		fps_timer += m_dt;
 
@@ -255,19 +178,6 @@ void Demo::MainLoop(){
 			fps_counter = 0;
 		}
 
-		updateInputContext();
-
-#ifdef YY_PLATFORM_WINDOWS
-		MSG msg;
-		while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE))
-		{
-			GetMessage(&msg, NULL, 0, 0);
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-#else
-#error For windows
-#endif
 		if (gui_text_fps)
 			gui_text_fps->SetText(L"FPS: %u", fps);
 
@@ -295,7 +205,6 @@ void Demo::MainLoop(){
 		switch (*m_engineContext->m_state)
 		{
 		default:
-			run = false;
 			break;
 		case yySystemState::Run:
 		{
@@ -312,11 +221,11 @@ void Demo::MainLoop(){
 			}
 			else if(m_selectedExample != -1)
 			{
-				if (m_inputContext->isKeyPressed(yyKey::K_UP))
+				if (m_inputContext->IsKeyPressed(yyKey::K_UP))
 					this->SelectExamplePressUp();
-				if (m_inputContext->isKeyHit(yyKey::K_DOWN))
+				if (m_inputContext->IsKeyHit(yyKey::K_DOWN))
 					this->SelectExamplePressDown();
-				if (m_inputContext->isKeyHold(yyKey::K_ENTER))
+				if (m_inputContext->IsKeyHold(yyKey::K_ENTER))
 				{
 					StartDemo();
 				}

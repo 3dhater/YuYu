@@ -137,33 +137,33 @@ bool DemoExample_Sprite::DemoStep(f32 deltaTime)
 	f32  spriteCameraMoveSpeed = 50.f;
 	f32  heroMoveSpeed = 70.f;
 	f32  spriteCameraScaleSpeed = 1.f;
-	if (g_demo->m_inputContext->isKeyHold(yyKey::K_NUM_4))
+	if (g_demo->m_inputContext->IsKeyHold(yyKey::K_NUM_4))
 	{
 		m_spriteCameraPosition->x -= spriteCameraMoveSpeed * deltaTime;
 		m_spriteCameraPosition->x = std::floor(m_spriteCameraPosition->x);
 	}
-	if (g_demo->m_inputContext->isKeyHold(yyKey::K_NUM_6))
+	if (g_demo->m_inputContext->IsKeyHold(yyKey::K_NUM_6))
 	{
 		m_spriteCameraPosition->x += spriteCameraMoveSpeed * deltaTime;
 		m_spriteCameraPosition->x = std::ceil(m_spriteCameraPosition->x);
 	}
-	if (g_demo->m_inputContext->isKeyHold(yyKey::K_NUM_8))
+	if (g_demo->m_inputContext->IsKeyHold(yyKey::K_NUM_8))
 	{
 		m_spriteCameraPosition->y -= spriteCameraMoveSpeed * deltaTime;
 		m_spriteCameraPosition->y = std::floor(m_spriteCameraPosition->y);
 	}
-	if (g_demo->m_inputContext->isKeyHold(yyKey::K_NUM_2))
+	if (g_demo->m_inputContext->IsKeyHold(yyKey::K_NUM_2))
 	{
 		m_spriteCameraPosition->y += spriteCameraMoveSpeed * deltaTime;
 		m_spriteCameraPosition->y = std::ceil(m_spriteCameraPosition->y);
 	}
-	if (g_demo->m_inputContext->isKeyHold(yyKey::K_NUM_7))
+	if (g_demo->m_inputContext->IsKeyHold(yyKey::K_NUM_7))
 		m_spriteCameraScale->x -= spriteCameraScaleSpeed * deltaTime;
-	if (g_demo->m_inputContext->isKeyHold(yyKey::K_NUM_9))
+	if (g_demo->m_inputContext->IsKeyHold(yyKey::K_NUM_9))
 		m_spriteCameraScale->x += spriteCameraScaleSpeed * deltaTime;
-	if (g_demo->m_inputContext->isKeyHold(yyKey::K_NUM_1))
+	if (g_demo->m_inputContext->IsKeyHold(yyKey::K_NUM_1))
 		m_spriteCameraScale->y -= spriteCameraScaleSpeed * deltaTime;
-	if (g_demo->m_inputContext->isKeyHold(yyKey::K_NUM_3))
+	if (g_demo->m_inputContext->IsKeyHold(yyKey::K_NUM_3))
 		m_spriteCameraScale->y += spriteCameraScaleSpeed * deltaTime;
 
 
@@ -182,5 +182,5 @@ bool DemoExample_Sprite::DemoStep(f32 deltaTime)
 	m_spriteHero->m_objectBase.UpdateBase();
 	m_gpu->DrawSprite2(m_spriteHero);
 
-	return g_demo->m_inputContext->isKeyHit(yyKey::K_ESCAPE) == false;
+	return g_demo->m_inputContext->IsKeyHit(yyKey::K_ESCAPE) == false;
 }

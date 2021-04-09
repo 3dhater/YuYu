@@ -33,8 +33,11 @@ extern "C"
 	YY_API yySystemState* YY_C_DECL yyStart(yyInputContext* input);
 	YY_API void YY_C_DECL yyStop();
 	YY_API void YY_C_DECL yyQuit();
+	YY_API bool YY_C_DECL yyRun(f32* deltaTime);
 	
 	YY_API u64 YY_C_DECL yyGetTime();
+
+	YY_API yyInputContext* YY_C_DECL yyGetInputContext();
 
 	// extensions = "obj 3ds fbx"
 	// extensionTitle = "Supported 3d files"
