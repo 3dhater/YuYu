@@ -38,9 +38,10 @@ public:
 	
 	yyWindow_callback m_onShow;
 	yyWindow_callback m_onMove;
-	yyWindow_callback m_onFocusLost;
-	yyWindow_callback m_onFocusSet;
+	//yyWindow_callback m_onFocusLost;
+	//yyWindow_callback m_onFocusSet;
 	yyWindow_callback m_onActivate;
+	yyWindow_callback m_onDeactivate;
 	yyWindow_callback m_onPaint;
 	yyWindow_callback m_onSize;
 	yyWindow_callback m_onMinimize;

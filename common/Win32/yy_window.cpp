@@ -20,9 +20,10 @@ yyWindow::yyWindow()
 	m_onClose(nullptr),
 	m_onShow(nullptr),
 	m_onMove(nullptr),
-	m_onFocusLost(nullptr),
-	m_onFocusSet(nullptr),
+//	m_onFocusLost(nullptr),
+	//m_onFocusSet(nullptr),
 	m_onActivate(nullptr),
+	m_onDeactivate(nullptr),
 	m_onPaint(nullptr),
 	m_onSize(nullptr),
 	m_onMinimize(nullptr),
@@ -300,30 +301,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				input->m_cursorCoords.y = (f32)cursorPoint.y;
 				input->m_cursorCoordsForGUI = input->m_cursorCoords;
 				
-				input->m_isLMBDown = (flags & 0x1) == 0x1;
-				input->m_isLMBUp   = (flags & 0x2) == 0x2;
-				if (input->m_isLMBDown) input->m_isLMBHold = true;
-				if(input->m_isLMBUp)    input->m_isLMBHold = false;
+				if (flags)
+				{
+					input->m_isLMBDown = (flags & 0x1) == 0x1;
+					input->m_isLMBUp   = (flags & 0x2) == 0x2;
+					if (input->m_isLMBDown) input->m_isLMBHold = true;
+					if(input->m_isLMBUp)    input->m_isLMBHold = false;
 
-				input->m_isRMBDown = (flags & 0x4) == 0x4;
-				input->m_isRMBUp   = (flags & 0x8) == 0x8;
-				if (input->m_isRMBDown)  input->m_isRMBHold = true;
-				if (input->m_isRMBUp)    input->m_isRMBHold = false;
+					input->m_isRMBDown = (flags & 0x4) == 0x4;
+					input->m_isRMBUp   = (flags & 0x8) == 0x8;
+					if (input->m_isRMBDown)  input->m_isRMBHold = true;
+					if (input->m_isRMBUp)    input->m_isRMBHold = false;
 
-				input->m_isMMBDown = (flags & 0x10) == 0x10;
-				input->m_isMMBUp   = (flags & 0x20) == 0x20;
-				if (input->m_isMMBDown)  input->m_isMMBHold = true;
-				if (input->m_isMMBUp)    input->m_isMMBHold = false;
+					input->m_isMMBDown = (flags & 0x10) == 0x10;
+					input->m_isMMBUp   = (flags & 0x20) == 0x20;
+					if (input->m_isMMBDown)  input->m_isMMBHold = true;
+					if (input->m_isMMBUp)    input->m_isMMBHold = false;
 
-				input->m_isX1MBDown = (flags & 0x100) == 0x100;
-				input->m_isX1MBUp   = (flags & 0x200) == 0x200;
-				if (input->m_isX1MBDown)  input->m_isX1MBHold = true;
-				if (input->m_isX1MBUp)    input->m_isX1MBHold = false;
+					input->m_isX1MBDown = (flags & 0x100) == 0x100;
+					input->m_isX1MBUp   = (flags & 0x200) == 0x200;
+					if (input->m_isX1MBDown)  input->m_isX1MBHold = true;
+					if (input->m_isX1MBUp)    input->m_isX1MBHold = false;
 
-				input->m_isX2MBDown = (flags & 0x40) == 0x40;
-				input->m_isX2MBUp   = (flags & 0x80) == 0x80;
-				if (input->m_isX2MBDown)  input->m_isX2MBHold = true;
-				if (input->m_isX2MBUp)    input->m_isX2MBHold = false;
+					input->m_isX2MBDown = (flags & 0x40) == 0x40;
+					input->m_isX2MBUp   = (flags & 0x80) == 0x80;
+					if (input->m_isX2MBDown)  input->m_isX2MBHold = true;
+					if (input->m_isX2MBUp)    input->m_isX2MBHold = false;
+				}
 			}
 		}
 		break;
@@ -336,14 +340,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 	}
 	break;
-	case WM_KILLFOCUS:
+	/*case WM_KILLFOCUS:
 	{
 		if(pD)
 		{
 			if(pD->m_onFocusLost)
 				pD->m_onFocusLost(pD);
 		}
-	}break;
+	}break;*/
 	case WM_CAPTURECHANGED:
 	case WM_NCLBUTTONDBLCLK:
 	case WM_NCLBUTTONDOWN:
@@ -359,7 +363,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		break;
 	}
-	case WM_SETFOCUS:
+	/*case WM_SETFOCUS:
 	{
 		if(pD)
 		{
@@ -367,16 +371,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				pD->m_onFocusSet(pD);
 		}
 		break;
-	}
-	case WM_ACTIVATEAPP:
+	}*/
+	case WM_ACTIVATE:
 	{
-		if(pD)
+		switch (wmId)
 		{
-			if(pD->m_onActivate)
-				pD->m_onActivate(pD);
+		case WA_ACTIVE:
+		case WA_CLICKACTIVE:
+			if(pD)
+			{
+				if(pD->m_onActivate)
+					pD->m_onActivate(pD);
+			}
+			break;
+		case WA_INACTIVE:
+			if (pD)
+			{
+				if (pD->m_onDeactivate)
+					pD->m_onDeactivate(pD);
+			}
+			break;
 		}
 		break;
 	}
+	/*case WM_ACTIVATEAPP:
+	{
+		break;
+	}*/
 	case WM_PAINT:
 	{
 		if(pD)

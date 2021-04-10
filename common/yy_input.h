@@ -100,7 +100,7 @@ struct yyInputContext
 
 		memset(m_key_pressed, 0, sizeof(u8) * 256);
 		memset(m_key_hit, 0, sizeof(u8) * 256);
-		m_cursorCoords.set(0.f, 0.f);
+		//m_cursorCoords.set(0.f, 0.f);
 		//m_cursorCoordsForGUI.set(0.f, 0.f);
 		//m_cursorCoordsOld.set(0.f, 0.f);
 		m_mouseDelta.set(0.f, 0.f);
