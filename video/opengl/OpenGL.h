@@ -1245,6 +1245,8 @@ class OpenGLShaderDepth;
 class OpenGLShaderSimple;
 class OpenGLShaderSimpleAnimated;
 class OpenGLShaderScreenQuad;
+class OpenGLShaderLineModel;
+class OpenGLShaderLineModelAnimated;
 
 class OpenGLTexture;
 class OpenGLModel;
@@ -1283,6 +1285,8 @@ public:
 	OpenGLShaderSimple* m_shader_simple;
 	OpenGLShaderSimpleAnimated* m_shader_simpleAnimated;
 	OpenGLShaderScreenQuad* m_shader_screenQuad;
+	OpenGLShaderLineModel* m_shader_lineModel;
+	OpenGLShaderLineModelAnimated* m_shader_lineModelAnimated;
 
 	Mat4 m_guiProjectionMatrix;
 

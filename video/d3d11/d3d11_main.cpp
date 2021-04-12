@@ -17,6 +17,7 @@
 #include "d3d11_shader_ScreenQuad.h"
 #include "d3d11_shader_simple.h"
 #include "d3d11_shader_Line3D.h"
+#include "d3d11_shader_LineModel.h"
 
 #include "d3d11_shader_standart.h"
 
@@ -451,6 +452,16 @@ void Draw(){
 				g_d3d11->SetShader(g_d3d11->m_shaderSimpleAnimated);
 				g_d3d11->m_shaderSimpleAnimated->SetConstants(material);
 			}break;
+			case yyVertexType::LineModel:
+			{
+				g_d3d11->SetShader(g_d3d11->m_shaderLineModel);
+				g_d3d11->m_shaderLineModel->SetConstants(material);
+			}break;
+			case yyVertexType::AnimatedLineModel:
+			{
+				g_d3d11->SetShader(g_d3d11->m_shaderLineModelAnimated);
+				g_d3d11->m_shaderLineModelAnimated->SetConstants(material);
+			}break;
 			}
 			if (g_d3d11->m_currentTextures[0])
 			{
@@ -462,7 +473,16 @@ void Draw(){
 	}
 	u32 offset = 0u;
 //	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerWireframeNoBackFaceCulling);
-	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	switch (g_d3d11->m_currentModel->m_vertexType)
+	{
+	default:
+		g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	break;
+	case yyVertexType::LineModel:
+	case yyVertexType::AnimatedLineModel:
+		g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+	break;
+	}
 	g_d3d11->m_d3d11DevCon->IASetVertexBuffers(0, 1, &g_d3d11->m_currentModel->m_vBuffer, &g_d3d11->m_currentModel->m_stride, &offset);
 	g_d3d11->m_d3d11DevCon->IASetIndexBuffer(g_d3d11->m_currentModel->m_iBuffer, g_d3d11->m_currentModel->m_indexType, 0);
 	g_d3d11->m_d3d11DevCon->DrawIndexed(g_d3d11->m_currentModel->m_iCount, 0, 0);

@@ -260,6 +260,7 @@
     <ClCompile Include="demo.cpp" />
     <ClCompile Include="demo_example.cpp" />
     <ClCompile Include="demo_example_gui.cpp" />
+    <ClCompile Include="demo_example_lines.cpp" />
     <ClCompile Include="demo_example_MDL.cpp" />
     <ClCompile Include="demo_example_sprite.cpp" />
     <ClCompile Include="demo_main.cpp" />
@@ -268,6 +269,7 @@
     <ClInclude Include="demo.h" />
     <ClInclude Include="demo_example.h" />
     <ClInclude Include="demo_example_gui.h" />
+    <ClInclude Include="demo_example_lines.h" />
     <ClInclude Include="demo_example_MDL.h" />
     <ClInclude Include="demo_example_sprite.h" />
   </ItemGroup>

@@ -21,39 +21,36 @@ void yyFlyCamera_onUpdate(yyCamera* camera)
 	camera->m_viewMatrix[3].w = 1.f;
 }
 
-class yyFlyCamera
+class yyFlyCamera : public yyCamera
 {
 	void _moveCamera(v4f& vel){
-		auto RotInv = m_camera->m_rotationMatrix;
+		auto RotInv = m_rotationMatrix;
 		RotInv.invert();
 		vel = math::mul(vel, RotInv);
-		m_camera->m_objectBase.m_localPosition += vel;
+		m_objectBase.m_localPosition += vel;
 	}
 public:
 
 	yyFlyCamera(){
-		m_camera = 0;
 		m_moveSpeed = 5.f;
 
-		m_camera = yyCreate<yyCamera>();
-		m_camera->m_cameraType = yyCameraType::Custom;
-		m_camera->m_updateCallback = yyFlyCamera_onUpdate;
-		m_camera->m_fov = math::degToRad(80.f);
-		m_camera->m_near = 0.1f;
-		m_camera->m_far = 3000.f;
+		m_cameraType = yyCameraType::Custom;
+		m_updateCallback = yyFlyCamera_onUpdate;
+		m_fov = math::degToRad(80.f);
+		m_near = 0.1f;
+		m_far = 3000.f;
 	}
 
 	~yyFlyCamera(){
-		if (m_camera) yyDestroy(m_camera);
 	}
 
 	void Update(){
-		m_camera->m_objectBase.UpdateBase();
-		m_camera->Update();
+		m_objectBase.UpdateBase();
+		yyCamera::Update();
 	}
 
 	void SetPosition(f32 x, f32 y, f32 z){
-		m_camera->m_objectBase.m_localPosition.set(x, y, z, 1.f);
+		m_objectBase.m_localPosition.set(x, y, z, 1.f);
 	}
 
 	void SetRotation(f32 x, f32 y, f32 z){
@@ -63,7 +60,7 @@ public:
 		RY.setRotation(Quat(v4f(0.f, math::degToRad(y), 0.f, 0.f)));
 		RX.setRotation(Quat(v4f(math::degToRad(x), 0.f, 0.f, 0.f)));
 		//RZ.setRotation(Quat(v4f(0.f, 0.f, math::degToRad(z), 0.f)));
-		m_camera->m_rotationMatrix = RX * m_camera->m_rotationMatrix * RY;
+		m_rotationMatrix = RX * m_rotationMatrix * RY;
 	}
 
 	void Rotate(const v2f& mouseDelta, f32 dt){
@@ -83,7 +80,7 @@ public:
 		}
 
 		if (update)
-			m_camera->m_rotationMatrix = RX * m_camera->m_rotationMatrix * RY;
+			m_rotationMatrix = RX * m_rotationMatrix * RY;
 	}
 
 	void MoveLeft(f32 dt){
@@ -116,7 +113,6 @@ public:
 		_moveCamera(v4f(0.f, 0.f, -speed * dt, 1.f));
 	}
 
-	yyCamera* m_camera;
 	f32 m_moveSpeed;
 };
 

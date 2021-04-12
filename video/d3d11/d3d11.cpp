@@ -12,6 +12,7 @@
 #include "d3d11_shader_ScreenQuad.h"
 #include "d3d11_shader_simple.h"
 #include "d3d11_shader_Line3D.h"
+#include "d3d11_shader_LineModel.h"
 
 #include "DDSTextureLoader.h"
 
@@ -54,6 +55,8 @@ D3D11::D3D11()
 	m_shaderSimple = 0;
 	m_shaderSimpleAnimated = 0;
 	m_shaderLine3D = 0;
+	m_shaderLineModel = 0;
+	m_shaderLineModelAnimated = 0;
 
 	m_isGUI = false;
 	m_vsync = true;
@@ -87,6 +90,8 @@ D3D11::~D3D11()
 	if (m_shaderSprite)yyDestroy(m_shaderSprite);
 	if (m_shaderSprite2)yyDestroy(m_shaderSprite2);
 	if (m_shaderGUI) yyDestroy(m_shaderGUI);
+	if (m_shaderLineModel) yyDestroy(m_shaderLineModel);
+	if (m_shaderLineModelAnimated) yyDestroy(m_shaderLineModelAnimated);
 
 	if (m_blendStateAlphaDisabled)              m_blendStateAlphaDisabled->Release();
 	if (m_blendStateAlphaEnabledWithATC)        m_blendStateAlphaEnabledWithATC->Release();
@@ -453,6 +458,22 @@ bool D3D11::Init(yyWindow* window)
 	if (!m_shaderLine3D->init())
 	{
 		yyLogWriteError("Can't create Line 3D shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	m_shaderLineModel = yyCreate<D3D11ShaderLineModel>();
+	if (!m_shaderLineModel->init())
+	{
+		yyLogWriteError("Can't create Line Model shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	m_shaderLineModelAnimated = yyCreate<D3D11ShaderLineModelAnimated>();
+	if (!m_shaderLineModelAnimated->init())
+	{
+		yyLogWriteError("Can't create Line Model animated shader...");
 		YY_PRINT_FAILED;
 		return false;
 	}

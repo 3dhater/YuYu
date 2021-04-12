@@ -80,6 +80,8 @@ class D3D11ShaderScreenQuad;
 class D3D11ShaderSimple;
 class D3D11ShaderSimpleAnimated;
 class D3D11ShaderLine3D;
+class D3D11ShaderLineModel;
+class D3D11ShaderLineModelAnimated;
 
 class D3D11
 {
@@ -135,6 +137,8 @@ public:
 	D3D11ShaderSimple* m_shaderSimple;
 	D3D11ShaderSimpleAnimated* m_shaderSimpleAnimated;
 	D3D11ShaderLine3D* m_shaderLine3D;
+	D3D11ShaderLineModel* m_shaderLineModel;
+	D3D11ShaderLineModelAnimated* m_shaderLineModelAnimated;
 	D3D11ShaderCommon* m_activeShader;
 	void SetShader(D3D11ShaderCommon*);
 

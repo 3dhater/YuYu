@@ -9,10 +9,10 @@ enum class yyMaterialType
 
 
 
-	Default,
+	/*Default,
 	SimpleTransparentBlend,
 	Terrain,
-	Depth,
+	Depth,*/
 };
 
 struct yyMaterial
@@ -28,11 +28,26 @@ struct yyMaterial
 		m_ambientColor = ColorGray;
 		m_baseColor = ColorWhite;
 		m_selfLight = 0.3f;
+		
+		m_fogData.x = 0.5f;
+		m_fogColor = ColorWhite;
 	}
 	yyMaterialType m_type;
 	bool m_wireframe;
 	bool m_cullBackFace;
 	f32 m_opacity;
+
+	yyColor m_fogColor;
+	v4f m_fogData;
+	void SetFogStart(f32 v) {
+		m_fogData.x = v;
+		m_fogData.y = 1.f - v;
+		if (m_fogData.y == 0.f)
+			m_fogData.y = 0.001f;
+	}
+	void SetFogColor(const yyColor& c) {
+		m_fogColor = c;
+	}
 
 	yyColor m_baseColor;
 

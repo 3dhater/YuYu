@@ -14,8 +14,7 @@ s32 g_controlledBoneIndex = -1;
 Mat4 DemoExample_MDL_onUpdate(
 	yyJoint* mdlJoint, 
 	s32 jointIndex, 
-	const Mat4& translationMatrix, const Mat4& rotationMatrix, const Mat4& scaleMatrix)
-{
+	const Mat4& translationMatrix, const Mat4& rotationMatrix, const Mat4& scaleMatrix){
 	Mat4 transformation;
 	if (g_controlledBoneIndex == jointIndex)
 	{
@@ -48,6 +47,7 @@ void DemoExample_MDL_onAnimationEnd_gunShotEnd(void * userData) {
 	example->m_mdl_playerGun->SetOnAnimationEnd(0, 0);
 	example->m_gunReady = true; // or set on timer
 }
+
 void DemoExample_MDL_onAnimationEnd_gunReloadEnd(void * userData) {
 	DemoExample_MDL * example = (DemoExample_MDL *)userData;
 	example->m_mdl_playerGun->SetOnAnimationEnd(0, 0);
@@ -57,8 +57,7 @@ void DemoExample_MDL_onAnimationEnd_gunReloadEnd(void * userData) {
 	example->m_guiTextBullets->SetText(L"Bullets: %i", example->m_gunBulletCurr);
 }
 
-DemoExample_MDL::DemoExample_MDL()
-{
+DemoExample_MDL::DemoExample_MDL(){
 	m_mdl_struct = 0;
 	m_flyCamera = 0;
 	m_handsCamera = 0;
@@ -71,8 +70,7 @@ DemoExample_MDL::DemoExample_MDL()
 	m_guiTextBullets = 0;
 }
 
-DemoExample_MDL::~DemoExample_MDL()
-{
+DemoExample_MDL::~DemoExample_MDL(){
 	Shutdown();
 }
 
@@ -80,14 +78,13 @@ void DemoExample_MDL_bulletTextTestCallback(yyGUIElement* elem, s32 m_id) {
 	printf("i");
 }
 
-bool DemoExample_MDL::Init()
-{
+bool DemoExample_MDL::Init(){
 	m_flyCamera = yyCreate<yyFlyCamera>();
 	
 	m_handsCamera = yyCreate<yyFlyCamera>();
 	m_handsCamera->SetRotation(0.f, 90.f, 0.f);
 	m_handsCamera->SetPosition(0.f, 0.2f, 0.f);
-	m_handsCamera->m_camera->m_fov = math::degToRad(60.f);
+	m_handsCamera->m_fov = math::degToRad(60.f);
 	m_handsCamera->Update();
 
 	m_mdl_struct = yyGetModel("../res/test/mdl/struct.mdl");
@@ -179,8 +176,7 @@ bool DemoExample_MDL::Init()
 	return true;
 }
 
-void DemoExample_MDL::Shutdown()
-{
+void DemoExample_MDL::Shutdown(){
 	if (m_guiTextBullets)
 	{
 		yyGUIDeleteElement(m_guiTextBullets);
@@ -213,21 +209,18 @@ void DemoExample_MDL::Shutdown()
 	}
 }
 
-const wchar_t* DemoExample_MDL::GetTitle()
-{
+const wchar_t* DemoExample_MDL::GetTitle(){
 	return L"MDL";
 }
 
-const wchar_t* DemoExample_MDL::GetDescription()
-{
+const wchar_t* DemoExample_MDL::GetDescription(){
 	return L"Everything about MDL";
 }
 
-bool DemoExample_MDL::DemoStep(f32 deltaTime)
-{
+bool DemoExample_MDL::DemoStep(f32 deltaTime){
 	m_flyCamera->Update();
 	
-	m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::ViewProjection, m_flyCamera->m_camera->m_viewProjectionMatrix);
+	m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::ViewProjection, m_flyCamera->m_viewProjectionMatrix);
 	
 	if (m_gunReady)
 	{
@@ -284,7 +277,7 @@ bool DemoExample_MDL::DemoStep(f32 deltaTime)
 	Mat4 WorldMatrix;
 	m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::World, WorldMatrix);
 	m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection,
-		m_flyCamera->m_camera->m_projectionMatrix * m_flyCamera->m_camera->m_viewMatrix * WorldMatrix);
+		m_flyCamera->m_projectionMatrix * m_flyCamera->m_viewMatrix * WorldMatrix);
 	auto size = m_mdl_struct->m_layers.size();
 	for (u16 i = 0; i < size; ++i)
 	{
@@ -312,7 +305,7 @@ bool DemoExample_MDL::DemoStep(f32 deltaTime)
 
 		m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::World, WorldMatrix);
 		m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection, 
-			m_flyCamera->m_camera->m_projectionMatrix * m_flyCamera->m_camera->m_viewMatrix * WorldMatrix);
+			m_flyCamera->m_projectionMatrix * m_flyCamera->m_viewMatrix * WorldMatrix);
 
 		for (u32 t = 0; t < YY_MDL_LAYER_NUM_OF_TEXTURES; ++t)
 		{
@@ -352,7 +345,7 @@ bool DemoExample_MDL::DemoStep(f32 deltaTime)
 					auto point = matrix[3];
 
 					matrix[3].set(0.f, 0.f, 0.f, 1.f);
-					auto distCamera = point.distance(m_flyCamera->m_camera->m_objectBase.m_globalPosition);
+					auto distCamera = point.distance(m_flyCamera->m_objectBase.m_globalPosition);
 					f32 jointSize = 0.02f * distCamera;
 
 					m_gpu->DrawLine3D(
@@ -401,7 +394,7 @@ bool DemoExample_MDL::DemoStep(f32 deltaTime)
 
 			m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::World, W);
 			m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection, 
-				m_flyCamera->m_camera->m_projectionMatrix * m_flyCamera->m_camera->m_viewMatrix * W);
+				m_flyCamera->m_projectionMatrix * m_flyCamera->m_viewMatrix * W);
 			m_gpu->SetModel(hb->m_gpuModel);
 			m_gpu->Draw();
 		}*/
@@ -414,7 +407,7 @@ bool DemoExample_MDL::DemoStep(f32 deltaTime)
 	WorldMatrix = m_mdl_playerGun->m_mdl->m_preRotation;
 	m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::World, WorldMatrix);
 	m_gpu->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection,
-		m_handsCamera->m_camera->m_projectionMatrix * m_handsCamera->m_camera->m_viewMatrix * WorldMatrix);
+		m_handsCamera->m_projectionMatrix * m_handsCamera->m_viewMatrix * WorldMatrix);
 	m_gpu->ClearDepth();
 	for (int n = 0, nsz = m_mdl_playerGun->m_mdl->m_layers.size(); n < nsz; ++n)
 	{

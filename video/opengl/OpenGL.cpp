@@ -16,6 +16,7 @@
 #include "OpenGL_shader_depth.h"
 #include "OpenGL_shader_simple.h"
 #include "OpenGL_shader_ScreenQuad.h"
+#include "OpenGL_shader_LineModel.h"
 
 #include "math/mat.h"
 
@@ -144,6 +145,9 @@ OpenGL::OpenGL()
 	m_currentModel = nullptr;
 	m_mainTarget = 0;
 	m_mainTargetSurface = 0;
+
+	m_shader_lineModel = 0;
+	m_shader_lineModelAnimated = 0;
 }
 
 OpenGL::~OpenGL()
@@ -154,6 +158,8 @@ OpenGL::~OpenGL()
 	if (m_mainTargetSurface) yyDestroy(m_mainTargetSurface);
 
 	
+	if (m_shader_lineModelAnimated) yyDestroy(m_shader_lineModelAnimated);
+	if (m_shader_lineModel) yyDestroy(m_shader_lineModel);
 	if (m_shader_screenQuad) yyDestroy(m_shader_screenQuad);
 	if (m_shader_gui) yyDestroy(m_shader_gui);
 	if (m_shader_sprite) yyDestroy(m_shader_sprite);
@@ -537,6 +543,22 @@ bool OpenGL::Init(yyWindow* window)
 		return false;
 	}
 
+	m_shader_lineModel = yyCreate<OpenGLShaderLineModel>();
+	if (!m_shader_lineModel->init())
+	{
+		yyLogWriteError("Can't create Line Model shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	m_shader_lineModelAnimated = yyCreate<OpenGLShaderLineModelAnimated>();
+	if (!m_shader_lineModelAnimated->init())
+	{
+		yyLogWriteError("Can't create Line Model animated shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
 	/*m_forwardPlus = Game_Create<RendererForwardPlus>();
 	if(!m_forwardPlus->Init())
 	{
@@ -765,7 +787,25 @@ bool OpenGL::initModel(yyModel* model, OpenGLModel* openglModel)
 		glEnableVertexAttribArray(6);
 		glVertexAttribIPointer(6, 4, GL_INT, model->m_stride, (unsigned char*)NULL + (18 * sizeof(float)));
 	}
+	else if (model->m_vertexType == yyVertexType::LineModel)
+	{
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, false, model->m_stride, 0);
 
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (3 * sizeof(float)));
+	}
+	else if (model->m_vertexType == yyVertexType::AnimatedLineModel)
+	{
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, false, model->m_stride, 0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (7 * sizeof(float)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribIPointer(3, 3, GL_INT, model->m_stride, (unsigned char*)NULL + (11 * sizeof(float)));
+	}
 	
 
 	glGenBuffers(1, &openglModel->m_iBuffer);

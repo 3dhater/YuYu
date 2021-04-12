@@ -32,6 +32,19 @@ struct yyVertexAnimatedModel
 	v4f Weights; // потом надо переделать на байты чтобы уменьшить вес
 	v4i Bones;
 };
+struct yyVertexLineModel
+{
+	v3f Position;
+	v4f Color;
+};
+struct yyVertexAnimatedLineModel
+{
+	v3f Position;
+	v4f Color;
+
+	v4f Weights; // потом надо переделать на байты чтобы уменьшить вес
+	v4i Bones;
+};
 
 // тип
 // ещё надо будет добавить для анимированных моделей
@@ -40,7 +53,9 @@ enum class yyVertexType : u32
 	Null, // 0
 	GUI,   // yyVertexGUI
 	Model,  // yyVertexModel
-	AnimatedModel
+	AnimatedModel,
+	LineModel,
+	AnimatedLineModel
 };
 
 // предпологается что при создании MDL индекс будет устанавливаться автоматически, в зависимости от количества треугольников 
@@ -67,7 +82,6 @@ struct yyJoint
 	yyStringA				m_name;
 
 };
-
 
 // описание одного буфера для рисования
 struct yyModel

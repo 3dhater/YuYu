@@ -3,6 +3,7 @@
 #include "demo_example_sprite.h"
 #include "demo_example_MDL.h"
 #include "demo_example_gui.h"
+#include "demo_example_lines.h"
 
 #include "yy_window.h"
 #include "yy_input.h"
@@ -125,6 +126,7 @@ vidOk:
 	AddExample(new DemoExample_Sprite);
 	AddExample(new DemoExample_MDL);
 	AddExample(new DemoExample_GUI);
+	AddExample(new DemoExample_Lines);
 
 
 	if (m_examples.size())

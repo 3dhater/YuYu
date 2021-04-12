@@ -240,11 +240,62 @@ bool D3D11_createShaders(
 			vertexLayout[6].InstanceDataStepRate = 0;
 
 			break;
+		case yyVertexType::LineModel:
+			vertexLayoutSize = 2;
+			vertexLayout[0].SemanticName = "POSITION";
+			vertexLayout[0].SemanticIndex = 0;
+			vertexLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+			vertexLayout[0].InputSlot = 0;
+			vertexLayout[0].AlignedByteOffset = 0;
+			vertexLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[0].InstanceDataStepRate = 0;
+
+			vertexLayout[1].SemanticName = "COLOR";
+			vertexLayout[1].SemanticIndex = 0;
+			vertexLayout[1].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+			vertexLayout[1].InputSlot = 0;
+			vertexLayout[1].AlignedByteOffset = 12;
+			vertexLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[1].InstanceDataStepRate = 0;
+			break;
+		case yyVertexType::AnimatedLineModel:
+			vertexLayoutSize = 4;
+			vertexLayout[0].SemanticName = "POSITION";
+			vertexLayout[0].SemanticIndex = 0;
+			vertexLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+			vertexLayout[0].InputSlot = 0;
+			vertexLayout[0].AlignedByteOffset = 0;
+			vertexLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[0].InstanceDataStepRate = 0;
+
+			vertexLayout[1].SemanticName = "COLOR";
+			vertexLayout[1].SemanticIndex = 0;
+			vertexLayout[1].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+			vertexLayout[1].InputSlot = 0;
+			vertexLayout[1].AlignedByteOffset = 12;
+			vertexLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[1].InstanceDataStepRate = 0;
+
+			vertexLayout[2].SemanticName = "WEIGHTS";
+			vertexLayout[2].SemanticIndex = 0;
+			vertexLayout[2].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+			vertexLayout[2].InputSlot = 0;
+			vertexLayout[2].AlignedByteOffset = 28;
+			vertexLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[2].InstanceDataStepRate = 0;
+
+			vertexLayout[3].SemanticName = "BONES";
+			vertexLayout[3].SemanticIndex = 0;
+			vertexLayout[3].Format = DXGI_FORMAT_R32G32B32A32_UINT;
+			vertexLayout[3].InputSlot = 0;
+			vertexLayout[3].AlignedByteOffset = 44;
+			vertexLayout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[3].InstanceDataStepRate = 0;
+			break;
 		default:
 			yyLogWriteError("Unsupportex vertex type\n");
 			return false;
 		}
-		//		layout.get()[i] = { "COLOR",     0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, offset, D3D11_INPUT_PER_VERTEX_DATA, 0 };
 
 		hr = g_d3d11->m_d3d11Device->CreateInputLayout(
 			vertexLayout,

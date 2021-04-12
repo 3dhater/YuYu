@@ -34,6 +34,7 @@
     <ClCompile Include="d3d11_shader.cpp" />
     <ClCompile Include="d3d11_shader_GUI.cpp" />
     <ClCompile Include="d3d11_shader_Line3D.cpp" />
+    <ClCompile Include="d3d11_shader_LineModel.cpp" />
     <ClCompile Include="d3d11_shader_ScreenQuad.cpp" />
     <ClCompile Include="d3d11_shader_simple.cpp" />
     <ClCompile Include="d3d11_shader_sprite.cpp" />
@@ -43,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3d11_shader.h" />
+    <ClInclude Include="d3d11_shader_LineModel.h" />
     <ClInclude Include="d3d11_shader_ScreenQuad.h" />
     <ClInclude Include="d3d11_shader_simple.h" />
     <ClInclude Include="d3d11_shader_sprite2.h" />

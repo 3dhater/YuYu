@@ -60,6 +60,9 @@
     <ClCompile Include="OpenGL_shader_sprite2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="OpenGL_shader_LineModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="OpenGL_texture.h">
@@ -96,6 +99,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="OpenGL_shader_sprite2.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGL_shader_LineModel.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
