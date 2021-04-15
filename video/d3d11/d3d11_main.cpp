@@ -18,6 +18,7 @@
 #include "d3d11_shader_simple.h"
 #include "d3d11_shader_Line3D.h"
 #include "d3d11_shader_LineModel.h"
+#include "d3d11_shader_Rectangle.h"
 
 #include "d3d11_shader_standart.h"
 
@@ -514,7 +515,7 @@ void DrawSprite(yySprite* sprite){
 	g_d3d11->m_shaderSprite->m_structCB.CameraPositionScale.y = g_d3d11->m_spriteCameraPosition.y;
 	g_d3d11->m_shaderSprite->m_structCB.CameraPositionScale.z = g_d3d11->m_spriteCameraScale.x;
 	g_d3d11->m_shaderSprite->m_structCB.CameraPositionScale.w = g_d3d11->m_spriteCameraScale.y;
-	g_d3d11->m_shaderSprite->SetConstants(0);
+	//g_d3d11->m_shaderSprite->SetConstants(0);
 
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -841,7 +842,20 @@ void SetGUIShaderData(yyGUIElement* guielement){
 	g_d3d11->m_d3d11DevCon->PSSetConstantBuffers(0, 1, &g_d3d11->m_shaderGUI->m_cbPixel);
 }
 
+void DrawRectangle(const v4f& corners, const yyColor& color1, const yyColor& color2) {
+	g_d3d11->m_shaderRectangle->m_cbVertex_impl.m_ProjMtx = g_d3d11->m_guiProjectionMatrix;
+	g_d3d11->m_shaderRectangle->m_cbVertex_impl.m_Corners = corners;
+	g_d3d11->m_shaderRectangle->m_cbVertex_impl.m_Color1 = color1;
+	g_d3d11->m_shaderRectangle->m_cbVertex_impl.m_Color2 = color2;
+	g_d3d11->SetShader(g_d3d11->m_shaderRectangle);
+	g_d3d11->m_shaderRectangle->SetConstants(0);
+	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
+	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
+	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &g_d3d11->m_shaderRectangle->m_cbVertex);
+	g_d3d11->m_d3d11DevCon->Draw(6, 0);
+}
 
 extern "C"
 {
@@ -862,6 +876,7 @@ extern "C"
 		g_api.Draw = Draw;
 		g_api.DrawLine2D = DrawLine2D;
 		g_api.DrawLine3D = DrawLine3D;
+		g_api.DrawRectangle = DrawRectangle;
 		g_api.DrawSprite = DrawSprite;
 		g_api.DrawSprite2 = DrawSprite2;
 		g_api.EndDraw = EndDraw;

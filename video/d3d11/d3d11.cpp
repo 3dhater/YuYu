@@ -13,6 +13,7 @@
 #include "d3d11_shader_simple.h"
 #include "d3d11_shader_Line3D.h"
 #include "d3d11_shader_LineModel.h"
+#include "d3d11_shader_Rectangle.h"
 
 #include "DDSTextureLoader.h"
 
@@ -57,6 +58,7 @@ D3D11::D3D11()
 	m_shaderLine3D = 0;
 	m_shaderLineModel = 0;
 	m_shaderLineModelAnimated = 0;
+	m_shaderRectangle = 0;
 
 	m_isGUI = false;
 	m_vsync = true;
@@ -83,6 +85,7 @@ D3D11::~D3D11()
 	if (m_mainTarget) yyDestroy(m_mainTarget);
 	if (m_mainTargetSurface) yyDestroy(m_mainTargetSurface);
 
+	if (m_shaderRectangle) yyDestroy(m_shaderRectangle);
 	if (m_shaderLine3D) yyDestroy(m_shaderLine3D);
 	if (m_shaderSimpleAnimated) yyDestroy(m_shaderSimpleAnimated);
 	if (m_shaderSimple) yyDestroy(m_shaderSimple);
@@ -474,6 +477,14 @@ bool D3D11::Init(yyWindow* window)
 	if (!m_shaderLineModelAnimated->init())
 	{
 		yyLogWriteError("Can't create Line Model animated shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	m_shaderRectangle = yyCreate<D3D11ShaderRectangle>();
+	if (!m_shaderRectangle->init())
+	{
+		yyLogWriteError("Can't create rectangle shader...");
 		YY_PRINT_FAILED;
 		return false;
 	}

@@ -292,7 +292,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				input->m_mouseDelta.x = x;
 				input->m_mouseDelta.y = y;
-				input->m_wheelDelta = (f32)wheelDelta / (f32)WHEEL_DELTA;
+				if(wheelDelta)
+					input->m_wheelDelta = (f32)wheelDelta / (f32)WHEEL_DELTA;
 
 				POINT cursorPoint;
 				GetCursorPos(&cursorPoint);

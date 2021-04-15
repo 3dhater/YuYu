@@ -17,30 +17,22 @@
 #include "OpenGL_shader_simple.h"
 #include "OpenGL_shader_ScreenQuad.h"
 #include "OpenGL_shader_LineModel.h"
+#include "OpenGL_shader_Rectangle.h"
 
 #include "math/mat.h"
 
 void OpenGL::UpdateGUIProjectionMatrix(const v2i& windowSize)
 {
-	gglViewport(0, 0, (GLsizei)windowSize.x, (GLsizei)windowSize.y);
+	glViewport(0, 0, (GLsizei)windowSize.x, (GLsizei)windowSize.y);
 	float L = 0;
 	float R = (float)windowSize.x;
 	float T = 0;
 	float B = (float)windowSize.y;
 
-	/*float ortho_projection[4][4] =
-	{
-		{ 2.0f/(R-L),   0.0f,         0.0f,   0.0f },
-		{ 0.0f,         2.0f/(T-B),   0.0f,   0.0f },
-		{ 0.0f,         0.0f,        -1.0f,   0.0f },
-		{ (R+L)/(L-R),  (T+B)/(B-T),  0.0f,   1.0f },
-	};*/
 	m_guiProjectionMatrix.m_data[0] = v4f(2.0f/(R-L),   0.0f,         0.0f,   0.0f);
 	m_guiProjectionMatrix.m_data[1] = v4f(0.0f,         2.0f/(T-B),   0.0f,   0.0f);
 	m_guiProjectionMatrix.m_data[2] = v4f(0.0f,         0.0f,        -1.0f,   0.0f);
 	m_guiProjectionMatrix.m_data[3] = v4f((R+L)/(L-R),  (T+B)/(B-T),  0.0f,   1.0f);
-
-	//m_guiProjectionMatrix = Mat4();
 }
 
 #ifdef YY_PLATFORM_WINDOWS
@@ -148,6 +140,7 @@ OpenGL::OpenGL()
 
 	m_shader_lineModel = 0;
 	m_shader_lineModelAnimated = 0;
+	m_shader_rectangle = 0;
 }
 
 OpenGL::~OpenGL()
@@ -158,6 +151,7 @@ OpenGL::~OpenGL()
 	if (m_mainTargetSurface) yyDestroy(m_mainTargetSurface);
 
 	
+	if (m_shader_rectangle) yyDestroy(m_shader_rectangle);
 	if (m_shader_lineModelAnimated) yyDestroy(m_shader_lineModelAnimated);
 	if (m_shader_lineModel) yyDestroy(m_shader_lineModel);
 	if (m_shader_screenQuad) yyDestroy(m_shader_screenQuad);
@@ -557,6 +551,14 @@ bool OpenGL::Init(yyWindow* window)
 	if (!m_shader_lineModelAnimated->init())
 	{
 		yyLogWriteError("Can't create Line Model animated shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	m_shader_rectangle = yyCreate<OpenGLShaderRectangle>();
+	if (!m_shader_rectangle->init())
+	{
+		yyLogWriteError("Can't create rectangle shader...");
 		YY_PRINT_FAILED;
 		return false;
 	}

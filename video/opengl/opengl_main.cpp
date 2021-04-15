@@ -21,6 +21,7 @@
 #include "OpenGL_shader_simple.h"
 #include "OpenGL_shader_ScreenQuad.h"
 #include "OpenGL_shader_LineModel.h"
+#include "OpenGL_shader_Rectangle.h"
 
 #include "scene/common.h"
 #include "scene/sprite.h"
@@ -709,6 +710,22 @@ void DrawLine3D(const v4f& _p1, const v4f& _p2, const yyColor& color){
 	glDrawArrays(GL_LINES, 0, 2);
 }
 
+void DrawRectangle(const v4f& corners, const yyColor& color1, const yyColor& color2) {
+	GLboolean last_enable_cull_face = glIsEnabled(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
+
+	glUseProgram(g_openGL->m_shader_rectangle->m_program);
+	glUniformMatrix4fv(g_openGL->m_shader_rectangle->m_uniform_ProjMtx, 1, GL_FALSE, g_openGL->m_guiProjectionMatrix.getPtr());
+	glUniform4fv(g_openGL->m_shader_rectangle->m_uniform_Corners, 1, corners.cdata());
+	glUniform4fv(g_openGL->m_shader_rectangle->m_uniform_Color1, 1, color1.data());
+	glUniform4fv(g_openGL->m_shader_rectangle->m_uniform_Color2, 1, color2.data());
+
+	glBindVertexArray(g_openGL->m_shader_rectangle->m_VAO);
+
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	if (last_enable_cull_face) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
+}
+
 void SetMatrix(yyVideoDriverAPI::MatrixType mt, const Mat4& mat){
 	switch(mt)
 	{
@@ -884,6 +901,7 @@ extern "C"
 		g_api.Draw = Draw;
 		g_api.DrawLine2D = DrawLine2D;
 		g_api.DrawLine3D = DrawLine3D;
+		g_api.DrawRectangle = DrawRectangle;
 		g_api.DrawSprite = DrawSprite;
 		g_api.DrawSprite2 = DrawSprite2;
 		g_api.EndDraw = EndDraw;

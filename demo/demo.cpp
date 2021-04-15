@@ -223,6 +223,8 @@ void Demo::MainLoop(){
 			}
 			else if(m_selectedExample != -1)
 			{
+				m_gpu->DrawRectangle(v4f(5.f,10.f, 30.f,15.f), ColorRed, ColorGreenYellow);
+
 				if (m_inputContext->IsKeyPressed(yyKey::K_UP))
 					this->SelectExamplePressUp();
 				if (m_inputContext->IsKeyHit(yyKey::K_DOWN))

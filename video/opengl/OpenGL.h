@@ -1247,6 +1247,8 @@ class OpenGLShaderSimpleAnimated;
 class OpenGLShaderScreenQuad;
 class OpenGLShaderLineModel;
 class OpenGLShaderLineModelAnimated;
+class OpenGLShaderRectangle;
+
 
 class OpenGLTexture;
 class OpenGLModel;
@@ -1287,6 +1289,7 @@ public:
 	OpenGLShaderScreenQuad* m_shader_screenQuad;
 	OpenGLShaderLineModel* m_shader_lineModel;
 	OpenGLShaderLineModelAnimated* m_shader_lineModelAnimated;
+	OpenGLShaderRectangle* m_shader_rectangle;
 
 	Mat4 m_guiProjectionMatrix;
 
