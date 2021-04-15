@@ -92,6 +92,8 @@ public:
 		setAsInteger( uint_data );
 	}
 
+	v4f getV4f() { return v4f(m_data[0], m_data[1], m_data[2], m_data[3]); }
+
 	const f32 * data() const { return &m_data[ 0u ]; }
 
 	const f32 getRed() const   { return m_data[ 0u ]; }

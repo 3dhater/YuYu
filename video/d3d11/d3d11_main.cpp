@@ -26,18 +26,26 @@
 #include "scene/sprite2.h"
 
 yyVideoDriverAPI g_api;
+D3D11 * g_d3d11 = nullptr;
 
 void LoadModel(yyResource* r);
 //yyResource g_defaultRes;
 
-
-void SetViewport(f32 x, f32 y, f32 width, f32 height);
+void SetViewport(f32 x, f32 y, f32 width, f32 height, yyWindow* window) {
+	D3D11_VIEWPORT viewport;
+	viewport.Width = width;
+	viewport.Height = height;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	viewport.TopLeftX = x;
+	viewport.TopLeftY = y;
+	g_d3d11->m_d3d11DevCon->RSSetViewports(1, &viewport);
+}
 
 u32 GetAPIVersion(){
 	return yyVideoDriverAPIVersion;
 }
 
-D3D11 * g_d3d11 = nullptr;
 
 bool Init(yyWindow* window){
 	assert(window);
@@ -379,7 +387,7 @@ void EndDrawGUI(){
 	g_d3d11->m_d3d11DevCon->IASetInputLayout(old.InputLayout); if (old.InputLayout) old.InputLayout->Release();
 }
 
-void SetScissorRect(const v4f& rect) {
+void SetScissorRect(const v4f& rect, yyWindow* window) {
 	D3D11_RECT r;
 	r.left = rect.x;
 	r.top = rect.y;
@@ -698,7 +706,7 @@ void ClearDepth(){
 void BeginDraw(){
 	 // !!! ??? m_depthStencilView должен быть свой на каждый RTT ???
 	g_d3d11->m_d3d11DevCon->OMSetRenderTargets(1, &g_d3d11->m_mainTarget->m_RTV, g_d3d11->m_depthStencilView);
-	SetViewport(0, 0, g_d3d11->m_mainTargetSize.x, g_d3d11->m_mainTargetSize.y);
+	SetViewport(0, 0, g_d3d11->m_mainTargetSize.x, g_d3d11->m_mainTargetSize.y, 0);
 	g_d3d11->m_currentTargetView = g_d3d11->m_mainTarget->m_RTV;
 
 	UseDepth(true);
@@ -707,8 +715,8 @@ void BeginDraw(){
 void EndDraw(){
 	g_d3d11->m_d3d11DevCon->OMSetRenderTargets(1, &g_d3d11->m_MainTargetView, g_d3d11->m_depthStencilView);
 	g_d3d11->m_currentTargetView = g_d3d11->m_MainTargetView;
-	SetViewport(0, 0, g_d3d11->m_windowSize.x, g_d3d11->m_windowSize.y);
-	SetScissorRect(v4f(0.f, 0.f, (f32)g_d3d11->m_windowSize.x, (f32)g_d3d11->m_windowSize.y));
+	SetViewport(0, 0, g_d3d11->m_windowSize.x, g_d3d11->m_windowSize.y, 0);
+	SetScissorRect(v4f(0.f, 0.f, (f32)g_d3d11->m_windowSize.x, (f32)g_d3d11->m_windowSize.y), 0);
 	ClearColor();
 
 	UseDepth(false);
@@ -780,17 +788,6 @@ void SetRenderTarget(yyResource* rtt){
 		g_d3d11->m_d3d11DevCon->OMSetRenderTargets(1, &g_d3d11->m_mainTarget->m_RTV, g_d3d11->m_depthStencilView);
 		g_d3d11->m_currentTargetView = g_d3d11->m_mainTarget->m_RTV;
 	}
-}
-
-void SetViewport(f32 x, f32 y, f32 width, f32 height){
-	D3D11_VIEWPORT viewport;
-	viewport.Width = width;
-	viewport.Height = height;
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-	viewport.TopLeftX = x;
-	viewport.TopLeftY = y;
-	g_d3d11->m_d3d11DevCon->RSSetViewports(1, &viewport);
 }
 
 void SwapBuffers(){

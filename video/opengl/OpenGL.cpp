@@ -229,6 +229,8 @@ void OpenGL::InitWindow(yyWindow* window)
 		WGL_SWAP_METHOD_ARB,    WGL_SWAP_EXCHANGE_ARB,
 		WGL_PIXEL_TYPE_ARB,     WGL_TYPE_RGBA_ARB,
 		WGL_STENCIL_BITS_ARB,   8,
+	//	WGL_SAMPLE_BUFFERS_ARB, 1,
+	//	WGL_SAMPLES_ARB, 8,
 		0
 	};
 	int pixelFormat[1];

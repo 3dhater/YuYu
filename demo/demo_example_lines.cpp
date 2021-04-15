@@ -22,7 +22,7 @@ bool DemoExample_Lines::Init(){
 	model.m_stride = sizeof(yyVertexLineModel);
 	model.m_vertexType = yyVertexType::LineModel;
 	
-	model.m_vCount = 20000;
+	model.m_vCount = 44;
 	model.m_vertices = (u8*)yyMemAlloc(model.m_vCount * model.m_stride);
 	
 	yyVertexLineModel* vertex = (yyVertexLineModel*)model.m_vertices;
@@ -31,36 +31,36 @@ bool DemoExample_Lines::Init(){
 	v4f colorRed(1.f, 0.f, 0.f, 1.f);
 	v4f colorGreen(0.f, 1.f, 0.f, 1.f);
 
-	f32 pos = -2500.f;
-	for (s32 i = 0; i < 5000; ++i)
+	f32 pos = -5.f;
+	for (s32 i = 0; i < 11; ++i)
 	{
 		v4f color = colorWhite;
 
-		if(i == 2500)
+		if(i == 5)
 			color = colorGreen;
 
-		vertex->Position.set(pos,0.f,-10000);
+		vertex->Position.set(pos,0.f,-5);
 		vertex->Color = color;
 		vertex++;
-		vertex->Position.set(pos, 0.f, 10000);
+		vertex->Position.set(pos, 0.f, 5);
 		vertex->Color = color;
 		vertex++;
 
 		pos += 1.f;
 	}
 
-	pos = -2500.f;
-	for (s32 i = 0; i < 5000; ++i)
+	pos = -5.f;
+	for (s32 i = 0; i < 11; ++i)
 	{
 		v4f color = colorWhite;
 
-		if (i == 2500)
+		if (i == 5)
 			color = colorRed;
 
-		vertex->Position.set(-10000, 0.f, pos);
+		vertex->Position.set(-5, 0.f, pos);
 		vertex->Color = color;
 		vertex++;
-		vertex->Position.set(10000, 0.f, pos);
+		vertex->Position.set(5, 0.f, pos);
 		vertex->Color = color;
 		vertex++;
 
@@ -69,7 +69,7 @@ bool DemoExample_Lines::Init(){
 
 
 
-	model.m_iCount = 20000;
+	model.m_iCount = 44;
 	model.m_indices = (u8*)yyMemAlloc(model.m_iCount * sizeof(u16));
 	u16* index = (u16*)model.m_indices;
 	for (s32 i = 0; i < model.m_iCount; ++i)
@@ -79,7 +79,7 @@ bool DemoExample_Lines::Init(){
 	}
 
 	m_lineModel = m_gpu->CreateModel(&model);
-	m_lineModelMaterial.SetFogStart(0.996f);
+	m_lineModelMaterial.SetFogStart(1.f);
 	
 
 	m_editorCamera = yyCreate<yyOrbitCamera>();

@@ -73,7 +73,12 @@ void SetClearColor(f32 r, f32 g, f32 b, f32 a){
 	gglClearColor( r, g, b, a );
 }
 
-void SetScissorRect(const v4f& rect) {
+void SetScissorRect(const v4f& rect, yyWindow* window) {
+	/*f32 x = rect.x;
+	f32 y = rect.y;
+	f32 z = rect.z - rect.x;
+	f32 w = rect.w - rect.y;
+	y -= w;*/
 	glScissor((GLint)rect.x, (GLint)rect.y, (GLsizei)rect.z, (GLsizei)rect.w);
 }
 
@@ -473,8 +478,13 @@ void SetRenderTarget(yyResource* rtt){
 	}
 }
 
-void SetViewport(f32 x, f32 y, f32 width, f32 height){
-	glViewport(x, y, width, height);
+void SetViewport(f32 _x, f32 _y, f32 _width, f32 _height, yyWindow* window){
+	f32 x = _x;
+	f32 y = (f32)window->m_currentSize.y - _y;
+	f32 z = _width;
+	f32 w = _height;
+	y -= w;
+	glViewport(x, y, z, w);
 }
 
 void SetTexture(u32 slot, yyResource* res){
@@ -814,7 +824,7 @@ void ClearDepth(){
 void EndDraw(){
 	glBindFramebuffer(GL_FRAMEBUFFER, 0); // window
 	glViewport(0, 0, g_openGL->m_windowSize.x, g_openGL->m_windowSize.y);
-	SetScissorRect(v4f(0.f, 0.f, (f32)g_openGL->m_windowSize.x, (f32)g_openGL->m_windowSize.y));
+	SetScissorRect(v4f(0.f, 0.f, (f32)g_openGL->m_windowSize.x, (f32)g_openGL->m_windowSize.y), 0);
 
 	UseDepth(false);
 
