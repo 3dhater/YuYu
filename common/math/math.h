@@ -4,6 +4,8 @@
 namespace math
 {
 	const f32 PI = static_cast<f32>(3.14159265358979323846);
+	const f32 PIHalf = static_cast<f32>(3.14159265358979323846 * 0.5);
+	const f32 PIPlusHalf = static_cast<f32>(3.14159265358979323846 + PIHalf);
 	const f32 PIPI = 6.2831853f;
 
 	namespace _internal

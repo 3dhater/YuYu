@@ -29,7 +29,7 @@ struct yyMaterial
 		m_baseColor = ColorWhite;
 		m_selfLight = 0.3f;
 		
-		m_fogData.x = 0.5f;
+		m_fogData.x = 1.f;
 		m_fogColor = ColorWhite;
 	}
 	yyMaterialType m_type;

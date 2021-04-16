@@ -1,5 +1,1 @@
-﻿  demo.cpp
-e:\code\yuyu\demo\demo.cpp(152): warning C4244: 'argument' : conversion from 's32' to 'f32', possible loss of data
-e:\code\yuyu\demo\demo.cpp(152): warning C4244: 'argument' : conversion from 'int' to 'f32', possible loss of data
-e:\code\yuyu\demo\demo.cpp(200): warning C4244: 'argument' : conversion from 's32' to 'f32', possible loss of data
-  demo.vcxproj -> E:\Code\YuYu\demo\../bin32/demo.exe
+﻿  demo.vcxproj -> E:\Code\YuYu\demo\../bin32/demo.exe
