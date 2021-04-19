@@ -515,7 +515,7 @@ void DrawSprite(yySprite* sprite){
 	g_d3d11->m_shaderSprite->m_structCB.CameraPositionScale.y = g_d3d11->m_spriteCameraPosition.y;
 	g_d3d11->m_shaderSprite->m_structCB.CameraPositionScale.z = g_d3d11->m_spriteCameraScale.x;
 	g_d3d11->m_shaderSprite->m_structCB.CameraPositionScale.w = g_d3d11->m_spriteCameraScale.y;
-	//g_d3d11->m_shaderSprite->SetConstants(0);
+	g_d3d11->m_shaderSprite->SetConstants(0);
 
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 

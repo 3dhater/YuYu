@@ -45,7 +45,7 @@ bool DemoExample_GUI::Init(){
 	m_drawGroup1 = yyGUICreateDrawGroup();
 	m_drawGroup2 = yyGUICreateDrawGroup();
 
-	auto textRect = m_text_hello->m_buildingRect;
+	auto textRect = m_text_hello->m_buildRectInPixels;
 
 	m_buttonGr1 = yyGUICreateButton(v4f(textRect.z, 20.f, textRect.z + 60.f, 40.f), yyGetTextureResource("../res/textures/editor/red.dds", false, false, true), -1, m_drawGroup1);
 	m_buttonGr2 = yyGUICreateButton(v4f(textRect.z + 15.f, 25.f, textRect.z + 35.f, 45.f), yyGetTextureResource("../res/textures/editor/white.dds", false, false, true), -1, m_drawGroup2);
@@ -63,12 +63,12 @@ bool DemoExample_GUI::Init(){
 	m_textGr1->SetParent(m_buttonGr1);
 	m_textGr2->SetParent(m_buttonGr2);
 	
-	m_button1 = yyGUICreateButton(v4f(m_buttonGr1->m_buildingRect_global.z, 20.f, m_buttonGr1->m_buildingRect_global.z + 80.f, 80.f),
+	m_button1 = yyGUICreateButton(v4f(m_buttonGr1->m_buildRectInPixels.z, 20.f, m_buttonGr1->m_buildRectInPixels.z + 80.f, 80.f),
 		yyGetTextureResource("../res/textures/editor/red.dds", false, false, true), -1, 0);
 	m_button1->m_onClick = DemoExample_GUI_button1_onClick;
 	m_button1->m_align = m_button1->AlignCenter;
 	
-	m_button2 = yyGUICreateButton(v4f(5.f, 5.f, 75.f, 75.f), 0, -1, 0);
+	m_button2 = yyGUICreateButton(v4f(5.f, 5.f, 70.f, 70.f), 0, -1, 0);
 	m_button2->m_onClick = DemoExample_GUI_button2_onClick;
 	m_button2->SetParent(m_button1);
 	m_button2->SetText(L"XXX", g_demo->m_defaultFont, true);

@@ -65,16 +65,16 @@ void yyGUIPictureBox::Rebuild() {
 	}
 
 	yyVertexGUI * vertex = (yyVertexGUI*)model->m_vertices;
-	vertex->m_position.set(m_buildingRect_global.x, m_buildingRect_global.w);
+	vertex->m_position.set(m_buildRectInPixels.x, m_buildRectInPixels.w);
 	vertex->m_tcoords.set(lt.x, rb.y);
 	vertex++;
-	vertex->m_position.set(m_buildingRect_global.x, m_buildingRect_global.y);
+	vertex->m_position.set(m_buildRectInPixels.x, m_buildRectInPixels.y);
 	vertex->m_tcoords.set(lt.x, lt.y);
 	vertex++;
-	vertex->m_position.set(m_buildingRect_global.z, m_buildingRect_global.y);
+	vertex->m_position.set(m_buildRectInPixels.z, m_buildRectInPixels.y);
 	vertex->m_tcoords.set(rb.x, lt.y);
 	vertex++;
-	vertex->m_position.set(m_buildingRect_global.z, m_buildingRect_global.w);
+	vertex->m_position.set(m_buildRectInPixels.z, m_buildRectInPixels.w);
 	vertex->m_tcoords.set(rb.x, rb.y);
 	vertex++;
 
@@ -94,12 +94,7 @@ YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResou
 	assert(texture);
 	yyGUIPictureBox* element = yyCreate<yyGUIPictureBox>();
 	element->SetDrawGroup(drawGroup);
-	element->m_activeAreaRect = rect;
-	element->m_clipRect = rect;
-	element->m_buildingRect = rect;
-	element->m_activeAreaRect_global = element->m_activeAreaRect;
-	element->m_clipRect_global = element->m_clipRect;
-	element->m_buildingRect_global = element->m_buildingRect;
+	element->SetBuildRect(rect);
 	element->m_texture = texture;
 	element->m_id = id;
 

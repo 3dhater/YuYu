@@ -16,6 +16,33 @@ void yyGUIElement::CallOnRebuildSetRects() {
 		m_onRebuildSetRects(this, m_id);
 }
 
+void yyGUIElement::SetBuildRect(const v4f& rectInPixels) {
+	if (m_parent)
+	{
+		f32 wndSzX = 1.f / m_parent->m_buildRectInPixels.z - m_parent->m_buildRectInPixels.x;
+		f32 wndSzY = 1.f / m_parent->m_buildRectInPixels.w - m_parent->m_buildRectInPixels.y;
+
+		m_buildRect.x = rectInPixels.x * wndSzX;
+		m_buildRect.z = rectInPixels.z * wndSzX;
+		m_buildRect.y = rectInPixels.y * wndSzY;
+		m_buildRect.w = rectInPixels.w * wndSzY;
+	}
+	else
+	{
+		f32 wndSzX = 1.f / (f32)m_window->m_creationSize.x;
+		f32 wndSzY = 1.f / (f32)m_window->m_creationSize.y;
+	
+		m_buildRect.x = rectInPixels.x * wndSzX;
+		m_buildRect.z = rectInPixels.z * wndSzX;
+		m_buildRect.y = rectInPixels.y * wndSzY;
+		m_buildRect.w = rectInPixels.w * wndSzY;
+	}
+	m_buildRectInPixelsCreation = rectInPixels;
+	m_buildRectInPixels  = rectInPixels;
+	m_clipRectInPixels   = rectInPixels;
+	m_sensorRectInPixels = rectInPixels;
+}
+
 void yyGUIElement::SetDrawGroup(yyGUIDrawGroup* drawGroup){
 	yyGUIDrawGroup* dg = drawGroup;
 	if (!dg)
@@ -35,15 +62,16 @@ void yyGUIElement::CheckCursorInRect() {
 		g_engine->m_inputContext->m_cursorCoordsForGUI.x,
 		g_engine->m_inputContext->m_cursorCoordsForGUI.y,
 		v4f(
-			m_activeAreaRect_global.x + m_offset.x,
-			m_activeAreaRect_global.y + m_offset.y,
-			m_activeAreaRect_global.z + m_offset.x,
-			m_activeAreaRect_global.w + m_offset.y
+			m_sensorRectInPixels.x + m_offset.x,
+			m_sensorRectInPixels.y + m_offset.y,
+			m_sensorRectInPixels.z + m_offset.x,
+			m_sensorRectInPixels.w + m_offset.y
 		)
 	);
 	if (m_isInActiveAreaRect)
 	{
-		g_engine->m_cursorInGUI = true;
+		if(!m_ignoreSetCursorInGUI)
+			g_engine->m_cursorInGUI = true;
 		
 		if (m_ignoreInput) return;
 
@@ -165,20 +193,64 @@ YY_API yyGUIElement* YY_C_DECL yyGUIGetElementInMouseFocus(){
 	return g_engine->m_guiElementInMouseFocus;
 }
 
-void Engine::GUIRebuildElement(yyGUIElement* e) {
-	v2i windowsSizeDiff = e->m_window->m_currentSize - e->m_window->m_creationSize;
-	
-	v2f windowsSizeHalf;// = e->m_window->m_currentSize * 0.5;
-	windowsSizeHalf.x = (f32)e->m_window->m_currentSize.x * 0.5f;
-	windowsSizeHalf.y = (f32)e->m_window->m_currentSize.y * 0.5f;
-	
-	v2f windowsCreationSizeHalf;// = e->m_window->m_creationSize * 0.5;
-	windowsCreationSizeHalf.x = std::floor((f32)e->m_window->m_creationSize.x * 0.5f);
-	windowsCreationSizeHalf.y = std::floor((f32)e->m_window->m_creationSize.y * 0.5f);
+void yyGUIElement::SetRectsFromBuildRect() {
+	f32 windowSizeX_1 = 1.f / m_window->m_currentSize.x;
+	f32 windowSizeY_1 = 1.f / m_window->m_currentSize.y;
 
-	v2i windowCenterDiff;
-	windowCenterDiff.x = windowsSizeHalf.x - windowsCreationSizeHalf.x;
-	windowCenterDiff.y = windowsSizeHalf.y - windowsCreationSizeHalf.y;
+	if (m_buildRect.x > 0.f) m_buildRectInPixelsCreation.x = m_buildRect.x / windowSizeX_1;
+	if (m_buildRect.z > 0.f) m_buildRectInPixelsCreation.z = m_buildRect.z / windowSizeX_1;
+	if (m_buildRect.y > 0.f) m_buildRectInPixelsCreation.y = m_buildRect.y / windowSizeY_1;
+	if (m_buildRect.w > 0.f) m_buildRectInPixelsCreation.w = m_buildRect.w / windowSizeY_1;
+	m_buildRectInPixels = m_buildRectInPixelsCreation;
+	m_sensorRectInPixels = m_buildRectInPixelsCreation;
+	m_clipRectInPixels = m_buildRectInPixelsCreation;
+}
+
+void Engine::GUIRebuildElement(yyGUIElement* e) {
+	v4f parentRectInPixels;
+	f32 parentRectSizeDiff_X = 0.f;
+	f32 parentRectSizeDiff_Y = 0.f;
+	
+	v2f parentCreationCenter;
+	v2f parentCurrentCenter;
+
+	if (e->m_parent)
+	{
+		parentRectInPixels = e->m_parent->m_buildRectInPixels;
+		
+		parentCreationCenter.x = e->m_parent->m_buildRectInPixelsCreation.x +
+			((e->m_parent->m_buildRectInPixelsCreation.z -
+				e->m_parent->m_buildRectInPixelsCreation.x)*0.5f);
+		parentCreationCenter.y = e->m_parent->m_buildRectInPixelsCreation.y +
+			((e->m_parent->m_buildRectInPixelsCreation.w -
+				e->m_parent->m_buildRectInPixelsCreation.y)*0.5f);
+
+		parentCurrentCenter.x = e->m_parent->m_buildRectInPixels.x +
+			((e->m_parent->m_buildRectInPixels.z -
+				e->m_parent->m_buildRectInPixels.x)*0.5f);
+		parentCurrentCenter.y = e->m_parent->m_buildRectInPixels.y +
+			((e->m_parent->m_buildRectInPixels.w -
+				e->m_parent->m_buildRectInPixels.y)*0.5f);
+	}
+	else
+	{
+		parentRectInPixels.x = 0.f;
+		parentRectInPixels.y = 0.f;
+		parentRectInPixels.z = e->m_window->m_currentSize.x;
+		parentRectInPixels.w = e->m_window->m_currentSize.y;
+
+		parentCreationCenter.x = std::floor((f32)e->m_window->m_creationSize.x * 0.5f);
+		parentCreationCenter.y = std::floor((f32)e->m_window->m_creationSize.y * 0.5f);
+
+		parentCurrentCenter.x = (f32)e->m_window->m_currentSize.x * 0.5f;
+		parentCurrentCenter.y = (f32)e->m_window->m_currentSize.y * 0.5f;
+	}
+
+	f32 parentRectSizeX_1 = 1.f / (parentRectInPixels.z - parentRectInPixels.x);
+	f32 parentRectSizeY_1 = 1.f / (parentRectInPixels.w - parentRectInPixels.y);
+	parentRectSizeDiff_X = parentCurrentCenter.x - parentCreationCenter.x;
+	parentRectSizeDiff_Y = parentCurrentCenter.y - parentCreationCenter.y;
+
 	//printf("%i %i\n", windowCenterDiff.x, windowCenterDiff.y);
 
 	switch (e->m_align)
@@ -189,102 +261,127 @@ void Engine::GUIRebuildElement(yyGUIElement* e) {
 	case yyGUIElement::Align::AlignLeftTop: {
 		if (e->m_parent)
 		{
-			e->m_buildingRect_global = e->m_buildingRect;
-			e->m_buildingRect_global.x += e->m_parent->m_buildingRect_global.x;
-			e->m_buildingRect_global.z += e->m_parent->m_buildingRect_global.x;
-			e->m_buildingRect_global.y += e->m_parent->m_buildingRect_global.y;
-			e->m_buildingRect_global.w += e->m_parent->m_buildingRect_global.y;
-
-			e->m_activeAreaRect_global = e->m_activeAreaRect;
-			e->m_activeAreaRect_global.x += e->m_parent->m_activeAreaRect_global.x;
-			e->m_activeAreaRect_global.z += e->m_parent->m_activeAreaRect_global.x;
-			e->m_activeAreaRect_global.y += e->m_parent->m_activeAreaRect_global.y;
-			e->m_activeAreaRect_global.w += e->m_parent->m_activeAreaRect_global.y;
-
-			e->m_clipRect_global = e->m_clipRect;
-			e->m_clipRect_global.x += e->m_parent->m_clipRect_global.x; // ???
-			e->m_clipRect_global.z += e->m_parent->m_clipRect_global.x; // ???
-			e->m_clipRect_global.y += e->m_parent->m_clipRect_global.y; // ???
-			e->m_clipRect_global.w += e->m_parent->m_clipRect_global.y; // ???
+			// i think not correct
+			e->m_buildRectInPixels = e->m_buildRectInPixelsCreation;
+			e->m_buildRectInPixels.x += e->m_parent->m_buildRectInPixels.x;
+			e->m_buildRectInPixels.y += e->m_parent->m_buildRectInPixels.y;
+			e->m_buildRectInPixels.z += e->m_parent->m_buildRectInPixels.x;
+			e->m_buildRectInPixels.w += e->m_parent->m_buildRectInPixels.y;
 		}
+		else
+		{
+			if (e->m_useProportionalScaling)
+			{
+				if (e->m_buildRect.x != 0.f) e->m_buildRectInPixels.x = e->m_buildRect.x / parentRectSizeX_1;
+				if (e->m_buildRect.z != 0.f) e->m_buildRectInPixels.z = e->m_buildRect.z / parentRectSizeX_1;
+				if (e->m_buildRect.y != 0.f) e->m_buildRectInPixels.y = e->m_buildRect.y / parentRectSizeY_1;
+				if (e->m_buildRect.w != 0.f) e->m_buildRectInPixels.w = e->m_buildRect.w / parentRectSizeY_1;
+			}
+		}
+		e->m_clipRectInPixels = e->m_buildRectInPixels;
+		e->m_sensorRectInPixels = e->m_buildRectInPixels;
 	}break;
 	case yyGUIElement::Align::AlignRightTop: {
-		s32 x_diff = windowsSizeDiff.x;
-
-		e->m_buildingRect_global = e->m_buildingRect;
-		e->m_buildingRect_global.x += x_diff;
-		e->m_buildingRect_global.z += x_diff;
-
-		e->m_activeAreaRect_global = e->m_activeAreaRect;
-		e->m_activeAreaRect_global.x += x_diff;
-		e->m_activeAreaRect_global.z += x_diff;
-
-		e->m_clipRect_global = e->m_clipRect;
-		e->m_clipRect_global.x += x_diff; // ???
-		e->m_clipRect_global.z += x_diff; // ???
-
 		if (e->m_parent)
 		{
+			// maybe not correct
+			e->m_buildRectInPixels = e->m_parent->m_buildRectInPixels;
+			e->m_buildRectInPixels.x += e->m_buildRect.x / parentRectSizeX_1;
+			e->m_buildRectInPixels.z += e->m_buildRect.z / parentRectSizeX_1;
 		}
+		else
+		{
+			if (e->m_useProportionalScaling)
+			{
+				if (e->m_buildRect.x != 0.f) e->m_buildRectInPixels.x = e->m_buildRect.x / parentRectSizeX_1;
+				if (e->m_buildRect.z != 0.f) e->m_buildRectInPixels.z = e->m_buildRect.z / parentRectSizeX_1;
+				if (e->m_buildRect.y != 0.f) e->m_buildRectInPixels.y = e->m_buildRect.y / parentRectSizeY_1;
+				if (e->m_buildRect.w != 0.f) e->m_buildRectInPixels.w = e->m_buildRect.w / parentRectSizeY_1;
+			}
+			else
+			{
+				e->m_buildRectInPixels.x = e->m_buildRectInPixelsCreation.x + parentRectSizeDiff_X + parentRectSizeDiff_X;
+				e->m_buildRectInPixels.z = e->m_buildRectInPixelsCreation.z + parentRectSizeDiff_X + parentRectSizeDiff_X;
+			}
+		}
+
+		e->m_clipRectInPixels   = e->m_buildRectInPixels;
+		e->m_sensorRectInPixels = e->m_buildRectInPixels;
 	}break;
 	case yyGUIElement::Align::AlignLeftBottom: {
-		s32 y_diff = windowsSizeDiff.y;
-		e->m_buildingRect_global = e->m_buildingRect;
-		e->m_buildingRect_global.y += y_diff;
-		e->m_buildingRect_global.w += y_diff;
-
-		e->m_activeAreaRect_global = e->m_activeAreaRect;
-		e->m_activeAreaRect_global.y += y_diff;
-		e->m_activeAreaRect_global.w += y_diff;
-
-		e->m_clipRect_global = e->m_clipRect;
-		e->m_clipRect_global.y += y_diff; // ???
-		e->m_clipRect_global.w += y_diff; // ???
-
 		if (e->m_parent)
 		{
+			e->m_buildRectInPixels = e->m_parent->m_buildRectInPixels;
+			e->m_buildRectInPixels.y += e->m_buildRect.y / parentRectSizeY_1;
+			e->m_buildRectInPixels.w += e->m_buildRect.w / parentRectSizeY_1;
 		}
+		else
+		{
+			if (e->m_useProportionalScaling)
+			{
+				if (e->m_buildRect.x != 0.f) e->m_buildRectInPixels.x = e->m_buildRect.x / parentRectSizeX_1;
+				if (e->m_buildRect.z != 0.f) e->m_buildRectInPixels.z = e->m_buildRect.z / parentRectSizeX_1;
+				if (e->m_buildRect.y != 0.f) e->m_buildRectInPixels.y = e->m_buildRect.y / parentRectSizeY_1;
+				if (e->m_buildRect.w != 0.f) e->m_buildRectInPixels.w = e->m_buildRect.w / parentRectSizeY_1;
+			}
+			else
+			{
+				e->m_buildRectInPixels.y = e->m_buildRectInPixelsCreation.y + parentRectSizeDiff_Y + parentRectSizeDiff_Y;
+				e->m_buildRectInPixels.w = e->m_buildRectInPixelsCreation.w + parentRectSizeDiff_Y + parentRectSizeDiff_Y;
+			}
+		}
+
+		e->m_clipRectInPixels = e->m_buildRectInPixels;
+		e->m_sensorRectInPixels = e->m_buildRectInPixels;
 	}break;
 	case yyGUIElement::Align::AlignRightBottom: {
-		s32 x_diff = windowsSizeDiff.x;
-		s32 y_diff = windowsSizeDiff.y;
-		e->m_buildingRect_global = e->m_buildingRect;
-		e->m_buildingRect_global.x += x_diff;
-		e->m_buildingRect_global.z += x_diff;
-		e->m_buildingRect_global.y += y_diff;
-		e->m_buildingRect_global.w += y_diff;
+		if (e->m_parent)
+		{
+			e->m_buildRectInPixels = e->m_parent->m_buildRectInPixels;
+			e->m_buildRectInPixels.y += e->m_buildRect.y / parentRectSizeY_1;
+			e->m_buildRectInPixels.w += e->m_buildRect.w / parentRectSizeY_1;
+			e->m_buildRectInPixels.x += e->m_buildRect.x / parentRectSizeX_1;
+			e->m_buildRectInPixels.z += e->m_buildRect.z / parentRectSizeX_1;
+		}
+		else
+		{
+			if (e->m_useProportionalScaling)
+			{
+				if (e->m_buildRect.x != 0.f) e->m_buildRectInPixels.x = e->m_buildRect.x / parentRectSizeX_1;
+				if (e->m_buildRect.z != 0.f) e->m_buildRectInPixels.z = e->m_buildRect.z / parentRectSizeX_1;
+				if (e->m_buildRect.y != 0.f) e->m_buildRectInPixels.y = e->m_buildRect.y / parentRectSizeY_1;
+				if (e->m_buildRect.w != 0.f) e->m_buildRectInPixels.w = e->m_buildRect.w / parentRectSizeY_1;
+			}
+			else
+			{
+				e->m_buildRectInPixels.x = e->m_buildRectInPixelsCreation.x + parentRectSizeDiff_X + parentRectSizeDiff_X;
+				e->m_buildRectInPixels.z = e->m_buildRectInPixelsCreation.z + parentRectSizeDiff_X + parentRectSizeDiff_X;
+				e->m_buildRectInPixels.y = e->m_buildRectInPixelsCreation.y + parentRectSizeDiff_Y + parentRectSizeDiff_Y;
+				e->m_buildRectInPixels.w = e->m_buildRectInPixelsCreation.w + parentRectSizeDiff_Y + parentRectSizeDiff_Y;
+			}
+		}
 
-		e->m_activeAreaRect_global = e->m_activeAreaRect;
-		e->m_activeAreaRect_global.x += x_diff;
-		e->m_activeAreaRect_global.z += x_diff;
-		e->m_activeAreaRect_global.y += y_diff;
-		e->m_activeAreaRect_global.w += y_diff;
-
-		e->m_clipRect_global = e->m_clipRect;
-		e->m_clipRect_global.x += x_diff; // ???
-		e->m_clipRect_global.z += x_diff; // ???
-		e->m_clipRect_global.y += y_diff; // ???
-		e->m_clipRect_global.w += y_diff; // ???
+		e->m_clipRectInPixels = e->m_buildRectInPixels;
+		e->m_sensorRectInPixels = e->m_buildRectInPixels;
 	}break;
 	case yyGUIElement::Align::AlignCenter: {
-		
-		e->m_buildingRect_global = e->m_buildingRect;
-		e->m_buildingRect_global.x += windowCenterDiff.x;
-		e->m_buildingRect_global.z += windowCenterDiff.x;
-		e->m_buildingRect_global.y += windowCenterDiff.y;
-		e->m_buildingRect_global.w += windowCenterDiff.y;
+		if (e->m_useProportionalScaling)
+		{
+			if (e->m_buildRect.x != 0.f) e->m_buildRectInPixels.x = e->m_buildRect.x / parentRectSizeX_1;
+			if (e->m_buildRect.z != 0.f) e->m_buildRectInPixels.z = e->m_buildRect.z / parentRectSizeX_1;
+			if (e->m_buildRect.y != 0.f) e->m_buildRectInPixels.y = e->m_buildRect.y / parentRectSizeY_1;
+			if (e->m_buildRect.w != 0.f) e->m_buildRectInPixels.w = e->m_buildRect.w / parentRectSizeY_1;
+		}
+		else
+		{
+			e->m_buildRectInPixels.x = e->m_buildRectInPixelsCreation.x + parentRectSizeDiff_X;
+			e->m_buildRectInPixels.z = e->m_buildRectInPixelsCreation.z + parentRectSizeDiff_X;
+			e->m_buildRectInPixels.y = e->m_buildRectInPixelsCreation.y + parentRectSizeDiff_Y;
+			e->m_buildRectInPixels.w = e->m_buildRectInPixelsCreation.w + parentRectSizeDiff_Y;
+		}
 
-		e->m_activeAreaRect_global = e->m_activeAreaRect;
-		e->m_activeAreaRect_global.x += windowCenterDiff.x;
-		e->m_activeAreaRect_global.z += windowCenterDiff.x;
-		e->m_activeAreaRect_global.y += windowCenterDiff.y;
-		e->m_activeAreaRect_global.w += windowCenterDiff.y;
-
-		e->m_clipRect_global = e->m_clipRect;
-		e->m_clipRect_global.x += windowCenterDiff.x; // ???
-		e->m_clipRect_global.z += windowCenterDiff.x; // ???
-		e->m_clipRect_global.y += windowCenterDiff.y; // ???
-		e->m_clipRect_global.w += windowCenterDiff.y; // ???
+		e->m_clipRectInPixels = e->m_buildRectInPixels;
+		e->m_sensorRectInPixels = e->m_buildRectInPixels;
 	}break;
 	}
 

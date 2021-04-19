@@ -37,9 +37,11 @@ public:
 		m_onDraw = 0;
 		m_onRebuildSetRects = 0;
 		m_userData = 0;
+		m_ignoreSetCursorInGUI = false;
 
 		m_align = AlignLeftTop;
 		m_parent = 0;
+		m_useProportionalScaling = false;
 	}
 	virtual ~yyGUIElement(){}
 	
@@ -58,16 +60,34 @@ public:
 	s32 m_id;
 	yyGUIElementType m_type;
 	yyGUIDrawGroup* m_drawGroup;
+	
+	// When you call yyGUICreate... and set 'rect' or 'position'
+	//  you set this values in pixels, and engine must convert (SetBuildRect())
+	//   this values to range from 0 to 1
+	v4f m_buildRect;
+	virtual void SetBuildRect(const v4f& rectInPixels);
+	virtual void SetRectsFromBuildRect();
 
-	// element reacts when cursor in this rect
-	v4f m_activeAreaRect;
-	// for rebuild
-	v4f m_buildingRect;
-	// for scissor 
-	v4f m_clipRect;
-	v4f m_activeAreaRect_global;
-	v4f m_buildingRect_global;
-	v4f m_clipRect_global;
+	// After creating element, every new element must call Rebuild()
+	// In Rebuild, element must calculate rects in pixels, using
+	//  information like parent position and aligment
+	v4f m_buildRectInPixelsCreation; // save original size
+	v4f m_buildRectInPixels;
+	v4f m_sensorRectInPixels;
+	v4f m_clipRectInPixels;
+
+	// using m_buildRect to calculate new ...RectInPixels
+	bool m_useProportionalScaling;
+
+	//// element reacts when cursor in this rect
+	//v4f m_activeAreaRect;
+	//// for rebuild
+	//v4f m_buildingRect;
+	//// for scissor 
+	//v4f m_clipRect;
+	//v4f m_activeAreaRect_global;
+	//v4f m_buildingRect_global;
+	//v4f m_clipRect_global;
 
 	v2f m_offset;
 	yyColor m_color;
@@ -99,6 +119,12 @@ public:
 			parent->m_children.erase_first(this);
 		}
 	}
+
+	/*
+		if(!m_ignoreSetCursorInGUI)
+			g_engine->m_cursorInGUI = true;
+	*/
+	bool m_ignoreSetCursorInGUI;
 
 	// do not call
 	void CheckCursorInRect();

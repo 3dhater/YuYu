@@ -105,6 +105,7 @@ struct v2f
 	v2f operator-(const v2f& v)const { v2f r; r.x = x - v.x; r.y = y - v.y; return r; }
 	v2f operator+(const v2f& v)const { v2f r; r.x = x + v.x; r.y = y + v.y; return r; }
 	v2f operator/(const v2f& v)const { v2f r; r.x = x / v.x; r.y = y / v.y; return r; }
+	v2f& operator=(const v2i& v) { x = (f32)v.x; y = (f32)v.y; return *this; }
 	void operator+=(const v2f& v) { x += v.x; y += v.y; }
 	void operator-=(const v2f& v) { x -= v.x; y -= v.y; }
 	void operator*=(const v2f& v) { x *= v.x; y *= v.y; }

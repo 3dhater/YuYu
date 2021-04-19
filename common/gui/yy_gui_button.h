@@ -22,6 +22,8 @@ public:
 
 	virtual void SetColor(const yyColor&, s32 pictureBox);
 	virtual void SetOpacity(f32, s32 pictureBox);
+	virtual yyColor& GetColor(s32 pictureBox);
+	virtual f32 GetOpacity(s32 pictureBox);
 
 	yyGUIPictureBox* m_basePB;
 	yyGUIPictureBox* m_mouseHoverPB;
