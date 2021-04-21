@@ -36,6 +36,8 @@ public:
 	// use it if you want ask user something before closing window
 	yyWindow_callback m_onClose;
 	
+	void(*m_onCommand)(s32); // WM_COMMAND 
+
 	yyWindow_callback m_onShow;
 	yyWindow_callback m_onMove;
 	//yyWindow_callback m_onFocusLost;

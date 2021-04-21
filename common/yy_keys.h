@@ -105,7 +105,7 @@ enum class yyKey : u32
 	K_COMMA			=	188, //,<
 	K_SUB			=	189, //-_
 	K_DOT			=	190, //.>
-	K_SLASH			=	191, //?
+	K_SLASH			=	191, // /?
 	K_TILDE			=	192, //`~
 	K_FIGURE_OPEN	=	219, //[{
 	K_BACKSLASH		=	220, //\|

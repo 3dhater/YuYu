@@ -24,22 +24,6 @@ yyGUIGroup::~yyGUIGroup(){
 }
 
 void yyGUIGroup::Rebuild() {
-	/*if (m_useAutomaticSizeChange)
-	{
-		f32 wndSzX = 1.f / (f32)m_window->m_currentSize.x;
-		f32 wndSzY = 1.f / (f32)m_window->m_currentSize.y;
-		
-		m_activeAreaRect.x = m_rectInZeroOne.x / wndSzX;
-		m_activeAreaRect.z = m_rectInZeroOne.z / wndSzX;
-		m_activeAreaRect.y = m_rectInZeroOne.y / wndSzY;
-		m_activeAreaRect.w = m_rectInZeroOne.w / wndSzY;
-
-		m_clipRect = m_activeAreaRect;
-		m_buildingRect = m_activeAreaRect;
-		m_activeAreaRect_global = m_activeAreaRect;
-		m_clipRect_global = m_clipRect;
-		m_buildingRect_global = m_buildingRect;
-	}*/
 	yyGUIElement::CallOnRebuildSetRects();
 }
 
@@ -52,16 +36,6 @@ YY_API yyGUIGroup* YY_C_DECL yyGUICreateGroup(const v4f& rect, s32 id, yyGUIDraw
 	//element->SetRectInZeroOne(rect); надо всё переделать
 	return element;
 }
-
-//void yyGUIGroup::SetRectInZeroOne(const v4f& rectInPixels) {
-//	f32 wndSzX = 1.f / (f32)m_window->m_currentSize.x;
-//	f32 wndSzY = 1.f / (f32)m_window->m_currentSize.y;
-//
-//	m_rectInZeroOne.x = rectInPixels.x * wndSzX;
-//	m_rectInZeroOne.z = rectInPixels.z * wndSzX;
-//	m_rectInZeroOne.y = rectInPixels.y * wndSzY;
-//	m_rectInZeroOne.w = rectInPixels.w * wndSzY;
-//}
 
 void yyGUIGroup::OnUpdate(f32 dt){
 	if (!m_visible) return;

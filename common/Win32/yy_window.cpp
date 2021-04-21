@@ -35,6 +35,8 @@ yyWindow::yyWindow()
 //	m_onRawInput = 0;
 	m_onMaximize = 0;
 
+	m_onCommand = 0;
+
 	m_GPUData = 0;
 	m_isFullscreen = false;
 	m_hWnd = nullptr;
@@ -229,6 +231,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	switch( message )
 	{
+	case WM_COMMAND: {
+		if (pD)
+		{
+			if (pD->m_onCommand)
+				pD->m_onCommand(wParam);
+		}
+	}return 0;
 	case WM_GETMINMAXINFO:
 	{
 		if(pD)
