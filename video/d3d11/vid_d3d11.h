@@ -111,8 +111,8 @@ public:
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC	m_depthStencilViewDesc;
 
-	std::vector<D3D11Texture*> m_textures;
-	std::vector<D3D11Model*> m_models;
+	/*std::vector<D3D11Texture*> m_textures;
+	std::vector<D3D11Model*> m_models;*/
 
 	void UpdateGUIProjectionMatrix(const v2i& windowSize);
 	Mat4 m_guiProjectionMatrix;
@@ -158,16 +158,12 @@ public:
 	bool m_vsync;
 
 	bool Init(yyWindow* window);
-	bool initModel(yyModel* model, D3D11Model* openglModel);
-	bool initTexture(yyImage* image, D3D11Texture* newTexture, bool useLinearFilter, bool useComparedFilter);
+	//bool initModel(yyModel* model, D3D11Model* openglModel);
+	//bool initTexture(yyImage* image, D3D11Texture* newTexture, bool useLinearFilter, bool useComparedFilter);
 	bool initRTT(D3D11Texture*, const v2f& size, bool useLinearFilter, bool useComparisonFilter);
-	HRESULT	createSamplerState(D3D11_FILTER filter,
-		D3D11_TEXTURE_ADDRESS_MODE addressMode,
-		u32 anisotropic_level,
-		ID3D11SamplerState** samplerState);
-
-	yyListFast<size_t> m_freeModelResourceIndex;
-	yyListFast<size_t> m_freeTextureResourceIndex;
+	
+	//yyListFast<size_t> m_freeModelResourceIndex;
+	//yyListFast<size_t> m_freeTextureResourceIndex;
 };
 
 #endif

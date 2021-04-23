@@ -55,7 +55,6 @@ extern "C"
 	YY_API const wchar_t* YY_C_DECL yyGetWorkingDir();
 	YY_API yyString* YY_C_DECL yyGetRelativePath(const wchar_t*);
 
-
 	YY_API u8* YY_C_DECL yyCompressData( u8* in_data, u32 in_data_size, u32& out_data_size, yyCompressType ct );
 	YY_API u8* YY_C_DECL yyDecompressData( u8* in_data, u32 in_data_size, u32& out_data_size, yyCompressType ct );
 
@@ -63,16 +62,6 @@ extern "C"
 	
 	YY_API yyVideoDriverAPI* YY_C_DECL yyGetVideoDriverAPI();
 	
-	YY_API yyImage* YY_C_DECL yyLoadImage(const char*); // after loading, you must call yyDestroyImage
-	YY_API void YY_C_DECL yyLoadImageAsync(const char*, s32 id); // after loading, you must call yyDestroyImage
-	YY_API void YY_C_DECL yyDeleteImage(yyImage*);
-	
-	// after loading, you must call yyDeleteModel
-	YY_API yyMDL* YY_C_DECL yyLoadModel(const char*, bool useLinearFilterForTextures = true, bool loadTextures = true);
-	// загрузить модель и поместить её в кеш. следующий вызов - получить из кеша
-	YY_API yyMDL* YY_C_DECL yyGetModel(const char*, bool useLinearFilterForTextures = true, bool loadTextures = true);
-	YY_API void YY_C_DECL yyDeleteModel(yyMDL*);
-
 	YY_API void YY_C_DECL yyUpdateAsyncLoader();
 
 	typedef void* dll_handle;
@@ -91,11 +80,7 @@ extern "C"
 	YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& rect, yyResource* texture, u8 pivotPosition = 0);
 	YY_API yySprite2* YY_C_DECL yyCreateSprite2(yyResource* texture);
 
-	// get from cache. if not found, create GPU resource, add to cache.
-	// ++m_refCount;
-	// call videoDriverAPI->UnloadTexture for --m_refCount;
-	YY_API yyResource* YY_C_DECL yyGetTextureResource(const char*, bool useFilter, bool useComparisonFilter, bool load);
-	//YY_API yyResource* YY_C_DECL yyGetModelResource(const char*, bool load);
+	
 
 	YY_API void YY_C_DECL yyGetTextureSize(yyResource*, v2i*);
 

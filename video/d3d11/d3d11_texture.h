@@ -1,11 +1,14 @@
 ﻿#ifndef YY_D3D11_TEXTURE_H__
 #define YY_D3D11_TEXTURE_H__
 
-class D3D11Texture
+class D3D11Texture : public yyResourceImplementation
 {
 public:
 	D3D11Texture();
-	~D3D11Texture();
+	virtual ~D3D11Texture();
+
+	virtual void Load(yyResourceData*);
+	virtual void Unload();
 	
 	ID3D11Texture2D*			m_texture;
 	ID3D11ShaderResourceView*	m_textureResView;

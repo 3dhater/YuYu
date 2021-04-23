@@ -108,6 +108,9 @@ public:
 
 	yyArraySmall<yyImageLoader> m_imageLoaders;
 
+	yyTextureFilter m_textureFilter;
+	bool m_useMipmaps;
+
 	yyAsyncLoadEventHandler m_asyncEventHandler;
 	std::thread* m_backgroundWorker;
 	yyFixedFIFOThread<BackgroundWorkerCommands, 20> m_workerCommands;
@@ -130,8 +133,8 @@ public:
 	u8* compressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size);
 	u8* decompressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size);
 
-	//std::vector<CacheNode<yyResource>> m_modelGPUCache;
-	std::vector<CacheNode<yyResource>> m_textureCache;
+	//std::vector<CacheNode<yyResource>> m_textureCache;
+	yyList<CacheNode<yyResource>> m_textureCache;
 	std::vector<CacheNode<yyMDL>> m_modelCache;
 
 	yyStringW m_workingDir;

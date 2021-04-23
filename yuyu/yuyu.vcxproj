@@ -320,6 +320,7 @@
     <ClCompile Include="image_loader_dds.cpp" />
     <ClCompile Include="image_loader_png.cpp" />
     <ClCompile Include="image_loader_tga.cpp" />
+    <ClCompile Include="yyResourceImpl.cpp" />
     <ClCompile Include="yy_backgroundWorker.cpp" />
     <ClCompile Include="yy_dl.cpp" />
     <ClCompile Include="yy_fs.cpp" />
@@ -329,6 +330,9 @@
     <ClCompile Include="yy_log.cpp" />
     <ClCompile Include="yy_main.cpp" />
     <ClCompile Include="yy_scene.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="yyResourceImpl.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

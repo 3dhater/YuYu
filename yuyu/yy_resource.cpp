@@ -1,6 +1,7 @@
 ﻿#include "yy.h"
 
 #include "yy_resource.h"
+#include "yyResourceImpl.h"
 #include "yy_ptr.h"
 #include "yy_image.h"
 #include "yy_model.h"
@@ -16,13 +17,11 @@ extern Engine * g_engine;
 extern "C"
 {
 
-YY_API void YY_C_DECL yyLoadImageAsync(const char* fn, s32 id)
-{
+YY_API void YY_C_DECL yyLoadImageAsync(const char* fn, s32 id){
 	g_engine->m_workerCommands.put(BackgroundWorkerCommands(BackgroundWorkerCommands::LoadImage, fn, id));
 }
 
-YY_API yyImage* YY_C_DECL yyLoadImage(const char* fileName)
-{
+YY_API yyImage* YY_C_DECL yyLoadImage(const char* fileName){
 	assert(fileName);
 	if(!yy_fs::exists(fileName))
 	{
@@ -47,14 +46,8 @@ YY_API yyImage* YY_C_DECL yyLoadImage(const char* fileName)
 	}
 	return nullptr;
 }
-YY_API void YY_C_DECL yyDeleteImage(yyImage* image)
-{
-	assert(image);
-	yyDestroy( image );
-}
 
-YY_API yyMDL* YY_C_DECL yyGetModel(const char* fileName, bool useLinearFilterForTextures, bool loadTextures)
-{
+YY_API yyMDL* YY_C_DECL yyGetMDL(const char* fileName){
 	assert(fileName);
 	if (!yy_fs::exists(fileName))
 	{
@@ -89,8 +82,7 @@ YY_API yyMDL* YY_C_DECL yyGetModel(const char* fileName, bool useLinearFilterFor
 	return model;
 }
 
-YY_API yyMDL* YY_C_DECL yyLoadModel(const char* fileName, bool useLinearFilterForTextures, bool loadTextures)
-{
+YY_API yyMDL* YY_C_DECL yyLoadMDL(const char* fileName){
 	assert(fileName);
 	yyLogWriteInfo("Load model: %s\n", fileName);
 	if(!yy_fs::exists(fileName))
@@ -143,7 +135,7 @@ YY_API yyMDL* YY_C_DECL yyLoadModel(const char* fileName, bool useLinearFilterFo
 		{
 			if (layer->m_texturePath[o].size())
 			{
-				layer->m_textureGPU[o] = yyGetTextureResource(layer->m_texturePath[o].data(), useLinearFilterForTextures, false, loadTextures);
+				layer->m_textureGPU[o] = yyGetTexture(layer->m_texturePath[o].data(), useLinearFilterForTextures, false, loadTextures);
 			}
 		}
 
@@ -153,8 +145,7 @@ YY_API yyMDL* YY_C_DECL yyLoadModel(const char* fileName, bool useLinearFilterFo
 	return newMDL;
 }
 
-YY_API void YY_C_DECL yyDeleteModel(yyMDL* m)
-{
+YY_API void YY_C_DECL yyDeleteMDL(yyMDL* m){
 	assert(m);
 
 	for (size_t i = 0, sz = g_engine->m_modelCache.size(); i < sz; ++i)
@@ -172,27 +163,53 @@ YY_API void YY_C_DECL yyDeleteModel(yyMDL* m)
 		yyDestroy( m );
 }
 
-YY_API yyResource* YY_C_DECL yyGetTextureResource(const char* fileName, bool useFilter, bool useComparisonFilter, bool load)
-{
+YY_API void YY_C_DECL yySetTextureFilter(yyTextureFilter f) {
+	g_engine->m_textureFilter = f;
+}
+
+YY_API yyTextureFilter YY_C_DECL yyGetTextureFilter() {
+	return g_engine->m_textureFilter;
+}
+
+YY_API void YY_C_DECL yyUseMipMaps(bool v) {
+	g_engine->m_useMipmaps = v;
+}
+
+YY_API bool YY_C_DECL yyIsUseMipMaps() {
+	return g_engine->m_useMipmaps;
+}
+
+YY_API yyResource* YY_C_DECL yyCreateModel(yyModel* model) {
+	auto res = yyCreate<yyResource>();
+	yyResourceImpl* impl = (yyResourceImpl*)res;
+	impl->InitModelResourse(model);
+	return res;
+}
+
+YY_API yyResource* YY_C_DECL yyCreateTexture(yyImage* image) {
+	auto res = yyCreate<yyResource>();
+	yyResourceImpl* impl = (yyResourceImpl*)res;
+	impl->InitTextureResourse(image, 0);
+	return res;
+}
+
+YY_API yyResource* YY_C_DECL yyGetTextureFromCache(const char* fileName){
 	assert(fileName);
 	yy_fs::path p = fileName;
 	for (auto & node : g_engine->m_textureCache)
 	{
 		if (node.m_path == p)
 		{
-			if (node.m_resource->m_isLoaded)
-				++node.m_resource->m_refCount;
-			else
-			{
-				if (load)
-					g_engine->m_videoAPI->LoadTexture(node.m_resource); // ++m_refCount inside
-			}
+			node.m_resource->Load(); // ++refCount;
 			return node.m_resource;
 		}
 	}
 
 	yyLogWriteInfo("Load texture: %s\n", fileName);
-	auto res = g_engine->m_videoAPI->CreateTextureFromFile(fileName, useFilter, useComparisonFilter, load);
+
+	auto res = yyCreate<yyResource>();
+	yyResourceImpl* impl = (yyResourceImpl*)res;
+	impl->InitTextureResourse(0, fileName);
 
 	if (res)
 	{
@@ -209,8 +226,29 @@ YY_API yyResource* YY_C_DECL yyGetTextureResource(const char* fileName, bool use
 	return res;
 }
 
-YY_API void YY_C_DECL yyGetTextureSize(yyResource* r, v2i* s)
-{
+YY_API void YY_C_DECL yyRemoveTextureFromCache(yyResource* r) {
+	auto curr = g_engine->m_textureCache.head();
+	if (!curr)
+		return;
+	
+	auto last = curr->m_left;
+
+	while(true)
+	{
+		if (curr->m_data.m_resource == r)
+		{
+			g_engine->m_textureCache.erase_by_node(curr);
+			return;
+		}
+
+		if (curr == last)
+			break;
+
+		curr = curr->m_right;
+	}
+}
+
+YY_API void YY_C_DECL yyGetTextureSize(yyResource* r, v2i* s){
 	g_engine->m_videoAPI->GetTextureSize(r, s);
 }
 

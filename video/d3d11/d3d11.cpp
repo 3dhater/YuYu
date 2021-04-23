@@ -15,8 +15,6 @@
 #include "d3d11_shader_LineModel.h"
 #include "d3d11_shader_Rectangle.h"
 
-#include "DDSTextureLoader.h"
-
 void D3D11::UpdateGUIProjectionMatrix(const v2i& windowSize)
 {
 //	gglViewport(0, 0, (GLsizei)windowSize.x, (GLsizei)windowSize.y);
@@ -542,13 +540,17 @@ bool D3D11::updateMainTarget()
 	inds[5] = 3;
 
 	m_mainTargetSurface = yyCreate<D3D11Model>();
-	if (!initModel(model, m_mainTargetSurface))
+	yyResourceData rd;
+	rd.m_source = model;
+	rd.m_type = yyResourceType::Model;
+	m_mainTargetSurface->Load(&rd);
+	/*if (!initModel(model, m_mainTargetSurface))
 	{
 		yyDestroy(model);
 		yyLogWriteError("Can't create main render target surface...");
 		YY_PRINT_FAILED;
 		return false;
-	}
+	}*/
 	yyDestroy(model);
 
 	m_d3d11DevCon->OMSetRenderTargets(0, 0, 0);
@@ -656,29 +658,10 @@ void D3D11::SetShader(D3D11ShaderCommon* shader)
 	}
 }
 
-HRESULT	D3D11::createSamplerState(
-	D3D11_FILTER filter,
+HRESULT	D3D11Texture_createSamplerState(D3D11_FILTER filter,
 	D3D11_TEXTURE_ADDRESS_MODE addressMode,
 	u32 anisotropic_level,
-	ID3D11SamplerState** samplerState)
-{
-	D3D11_SAMPLER_DESC samplerDesc;
-	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
-	samplerDesc.Filter = filter;	
-	samplerDesc.MipLODBias = 0.0f;
-
-	samplerDesc.AddressU = addressMode;
-	samplerDesc.AddressV = addressMode;
-	samplerDesc.AddressW = addressMode;
-
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	samplerDesc.MaxAnisotropy = anisotropic_level;
-
-	return m_d3d11Device->CreateSamplerState(&samplerDesc, samplerState);
-}
+	ID3D11SamplerState** samplerState);
 bool D3D11::initRTT(D3D11Texture* newTexture, const v2f& size, bool useLinearFilter, bool useComparisonFilter)
 {
 	newTexture->m_h = size.x;
@@ -752,7 +735,7 @@ bool D3D11::initRTT(D3D11Texture* newTexture, const v2f& size, bool useLinearFil
 				filter = D3D11_FILTER::D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
 		}
 
-		auto hr = this->createSamplerState(filter, D3D11_TEXTURE_ADDRESS_WRAP, 1, &newTexture->m_samplerState);
+		auto hr = D3D11Texture_createSamplerState(filter, D3D11_TEXTURE_ADDRESS_WRAP, 1, &newTexture->m_samplerState);
 		if (FAILED(hr))
 		{
 			yyLogWriteError("Can't create sampler state\n");
@@ -763,192 +746,192 @@ bool D3D11::initRTT(D3D11Texture* newTexture, const v2f& size, bool useLinearFil
 
 	return true;
 }
-bool D3D11::initTexture(yyImage* image, D3D11Texture* newTexture, bool useLinearFilter, bool useComparedFilter)
-{
-	newTexture->m_h = image->m_height;
-	newTexture->m_w = image->m_width;
+//bool D3D11::initTexture(yyImage* image, D3D11Texture* newTexture, bool useLinearFilter, bool useComparedFilter)
+//{
+//	newTexture->m_h = image->m_height;
+//	newTexture->m_w = image->m_width;
+//
+//	D3D11_TEXTURE2D_DESC desc;
+//	ZeroMemory(&desc, sizeof(desc));
+//	desc.Width = image->m_width;
+//	desc.Height = image->m_height;
+//	desc.SampleDesc.Count = 1;
+//	desc.SampleDesc.Quality = 0;
+//
+//
+//	switch (image->m_format)
+//	{
+//	case yyImageFormat::BC1:
+//	case yyImageFormat::BC2:
+//	case yyImageFormat::BC3:
+//	{
+//		auto hr = DirectX::CreateDDSTextureFromMemory(
+//			m_d3d11Device,
+//			m_d3d11DevCon,
+//			(const uint8_t*)image->m_data,
+//			(size_t)image->m_fileSize,
+//			(ID3D11Resource**)&newTexture->m_texture,
+//			&newTexture->m_textureResView);
+//
+//		if (FAILED(hr))
+//		{
+//			YY_PRINT_FAILED;
+//			return false;
+//		}
+//	}break;
+//	case yyImageFormat::R8G8B8A8:
+//	{
+//		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+//		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+//		desc.MiscFlags = 0;
+//		desc.MipLevels = 1;
+//
+//		desc.ArraySize = 1;
+//		desc.Usage = D3D11_USAGE_DEFAULT;
+//		desc.CPUAccessFlags = 0;
+//
+//		if (useLinearFilter)
+//		{
+//			desc.MipLevels = 0;
+//			desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+//			auto hr = m_d3d11Device->CreateTexture2D(&desc, 0, &newTexture->m_texture);
+//			if (FAILED(hr))
+//			{
+//				yyLogWriteError("Can't create 2D texture\n");
+//				YY_PRINT_FAILED;
+//				return false;
+//			}
+//			m_d3d11DevCon->UpdateSubresource(newTexture->m_texture, 0, NULL, image->m_data, image->m_pitch, 0);
+//		}
+//		else
+//		{
+//			D3D11_SUBRESOURCE_DATA initData;
+//			ZeroMemory(&initData, sizeof(initData));
+//			initData.pSysMem = image->m_data;
+//			initData.SysMemPitch = image->m_pitch;
+//			initData.SysMemSlicePitch = image->m_dataSize;
+//			auto hr = m_d3d11Device->CreateTexture2D(&desc, &initData, &newTexture->m_texture);
+//			if (FAILED(hr))
+//			{
+//				yyLogWriteError("Can't create 2D texture\n");
+//				YY_PRINT_FAILED;
+//				return false;
+//			}
+//		}
+//
+//
+//		D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc;
+//		ZeroMemory(&SRVDesc, sizeof(SRVDesc));
+//		SRVDesc.Format = desc.Format;
+//		SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+//		SRVDesc.Texture2D.MostDetailedMip = 0;
+//		SRVDesc.Texture2D.MipLevels = 1;
+//		if (useLinearFilter)
+//			SRVDesc.Texture2D.MipLevels = -1;
+//
+//		auto hr = m_d3d11Device->CreateShaderResourceView(newTexture->m_texture,
+//			&SRVDesc, &newTexture->m_textureResView);
+//		if (FAILED(hr))
+//		{
+//			yyLogWriteError("Can't create shader resource view\n");
+//			YY_PRINT_FAILED;
+//			return false;
+//		}
+//	}break;
+//	default:
+//		yyLogWriteWarning("Unsupported texture format\n");
+//		YY_PRINT_FAILED;
+//		return false;
+//	}
+//
+//	
+//	D3D11_FILTER filter;
+//
+//	if (useLinearFilter)
+//	{
+//		filter = D3D11_FILTER::D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+//		if(useComparedFilter)
+//			filter = D3D11_FILTER::D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+//
+//		m_d3d11DevCon->GenerateMips(newTexture->m_textureResView);
+//	}
+//	else
+//	{
+//		filter = D3D11_FILTER::D3D11_FILTER_MIN_MAG_MIP_POINT;
+//		if (useComparedFilter)
+//			filter = D3D11_FILTER::D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
+//	}
+//
+//	auto hr = this->createSamplerState( filter, D3D11_TEXTURE_ADDRESS_WRAP, 1, &newTexture->m_samplerState);
+//	if (FAILED(hr)) 
+//	{
+//		yyLogWriteError("Can't create sampler state\n");
+//		YY_PRINT_FAILED;
+//		return false;
+//	}
+//
+//	return true;
+//}
 
-	D3D11_TEXTURE2D_DESC desc;
-	ZeroMemory(&desc, sizeof(desc));
-	desc.Width = image->m_width;
-	desc.Height = image->m_height;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-
-
-	switch (image->m_format)
-	{
-	case yyImageFormat::BC1:
-	case yyImageFormat::BC2:
-	case yyImageFormat::BC3:
-	{
-		auto hr = DirectX::CreateDDSTextureFromMemory(
-			m_d3d11Device,
-			m_d3d11DevCon,
-			(const uint8_t*)image->m_data,
-			(size_t)image->m_fileSize,
-			(ID3D11Resource**)&newTexture->m_texture,
-			&newTexture->m_textureResView);
-
-		if (FAILED(hr))
-		{
-			YY_PRINT_FAILED;
-			return false;
-		}
-	}break;
-	case yyImageFormat::R8G8B8A8:
-	{
-		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-		desc.MiscFlags = 0;
-		desc.MipLevels = 1;
-
-		desc.ArraySize = 1;
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.CPUAccessFlags = 0;
-
-		if (useLinearFilter)
-		{
-			desc.MipLevels = 0;
-			desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
-			auto hr = m_d3d11Device->CreateTexture2D(&desc, 0, &newTexture->m_texture);
-			if (FAILED(hr))
-			{
-				yyLogWriteError("Can't create 2D texture\n");
-				YY_PRINT_FAILED;
-				return false;
-			}
-			m_d3d11DevCon->UpdateSubresource(newTexture->m_texture, 0, NULL, image->m_data, image->m_pitch, 0);
-		}
-		else
-		{
-			D3D11_SUBRESOURCE_DATA initData;
-			ZeroMemory(&initData, sizeof(initData));
-			initData.pSysMem = image->m_data;
-			initData.SysMemPitch = image->m_pitch;
-			initData.SysMemSlicePitch = image->m_dataSize;
-			auto hr = m_d3d11Device->CreateTexture2D(&desc, &initData, &newTexture->m_texture);
-			if (FAILED(hr))
-			{
-				yyLogWriteError("Can't create 2D texture\n");
-				YY_PRINT_FAILED;
-				return false;
-			}
-		}
-
-
-		D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc;
-		ZeroMemory(&SRVDesc, sizeof(SRVDesc));
-		SRVDesc.Format = desc.Format;
-		SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		SRVDesc.Texture2D.MostDetailedMip = 0;
-		SRVDesc.Texture2D.MipLevels = 1;
-		if (useLinearFilter)
-			SRVDesc.Texture2D.MipLevels = -1;
-
-		auto hr = m_d3d11Device->CreateShaderResourceView(newTexture->m_texture,
-			&SRVDesc, &newTexture->m_textureResView);
-		if (FAILED(hr))
-		{
-			yyLogWriteError("Can't create shader resource view\n");
-			YY_PRINT_FAILED;
-			return false;
-		}
-	}break;
-	default:
-		yyLogWriteWarning("Unsupported texture format\n");
-		YY_PRINT_FAILED;
-		return false;
-	}
-
-	
-	D3D11_FILTER filter;
-
-	if (useLinearFilter)
-	{
-		filter = D3D11_FILTER::D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-		if(useComparedFilter)
-			filter = D3D11_FILTER::D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
-
-		m_d3d11DevCon->GenerateMips(newTexture->m_textureResView);
-	}
-	else
-	{
-		filter = D3D11_FILTER::D3D11_FILTER_MIN_MAG_MIP_POINT;
-		if (useComparedFilter)
-			filter = D3D11_FILTER::D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
-	}
-
-	auto hr = this->createSamplerState( filter, D3D11_TEXTURE_ADDRESS_WRAP, 1, &newTexture->m_samplerState);
-	if (FAILED(hr)) 
-	{
-		yyLogWriteError("Can't create sampler state\n");
-		YY_PRINT_FAILED;
-		return false;
-	}
-
-	return true;
-}
-
-bool D3D11::initModel(yyModel* model, D3D11Model* d3d11Model)
-{
-	d3d11Model->m_material = model->m_material;
-	d3d11Model->m_vertexType = model->m_vertexType;
-
-	D3D11_BUFFER_DESC	vbd, ibd;
-
-	ZeroMemory(&vbd, sizeof(D3D11_BUFFER_DESC));
-	ZeroMemory(&ibd, sizeof(D3D11_BUFFER_DESC));
-
-	vbd.Usage = D3D11_USAGE_DEFAULT;
-	//vbd.Usage = D3D11_USAGE_DYNAMIC;
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-
-	ibd.Usage = D3D11_USAGE_DEFAULT;
-	//ibd.Usage = D3D11_USAGE_DYNAMIC;
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-
-	//vbd.CPUAccessFlags = 0;
-	//ibd.CPUAccessFlags = 0; //D3D11_CPU_ACCESS_WRITE
-
-	D3D11_SUBRESOURCE_DATA	vData, iData;
-	ZeroMemory(&vData, sizeof(D3D11_SUBRESOURCE_DATA));
-	ZeroMemory(&iData, sizeof(D3D11_SUBRESOURCE_DATA));
-	HRESULT	hr = 0;
-
-
-	vbd.ByteWidth = model->m_stride * model->m_vCount;
-	vData.pSysMem = &model->m_vertices[0];
-
-	hr = m_d3d11Device->CreateBuffer(&vbd, &vData, &d3d11Model->m_vBuffer);
-	if (FAILED(hr)) 
-	{
-		yyLogWriteError("Can't create Direct3D 11 vertex buffer [%u]\n", hr);
-		YY_PRINT_FAILED;
-		return false;
-	}
-
-
-	u32 index_sizeof = sizeof(u16);
-	d3d11Model->m_indexType = DXGI_FORMAT_R16_UINT;
-	if (model->m_indexType == yyMeshIndexType::u32)
-	{
-		d3d11Model->m_indexType = DXGI_FORMAT_R32_UINT;
-		index_sizeof = sizeof(u32);
-	}
-	ibd.ByteWidth = index_sizeof * model->m_iCount;
-	iData.pSysMem = &model->m_indices[0];
-
-	d3d11Model->m_iCount = model->m_iCount;
-	d3d11Model->m_stride = model->m_stride;
-
-	hr = m_d3d11Device->CreateBuffer(&ibd, &iData, &d3d11Model->m_iBuffer);
-	if (FAILED(hr)) 
-	{
-		yyLogWriteError("Can't create Direct3D 11 index buffer [%u]\n", hr);
-		YY_PRINT_FAILED;
-		return false;
-	}
-
-	return true;
-}
+//bool D3D11::initModel(yyModel* model, D3D11Model* d3d11Model)
+//{
+//	d3d11Model->m_material = model->m_material;
+//	d3d11Model->m_vertexType = model->m_vertexType;
+//
+//	D3D11_BUFFER_DESC	vbd, ibd;
+//
+//	ZeroMemory(&vbd, sizeof(D3D11_BUFFER_DESC));
+//	ZeroMemory(&ibd, sizeof(D3D11_BUFFER_DESC));
+//
+//	vbd.Usage = D3D11_USAGE_DEFAULT;
+//	//vbd.Usage = D3D11_USAGE_DYNAMIC;
+//	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+//
+//	ibd.Usage = D3D11_USAGE_DEFAULT;
+//	//ibd.Usage = D3D11_USAGE_DYNAMIC;
+//	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+//
+//	//vbd.CPUAccessFlags = 0;
+//	//ibd.CPUAccessFlags = 0; //D3D11_CPU_ACCESS_WRITE
+//
+//	D3D11_SUBRESOURCE_DATA	vData, iData;
+//	ZeroMemory(&vData, sizeof(D3D11_SUBRESOURCE_DATA));
+//	ZeroMemory(&iData, sizeof(D3D11_SUBRESOURCE_DATA));
+//	HRESULT	hr = 0;
+//
+//
+//	vbd.ByteWidth = model->m_stride * model->m_vCount;
+//	vData.pSysMem = &model->m_vertices[0];
+//
+//	hr = m_d3d11Device->CreateBuffer(&vbd, &vData, &d3d11Model->m_vBuffer);
+//	if (FAILED(hr)) 
+//	{
+//		yyLogWriteError("Can't create Direct3D 11 vertex buffer [%u]\n", hr);
+//		YY_PRINT_FAILED;
+//		return false;
+//	}
+//
+//
+//	u32 index_sizeof = sizeof(u16);
+//	d3d11Model->m_indexType = DXGI_FORMAT_R16_UINT;
+//	if (model->m_indexType == yyMeshIndexType::u32)
+//	{
+//		d3d11Model->m_indexType = DXGI_FORMAT_R32_UINT;
+//		index_sizeof = sizeof(u32);
+//	}
+//	ibd.ByteWidth = index_sizeof * model->m_iCount;
+//	iData.pSysMem = &model->m_indices[0];
+//
+//	d3d11Model->m_iCount = model->m_iCount;
+//	d3d11Model->m_stride = model->m_stride;
+//
+//	hr = m_d3d11Device->CreateBuffer(&ibd, &iData, &d3d11Model->m_iBuffer);
+//	if (FAILED(hr)) 
+//	{
+//		yyLogWriteError("Can't create Direct3D 11 index buffer [%u]\n", hr);
+//		YY_PRINT_FAILED;
+//		return false;
+//	}
+//
+//	return true;
+//}

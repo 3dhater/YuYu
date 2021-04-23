@@ -5,11 +5,14 @@
 #include "yy_model.h"
 #include "containers\array.h"
 
-class D3D11Model
+class D3D11Model : public yyResourceImplementation
 {
 public:
 	D3D11Model();
-	~D3D11Model();
+	virtual ~D3D11Model();
+
+	virtual void Load(yyResourceData*);
+	virtual void Unload();
 
 	ID3D11Buffer*   m_lockedResource;
 	ID3D11Buffer*   m_vBuffer;

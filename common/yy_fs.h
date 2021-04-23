@@ -139,8 +139,8 @@ namespace yy_fs
 			return result;
 		}
 
-		bool operator==(const path& other){ return string_type == other.string_type; }
-		bool operator!=(const path& other){ return string_type != other.string_type; }
+		bool operator==(const path& other)const{ return string_type == other.string_type; }
+		bool operator!=(const path& other)const{ return string_type != other.string_type; }
 		
 		std::string generic_string() const
 		{

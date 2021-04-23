@@ -314,38 +314,55 @@ public:
 	{}
 
 
-	~yyList()
-	{
+	~yyList(){
 		clear();
 	}
 
-	bool erase_first(const T& object)
-	{
-		if(m_head)
+	void erase_by_node(yyListNode<T>* object) {
+		if (!m_head)
+			return false;
+
+		object->m_left->m_right = object->m_right;
+		object->m_right->m_left = object->m_left;
+		
+		if (object == m_head)
+			m_head = m_head->m_right;
+
+		if (object == m_head)
+			m_head = 0;
+
+		m_allocator.deallocate(object);
+		m_allocator.destruct(object);
+		
+		--m_size;
+	}
+
+	bool erase_first(const T& object){
+		if (!m_head)
+			return false;
+		
+		auto node = m_head;
+		auto last = m_head->m_left;
+		while(true)
 		{
-			auto node = m_head;
-			auto last = m_head->m_left;
-			while(true)
+			auto next = node->m_right;
+			if(node->m_data == object)
 			{
-				auto next = node->m_right;
-				if(node->m_data == object)
+				if(node == m_head)
+					pop_front();
+				else
 				{
-					if(node == m_head)
-						pop_front();
-					else
-					{
-						--m_size;
-						node->m_left->m_right = node->m_right;
-						node->m_right->m_left = node->m_left;
-						m_allocator.destruct(node);
-						m_allocator.deallocate(node);
-					}
-					return true;
+					--m_size;
+					node->m_left->m_right = node->m_right;
+					node->m_right->m_left = node->m_left;
+					m_allocator.destruct(node);
+					m_allocator.deallocate(node);
 				}
-				if(node == last)
-					break;
-				node = next;
+				return true;
 			}
+			if(node == last)
+				break;
+			node = next;
 		}
 		return false;
 	}
@@ -521,20 +538,18 @@ public:
 			if (m_isEnd != other.m_isEnd) return true;
 			return false;
 		}
-		yyListNode<T>& operator*() {
-			return *m_node;
+		const T& operator*() {
+			return *m_node->m_data;
 		}
-		yyListNode<T>* operator->() {
-			return m_node;
+		T* operator->() {
+			return m_node->m_data;
 		}
 	};
 
-	Iterator begin()
-	{
+	Iterator begin()	{
 		return Iterator(m_head);
 	}
-	Iterator end()
-	{
+	Iterator end()	{
 		return Iterator();
 	}
 };

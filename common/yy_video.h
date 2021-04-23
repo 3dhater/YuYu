@@ -59,17 +59,19 @@ struct yyVideoDriverAPI
 	// Load... Прибавит счётчик на 1. Если будет 1 то нужно заново создать реализацию. Если будет
 	//   доступен resource->m_source то будет создано на основе него (если это текстура то m_source должен быть yyImage*)
 	//   иначе будет попытка загрузить реализацию из файла
-	yyResource* (*CreateTexture)(yyImage*, bool useLinearFilter, bool useComparisonFilter);
-	yyResource* (*CreateTextureFromFile)(const char* fileName, bool useLinearFilter, bool useComparisonFilter, bool load);
+	//yyResource* (*CreateTexture)(yyImage*, bool useLinearFilter, bool useComparisonFilter);
+	//yyResource* (*CreateTextureFromFile)(const char* fileName, bool useLinearFilter, bool useComparisonFilter, bool load);
 
-	void (*UnloadTexture)(yyResource*); // --m_refCount; or unload
-	void (*LoadTexture)(yyResource*); // ++m_refCount; or load
+	//void (*UnloadTexture)(yyResource*); // --m_refCount; or unload
+	//void (*LoadTexture)(yyResource*); // ++m_refCount; or load
 
-	yyResource* (*CreateModel)(yyModel*);
-	void (*UnloadModel)(yyResource*);
-	void (*LoadModel)(yyResource*);
-	void(*DeleteModel)(yyResource* r);
-	void(*DeleteTexture)(yyResource* r);
+	//yyResource* (*CreateModel)(yyModel*);
+	//void (*UnloadModel)(yyResource*);
+	//void (*LoadModel)(yyResource*);
+	//void(*DeleteModel)(yyResource* r);
+	//void(*DeleteTexture)(yyResource* r);
+	yyResourceImplementation*(*CreateTextureImplementation)();
+	yyResourceImplementation*(*CreateModelImplementation)();
 
 	// yyResource::m_type MUST BE yyResourceType::Texture
 	// slot < yyVideoDriverMaxTextures

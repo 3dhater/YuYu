@@ -48,6 +48,8 @@ Engine::Engine()
 	m_backgroundWorker(nullptr),
 	m_cctx(nullptr)
 {
+	m_useMipmaps = true;
+	m_textureFilter = yyTextureFilter::PPP;
 	m_defaultTexture = 0;
 	m_cursorInGUI = false;
 	m_guiElementInMouseFocus = 0;
@@ -59,7 +61,7 @@ Engine::Engine()
 	imageLoader.ext = ".dds";
 	imageLoader.image_loader_callback = ImageLoader_DDS;
 	m_imageLoaders.push_back(imageLoader);
-
+	
 	imageLoader.ext = ".png";
 	imageLoader.image_loader_callback = ImageLoader_PNG;
 	m_imageLoaders.push_back(imageLoader);
