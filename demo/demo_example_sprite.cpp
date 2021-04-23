@@ -23,29 +23,32 @@ DemoExample_Sprite::DemoExample_Sprite()
 	}
 }
 
-DemoExample_Sprite::~DemoExample_Sprite()
-{
+DemoExample_Sprite::~DemoExample_Sprite(){
 	Shutdown();
 }
 
-bool DemoExample_Sprite::Init()
-{
-	m_textureLevel = m_gpu->CreateTextureFromFile("../res/GA3E/level1_ground.png", false, false, true);
+bool DemoExample_Sprite::Init(){
+
+	yyUseMipMaps(false);
+	yySetTextureFilter(yyTextureFilter::PPP);
+
+	m_textureLevel = yyCreateTextureFromFile("../res/GA3E/level1_ground.png");
 	if (!m_textureLevel)
 		return false;
 
 	m_spriteLevel = yyCreateSprite(v4f(0.f, 0.f, 1160.f, 224.f), m_textureLevel, false);
 //	m_spriteHero  = yyCreateSprite(v4f(0.f, 0.f, 1160.f, 224.f), m_textureLevel, false);
 	
-	m_spriteTest[0] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyGetTextureResource("../res/image.dds", false, false, true));
-	m_spriteTest[1] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyGetTextureResource("../res/image.dds", false, false, true), 1);
-	m_spriteTest[2] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyGetTextureResource("../res/image.dds", false, false, true), 2);
-	m_spriteTest[3] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyGetTextureResource("../res/image.dds", false, false, true), 3);
-	m_spriteTest[4] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyGetTextureResource("../res/image.dds", false, false, true), 4);
-	m_spriteTest[5] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyGetTextureResource("../res/image.dds", false, false, true), 5);
-	m_spriteTest[6] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyGetTextureResource("../res/image.dds", false, false, true), 6);
-	m_spriteTest[7] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyGetTextureResource("../res/image.dds", false, false, true), 7);
-	m_spriteTest[8] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyGetTextureResource("../res/image.dds", false, false, true), 8);
+	m_spriteTest[0] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyCreateTextureFromFile("../res/image.dds"), 0);
+	m_spriteTest[1] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyCreateTextureFromFile("../res/image.dds"), 1);
+	m_spriteTest[2] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyCreateTextureFromFile("../res/image.dds"), 2);
+	m_spriteTest[3] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyCreateTextureFromFile("../res/image.dds"), 3);
+	m_spriteTest[4] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyCreateTextureFromFile("../res/image.dds"), 4);
+	m_spriteTest[5] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyCreateTextureFromFile("../res/image.dds"), 5);
+	m_spriteTest[6] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyCreateTextureFromFile("../res/image.dds"), 6);
+	m_spriteTest[7] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyCreateTextureFromFile("../res/image.dds"), 7);
+	m_spriteTest[8] = yyCreateSprite(v4f(0.f, 0.f, 64.f, 64.f), yyCreateTextureFromFile("../res/image.dds"), 8);
+
 	m_spriteTest[0]->m_objectBase.m_localPosition.set(0.f, 0.f, 0.f, 0.f);
 	m_spriteTest[1]->m_objectBase.m_localPosition.set(100.f, 0.f, 0.f, 0.f);
 	m_spriteTest[2]->m_objectBase.m_localPosition.set(200.f, 0.f, 0.f, 0.f);
@@ -64,7 +67,7 @@ bool DemoExample_Sprite::Init()
 	m_spriteCameraScale->x = 1.7f;
 	m_spriteCameraScale->y = 1.7f;
 
-	m_spriteHero = yyCreateSprite2(yyGetTextureResource("../res/GA3E/hero0.png", false, false, true));
+	m_spriteHero = yyCreateSprite2(yyCreateTextureFromFile("../res/GA3E/hero0.png"));
 //	m_spriteHero->SetState(m_spriteHero->AddStateSingleFrame("0", v4f(82.f, 0.f, 120.f, 84.f), 5, false, false));
 	v4f spriteHeroAnimation[] = {
 		v4f(0.f, 0.f, 38.f, 84.f),
@@ -104,7 +107,7 @@ void DemoExample_Sprite::Shutdown()
 
 	if (m_textureLevel)
 	{
-		m_gpu->DeleteTexture(m_textureLevel);
+		yyDestroy(m_textureLevel);
 		m_textureLevel = 0;
 	}
 	if (m_spriteLevel)

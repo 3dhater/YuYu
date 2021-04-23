@@ -48,6 +48,9 @@ Engine::Engine()
 	m_backgroundWorker(nullptr),
 	m_cctx(nullptr)
 {
+	m_textureAnisotropicLevel = 1;
+	m_textureAddressMode = yyTextureAddressMode::Wrap;
+	m_textureComparisonFunc = yyTextureComparisonFunc::Always;
 	m_useMipmaps = true;
 	m_textureFilter = yyTextureFilter::PPP;
 	m_defaultTexture = 0;
@@ -286,6 +289,8 @@ extern "C"
 	}
 
 	YY_API void YY_C_DECL yySetDefaultTexture(yyResource* r) {
+		if (!r->IsLoaded())
+			r->Load();
 		g_engine->m_defaultTexture = r;
 	}
 

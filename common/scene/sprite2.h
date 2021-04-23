@@ -143,7 +143,7 @@ struct yySprite2State
 		auto gpu = yyGetVideoDriverAPI();
 		for(u16 i = 0, sz = m_framesGPU.size(); i < sz; ++i)
 		{
-			gpu->DeleteModel(m_framesGPU[i]);
+			yyDestroy(m_framesGPU[i]);
 		}
 
 		DeleteFramesCPU();
@@ -245,8 +245,9 @@ struct yySprite2
 		bool invertX,
 		bool invertY)
 	{
-		v2i textureSize;
-		yyGetTextureSize(m_texture, &textureSize);
+		v2f textureSize;
+		m_texture->GetTextureSize(&textureSize);
+
 		f32 xMulFactor = 1.f / (f32)textureSize.x;
 		f32 yMulFactor = 1.f / (f32)textureSize.y;
 
@@ -277,7 +278,8 @@ struct yySprite2
 		newState->m_framesCPU.push_back(mesh);
 		newState->m_activeFrameCPU = mesh;
 
-		yyResource* gpuMesh = yyGetVideoDriverAPI()->CreateModel(mesh);
+		yyResource* gpuMesh = yyCreateModel(mesh);
+		gpuMesh->Load();
 		newState->m_framesGPU.push_back(gpuMesh);
 		newState->m_activeFrameGPU = gpuMesh;
 	}

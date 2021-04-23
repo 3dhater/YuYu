@@ -7,6 +7,27 @@
 #include "yy_fs.h"
 //#include <filesystem>
 
+enum class yyTextureComparisonFunc
+{
+	Never,
+	Less,
+	Equal,
+	LessEqual,
+	Greater,
+	NotEqual,
+	GreaterEqual,
+	Always
+};
+
+enum class yyTextureAddressMode
+{
+	Wrap,
+	Mirror,
+	Clamp,
+	Border,
+	MirrorOnce
+};
+
 enum class yyTextureFilter
 {
 	// min mag mip / point linear
@@ -54,7 +75,6 @@ struct yyImageLoader
 	ImageLoaderFunction_t image_loader_callback;
 };
 
-// for yyResource
 enum class yyResourceType : u16
 {
 	None,
@@ -65,7 +85,18 @@ enum class yyResourceType : u16
 
 struct yyResourceDataImage
 {
+	yyResourceDataImage() {
+		m_filter = yyTextureFilter::PPP;
+		m_addressMode = yyTextureAddressMode::Wrap;
+		m_comparisonFunc = yyTextureComparisonFunc::Always;
+		m_size[0] = m_size[1] = 0.f;
+		m_anisotropicLevel = 1;
+	}
 	yyTextureFilter m_filter;
+	yyTextureAddressMode m_addressMode;
+	yyTextureComparisonFunc m_comparisonFunc;
+	f32 m_size[2];
+	s32 m_anisotropicLevel;
 };
 
 struct yyResourceData
@@ -76,9 +107,7 @@ struct yyResourceData
 		m_source = 0;
 	}
 
-	union {
-		yyResourceDataImage m_imageData;
-	};
+	yyResourceDataImage m_imageData;
 
 	yyResourceType m_type;
 	void * m_source;
@@ -88,7 +117,6 @@ struct yyResourceData
 // ресурсы в видеодрайвере наследуют это
 class yyResourceImplementation
 {
-
 public:
 	yyResourceImplementation() {}
 	virtual ~yyResourceImplementation() {}
@@ -96,7 +124,13 @@ public:
 	// Load и Unload делает напрямую, refCount'а нет.
 	virtual void Load(yyResourceData*) = 0;
 	virtual void Unload() = 0;
+
+	virtual void GetTextureSize(v2f*) = 0;
+	virtual void GetTextureHandle(void**) = 0;
+	virtual void MapModelForWriteVerts(u8** v_ptr) = 0;
+	virtual void UnmapModelForWriteVerts() = 0;
 };
+
 
 // Это такой ресурс, к которому нет прямого доступа. Например всё что связано с видео драйвером.
 class yyResource
@@ -121,12 +155,23 @@ public:
 	*/
 	virtual void Load() = 0;
 	virtual void Unload() = 0;
-	virtual s32 GetRefCount() = 0;
+	virtual u32 GetRefCount() = 0;
+	virtual bool IsLoaded() = 0;
+
+	virtual yyResourceImplementation* GetImplementation() = 0;
+	
+	virtual void GetTextureSize(v2f*) = 0;
+	virtual void GetTextureHandle(void**) = 0;// Get ID3D11ShaderResourceView* or OpenGL texture ID
+	virtual void MapModelForWriteVerts(u8** v_ptr) = 0;
+	virtual void UnmapModelForWriteVerts() = 0;
 };
 
 extern "C"
 {
-	// all resources are unloaded
+	YY_API yyImage* YY_C_DECL yyLoadImage(const char*); // after loading, you must call yyDestroy(image)
+	YY_API void YY_C_DECL yyLoadImageAsync(const char*, s32 id); // after loading, you must call yyDestroyImage
+
+	// all resources(and MDL) are unloaded
 	// call newRes->Load(); for loading
 
 	// get from cache. if not found, create GPU resource, add to cache.
@@ -138,21 +183,30 @@ extern "C"
 	
 	// call yyDestroy(newRes); for destroy
 	YY_API yyResource* YY_C_DECL yyCreateTexture(yyImage*);
+	// call yyDestroy(newRes); for destroy
+	YY_API yyResource* YY_C_DECL yyCreateTextureFromFile(const char*);
+	// do not call Load(); if yyResource is render target texture
+	YY_API yyResource* YY_C_DECL yyCreateRenderTargetTexture(const v2f& size);
 	YY_API void YY_C_DECL yySetTextureFilter(yyTextureFilter);
 	YY_API yyTextureFilter YY_C_DECL yyGetTextureFilter();
 	YY_API void YY_C_DECL yyUseMipMaps(bool);
 	YY_API bool YY_C_DECL yyIsUseMipMaps();
+	YY_API void YY_C_DECL yySetTextureAddressMode(yyTextureAddressMode);
+	YY_API yyTextureAddressMode YY_C_DECL yyGetTextureAddressMode();
+	YY_API void YY_C_DECL yySetTextureAnisotropicLevel(s32);
+	YY_API s32 YY_C_DECL yyGetTextureAnisotropicLevel();
+	YY_API void YY_C_DECL yySetTextureComparisonFunc(yyTextureComparisonFunc);
+	YY_API yyTextureComparisonFunc YY_C_DECL yyGetTextureComparisonFunc();
+	
 
 	// call yyDestroy(newRes); for destroy
+	// don't forget to call newRes->Load(); 
 	YY_API yyResource* YY_C_DECL yyCreateModel(yyModel*);
 
 	// загрузить модель и поместить её в кеш. следующий вызов - получить из кеша
-	YY_API yyMDL* YY_C_DECL yyGetMDL(const char*);
-	// after loading, you must call yyDeleteModel
-	YY_API yyMDL* YY_C_DECL yyLoadMDL(const char*);
-	YY_API void YY_C_DECL yyDeleteMDL(yyMDL*);
-
-	YY_API yyImage* YY_C_DECL yyLoadImage(const char*); // after loading, you must call yyDestroy(image)
-	YY_API void YY_C_DECL yyLoadImageAsync(const char*, s32 id); // after loading, you must call yyDestroyImage
+	YY_API yyMDL* YY_C_DECL yyGetMDLFromCache(const char*);
+	YY_API void YY_C_DECL yyRemoveMDLFromCache(yyMDL*);
+	// after loading, you must call yyDestroy(mdl);
+	YY_API yyMDL* YY_C_DECL yyCreateMDLFromFile(const char*);
 }
 #endif

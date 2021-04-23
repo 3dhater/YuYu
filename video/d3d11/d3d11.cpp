@@ -502,12 +502,17 @@ bool D3D11::updateMainTarget()
 	if (m_mainTargetSurface) yyDestroy(m_mainTargetSurface);
 
 	m_mainTarget = yyCreate<D3D11Texture>();
-	if (!this->initRTT(m_mainTarget, m_mainTargetSize, false, false))
+	yyResourceData rd;
+	rd.m_type = yyResourceType::RenderTargetTexture;
+	rd.m_imageData.m_size[0] = m_mainTargetSize.x;
+	rd.m_imageData.m_size[1] = m_mainTargetSize.y;
+	m_mainTarget->Load(&rd);
+	/*if (!this->initRTT(m_mainTarget, m_mainTargetSize, false, false))
 	{
 		yyLogWriteError("Can't create main render target...");
 		YY_PRINT_FAILED;
 		return false;
-	}
+	}*/
 
 	auto model = yyCreate<yyModel>();
 	model->m_iCount = 6;
@@ -540,10 +545,10 @@ bool D3D11::updateMainTarget()
 	inds[5] = 3;
 
 	m_mainTargetSurface = yyCreate<D3D11Model>();
-	yyResourceData rd;
-	rd.m_source = model;
-	rd.m_type = yyResourceType::Model;
-	m_mainTargetSurface->Load(&rd);
+	yyResourceData rd2;
+	rd2.m_source = model;
+	rd2.m_type = yyResourceType::Model;
+	m_mainTargetSurface->Load(&rd2);
 	/*if (!initModel(model, m_mainTargetSurface))
 	{
 		yyDestroy(model);
@@ -658,94 +663,94 @@ void D3D11::SetShader(D3D11ShaderCommon* shader)
 	}
 }
 
-HRESULT	D3D11Texture_createSamplerState(D3D11_FILTER filter,
-	D3D11_TEXTURE_ADDRESS_MODE addressMode,
-	u32 anisotropic_level,
-	ID3D11SamplerState** samplerState);
-bool D3D11::initRTT(D3D11Texture* newTexture, const v2f& size, bool useLinearFilter, bool useComparisonFilter)
-{
-	newTexture->m_h = size.x;
-	newTexture->m_w = size.y;
-
-	D3D11_TEXTURE2D_DESC desc;
-	ZeroMemory(&desc, sizeof(desc));
-	desc.Width = newTexture->m_h;
-	desc.Height = newTexture->m_w;
-	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	desc.MiscFlags = 0;
-	desc.ArraySize = 1;
-	desc.MipLevels = 1;
-	desc.Usage = D3D11_USAGE_DEFAULT;
-	desc.CPUAccessFlags = 0;
-
-	auto hr = m_d3d11Device->CreateTexture2D(&desc, NULL, &newTexture->m_texture);
-	if (FAILED(hr)) 
-	{
-		yyLogWriteError("Can't create render target texture\n");
-		YY_PRINT_FAILED;
-		return false;
-	}
-	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
-	renderTargetViewDesc.Format = desc.Format;
-	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-	renderTargetViewDesc.Texture2D.MipSlice = 0;
-	hr = m_d3d11Device->CreateRenderTargetView(newTexture->m_texture, &renderTargetViewDesc, &newTexture->m_RTV);
-	if (FAILED(hr)) 
-	{
-		yyLogWriteError("Can't create render target view\n");
-		YY_PRINT_FAILED;
-		return false;
-	}
-
-
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc;
-	ZeroMemory(&SRVDesc, sizeof(SRVDesc));
-	SRVDesc.Format = desc.Format;
-	SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	SRVDesc.Texture2D.MostDetailedMip = 0;
-	SRVDesc.Texture2D.MipLevels = 1;
-
-	hr = m_d3d11Device->CreateShaderResourceView(newTexture->m_texture,
-		&SRVDesc, &newTexture->m_textureResView);
-	if (FAILED(hr))
-	{
-		yyLogWriteError("Can't create shader resource view\n");
-		YY_PRINT_FAILED;
-		return false;
-	}
-
-	//if (!is_RTT) 
-	{
-		D3D11_FILTER filter;
-
-		if (useLinearFilter)
-		{
-			filter = D3D11_FILTER::D3D11_FILTER_ANISOTROPIC;
-			if (useComparisonFilter)
-				filter = D3D11_FILTER::D3D11_FILTER_COMPARISON_ANISOTROPIC;
-		}
-		else
-		{
-			filter = D3D11_FILTER::D3D11_FILTER_MIN_MAG_MIP_POINT;
-			if (useComparisonFilter)
-				filter = D3D11_FILTER::D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
-		}
-
-		auto hr = D3D11Texture_createSamplerState(filter, D3D11_TEXTURE_ADDRESS_WRAP, 1, &newTexture->m_samplerState);
-		if (FAILED(hr))
-		{
-			yyLogWriteError("Can't create sampler state\n");
-			YY_PRINT_FAILED;
-			return false;
-		}
-	}
-
-	return true;
-}
+//HRESULT	D3D11Texture_createSamplerState(D3D11_FILTER filter,
+//	D3D11_TEXTURE_ADDRESS_MODE addressMode,
+//	u32 anisotropic_level,
+//	ID3D11SamplerState** samplerState);
+//bool D3D11::initRTT(D3D11Texture* newTexture, const v2f& size, bool useLinearFilter, bool useComparisonFilter)
+//{
+//	newTexture->m_h = size.x;
+//	newTexture->m_w = size.y;
+//
+//	D3D11_TEXTURE2D_DESC desc;
+//	ZeroMemory(&desc, sizeof(desc));
+//	desc.Width = newTexture->m_h;
+//	desc.Height = newTexture->m_w;
+//	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+//	desc.SampleDesc.Count = 1;
+//	desc.SampleDesc.Quality = 0;
+//	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+//	desc.MiscFlags = 0;
+//	desc.ArraySize = 1;
+//	desc.MipLevels = 1;
+//	desc.Usage = D3D11_USAGE_DEFAULT;
+//	desc.CPUAccessFlags = 0;
+//
+//	auto hr = m_d3d11Device->CreateTexture2D(&desc, NULL, &newTexture->m_texture);
+//	if (FAILED(hr)) 
+//	{
+//		yyLogWriteError("Can't create render target texture\n");
+//		YY_PRINT_FAILED;
+//		return false;
+//	}
+//	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
+//	renderTargetViewDesc.Format = desc.Format;
+//	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+//	renderTargetViewDesc.Texture2D.MipSlice = 0;
+//	hr = m_d3d11Device->CreateRenderTargetView(newTexture->m_texture, &renderTargetViewDesc, &newTexture->m_RTV);
+//	if (FAILED(hr)) 
+//	{
+//		yyLogWriteError("Can't create render target view\n");
+//		YY_PRINT_FAILED;
+//		return false;
+//	}
+//
+//
+//
+//	D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc;
+//	ZeroMemory(&SRVDesc, sizeof(SRVDesc));
+//	SRVDesc.Format = desc.Format;
+//	SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+//	SRVDesc.Texture2D.MostDetailedMip = 0;
+//	SRVDesc.Texture2D.MipLevels = 1;
+//
+//	hr = m_d3d11Device->CreateShaderResourceView(newTexture->m_texture,
+//		&SRVDesc, &newTexture->m_textureResView);
+//	if (FAILED(hr))
+//	{
+//		yyLogWriteError("Can't create shader resource view\n");
+//		YY_PRINT_FAILED;
+//		return false;
+//	}
+//
+//	//if (!is_RTT) 
+//	{
+//		D3D11_FILTER filter;
+//
+//		if (useLinearFilter)
+//		{
+//			filter = D3D11_FILTER::D3D11_FILTER_ANISOTROPIC;
+//			if (useComparisonFilter)
+//				filter = D3D11_FILTER::D3D11_FILTER_COMPARISON_ANISOTROPIC;
+//		}
+//		else
+//		{
+//			filter = D3D11_FILTER::D3D11_FILTER_MIN_MAG_MIP_POINT;
+//			if (useComparisonFilter)
+//				filter = D3D11_FILTER::D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
+//		}
+//
+//		auto hr = D3D11Texture_createSamplerState(filter, D3D11_TEXTURE_ADDRESS_WRAP, 1, &newTexture->m_samplerState);
+//		if (FAILED(hr))
+//		{
+//			yyLogWriteError("Can't create sampler state\n");
+//			YY_PRINT_FAILED;
+//			return false;
+//		}
+//	}
+//
+//	return true;
+//}
 //bool D3D11::initTexture(yyImage* image, D3D11Texture* newTexture, bool useLinearFilter, bool useComparedFilter)
 //{
 //	newTexture->m_h = image->m_height;

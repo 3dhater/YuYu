@@ -108,6 +108,9 @@ public:
 
 	yyArraySmall<yyImageLoader> m_imageLoaders;
 
+	s32 m_textureAnisotropicLevel;
+	yyTextureAddressMode m_textureAddressMode;
+	yyTextureComparisonFunc m_textureComparisonFunc;
 	yyTextureFilter m_textureFilter;
 	bool m_useMipmaps;
 
@@ -135,7 +138,7 @@ public:
 
 	//std::vector<CacheNode<yyResource>> m_textureCache;
 	yyList<CacheNode<yyResource>> m_textureCache;
-	std::vector<CacheNode<yyMDL>> m_modelCache;
+	yyList<CacheNode<yyMDL>> m_modelCache;
 
 	yyStringW m_workingDir;
 

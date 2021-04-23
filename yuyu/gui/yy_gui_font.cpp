@@ -172,16 +172,27 @@ YY_API yyGUIFont* YY_C_DECL yyGUILoadFont(const char* fileName){
 	{
 		yyGUIFont* newFont = yyCreate<yyGUIFont>();
 
+		auto oldMipMaps = yyIsUseMipMaps();
+		auto oldTextureFilter = yyGetTextureFilter();
+		
+		yyUseMipMaps(false);
+		yySetTextureFilter(yyTextureFilter::PPP);
+
 		for (auto & tf : texture_name_array)
 		{
 			yyStringA stra;
 			stra = tf.data();
 
-			newFont->m_textures.push_back(yyGetTextureResource(stra.data(), false, false, true));
+			auto t = yyGetTextureFromCache(stra.data());
+			t->Load();
+			newFont->m_textures.push_back(t);
 		}
 
-		v2i textureSize;
-		yyGetVideoDriverAPI()->GetTextureSize(newFont->m_textures[0], &textureSize);
+		yyUseMipMaps(oldMipMaps);
+		yySetTextureFilter(oldTextureFilter);
+
+		v2f textureSize;
+		newFont->m_textures[0]->GetTextureSize(&textureSize);
 
 		f64 uvPerPixel_x = 1.0 / (f64)textureSize.x;
 		f64 uvPerPixel_y = 1.0 / (f64)textureSize.y;

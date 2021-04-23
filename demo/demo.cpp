@@ -114,7 +114,7 @@ vidOk:
 	m_gpu->SetClearColor(0.3f, 0.3f, 0.74f, 1.f);
 	m_window->SetTitle(m_gpu->GetVideoDriverName());
 
-	yySetDefaultTexture(yyGetTextureResource("../res/textures/editor/white.dds", false, false, true));
+	yySetDefaultTexture(yyGetTextureFromCache("../res/textures/editor/white.dds"));
 
 	m_defaultFont = yyGUILoadFont("../res/fonts/Noto/notosans.txt");
 	if (!m_defaultFont)
@@ -151,9 +151,9 @@ void Demo::MainLoop(){
 	yyGUIButton* gui_button_exit = yyGUICreateButton(
 		v4f(m_window->m_creationSize.x - 50, 0, m_window->m_creationSize.x, 25),
 		//v4f(0.f, m_window->m_creationSize.y-50, 50, m_window->m_creationSize.y),
-		yyGetTextureResource("../res/exit.png", false, false, true), 0, 0);
-	gui_button_exit->SetMouseHoverTexture(yyGetTextureResource("../res/exit_hov.png", false, false, true));
-	gui_button_exit->SetMouseClickTexture(yyGetTextureResource("../res/exit_clk.png", false, false, true));
+		yyGetTextureFromCache("../res/exit.png"), 0, 0);
+	gui_button_exit->SetMouseHoverTexture(yyGetTextureFromCache("../res/exit_hov.png"));
+	gui_button_exit->SetMouseClickTexture(yyGetTextureFromCache("../res/exit_clk.png"));
 	gui_button_exit->m_onClick = buttonExit_onClick;
 	gui_button_exit->m_onRelease = buttonExit_onRelease;
 	gui_button_exit->m_isAnimated = true;

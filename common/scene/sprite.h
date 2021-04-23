@@ -75,6 +75,8 @@ struct yySprite
 		{
 			yyDestroy(m_states[i]);
 		}
+		if (m_model)
+			yyDestroy(m_model);
 	}
 
 	void _updateUVCoords() {
@@ -193,8 +195,8 @@ struct yySprite
 		if(!m_texture)
 			return;
 
-		v2i textureSize;
-		yyGetTextureSize(m_texture, &textureSize);
+		v2f textureSize;
+		m_texture->GetTextureSize(&textureSize);
 
 		f32 xMulFactor = 1.f / (f32)textureSize.x;
 		f32 yMulFactor = 1.f / (f32)textureSize.y;
@@ -225,8 +227,8 @@ YY_FORCE_INLINE void yySpriteState::SetMainFrame(int leftTopX, int leftTopY, int
 	if(!m_sprite->m_texture)
 		return;
 
-	v2i textureSize;
-	yyGetTextureSize(m_sprite->m_texture, &textureSize);
+	v2f textureSize;
+	m_sprite->m_texture->GetTextureSize(&textureSize);
 
 	f32 xMulFactor = 1.f / (f32)textureSize.x;
 	f32 yMulFactor = 1.f / (f32)textureSize.y;
@@ -251,8 +253,8 @@ YY_FORCE_INLINE void yySpriteState::AddAnimationFrame(int leftTopX, int leftTopY
 	if(!m_sprite->m_texture)
 		return;
 	
-	v2i textureSize;
-	yyGetTextureSize(m_sprite->m_texture, &textureSize);
+	v2f textureSize;
+	m_sprite->m_texture->GetTextureSize(&textureSize);
 
 	f32 xMulFactor = 1.f / (f32)textureSize.x;
 	f32 yMulFactor = 1.f / (f32)textureSize.y;

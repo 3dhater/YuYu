@@ -21,6 +21,30 @@ D3D11Model::~D3D11Model(){
 	Unload();
 }
 
+void D3D11Model::GetTextureHandle(void**) {}
+void D3D11Model::GetTextureSize(v2f*) {}
+void D3D11Model::MapModelForWriteVerts(u8** v_ptr) {
+	static D3D11_MAPPED_SUBRESOURCE mapData;
+	auto hr = g_d3d11->m_d3d11DevCon->Map(
+		m_vBuffer,
+		0,
+		D3D11_MAP_WRITE_DISCARD,
+		0,
+		&mapData
+	);
+	if (FAILED(hr))
+	{
+		yyLogWriteError("Can not lock D3D11 render model buffer. Code : %u\n", hr);
+		return;
+	}
+	*v_ptr = (u8*)mapData.pData;
+	m_lockedResource = m_vBuffer;
+}
+void D3D11Model::UnmapModelForWriteVerts() {
+	g_d3d11->m_d3d11DevCon->Unmap(m_lockedResource, 0);
+	m_lockedResource = nullptr;
+}
+
 void D3D11Model::Load(yyResourceData* modelData) {
 	yyModel * model = (yyModel *)modelData->m_source;
 

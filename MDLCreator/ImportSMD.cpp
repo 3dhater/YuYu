@@ -668,7 +668,8 @@ void ImportSMD(yyMDLObject* object, const char* file)
 			newMDLLayer->m_model->m_vCount = verts.size();
 			newMDLLayer->m_model->m_iCount = inds.size();
 
-			newMDLLayer->m_meshGPU = yyGetVideoDriverAPI()->CreateModel(newMDLLayer->m_model);
+			newMDLLayer->m_meshGPU = yyCreateModel(newMDLLayer->m_model);
+			newMDLLayer->m_meshGPU->Load();
 
 			object->m_mdl->m_layers.push_back(newMDLLayer);
 			g_sceneObject->m_layerInfo.push_back(LayerInfo());

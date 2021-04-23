@@ -10,9 +10,18 @@ public:
 	virtual yyResourceType GetType();
 	virtual void Load();
 	virtual void Unload();
-	virtual s32 GetRefCount();
+	virtual u32 GetRefCount();
+	virtual bool IsLoaded();
+
+	virtual yyResourceImplementation* GetImplementation();
+
+	virtual void GetTextureSize(v2f*);
+	virtual void GetTextureHandle(void**);
+	virtual void MapModelForWriteVerts(u8** v_ptr);
+	virtual void UnmapModelForWriteVerts();
 
 	void InitTextureResourse(yyImage*, const char* fileName);
+	void InitTextureRenderTargetResourse(const v2f& size);
 	void InitModelResourse(yyModel*);
 
 	yyResourceType m_type;

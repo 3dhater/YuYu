@@ -364,6 +364,8 @@ YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* bas
 	element->SetBuildRect(rect);
 	element->m_id = id;
 	element->m_baseTexture = baseTexture;
+	if (!element->m_baseTexture->IsLoaded())
+		element->m_baseTexture->Load();
 
 	if (!baseTexture)
 	{
@@ -379,8 +381,8 @@ YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* bas
 	else
 	{
 		auto gpu = yyGetVideoDriverAPI();
-		v2i s;
-		gpu->GetTextureSize(element->m_baseTexture, &s);
+		v2f s;
+		element->m_baseTexture->GetTextureSize(&s);
 		element->m_uvRect.z = s.x;
 		element->m_uvRect.w = s.y;
 	}

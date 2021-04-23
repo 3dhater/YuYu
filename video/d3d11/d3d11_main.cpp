@@ -29,7 +29,7 @@
 yyVideoDriverAPI g_api;
 D3D11 * g_d3d11 = nullptr;
 
-void LoadModel(yyResource* r);
+//void LoadModel(yyResource* r);
 //yyResource g_defaultRes;
 
 void SetViewport(f32 x, f32 y, f32 width, f32 height, yyWindow* window) {
@@ -399,14 +399,14 @@ void SetScissorRect(const v4f& rect, yyWindow* window) {
 
 void SetTexture(u32 slot, yyResource* res){
 	if (res)
-		g_d3d11->m_currentTextures[(u32)slot] = g_d3d11->m_textures[ res->m_index ];
+		g_d3d11->m_currentTextures[(u32)slot] = (D3D11Texture*)res->GetImplementation();
 	else
 		g_d3d11->m_currentTextures[slot] = nullptr;
 }
 
 void SetModel(yyResource* res){
 	if (res)
-		g_d3d11->m_currentModel = g_d3d11->m_models[res->m_index];
+		g_d3d11->m_currentModel = (D3D11Model*)res->GetImplementation();
 	else
 		g_d3d11->m_currentModel = nullptr;
 }
@@ -635,50 +635,49 @@ v2f* GetSpriteCameraScale(){
 	return &g_d3d11->m_spriteCameraScale;
 }
 
-void GetTextureSize(yyResource* r, v2i* s){
-	assert(r);
-	assert(s);
-	if(r->m_type != yyResourceType::Texture)
-		return;
-	D3D11Texture* t = g_d3d11->m_textures[ r->m_index ];
-	if(!t)
-		return;
-	s->x = t->m_w;
-	s->y = t->m_h;
-}
+//void GetTextureSize(yyResource* r, v2i* s){
+//	assert(r);
+//	assert(s);
+//	
+//	D3D11Texture* t = (D3D11Texture*)r->GetImplementation();
+//	if(!t)
+//		return;
+//	s->x = t->m_w;
+//	s->y = t->m_h;
+//}
 
 void SetMaterial(yyMaterial* mat){
 	g_d3d11->m_currentMaterial = mat;
 }
 
-void MapModelForWriteVerts(yyResource* r, u8** v_ptr){
-	assert(r);
-	D3D11Model* m = g_d3d11->m_models[r->m_index];
-	ID3D11Buffer* d3dbuffer = nullptr;
-	d3dbuffer = m->m_vBuffer;
+//void MapModelForWriteVerts(yyResource* r, u8** v_ptr){
+//	assert(r);
+//	D3D11Model* m = g_d3d11->m_models[r->m_index];
+//	ID3D11Buffer* d3dbuffer = nullptr;
+//	d3dbuffer = m->m_vBuffer;
+//
+//	static D3D11_MAPPED_SUBRESOURCE mapData;
+//	auto hr = g_d3d11->m_d3d11DevCon->Map(
+//		d3dbuffer,
+//		0,
+//		D3D11_MAP_WRITE_DISCARD,
+//		0,
+//		&mapData
+//	);
+//	if (FAILED(hr)) 
+//	{
+//		yyLogWriteError("Can not lock D3D11 render model buffer. Code : %u\n", hr);
+//		return;
+//	}
+//	*v_ptr = (u8*)mapData.pData;
+//	m->m_lockedResource = d3dbuffer;
+//}
 
-	static D3D11_MAPPED_SUBRESOURCE mapData;
-	auto hr = g_d3d11->m_d3d11DevCon->Map(
-		d3dbuffer,
-		0,
-		D3D11_MAP_WRITE_DISCARD,
-		0,
-		&mapData
-	);
-	if (FAILED(hr)) 
-	{
-		yyLogWriteError("Can not lock D3D11 render model buffer. Code : %u\n", hr);
-		return;
-	}
-	*v_ptr = (u8*)mapData.pData;
-	m->m_lockedResource = d3dbuffer;
-}
-
-void UnmapModelForWriteVerts(yyResource* r){
-	D3D11Model* m = g_d3d11->m_models[r->m_index];
-	g_d3d11->m_d3d11DevCon->Unmap(m->m_lockedResource, 0);
-	m->m_lockedResource = nullptr;
-}
+//void UnmapModelForWriteVerts(yyResource* r){
+//	D3D11Model* m = g_d3d11->m_models[r->m_index];
+//	g_d3d11->m_d3d11DevCon->Unmap(m->m_lockedResource, 0);
+//	m->m_lockedResource = nullptr;
+//}
 
 yyVideoDriverObjectD3D11 g_yyVideoDriverObject;
 void* GetVideoDriverObjects(){
@@ -748,41 +747,37 @@ void UpdateMainRenderTarget(const v2i& windowsSize, const v2f& bufferSize){
 	g_d3d11->UpdateGUIProjectionMatrix(windowsSize);
 }
 
-yyResource* CreateRenderTargetTexture(const v2f& size, bool useLinearFilter, bool useComparisonFilter){
-	yyResource * newRes = yyCreate<yyResource>();
-	newRes->m_type = yyResourceType::RenderTargetTexture;
-	newRes->m_source = 0;
-	newRes->m_index = g_d3d11->m_textures.size();
-	newRes->m_refCount = 1;
-	if (useLinearFilter)
-		newRes->m_flags |= yyResource::flags::texture_useLinearFilter;
-	if (useComparisonFilter)
-		newRes->m_flags |= yyResource::flags::texture_useComparisonFilter;
-
-	auto newTexture = yyCreate<D3D11Texture>();
-	g_d3d11->initRTT(newTexture, size, useLinearFilter, useComparisonFilter);
-	if (newTexture)
-	{
-		g_d3d11->m_textures.push_back(newTexture);
-		newRes->m_isLoaded = true;
-		return newRes;
-	}
-
-	if (newRes)
-		yyDestroy(newRes);
-	return nullptr;
-}
+//yyResource* CreateRenderTargetTexture(const v2f& size){
+//	yyResource * newRes = yyCreate<yyResource>();
+//	newRes->m_type = yyResourceType::RenderTargetTexture;
+//	newRes->m_source = 0;
+//	newRes->m_index = g_d3d11->m_textures.size();
+//	newRes->m_refCount = 1;
+//	if (useLinearFilter)
+//		newRes->m_flags |= yyResource::flags::texture_useLinearFilter;
+//	if (useComparisonFilter)
+//		newRes->m_flags |= yyResource::flags::texture_useComparisonFilter;
+//
+//	auto newTexture = yyCreate<D3D11Texture>();
+//	g_d3d11->initRTT(newTexture, size, useLinearFilter, useComparisonFilter);
+//	if (newTexture)
+//	{
+//		g_d3d11->m_textures.push_back(newTexture);
+//		newRes->m_isLoaded = true;
+//		return newRes;
+//	}
+//
+//	if (newRes)
+//		yyDestroy(newRes);
+//	return nullptr;
+//}
 
 void SetRenderTarget(yyResource* rtt){
 	if (rtt)
 	{
-		if (rtt->m_type == yyResourceType::RenderTargetTexture)
-		{
-			g_d3d11->m_d3d11DevCon->OMSetRenderTargets(1, &g_d3d11->m_textures[rtt->m_index]->m_RTV, g_d3d11->m_depthStencilView);
-			g_d3d11->m_currentTargetView = g_d3d11->m_textures[rtt->m_index]->m_RTV;
-		}
-		else
-			yyLogWriteWarning("SetRenderTarget: yyResourceType is not RenderTargetTexture");
+		D3D11Texture* t = (D3D11Texture*)rtt->GetImplementation();
+		g_d3d11->m_d3d11DevCon->OMSetRenderTargets(1, &t->m_RTV, g_d3d11->m_depthStencilView);
+		g_d3d11->m_currentTargetView = t->m_RTV;
 	}
 	else
 	{
@@ -824,9 +819,9 @@ yyResourceImplementation* CreateModelImplementation() {
 	return yyCreate<D3D11Model>();
 }
 
-void* GetTextureHandle(yyResource* res){
-	return g_d3d11->m_textures[res->m_index]->m_textureResView;
-}
+//void* GetTextureHandle(yyResource* res){
+//	return g_d3d11->m_textures[res->m_index]->m_textureResView;
+//}
 
 void SetGUIShaderData(yyGUIElement* guielement){
 	assert(guielement);
@@ -874,12 +869,12 @@ extern "C"
 		g_api.ClearAll = ClearAll;
 		g_api.ClearColor = ClearColor;
 		g_api.ClearDepth = ClearDepth;
-		g_api.CreateModel = CreateModel;
+		/*g_api.CreateModel = CreateModel;
 		g_api.CreateRenderTargetTexture = CreateRenderTargetTexture;
 		g_api.CreateTexture = CreateTexture;
 		g_api.CreateTextureFromFile = CreateTextureFromFile;
 		g_api.DeleteModel = DeleteModel;
-		g_api.DeleteTexture = DeleteTexture;
+		g_api.DeleteTexture = DeleteTexture;*/
 		g_api.Destroy       = Destroy;
 		g_api.Draw = Draw;
 		g_api.DrawLine2D = DrawLine2D;
@@ -892,14 +887,14 @@ extern "C"
 		g_api.GetAPIVersion = GetAPIVersion;
 		g_api.GetSpriteCameraPosition = GetSpriteCameraPosition;
 		g_api.GetSpriteCameraScale = GetSpriteCameraScale;
-		g_api.GetTextureHandle = GetTextureHandle;
-		g_api.GetTextureSize = GetTextureSize;
+		/*g_api.GetTextureHandle = GetTextureHandle;
+		g_api.GetTextureSize = GetTextureSize;*/
 		g_api.GetVideoDriverName = GetVideoDriverName;
 		g_api.GetVideoDriverObjects = GetVideoDriverObjects;
 		g_api.Init          = Init;
-		g_api.LoadModel = LoadModel;
-		g_api.LoadTexture = LoadTexture;
-		g_api.MapModelForWriteVerts = MapModelForWriteVerts;
+		//g_api.LoadModel = LoadModel;
+		//g_api.LoadTexture = LoadTexture;
+		//g_api.MapModelForWriteVerts = MapModelForWriteVerts;
 		g_api.SetBoneMatrix = SetBoneMatrix;
 		g_api.SetClearColor = SetClearColor;
 		g_api.SetGUIShaderData = SetGUIShaderData;
@@ -911,11 +906,11 @@ extern "C"
 		g_api.SetTexture = SetTexture;
 		g_api.SetViewport = SetViewport;
 		g_api.SwapBuffers = SwapBuffers;
-		g_api.UnloadModel = UnloadModel;
-		g_api.UnloadTexture = UnloadTexture;
+		/*g_api.UnloadModel = UnloadModel;
+		g_api.UnloadTexture = UnloadTexture;*/
 		g_api.CreateTextureImplementation = CreateTextureImplementation;
 		g_api.CreateModelImplementation = CreateModelImplementation;
-		g_api.UnmapModelForWriteVerts = UnmapModelForWriteVerts;
+		//g_api.UnmapModelForWriteVerts = UnmapModelForWriteVerts;
 		g_api.UpdateMainRenderTarget = UpdateMainRenderTarget;
 		g_api.UseBlend = UseBlend;
 		g_api.UseDepth = UseDepth;

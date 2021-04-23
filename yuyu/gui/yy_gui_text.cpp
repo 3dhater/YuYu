@@ -144,8 +144,6 @@ void yyGUIText::SetText(const wchar_t* format, ...){
 	assert(m_font);
 	Clear();
 
-	auto vAPI = yyGetVideoDriverAPI();
-
 	va_list arg;
 	va_start(arg, format);
 	_vsnwprintf(m_buffer, m_bufferSize, format, arg);
@@ -220,12 +218,13 @@ void yyGUIText::SetText(const wchar_t* format, ...){
 			dn->m_texture = m_font->m_textures[i];
 			if (dn->m_model)
 			{
-				if(!dn->m_model->m_isLoaded)
-					vAPI->LoadModel(dn->m_model);
+				if(!dn->m_model->IsLoaded())
+					dn->m_model->Load();
 			}
 			else
 			{
-				dn->m_model = vAPI->CreateModel(g_text_models[i].m_model);
+				dn->m_model = yyCreateModel(g_text_models[i].m_model);
+				dn->m_model->Load();
 				/*printf("Verts:\n");
 				for (int vi = 0; vi < g_text_models[i].m_model->m_vCount; ++vi)
 				{
@@ -258,14 +257,13 @@ void yyGUIText::Clear(){
 		g_text_models[i].m_isUsing = false;
 	}
 
-	auto vAPI = yyGetVideoDriverAPI();
 	for (u16 i = 0; i < m_drawNodes.m_size; ++i)
 	{
 		auto & dn = m_drawNodes.m_data[i];
 		if (dn.m_model)
 		{
-			if (dn.m_model->m_isLoaded)
-				vAPI->UnloadModel(dn.m_model);
+			if (dn.m_model->IsLoaded())
+				dn.m_model->Unload();
 		}
 	}
 	m_drawNodes.clear();

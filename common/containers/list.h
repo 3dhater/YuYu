@@ -320,7 +320,7 @@ public:
 
 	void erase_by_node(yyListNode<T>* object) {
 		if (!m_head)
-			return false;
+			return;
 
 		object->m_left->m_right = object->m_right;
 		object->m_right->m_left = object->m_left;
@@ -539,7 +539,7 @@ public:
 			return false;
 		}
 		const T& operator*() {
-			return *m_node->m_data;
+			return m_node->m_data;
 		}
 		T* operator->() {
 			return m_node->m_data;

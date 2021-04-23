@@ -20,12 +20,12 @@ Hitbox::Hitbox()
 }
 Hitbox::~Hitbox()
 {
-	if (m_gpuModel) g_videoDriver->DeleteModel(m_gpuModel);
+	if (m_gpuModel) yyDestroy(m_gpuModel);
 }
 
 void Hitbox::rebuild()
 {
-	if (m_gpuModel) g_videoDriver->DeleteModel(m_gpuModel);
+	if (m_gpuModel) yyDestroy(m_gpuModel);
 	if (m_hitbox.m_mesh) yyDestroy(m_hitbox.m_mesh);
 
 	if (m_type == type::Box)
@@ -100,7 +100,8 @@ void Hitbox::rebuild()
 		index[34] = 7;
 		index[35] = 5;
 
-		m_gpuModel = g_videoDriver->CreateModel(m_hitbox.m_mesh);
+		m_gpuModel = yyCreateModel(m_hitbox.m_mesh);
+		m_gpuModel->Load();
 	}
 }
 

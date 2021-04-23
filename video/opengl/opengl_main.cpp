@@ -29,7 +29,7 @@
 
 yyVideoDriverAPI g_api;
 bool g_useDepth = true;
-void LoadModel(yyResource* r);
+//void LoadModel(yyResource* r);
 
 #ifdef YY_DEBUG
 bool g_drawBegin = false;
@@ -83,146 +83,146 @@ void SetScissorRect(const v4f& rect, yyWindow* window) {
 	glScissor((GLint)rect.x, (GLint)rect.y, (GLsizei)rect.z, (GLsizei)rect.w);
 }
 
-OpenGLModel* CreateOpenGLModel(yyModel* model){
-	assert(model);
-	auto newModel = yyCreate<OpenGLModel>();
-	if(g_openGL->initModel(model, newModel))
-		return newModel;
-	yyDestroy(newModel);
-	return nullptr;
-}
+//OpenGLModel* CreateOpenGLModel(yyModel* model){
+//	assert(model);
+//	auto newModel = yyCreate<OpenGLModel>();
+//	if(g_openGL->initModel(model, newModel))
+//		return newModel;
+//	yyDestroy(newModel);
+//	return nullptr;
+//}
 
-void DeleteTexture(yyResource* r){
-	yyDestroy(g_openGL->m_textures[r->m_index]);
-	g_openGL->m_textures[r->m_index] = nullptr;
-	g_openGL->m_freeTextureResourceIndex.push_back(r->m_index);
-	yyDestroy(r);
-}
+//void DeleteTexture(yyResource* r){
+//	yyDestroy(g_openGL->m_textures[r->m_index]);
+//	g_openGL->m_textures[r->m_index] = nullptr;
+//	g_openGL->m_freeTextureResourceIndex.push_back(r->m_index);
+//	yyDestroy(r);
+//}
+//
+//void UnloadTexture(yyResource* r){
+//	assert(r);
+//	assert((r->m_type == yyResourceType::Texture) || (r->m_type == yyResourceType::RenderTargetTexture));
+//	if(r->m_refCount == 0)
+//		return;
+//
+//	--r->m_refCount;
+//	if(!r->m_refCount)
+//	{
+//		r->m_isLoaded = false;
+//		if (g_openGL->m_textures[r->m_index])
+//		{
+//			yyDestroy(g_openGL->m_textures[r->m_index]);
+//			g_openGL->m_textures[r->m_index] = nullptr;
+//		}
+//	}
+//}
 
-void UnloadTexture(yyResource* r){
-	assert(r);
-	assert((r->m_type == yyResourceType::Texture) || (r->m_type == yyResourceType::RenderTargetTexture));
-	if(r->m_refCount == 0)
-		return;
+//OpenGLTexture* CreateOpenGLTexture(yyImage* image, bool useLinearFilter, bool useComparisonFilter){
+//	assert(image);
+//	auto newTexture = yyCreate<OpenGLTexture>();
+//	if(g_openGL->initTexture(image, newTexture, useLinearFilter, useComparisonFilter))
+//		return newTexture;
+//	yyDestroy(newTexture);
+//	return nullptr;
+//}
 
-	--r->m_refCount;
-	if(!r->m_refCount)
-	{
-		r->m_isLoaded = false;
-		if (g_openGL->m_textures[r->m_index])
-		{
-			yyDestroy(g_openGL->m_textures[r->m_index]);
-			g_openGL->m_textures[r->m_index] = nullptr;
-		}
-	}
-}
+//void LoadTexture(yyResource* r){
+//	assert(r);
+//	assert((r->m_type == yyResourceType::Texture)|| (r->m_type == yyResourceType::RenderTargetTexture));
+//	++r->m_refCount;
+//	if(r->m_refCount==1)
+//	{
+//		r->m_isLoaded = true;
+//
+//		// возможно g_openGL->m_textures[r->m_index] может быть занят, по этому лучше добавить проверку
+//		if(r->m_source)
+//		{
+//			g_openGL->m_textures[r->m_index] = CreateOpenGLTexture((yyImage*)r->m_source, 
+//				(r->m_flags & yyResource::flags::texture_useLinearFilter) == 1,
+//				(r->m_flags & yyResource::flags::texture_useComparisonFilter) == 1);
+//			return;
+//		}
+//
+//		if(r->m_file.size())
+//		{
+//			yyPtr<yyImage> image = yyLoadImage(r->m_file.c_str());
+//			g_openGL->m_textures[r->m_index] = CreateOpenGLTexture(image.m_data, 
+//				(r->m_flags & yyResource::flags::texture_useLinearFilter) == 1,
+//				(r->m_flags & yyResource::flags::texture_useComparisonFilter) == 1);
+//			return;
+//		} 
+//	}
+//}
 
-OpenGLTexture* CreateOpenGLTexture(yyImage* image, bool useLinearFilter, bool useComparisonFilter){
-	assert(image);
-	auto newTexture = yyCreate<OpenGLTexture>();
-	if(g_openGL->initTexture(image, newTexture, useLinearFilter, useComparisonFilter))
-		return newTexture;
-	yyDestroy(newTexture);
-	return nullptr;
-}
-
-void LoadTexture(yyResource* r){
-	assert(r);
-	assert((r->m_type == yyResourceType::Texture)|| (r->m_type == yyResourceType::RenderTargetTexture));
-	++r->m_refCount;
-	if(r->m_refCount==1)
-	{
-		r->m_isLoaded = true;
-
-		// возможно g_openGL->m_textures[r->m_index] может быть занят, по этому лучше добавить проверку
-		if(r->m_source)
-		{
-			g_openGL->m_textures[r->m_index] = CreateOpenGLTexture((yyImage*)r->m_source, 
-				(r->m_flags & yyResource::flags::texture_useLinearFilter) == 1,
-				(r->m_flags & yyResource::flags::texture_useComparisonFilter) == 1);
-			return;
-		}
-
-		if(r->m_file.size())
-		{
-			yyPtr<yyImage> image = yyLoadImage(r->m_file.c_str());
-			g_openGL->m_textures[r->m_index] = CreateOpenGLTexture(image.m_data, 
-				(r->m_flags & yyResource::flags::texture_useLinearFilter) == 1,
-				(r->m_flags & yyResource::flags::texture_useComparisonFilter) == 1);
-			return;
-		} 
-	}
-}
-
-yyResource* CreateTextureFromFile(const char* fileName, bool useLinearFilter, bool useComparisonFilter, bool load){
-	assert(fileName);
-	yyResource * newRes = yyCreate<yyResource>();
-	newRes->m_type = yyResourceType::Texture;
-	newRes->m_source = nullptr;
-	newRes->m_refCount = 0;
-	if (useLinearFilter)
-		newRes->m_flags |= yyResource::flags::texture_useLinearFilter;
-	if (useComparisonFilter)
-		newRes->m_flags |= yyResource::flags::texture_useComparisonFilter;
-	newRes->m_file = fileName;
-
-	if (g_openGL->m_freeTextureResourceIndex.head())
-	{
-		newRes->m_index = g_openGL->m_freeTextureResourceIndex.head()->m_data;
-		g_openGL->m_freeTextureResourceIndex.erase_node(g_openGL->m_freeTextureResourceIndex.head());
-	}
-	else
-	{
-		newRes->m_index = g_openGL->m_textures.size();
-		g_openGL->m_textures.push_back(nullptr);
-	}
-
-
-	if(load)
-		LoadTexture(newRes);
-	return newRes;
-}
-
-yyResource* CreateTexture(yyImage* image, bool useLinearFilter, bool useComparisonFilter){
-	assert(image);
-	yyResource * newRes = yyCreate<yyResource>();
-	newRes->m_type = yyResourceType::Texture;
-	newRes->m_source = image;
-	newRes->m_refCount = 1;
-	if(useLinearFilter)
-		newRes->m_flags |= yyResource::flags::texture_useLinearFilter;
-	if (useComparisonFilter)
-		newRes->m_flags |= yyResource::flags::texture_useComparisonFilter;
-	
-	bool isNewIndex = false;
-	if (g_openGL->m_freeTextureResourceIndex.head())
-	{
-		newRes->m_index = g_openGL->m_freeTextureResourceIndex.head()->m_data;
-		g_openGL->m_freeTextureResourceIndex.erase_node(g_openGL->m_freeTextureResourceIndex.head());
-	}
-	else
-	{
-		newRes->m_index = g_openGL->m_textures.size();
-		isNewIndex = true;
-	}
-
-
-	auto newTexture = CreateOpenGLTexture(image, useLinearFilter, useComparisonFilter);
-	if(newTexture)
-	{
-		if (isNewIndex)
-			g_openGL->m_textures.push_back(newTexture);
-		else
-			g_openGL->m_textures[newRes->m_index] = newTexture;
-
-		newRes->m_isLoaded = true;
-		return newRes;
-	}
-
-	if(newRes)
-		yyDestroy( newRes );
-	return nullptr;
-}
+//yyResource* CreateTextureFromFile(const char* fileName, bool useLinearFilter, bool useComparisonFilter, bool load){
+//	assert(fileName);
+//	yyResource * newRes = yyCreate<yyResource>();
+//	newRes->m_type = yyResourceType::Texture;
+//	newRes->m_source = nullptr;
+//	newRes->m_refCount = 0;
+//	if (useLinearFilter)
+//		newRes->m_flags |= yyResource::flags::texture_useLinearFilter;
+//	if (useComparisonFilter)
+//		newRes->m_flags |= yyResource::flags::texture_useComparisonFilter;
+//	newRes->m_file = fileName;
+//
+//	if (g_openGL->m_freeTextureResourceIndex.head())
+//	{
+//		newRes->m_index = g_openGL->m_freeTextureResourceIndex.head()->m_data;
+//		g_openGL->m_freeTextureResourceIndex.erase_node(g_openGL->m_freeTextureResourceIndex.head());
+//	}
+//	else
+//	{
+//		newRes->m_index = g_openGL->m_textures.size();
+//		g_openGL->m_textures.push_back(nullptr);
+//	}
+//
+//
+//	if(load)
+//		LoadTexture(newRes);
+//	return newRes;
+//}
+//
+//yyResource* CreateTexture(yyImage* image, bool useLinearFilter, bool useComparisonFilter){
+//	assert(image);
+//	yyResource * newRes = yyCreate<yyResource>();
+//	newRes->m_type = yyResourceType::Texture;
+//	newRes->m_source = image;
+//	newRes->m_refCount = 1;
+//	if(useLinearFilter)
+//		newRes->m_flags |= yyResource::flags::texture_useLinearFilter;
+//	if (useComparisonFilter)
+//		newRes->m_flags |= yyResource::flags::texture_useComparisonFilter;
+//	
+//	bool isNewIndex = false;
+//	if (g_openGL->m_freeTextureResourceIndex.head())
+//	{
+//		newRes->m_index = g_openGL->m_freeTextureResourceIndex.head()->m_data;
+//		g_openGL->m_freeTextureResourceIndex.erase_node(g_openGL->m_freeTextureResourceIndex.head());
+//	}
+//	else
+//	{
+//		newRes->m_index = g_openGL->m_textures.size();
+//		isNewIndex = true;
+//	}
+//
+//
+//	auto newTexture = CreateOpenGLTexture(image, useLinearFilter, useComparisonFilter);
+//	if(newTexture)
+//	{
+//		if (isNewIndex)
+//			g_openGL->m_textures.push_back(newTexture);
+//		else
+//			g_openGL->m_textures[newRes->m_index] = newTexture;
+//
+//		newRes->m_isLoaded = true;
+//		return newRes;
+//	}
+//
+//	if(newRes)
+//		yyDestroy( newRes );
+//	return nullptr;
+//}
 
 void UseVSync(bool v){
 #ifdef YY_PLATFORM_WINDOWS
@@ -252,131 +252,131 @@ void UseBlend(bool v){
 	}
 }
 
-yyResource* CreateRenderTargetTexture(const v2f& size, bool useLinearFilter, bool useComparisonFilter){
-	yyResource * newRes = yyCreate<yyResource>();
-	newRes->m_type = yyResourceType::RenderTargetTexture;
-	newRes->m_source = 0;
-	newRes->m_index = g_openGL->m_textures.size();
-	newRes->m_refCount = 1;
-	if (useLinearFilter)
-		newRes->m_flags |= yyResource::flags::texture_useLinearFilter;
-	if (useComparisonFilter)
-		newRes->m_flags |= yyResource::flags::texture_useComparisonFilter;
-
-	auto newTexture = yyCreate<OpenGLTexture>();
-	g_openGL->initFBO(newTexture, size, useLinearFilter, useComparisonFilter);
-	if (newTexture)
-	{
-		g_openGL->m_textures.push_back(newTexture);
-		newRes->m_isLoaded = true;
-		return newRes;
-	}
-
-	if (newRes)
-		yyDestroy(newRes);
-	return nullptr;
-}
-
-yyResource* CreateModel(yyModel* model){
-	assert(model);
-	yyResource * newRes = yyCreate<yyResource>();
-	newRes->m_type = yyResourceType::Model;
-	newRes->m_source = model;
-	newRes->m_refCount = 1;
-	newRes->m_aabb = model->m_aabb;
-
-	bool isNewIndex = false;
-	if (g_openGL->m_freeModelResourceIndex.head())
-	{
-		newRes->m_index = g_openGL->m_freeModelResourceIndex.head()->m_data;
-		g_openGL->m_freeModelResourceIndex.erase_node(g_openGL->m_freeModelResourceIndex.head());
-	}
-	else
-	{
-		newRes->m_index = g_openGL->m_models.size();
-		isNewIndex = true;
-	}
-
-	auto newModel = CreateOpenGLModel(model);
-	if(newModel)
-	{
-		if (isNewIndex)
-			g_openGL->m_models.push_back(newModel);
-		else
-			g_openGL->m_models[newRes->m_index] = newModel;
-
-		newRes->m_isLoaded = true;
-		return newRes;
-	}
-
-	if(newRes)
-		yyDestroy( newRes );
-	return nullptr;
-}
-
-void UnloadModel(yyResource* r){
-	assert(r);
-	assert(r->m_type == yyResourceType::Model);
-	if(r->m_refCount == 0)
-		return;
-
-	--r->m_refCount;
-	if(!r->m_refCount)
-	{
-		r->m_isLoaded = false;
-		if (g_openGL->m_models[r->m_index])
-		{
-			yyDestroy(g_openGL->m_models[r->m_index]);
-			g_openGL->m_models[r->m_index] = nullptr;
-			// ресурс создаётся один на модель и на всегда
-			// для полного удаления вместе с ресурсом нужна другая функция - DeleteModel
-		}
-	}
-}
-
-void DeleteModel(yyResource* r){
-	assert(r);
-	assert(r->m_type == yyResourceType::Model);
-
-	// нужно ли использовать это в таком случае? m_refCount 
-	// если нужно удалить, то надо удалить, иначе надо вызывать UnloadModel
-	//if (r->m_refCount == 0) return;
-	/*--r->m_refCount;
-	if (!r->m_refCount)
-	{
-		r->m_isLoaded = false;
-		if (g_openGL->m_models[r->m_index])
-		{
-			yyDestroy(g_openGL->m_models[r->m_index]);
-			g_openGL->m_models[r->m_index] = nullptr;
-		}
-	}*/
-	yyDestroy(g_openGL->m_models[r->m_index]);
-	g_openGL->m_models[r->m_index] = nullptr;
-	// чтобы не переполнять g_openGL->m_models при создании новых ресурсов,
-	// лучше вставлять их в свободные ячейки.
-	// чтобы не перебирать их, наверно, лучше иметь список свободных ячеек
-	// соответственно, при создании ресурса, перед указанием индекса, нужно проверить этот список
-	g_openGL->m_freeModelResourceIndex.push_back(r->m_index);
-	yyDestroy(r); // удаление ресурса
-}
-
-void LoadModel(yyResource* r){
-	assert(r);
-#ifdef YY_DEBUG
-	if(r->m_type != yyResourceType::Model)		YY_PRINT_FAILED;
-#endif
-	++r->m_refCount;
-	if (r->m_refCount == 1)
-	{
-		r->m_isLoaded = true;
-		if(r->m_source)
-		{
-			g_openGL->m_models[r->m_index] = CreateOpenGLModel((yyModel*)r->m_source );
-			return;
-		}
-	}
-}
+//yyResource* CreateRenderTargetTexture(const v2f& size, bool useLinearFilter, bool useComparisonFilter){
+//	yyResource * newRes = yyCreate<yyResource>();
+//	newRes->m_type = yyResourceType::RenderTargetTexture;
+//	newRes->m_source = 0;
+//	newRes->m_index = g_openGL->m_textures.size();
+//	newRes->m_refCount = 1;
+//	if (useLinearFilter)
+//		newRes->m_flags |= yyResource::flags::texture_useLinearFilter;
+//	if (useComparisonFilter)
+//		newRes->m_flags |= yyResource::flags::texture_useComparisonFilter;
+//
+//	auto newTexture = yyCreate<OpenGLTexture>();
+//	g_openGL->initFBO(newTexture, size, useLinearFilter, useComparisonFilter);
+//	if (newTexture)
+//	{
+//		g_openGL->m_textures.push_back(newTexture);
+//		newRes->m_isLoaded = true;
+//		return newRes;
+//	}
+//
+//	if (newRes)
+//		yyDestroy(newRes);
+//	return nullptr;
+//}
+//
+//yyResource* CreateModel(yyModel* model){
+//	assert(model);
+//	yyResource * newRes = yyCreate<yyResource>();
+//	newRes->m_type = yyResourceType::Model;
+//	newRes->m_source = model;
+//	newRes->m_refCount = 1;
+//	newRes->m_aabb = model->m_aabb;
+//
+//	bool isNewIndex = false;
+//	if (g_openGL->m_freeModelResourceIndex.head())
+//	{
+//		newRes->m_index = g_openGL->m_freeModelResourceIndex.head()->m_data;
+//		g_openGL->m_freeModelResourceIndex.erase_node(g_openGL->m_freeModelResourceIndex.head());
+//	}
+//	else
+//	{
+//		newRes->m_index = g_openGL->m_models.size();
+//		isNewIndex = true;
+//	}
+//
+//	auto newModel = CreateOpenGLModel(model);
+//	if(newModel)
+//	{
+//		if (isNewIndex)
+//			g_openGL->m_models.push_back(newModel);
+//		else
+//			g_openGL->m_models[newRes->m_index] = newModel;
+//
+//		newRes->m_isLoaded = true;
+//		return newRes;
+//	}
+//
+//	if(newRes)
+//		yyDestroy( newRes );
+//	return nullptr;
+//}
+//
+//void UnloadModel(yyResource* r){
+//	assert(r);
+//	assert(r->m_type == yyResourceType::Model);
+//	if(r->m_refCount == 0)
+//		return;
+//
+//	--r->m_refCount;
+//	if(!r->m_refCount)
+//	{
+//		r->m_isLoaded = false;
+//		if (g_openGL->m_models[r->m_index])
+//		{
+//			yyDestroy(g_openGL->m_models[r->m_index]);
+//			g_openGL->m_models[r->m_index] = nullptr;
+//			// ресурс создаётся один на модель и на всегда
+//			// для полного удаления вместе с ресурсом нужна другая функция - DeleteModel
+//		}
+//	}
+//}
+//
+//void DeleteModel(yyResource* r){
+//	assert(r);
+//	assert(r->m_type == yyResourceType::Model);
+//
+//	// нужно ли использовать это в таком случае? m_refCount 
+//	// если нужно удалить, то надо удалить, иначе надо вызывать UnloadModel
+//	//if (r->m_refCount == 0) return;
+//	/*--r->m_refCount;
+//	if (!r->m_refCount)
+//	{
+//		r->m_isLoaded = false;
+//		if (g_openGL->m_models[r->m_index])
+//		{
+//			yyDestroy(g_openGL->m_models[r->m_index]);
+//			g_openGL->m_models[r->m_index] = nullptr;
+//		}
+//	}*/
+//	yyDestroy(g_openGL->m_models[r->m_index]);
+//	g_openGL->m_models[r->m_index] = nullptr;
+//	// чтобы не переполнять g_openGL->m_models при создании новых ресурсов,
+//	// лучше вставлять их в свободные ячейки.
+//	// чтобы не перебирать их, наверно, лучше иметь список свободных ячеек
+//	// соответственно, при создании ресурса, перед указанием индекса, нужно проверить этот список
+//	g_openGL->m_freeModelResourceIndex.push_back(r->m_index);
+//	yyDestroy(r); // удаление ресурса
+//}
+//
+//void LoadModel(yyResource* r){
+//	assert(r);
+//#ifdef YY_DEBUG
+//	if(r->m_type != yyResourceType::Model)		YY_PRINT_FAILED;
+//#endif
+//	++r->m_refCount;
+//	if (r->m_refCount == 1)
+//	{
+//		r->m_isLoaded = true;
+//		if(r->m_source)
+//		{
+//			g_openGL->m_models[r->m_index] = CreateOpenGLModel((yyModel*)r->m_source );
+//			return;
+//		}
+//	}
+//}
 
 
 GLenum last_active_texture;
@@ -468,10 +468,8 @@ void EndDrawGUI(){
 void SetRenderTarget(yyResource* rtt){
 	if (rtt)
 	{
-		if (rtt->m_type == yyResourceType::RenderTargetTexture)
-			glBindFramebuffer(GL_FRAMEBUFFER, g_openGL->m_textures[rtt->m_index]->m_FBO);
-		else
-			yyLogWriteWarning("SetRenderTarget: yyResourceType is not RenderTargetTexture");
+		OpenGLTexture* t = (OpenGLTexture*)rtt->GetImplementation();
+		glBindFramebuffer(GL_FRAMEBUFFER, t->m_FBO);
 	}
 	else
 	{
@@ -489,15 +487,17 @@ void SetViewport(f32 _x, f32 _y, f32 _width, f32 _height, yyWindow* window){
 }
 
 void SetTexture(u32 slot, yyResource* res){
-	if(res)
-		g_openGL->m_currentTextures[slot] = g_openGL->m_textures[res->m_index];
+	if (res)
+	{
+		g_openGL->m_currentTextures[slot] = (OpenGLTexture*)res->GetImplementation();
+	}
 	else
 		g_openGL->m_currentTextures[slot] = nullptr;
 }
 
 void SetModel(yyResource* res){
 	if (res)
-		g_openGL->m_currentModel = g_openGL->m_models[res->m_index];
+		g_openGL->m_currentModel = (OpenGLModel*)res->GetImplementation();
 	else
 		g_openGL->m_currentModel = nullptr;
 }
@@ -768,17 +768,17 @@ v2f* GetSpriteCameraScale(){
 	return &g_openGL->m_spriteCameraScale;
 }
 
-void GetTextureSize(yyResource* r, v2i* s){
-	assert(r);
-	assert(s);
-	if(r->m_type != yyResourceType::Texture)
-		return;
-	OpenGLTexture* t = g_openGL->m_textures[ r->m_index ];
-	if(!t)
-		return;
-	s->x = t->m_w;
-	s->y = t->m_h;
-}
+//void GetTextureSize(yyResource* r, v2i* s){
+//	assert(r);
+//	assert(s);
+//	if(r->m_type != yyResourceType::Texture)
+//		return;
+//	OpenGLTexture* t = g_openGL->m_textures[ r->m_index ];
+//	if(!t)
+//		return;
+//	s->x = t->m_w;
+//	s->y = t->m_h;
+//}
 
 void SetActiveWindow(yyWindow* w){
 	g_openGL->SetActive(w);
@@ -792,17 +792,17 @@ void SetMaterial(yyMaterial* mat){
 	g_openGL->m_currentMaterial = mat;
 }
 
-void MapModelForWriteVerts(yyResource* r, u8** v_ptr){
-	assert(r);
-	OpenGLModel* m = g_openGL->m_models[r->m_index];
-	glBindBuffer(GL_ARRAY_BUFFER, m->m_vBuffer);
-	*v_ptr = (u8*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-}
-
-void UnmapModelForWriteVerts(yyResource* r){
-	glUnmapBuffer(GL_ARRAY_BUFFER);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
+//void MapModelForWriteVerts(yyResource* r, u8** v_ptr){
+//	assert(r);
+//	OpenGLModel* m = g_openGL->m_models[r->m_index];
+//	glBindBuffer(GL_ARRAY_BUFFER, m->m_vBuffer);
+//	*v_ptr = (u8*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+//}
+//
+//void UnmapModelForWriteVerts(yyResource* r){
+//	glUnmapBuffer(GL_ARRAY_BUFFER);
+//	glBindBuffer(GL_ARRAY_BUFFER, 0);
+//}
 
 yyVideoDriverObjectOpenGL g_yyVideoDriverObjectOpenGL;
 void* GetVideoDriverObjects(){
@@ -872,8 +872,16 @@ void UpdateMainRenderTarget(const v2i& windowsSize, const v2f& bufferSize){
 	g_openGL->UpdateGUIProjectionMatrix(windowsSize);
 }
 
-void* GetTextureHandle(yyResource* res){
-	return &g_openGL->m_textures[res->m_index]->m_texture;
+//void* GetTextureHandle(yyResource* res){
+//	return &g_openGL->m_textures[res->m_index]->m_texture;
+//}
+
+yyResourceImplementation* CreateTextureImplementation() {
+	return yyCreate<OpenGLTexture>();
+}
+
+yyResourceImplementation* CreateModelImplementation() {
+	return yyCreate<OpenGLModel>();
 }
 
 void SetGUIShaderData(yyGUIElement* guielement){
@@ -891,12 +899,12 @@ extern "C"
 		g_api.ClearAll = ClearAll;
 		g_api.ClearColor = ClearColor;
 		g_api.ClearDepth = ClearDepth;
-		g_api.CreateModel = CreateModel;
+		/*g_api.CreateModel = CreateModel;
 		g_api.CreateRenderTargetTexture = CreateRenderTargetTexture;
 		g_api.CreateTexture = CreateTexture;
 		g_api.CreateTextureFromFile = CreateTextureFromFile;
 		g_api.DeleteModel = DeleteModel;
-		g_api.DeleteTexture = DeleteTexture;
+		g_api.DeleteTexture = DeleteTexture;*/
 		g_api.Destroy = Destroy;
 		g_api.Draw = Draw;
 		g_api.DrawLine2D = DrawLine2D;
@@ -909,14 +917,14 @@ extern "C"
 		g_api.GetAPIVersion = GetAPIVersion;
 		g_api.GetSpriteCameraPosition = GetSpriteCameraPosition;
 		g_api.GetSpriteCameraScale = GetSpriteCameraScale;
-		g_api.GetTextureHandle = GetTextureHandle;
-		g_api.GetTextureSize = GetTextureSize;
+		/*g_api.GetTextureHandle = GetTextureHandle;
+		g_api.GetTextureSize = GetTextureSize;*/
 		g_api.GetVideoDriverName = GetVideoDriverName;
 		g_api.GetVideoDriverObjects = GetVideoDriverObjects;
 		g_api.Init = Init;
-		g_api.LoadModel = LoadModel;
+		/*g_api.LoadModel = LoadModel;
 		g_api.LoadTexture = LoadTexture;
-		g_api.MapModelForWriteVerts = MapModelForWriteVerts;
+		g_api.MapModelForWriteVerts = MapModelForWriteVerts;*/
 		g_api.SetBoneMatrix = SetBoneMatrix;
 		g_api.SetClearColor = SetClearColor;
 		g_api.SetGUIShaderData = SetGUIShaderData;
@@ -928,9 +936,11 @@ extern "C"
 		g_api.SetTexture = SetTexture;
 		g_api.SetViewport = SetViewport;
 		g_api.SwapBuffers = SwapBuffers;
-		g_api.UnloadModel = UnloadModel;
+		/*g_api.UnloadModel = UnloadModel;
 		g_api.UnloadTexture = UnloadTexture;
-		g_api.UnmapModelForWriteVerts = UnmapModelForWriteVerts;
+		g_api.UnmapModelForWriteVerts = UnmapModelForWriteVerts;*/
+		g_api.CreateTextureImplementation = CreateTextureImplementation;
+		g_api.CreateModelImplementation = CreateModelImplementation;
 		g_api.UpdateMainRenderTarget = UpdateMainRenderTarget;
 		g_api.UseBlend = UseBlend;
 		g_api.UseDepth = UseDepth;

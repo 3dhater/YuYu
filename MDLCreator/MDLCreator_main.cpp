@@ -195,7 +195,7 @@ void deleteLayer(yyMDLObject* object){
 	g_sceneObject->m_layerInfo.erase(g_selectedLayer);
 	if (layer->m_meshGPU)
 	{
-		yyGetVideoDriverAPI()->DeleteModel(layer->m_meshGPU);
+		yyDestroy(layer->m_meshGPU);
 		layer->m_meshGPU = nullptr;
 	}
 	yyDestroy(layer);
@@ -213,7 +213,7 @@ void reloadTexture(yyMDLObject* object, int textureSlot, const wchar_t* path){
 		printf("Not exist\n");
 		if (layer->m_textureGPU[textureSlot])
 		{
-			yyGetVideoDriverAPI()->DeleteTexture(layer->m_textureGPU[textureSlot]);
+			yyDestroy(layer->m_textureGPU[textureSlot]);
 			layer->m_textureGPU[textureSlot] = 0;
 		}
 		return;
@@ -224,12 +224,15 @@ void reloadTexture(yyMDLObject* object, int textureSlot, const wchar_t* path){
 	
 	if (texture)
 	{
-		yyGetVideoDriverAPI()->DeleteTexture(texture);
+		yyDestroy(texture);
 	}
 
 	yyStringA str;
 	str = path;
-	texture = yyGetVideoDriverAPI()->CreateTextureFromFile(str.data(), true, false, true);
+	yyImage* img = yyLoadImage(str.data());
+	texture = yyCreateTexture(img);
+	texture->Load();
+	yyDestroy(img);
 
 	layer->m_textureGPU[textureSlot] = texture;
 }
@@ -349,7 +352,8 @@ int main(int argc, char* argv[])
 	//yyPtr<yyMDLObject> mdlObject = yyCreate<yyMDLObject>();
 	//mdlObject.m_data->m_mdl = yyCreate<yyMDL>();
 
-	auto defaultTexture = yyGetTextureResource("../res/textures/editor/white.dds", false, false, true);
+	auto defaultTexture = yyGetTextureFromCache("../res/textures/editor/white.dds");
+	defaultTexture->Load();
 
 	f32 deltaTime = 0.f;
 	while (yyRun(&deltaTime))
@@ -549,8 +553,10 @@ int main(int argc, char* argv[])
 							}
 							if (g_sceneObject->m_mdlObject->m_mdl->m_layers[g_selectedLayer]->m_textureGPU[0])
 							{
-								auto th = yyGetVideoDriverAPI()->GetTextureHandle(g_sceneObject->m_mdlObject->m_mdl->m_layers[g_selectedLayer]->m_textureGPU[0]);
-								ImTextureID my_tex_id = th;
+
+								ImTextureID my_tex_id;
+								g_sceneObject->m_mdlObject->m_mdl->m_layers[g_selectedLayer]->m_textureGPU[0]->GetTextureHandle(&my_tex_id);
+
 								float my_tex_w = 64.f;
 								float my_tex_h = 64.f;
 								ImVec2 pos = ImGui::GetCursorScreenPos();

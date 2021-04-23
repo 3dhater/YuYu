@@ -340,35 +340,47 @@ struct yyMDLLayer
 	}
 	~yyMDLLayer() {
 		if (m_model) yyDestroy(m_model);
-		Unload();
+		for (u32 i = 0; i < YY_MDL_LAYER_NUM_OF_TEXTURES; ++i)
+		{
+			if (m_textureGPU[i])
+				yyDestroy(m_textureGPU[i]);
+		}
+		if (m_meshGPU)
+			yyDestroy(m_meshGPU);
 	}
 
 	yyVideoDriverAPI * m_gpu;
 
 	yyModel * m_model;
-
 	yyStringA m_texturePath[YY_MDL_LAYER_NUM_OF_TEXTURES];
-	yyResource* m_textureGPU[YY_MDL_LAYER_NUM_OF_TEXTURES];
 
+	yyResource* m_textureGPU[YY_MDL_LAYER_NUM_OF_TEXTURES];
 	yyResource* m_meshGPU;
 
 	void Load()
 	{
 		for (u32 i = 0; i < YY_MDL_LAYER_NUM_OF_TEXTURES; ++i)
 		{
-			if (m_textureGPU[i])m_gpu->LoadTexture(m_textureGPU[i]);
+			//if (m_textureGPU[i])m_gpu->LoadTexture(m_textureGPU[i]);
+			if (m_textureGPU[i])
+				m_textureGPU[i]->Load();
 		}
 
-		if (m_meshGPU) m_gpu->LoadModel(m_meshGPU);
+		//if (m_meshGPU) m_gpu->LoadModel(m_meshGPU);
+		if (m_meshGPU)
+			m_meshGPU->Load();
 	}
 	void Unload()
 	{
 		for (u32 i = 0; i < YY_MDL_LAYER_NUM_OF_TEXTURES; ++i)
 		{
-			if (m_textureGPU[i])m_gpu->UnloadTexture(m_textureGPU[i]);
+			if (m_textureGPU[i])
+				m_textureGPU[i]->Unload();
 		}
 
-		if (m_meshGPU) m_gpu->UnloadModel(m_meshGPU);
+		//if (m_meshGPU) m_gpu->UnloadModel(m_meshGPU);
+		if (m_meshGPU)
+			m_meshGPU->Unload();
 	}
 };
 
@@ -650,13 +662,11 @@ struct yyMDLHitbox
 
 struct yyMDL
 {
-	yyMDL()
-	{
+	yyMDL(){
 		m_refCount = 0;
 	}
 
-	~yyMDL()
-	{
+	~yyMDL(){
 		for (u16 i = 0, sz = m_hitboxes.size(); i < sz; ++i)
 		{
 			yyDestroy(m_hitboxes[i]);
@@ -739,9 +749,9 @@ struct yyMDL
 	Aabb m_aabb;
 
 
-	// используется в yyGetModel и yyDeleteModel
-	// если вызван yyGetModel то ++m_refCount
-	// если вызван yyDeleteModel то --m_refCount
+	// используется в yyGetMDLFromCache и yyRemoveMDLFromCache
+	// если вызван yyGetMDLFromCache то ++m_refCount
+	// если вызван yyRemoveMDLFromCache то --m_refCount
 	u32 m_refCount;
 };
 

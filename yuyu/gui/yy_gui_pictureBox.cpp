@@ -22,10 +22,13 @@ yyGUIPictureBox::yyGUIPictureBox()
 yyGUIPictureBox::~yyGUIPictureBox(){
 	auto vAPI = yyGetVideoDriverAPI();
 	if( this->m_pictureBoxModel )
-		vAPI->DeleteModel(this->m_pictureBoxModel);
+		yyDestroy(this->m_pictureBoxModel);
 	
-	if( this->m_texture )
-		vAPI->UnloadTexture(this->m_texture);
+	// do not delete texture here
+	// because it can be from cache
+	/*if( this->m_texture )
+		yyDestroy(this->m_texture);*/
+	// maybe m_texture->Unload() here
 }
 
 yyResource* yyGUIPictureBox::DropTexture() {
@@ -39,7 +42,7 @@ void yyGUIPictureBox::Rebuild() {
 	auto vAPI = yyGetVideoDriverAPI();
 
 	if (this->m_pictureBoxModel)
-		vAPI->DeleteModel(this->m_pictureBoxModel);
+		yyDestroy(this->m_pictureBoxModel);
 
 	auto model = yyCreate<yyModel>();
 
@@ -53,8 +56,8 @@ void yyGUIPictureBox::Rebuild() {
 
 	v2f lt, rb;
 	{
-		v2i tsz;
-		vAPI->GetTextureSize(m_texture, &tsz);
+		v2f tsz;
+		m_texture->GetTextureSize(&tsz);
 		f32 mulX = 1.f / (f32)tsz.x;
 		f32 mulY = 1.f / (f32)tsz.y;
 
@@ -85,7 +88,8 @@ void yyGUIPictureBox::Rebuild() {
 	inds[4] = 2;
 	inds[5] = 3;
 
-	m_pictureBoxModel = vAPI->CreateModel(model);
+	m_pictureBoxModel = yyCreateModel(model);
+	m_pictureBoxModel->Load();
 	yyDestroy(model);
 }
 
@@ -98,6 +102,9 @@ YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResou
 	element->m_texture = texture;
 	element->m_id = id;
 
+	if (!element->m_texture->IsLoaded())
+		element->m_texture->Load();
+
 	if (uv)
 	{
 		element->m_uvRect = *uv;
@@ -105,8 +112,8 @@ YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResou
 	else
 	{
 		auto gpu = yyGetVideoDriverAPI();
-		v2i s;
-		gpu->GetTextureSize(texture, &s);
+		v2f s;
+		texture->GetTextureSize(&s);
 		element->m_uvRect.z = s.x;
 		element->m_uvRect.w = s.y;
 	}

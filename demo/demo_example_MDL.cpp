@@ -59,6 +59,8 @@ void DemoExample_MDL_onAnimationEnd_gunReloadEnd(void * userData) {
 
 DemoExample_MDL::DemoExample_MDL(){
 	m_mdl_struct = 0;
+	m_mdl_hero = 0;
+	m_mdl_luger = 0;
 	m_flyCamera = 0;
 	m_handsCamera = 0;
 
@@ -87,10 +89,11 @@ bool DemoExample_MDL::Init(){
 	m_handsCamera->m_fov = math::degToRad(60.f);
 	m_handsCamera->Update();
 
-	m_mdl_struct = yyGetModel("../res/test/mdl/struct.mdl");
+	m_mdl_struct = yyCreateMDLFromFile("../res/test/mdl/struct.mdl");
+	m_mdl_hero = yyCreateMDLFromFile("../res/test/mdl/test.mdl");
 
 	m_mdl_object = yyCreate<yyMDLObject>();
-	m_mdl_object->SetMDL(yyGetModel("../res/test/mdl/test.mdl"));
+	m_mdl_object->SetMDL(m_mdl_hero);
 	m_mdl_object->m_onUpdate = DemoExample_MDL_onUpdate;
 
 	m_mdl_object->m_mdl->GetJointByName("Bone008", &g_controlledBoneIndex);
@@ -153,8 +156,10 @@ bool DemoExample_MDL::Init(){
 	newState->m_stateNodesWithAnimations.push_back(newStateNodeHands);
 	m_mdl_object->SetState(newState, true);
 
+	m_mdl_luger = yyCreateMDLFromFile("../res/models/Luger/luger.mdl");
+
 	m_mdl_playerGun = yyCreate<yyMDLObject>();
-	m_mdl_playerGun->SetMDL(yyGetModel("../res/models/Luger/luger.mdl"));
+	m_mdl_playerGun->SetMDL(m_mdl_luger);
 	m_playerGunState_idle = m_mdl_object->AddStateWithAnimation("idle", m_mdl_playerGun->m_mdl->GetAnimationByName("idle"));
 	m_playerGunState_idleempty = m_mdl_object->AddStateWithAnimation("idleempty", m_mdl_playerGun->m_mdl->GetAnimationByName("idleempty"));
 	m_playerGunState_shot = m_mdl_object->AddStateWithAnimation("shot", m_mdl_playerGun->m_mdl->GetAnimationByName("shot"));
@@ -194,13 +199,23 @@ void DemoExample_MDL::Shutdown(){
 	}
 	if (m_mdl_struct)
 	{
-		yyDeleteModel(m_mdl_struct);
+		yyDestroy(m_mdl_struct);
 		m_mdl_struct = 0;
 	}
 	if (m_mdl_object)
 	{
 		yyDestroy(m_mdl_object);
 		m_mdl_object = 0;
+	}
+	if (m_mdl_hero)
+	{
+		yyDestroy(m_mdl_hero);
+		m_mdl_hero = 0;
+	}
+	if (m_mdl_luger)
+	{
+		yyDestroy(m_mdl_luger);
+		m_mdl_luger = 0;
 	}
 	if (m_mdl_playerGun)
 	{

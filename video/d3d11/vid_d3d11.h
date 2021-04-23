@@ -160,7 +160,7 @@ public:
 	bool Init(yyWindow* window);
 	//bool initModel(yyModel* model, D3D11Model* openglModel);
 	//bool initTexture(yyImage* image, D3D11Texture* newTexture, bool useLinearFilter, bool useComparedFilter);
-	bool initRTT(D3D11Texture*, const v2f& size, bool useLinearFilter, bool useComparisonFilter);
+	//bool initRTT(D3D11Texture*, const v2f& size, bool useLinearFilter, bool useComparisonFilter);
 	
 	//yyListFast<size_t> m_freeModelResourceIndex;
 	//yyListFast<size_t> m_freeTextureResourceIndex;

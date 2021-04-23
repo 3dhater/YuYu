@@ -77,12 +77,12 @@ void yyGUIGroup::AddElement(yyGUIElement* elem) {
 
 
 void yyGUIGroup::_setVisible(yyGUIElement* e, bool v) {
-	for (auto & child : e->m_children)
+	for (auto child : e->m_children)
 	{
-		child.m_data->SetVisible(v);
+		child->SetVisible(v);
 
-		if (child.m_data->m_children.head())
-			_setVisible(child.m_data, v);
+		if (child->m_children.head())
+			_setVisible(child, v);
 	}
 }
 

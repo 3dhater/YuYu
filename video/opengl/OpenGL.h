@@ -1270,12 +1270,12 @@ public:
 	void SetActive(yyWindow* window);
 	void InitWindow(yyWindow* window);
 
-	std::vector<OpenGLTexture*> m_textures;
-	std::vector<OpenGLModel*> m_models;
+	//std::vector<OpenGLTexture*> m_textures;
+	//std::vector<OpenGLModel*> m_models;
 
-	bool initTexture(yyImage*, OpenGLTexture*, bool useLinearFilter, bool useComparisonFilter);
-	bool initFBO(OpenGLTexture*, const v2f& size, bool useLinearFilter, bool useComparisonFilter);
-	bool initModel(yyModel*, OpenGLModel*);
+	//bool initTexture(yyImage*, OpenGLTexture*, bool useLinearFilter, bool useComparisonFilter);
+	//bool initFBO(OpenGLTexture*, const v2f& size, bool useLinearFilter, bool useComparisonFilter);
+	//bool initModel(yyModel*, OpenGLModel*);
 
 	OpenGLShaderGUI* m_shader_gui;
 	OpenGLShaderSprite* m_shader_sprite;
@@ -1323,8 +1323,8 @@ public:
 	v2f m_spriteCameraPosition;
 	v2f m_spriteCameraScale;
 
-	yyListFast<size_t> m_freeModelResourceIndex;
-	yyListFast<size_t> m_freeTextureResourceIndex;
+	//yyListFast<size_t> m_freeModelResourceIndex;
+	//yyListFast<size_t> m_freeTextureResourceIndex;
 };
 
 #endif

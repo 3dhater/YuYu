@@ -17,7 +17,7 @@ public:
 
 	virtual bool DemoStep(f32 deltaTime);
 
-	// Загрузка MDL происходит через yuyu.dll (функция yyGetModel).
+	// Загрузка MDL происходит через yuyu.dll (функция yyGetMDLFromCache).
 	// yyMDL содержит слои\субмеши.
 	// каждый слой имеет указатель на GPU ресурс для модели и для текстур
 	//  эти указатели будут такими на протяжении всей работы программы
@@ -34,7 +34,10 @@ public:
 
 	// Класс-обёртка который играет анимацию.
 	yyMDLObject* m_mdl_object;
+	yyMDL* m_mdl_hero;
 	
+	yyMDL* m_mdl_luger;
+
 	yyMDLObject* m_mdl_playerGun;
 	yyMDLObjectState* m_playerGunState_idle;
 	yyMDLObjectState* m_playerGunState_idleempty;

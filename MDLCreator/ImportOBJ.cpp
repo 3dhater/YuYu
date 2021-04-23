@@ -287,7 +287,7 @@ void ImportOBJ(yyMDLObject* object, const char* fileName)
 	yyMDLLayer* newLayer = yyCreate<yyMDLLayer>();
 	newLayer->m_model = newModel;
 
-	newLayer->m_meshGPU = yyGetVideoDriverAPI()->CreateModel(newModel);
+	newLayer->m_meshGPU = yyCreateModel(newModel);
 	object->m_mdl->m_layers.push_back(newLayer);
 	g_sceneObject->m_layerInfo.push_back(LayerInfo());
 }

@@ -66,11 +66,7 @@ struct yyMDLObject
 	~yyMDLObject()
 	{
 		if (m_mdl)
-		{
-			// destroy or release like yyUnloadMDL ???
-			//yyDestroy(m_mdl);
-			yyDeleteModel(m_mdl);
-		}
+			m_mdl->Unload();
 	}
 
 	Mat4(*m_onUpdate)(yyJoint* mdlJoint, s32 jointIndex, const Mat4& translationMatrix, const Mat4& rotationMatrix, const Mat4& scaleMatrix);

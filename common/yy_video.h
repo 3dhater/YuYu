@@ -104,12 +104,12 @@ struct yyVideoDriverAPI
 	v2f* (*GetSpriteCameraPosition)();
 	v2f* (*GetSpriteCameraScale)();
 
-	void (*GetTextureSize)(yyResource* r, v2i*);
+	//void (*GetTextureSize)(yyResource* r, v2i*);
 
-	void (*MapModelForWriteVerts)(yyResource* r, u8** v_ptr);
-	void(*UnmapModelForWriteVerts)(yyResource* r);
+	//void (*MapModelForWriteVerts)(yyResource* r, u8** v_ptr);
+	//void(*UnmapModelForWriteVerts)(yyResource* r);
 
-	yyResource* (*CreateRenderTargetTexture)(const v2f& size, bool useLinearFilter, bool useComparisonFilter);
+	//yyResource* (*CreateRenderTargetTexture)(const v2f& size, bool useLinearFilter, bool useComparisonFilter);
 	void(*SetRenderTarget)(yyResource*);
 	void(*SetViewport)(f32 x, f32 y, f32 width, f32 height, yyWindow* window);
 	void(*SetScissorRect)(const v4f& rect, yyWindow* window);
@@ -122,7 +122,7 @@ struct yyVideoDriverAPI
 	const char* (*GetVideoDriverName)();
 
 	// Get ID3D11ShaderResourceView* or OpenGL texture ID
-	void* (*GetTextureHandle)(yyResource*);
+	//void* (*GetTextureHandle)(yyResource*);
 	
 	void (*SetGUIShaderData)(yyGUIElement*);
 

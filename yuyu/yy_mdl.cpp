@@ -84,12 +84,15 @@ void MDL_loadVersion1(yyMDL** _mdl, yyFileBuffer* f)
 			s32 id = layerHeader.m_textureStrID[o];
 			if (id != -1)
 			{
-				newLayer->m_texturePath[o] = strings[id].data();
+				//newLayer->m_texturePath[o] = strings[id].data();
+				newLayer->m_textureGPU[o] = yyGetTextureFromCache(strings[id].data());
 			}
 		}
 
 		f->read(newLayer->m_model->m_vertices, layerHeader.m_vertexDataSize);
 		f->read(newLayer->m_model->m_indices, layerHeader.m_indexDataSize);
+
+		newLayer->m_meshGPU = yyCreateModel(newLayer->m_model);
 
 		newMDL->m_layers.push_back(newLayer);
 	}

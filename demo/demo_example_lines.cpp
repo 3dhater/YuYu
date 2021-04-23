@@ -78,7 +78,7 @@ bool DemoExample_Lines::Init(){
 		index++;
 	}
 
-	m_lineModel = m_gpu->CreateModel(&model);
+	m_lineModel = yyCreateModel(&model);
 	m_lineModelMaterial.SetFogStart(1.f);
 	
 
@@ -100,7 +100,7 @@ bool DemoExample_Lines::Init(){
 void DemoExample_Lines::Shutdown(){
 	if (m_lineModel)
 	{
-		m_gpu->DeleteModel(m_lineModel);
+		yyDestroy(m_lineModel);
 		m_lineModel = 0;
 	}
 	if (m_editorCamera)

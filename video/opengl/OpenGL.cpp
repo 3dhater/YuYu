@@ -165,7 +165,7 @@ OpenGL::~OpenGL()
 	if (m_shader_simple) yyDestroy(m_shader_simple);
 	if (m_shader_simpleAnimated) yyDestroy(m_shader_simpleAnimated);
 
-	for(size_t i = 0, sz = m_textures.size(); i < sz; ++i)
+	/*for(size_t i = 0, sz = m_textures.size(); i < sz; ++i)
 	{
 		if( m_textures[i] )
 			yyDestroy( m_textures[i] );
@@ -175,7 +175,7 @@ OpenGL::~OpenGL()
 	{
 		if( m_models[i] )
 			yyDestroy( m_models[i] );
-	}
+	}*/
 
 #ifdef YY_PLATFORM_WINDOWS
 	if(m_OpenGL_lib)
@@ -591,12 +591,17 @@ bool OpenGL::updateMainTarget()
 	if (m_mainTargetSurface) yyDestroy(m_mainTargetSurface);
 
 	m_mainTarget = yyCreate<OpenGLTexture>();
-	if (!initFBO(m_mainTarget, m_mainTargetSize, false, false))
+	yyResourceData rd;
+	rd.m_type = yyResourceType::RenderTargetTexture;
+	rd.m_imageData.m_size[0] = m_mainTargetSize.x;
+	rd.m_imageData.m_size[1] = m_mainTargetSize.y;
+	m_mainTarget->Load(&rd);
+	/*if (!initFBO(m_mainTarget, m_mainTargetSize, false, false))
 	{
 		yyLogWriteError("Can't create main render target...");
 		YY_PRINT_FAILED;
 		return false;
-	}
+	}*/
 
 	auto model = yyCreate<yyModel>();
 	model->m_iCount = 6;
@@ -629,18 +634,22 @@ bool OpenGL::updateMainTarget()
 	inds[5] = 3;
 
 	m_mainTargetSurface = yyCreate<OpenGLModel>();
-	if (!initModel(model, m_mainTargetSurface))
+	yyResourceData rd2;
+	rd2.m_source = model;
+	rd2.m_type = yyResourceType::Model;
+	m_mainTargetSurface->Load(&rd2);
+	/*if (!initModel(model, m_mainTargetSurface))
 	{
 		yyDestroy(model);
 		yyLogWriteError("Can't create main render target surface...");
 		YY_PRINT_FAILED;
 		return false;
-	}
+	}*/
 	yyDestroy(model);
 	return true;
 }
 
-bool OpenGL::initFBO(OpenGLTexture* new_texture, const v2f& size, bool useLinearFilter, bool useComparisonFilter)
+/*bool OpenGL::initFBO(OpenGLTexture* new_texture, const v2f& size, bool useLinearFilter, bool useComparisonFilter)
 {
 	new_texture->m_w = size.x;
 	new_texture->m_h = size.y;
@@ -707,7 +716,7 @@ bool OpenGL::initTexture(yyImage* image, OpenGLTexture* newTexture, bool useLine
 
 		auto width   = image->m_width;
 		auto height  = image->m_width;
-		/* load the mipmaps */
+		// load the mipmaps 
 		for(u32 level = 0; level < image->m_mipCount && (width || height); ++level)
 		{
 			u32 size = ((width+3)/4)*((height+3)/4)*blockSize;
@@ -832,5 +841,5 @@ bool OpenGL::initModel(yyModel* model, OpenGLModel* openglModel)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
 
 	return true;
-}
+}*/
 

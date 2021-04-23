@@ -80,10 +80,6 @@ extern "C"
 	YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& rect, yyResource* texture, u8 pivotPosition = 0);
 	YY_API yySprite2* YY_C_DECL yyCreateSprite2(yyResource* texture);
 
-	
-
-	YY_API void YY_C_DECL yyGetTextureSize(yyResource*, v2i*);
-
 	YY_API void YY_C_DECL yySetMainWindow(yyWindow*);
 	YY_API yyWindow* YY_C_DECL yyGetMainWindow();
 
