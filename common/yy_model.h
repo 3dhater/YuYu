@@ -340,11 +340,11 @@ struct yyMDLLayer
 	}
 	~yyMDLLayer() {
 		if (m_model) yyDestroy(m_model);
-		for (u32 i = 0; i < YY_MDL_LAYER_NUM_OF_TEXTURES; ++i)
+		/*for (u32 i = 0; i < YY_MDL_LAYER_NUM_OF_TEXTURES; ++i)
 		{
 			if (m_textureGPU[i])
 				yyDestroy(m_textureGPU[i]);
-		}
+		}*/
 		if (m_meshGPU)
 			yyDestroy(m_meshGPU);
 	}
@@ -375,12 +375,23 @@ struct yyMDLLayer
 		for (u32 i = 0; i < YY_MDL_LAYER_NUM_OF_TEXTURES; ++i)
 		{
 			if (m_textureGPU[i])
-				m_textureGPU[i]->Unload();
+			{
+				if(m_textureGPU[i]->IsLoaded())
+					m_textureGPU[i]->Unload();
+			}
+
+			/*if (m_textureGPU[i]->IsLoaded() == false)
+			{
+				yyRemoveTextureFromCache(m_textureGPU[i]);
+			}*/
 		}
 
 		//if (m_meshGPU) m_gpu->UnloadModel(m_meshGPU);
 		if (m_meshGPU)
-			m_meshGPU->Unload();
+		{
+			if(m_meshGPU->IsLoaded())
+				m_meshGPU->Unload();
+		}
 	}
 };
 
@@ -730,16 +741,26 @@ struct yyMDL
 	//  загружать ли ресурс сразу или отложить загрузку на потом.
 	void Load()
 	{
-		for (u16 i = 0, sz = m_layers.size(); i < sz; ++i)
+		++m_refCount;
+
+		if (m_refCount == 1)
 		{
-			m_layers[i]->Load();
+			for (u16 i = 0, sz = m_layers.size(); i < sz; ++i)
+			{
+				m_layers[i]->Load();
+			}
 		}
 	}
 	void Unload()
 	{
-		for (u16 i = 0, sz = m_layers.size(); i < sz; ++i)
+		--m_refCount;
+
+		if (m_refCount == 0)
 		{
-			m_layers[i]->Unload();
+			for (u16 i = 0, sz = m_layers.size(); i < sz; ++i)
+			{
+				m_layers[i]->Unload();
+			}
 		}
 	}
 	

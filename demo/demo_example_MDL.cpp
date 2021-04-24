@@ -90,7 +90,10 @@ bool DemoExample_MDL::Init(){
 	m_handsCamera->Update();
 
 	m_mdl_struct = yyCreateMDLFromFile("../res/test/mdl/struct.mdl");
+	m_mdl_struct->Load();
+
 	m_mdl_hero = yyCreateMDLFromFile("../res/test/mdl/test.mdl");
+	m_mdl_hero->Load();
 
 	m_mdl_object = yyCreate<yyMDLObject>();
 	m_mdl_object->SetMDL(m_mdl_hero);
@@ -157,6 +160,7 @@ bool DemoExample_MDL::Init(){
 	m_mdl_object->SetState(newState, true);
 
 	m_mdl_luger = yyCreateMDLFromFile("../res/models/Luger/luger.mdl");
+	m_mdl_luger->Load();
 
 	m_mdl_playerGun = yyCreate<yyMDLObject>();
 	m_mdl_playerGun->SetMDL(m_mdl_luger);

@@ -183,27 +183,43 @@ struct yySprite2State
 void yySprite2_update(void * impl);
 struct yySprite2
 {
-	yySprite2()
-	{
+	yySprite2()	{
 		m_objectBase.m_objectType = yySceneObjectBase::ObjectType::Sprite2;
 		m_objectBase.m_implementationPtr = this;
 		m_objectBase.m_updateImplementation = yySprite2_update; // наверно m_updateImplementation в принципе лишнее
 		m_currentState = 0;
 		m_texture = 0;
 	}
-	~yySprite2()
-	{
+	~yySprite2()	{
+#ifdef YY_DEBUG
+		yyLogWriteInfo("%s\n", YY_FUNCTION);
+#endif
 		for(u16 i = 0, sz = m_states.size(); i < sz; ++i)
 		{
 			yyDestroy(m_states[i]);
+		}
+		if (m_texture)
+		{
+			if (m_texture->IsFromCache())
+			{
+				m_texture->Unload();
+				if (!m_texture->IsLoaded())
+				{
+					yyRemoveTextureFromCache(m_texture);
+					yyDestroy(m_texture);
+				}
+			}
+			else
+			{
+				yyDestroy(m_texture);
+			}
 		}
 	}
 
 	yySceneObjectBase m_objectBase;
 	yySprite2State* m_currentState;
 
-	void Update(float dt)
-	{
+	void Update(float dt)	{
 		if(m_currentState)
 		{
 			if(m_currentState->m_isAnimation)

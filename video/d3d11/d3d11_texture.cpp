@@ -58,6 +58,7 @@ void D3D11Texture::MapModelForWriteVerts(u8** v_ptr) {}
 void D3D11Texture::UnmapModelForWriteVerts() {}
 
 void D3D11Texture::Load(yyResourceData* imageData) {
+	YY_DEBUG_PRINT_FUNC;
 	D3D11_FILTER filter;
 	yyTextureFilter tf = imageData->m_imageData.m_filter;
 	switch (tf)
@@ -226,7 +227,7 @@ void D3D11Texture::Load(yyResourceData* imageData) {
 	else
 	{
 		m_h = imageData->m_imageData.m_size[0];
-		m_w = imageData->m_imageData.m_size[0];
+		m_w = imageData->m_imageData.m_size[1];
 
 		D3D11_TEXTURE2D_DESC desc;
 		ZeroMemory(&desc, sizeof(desc));
@@ -345,6 +346,7 @@ void D3D11Texture::Load(yyResourceData* imageData) {
 }
 
 void D3D11Texture::Unload() {
+	YY_DEBUG_PRINT_FUNC;
 	if (m_RTV) {
 		m_RTV->Release();
 		m_RTV = 0;

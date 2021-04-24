@@ -1,10 +1,12 @@
 ﻿#include "yy.h"
+#include "yy_image.h"
 #include "yyResourceImpl.h"
 
 #include "engine.h"
 extern Engine * g_engine;
 
 yyResourceImpl::yyResourceImpl() {
+	YY_DEBUG_PRINT_FUNC;
 	m_type = yyResourceType::None;
 	m_refCount = 0;
 	m_implementation = 0;
@@ -12,12 +14,17 @@ yyResourceImpl::yyResourceImpl() {
 }
 
 yyResourceImpl::~yyResourceImpl() {
+	YY_DEBUG_PRINT_FUNC;
 	if (m_implementation)
 	{
 		if(m_refCount)
 			m_implementation->Unload();
 		yyDestroy(m_implementation);
 	}
+}
+
+bool yyResourceImpl::IsFromCache() {
+	return ((m_flags & this->flag_fromCache) == this->flag_fromCache);
 }
 
 yyResourceType yyResourceImpl::GetType() {
@@ -71,7 +78,20 @@ void yyResourceImpl::Load() {
 
 		if (!isSource)
 		{
-			yyDestroy(m_resourceData.m_source);
+			switch (m_resourceData.m_type)
+			{
+			default:
+				YY_DEBUGBREAK;
+				break;
+			case yyResourceType::Texture:
+			{
+				yyDestroy((yyImage*)m_resourceData.m_source);
+			}break;
+			case yyResourceType::Model:
+				break;
+			case yyResourceType::RenderTargetTexture:
+				break;
+			}
 			m_resourceData.m_source = 0;
 		}
 	}

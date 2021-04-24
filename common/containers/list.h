@@ -331,8 +331,8 @@ public:
 		if (object == m_head)
 			m_head = 0;
 
-		m_allocator.deallocate(object);
 		m_allocator.destruct(object);
+		m_allocator.deallocate(object);
 		
 		--m_size;
 	}

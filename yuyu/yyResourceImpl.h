@@ -12,6 +12,7 @@ public:
 	virtual void Unload();
 	virtual u32 GetRefCount();
 	virtual bool IsLoaded();
+	virtual bool IsFromCache();
 
 	virtual yyResourceImplementation* GetImplementation();
 
@@ -26,9 +27,13 @@ public:
 
 	yyResourceType m_type;
 	u32 m_refCount;
-	u32 m_flags;
 	yyResourceImplementation* m_implementation;
 	yyResourceData m_resourceData;
+
+	enum {
+		flag_fromCache = BIT(0)
+	};
+	u32 m_flags;
 };
 
 #endif

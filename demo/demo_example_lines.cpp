@@ -79,6 +79,7 @@ bool DemoExample_Lines::Init(){
 	}
 
 	m_lineModel = yyCreateModel(&model);
+	m_lineModel->Load();
 	m_lineModelMaterial.SetFogStart(1.f);
 	
 

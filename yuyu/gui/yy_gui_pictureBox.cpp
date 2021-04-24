@@ -28,7 +28,6 @@ yyGUIPictureBox::~yyGUIPictureBox(){
 	// because it can be from cache
 	/*if( this->m_texture )
 		yyDestroy(this->m_texture);*/
-	// maybe m_texture->Unload() here
 }
 
 yyResource* yyGUIPictureBox::DropTexture() {

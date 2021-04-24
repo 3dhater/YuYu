@@ -90,14 +90,15 @@ _type * yyCreate3(arg1 a1, arg2 a2, arg3 a3) { return yyObjectCreator<_type>::cr
 template<typename _type, typename arg1, typename arg2, typename arg3, typename arg4>
 _type * yyCreate4(arg1 a1, arg2 a2, arg3 a3, arg4 a4) { return yyObjectCreator<_type>::create4(a1, a2, a3, a4); }
 
-/// Destroy object
+// Destroy object
+// If *ptr is void* ptr, don't forget to set type 
+//   like this yyDestroy((yyImage*)m_resourceData.m_source);
 template<typename _type>
 void yyDestroy( _type * ptr )
 {
 	assert(ptr);
 	yyObjectCreator<_type>::destroy(ptr);
 }
-
 
 
 #endif

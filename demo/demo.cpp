@@ -8,6 +8,7 @@
 #include "yy_window.h"
 #include "yy_input.h"
 #include "yy_gui.h"
+#include "yy_image.h"
 
 Demo* g_demo = 0;
 
@@ -227,8 +228,34 @@ void Demo::MainLoop(){
 
 				if (m_inputContext->IsKeyPressed(yyKey::K_UP))
 					this->SelectExamplePressUp();
-				if (m_inputContext->IsKeyHit(yyKey::K_DOWN))
+				if (m_inputContext->IsKeyHit(yyKey::K_DOWN)) 
+				{
+					/*{
+						auto img = yyLoadImage("../res/GA3E/level1_ground.png");
+						yyDestroy(img);
+					}*/
+					/*{
+						auto t = yyCreateTextureFromFile("../res/GA3E/level1_ground.png");
+						t->Load();
+						yyDestroy(t);
+					}*/
+					/*{
+						auto t = yyGetTextureFromCache("../res/GA3E/level1_ground.png");
+						yyRemoveTextureFromCache(t);
+						yyDestroy(t);
+					}*/
+					/*{
+						auto t = yyGetTextureFromCache("../res/GA3E/level1_ground.png");
+						t->Load();
+						t->Load();
+						t->Unload();
+						t->Unload();
+						yyRemoveTextureFromCache(t);
+						yyDestroy(t);
+					}*/
+
 					this->SelectExamplePressDown();
+				}
 				if (m_inputContext->IsKeyHold(yyKey::K_ENTER))
 				{
 					StartDemo();

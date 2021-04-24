@@ -51,4 +51,10 @@
 #endif
 #endif
 
+#ifdef YY_DEBUG
+#define YY_DEBUG_PRINT_FUNC yyLogWriteInfo("%s\n", YY_FUNCTION)
+#else
+#define YY_DEBUG_PRINT_FUNC
+#endif
+
 #endif

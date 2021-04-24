@@ -22,6 +22,7 @@ YY_API void YY_C_DECL yyLoadImageAsync(const char* fn, s32 id){
 }
 
 YY_API yyImage* YY_C_DECL yyLoadImage(const char* fileName){
+	YY_DEBUG_PRINT_FUNC;
 	assert(fileName);
 	if(!yy_fs::exists(fileName))
 	{
@@ -48,6 +49,7 @@ YY_API yyImage* YY_C_DECL yyLoadImage(const char* fileName){
 }
 
 YY_API void YY_C_DECL yyRemoveMDLFromCache(yyMDL* mdl) {
+	YY_DEBUG_PRINT_FUNC;
 	auto curr = g_engine->m_modelCache.head();
 	if (!curr)
 		return;
@@ -70,6 +72,7 @@ YY_API void YY_C_DECL yyRemoveMDLFromCache(yyMDL* mdl) {
 }
 
 YY_API yyMDL* YY_C_DECL yyGetMDLFromCache(const char* fileName){
+	YY_DEBUG_PRINT_FUNC;
 	assert(fileName);
 	if (!yy_fs::exists(fileName))
 	{
@@ -105,6 +108,7 @@ YY_API yyMDL* YY_C_DECL yyGetMDLFromCache(const char* fileName){
 }
 
 YY_API yyMDL* YY_C_DECL yyCreateMDLFromFile(const char* fileName){
+	YY_DEBUG_PRINT_FUNC;
 	assert(fileName);
 	yyLogWriteInfo("Load model: %s\n", fileName);
 	if(!yy_fs::exists(fileName))
@@ -168,23 +172,6 @@ YY_API yyMDL* YY_C_DECL yyCreateMDLFromFile(const char* fileName){
 	return newMDL;
 }
 
-//YY_API void YY_C_DECL yyDeleteMDL(yyMDL* m){
-//	assert(m);
-//
-//	for (size_t i = 0, sz = g_engine->m_modelCache.size(); i < sz; ++i)
-//	{
-//		auto & node = g_engine->m_modelCache[i];
-//		if (m != node.m_resource)
-//			continue;
-//
-//		g_engine->m_modelCache.erase(g_engine->m_modelCache.begin() + i);
-//		break;
-//	}
-//
-//	--m->m_refCount;
-//	if(!m->m_refCount)
-//		yyDestroy( m );
-//}
 
 YY_API void YY_C_DECL yySetTextureFilter(yyTextureFilter f) {
 	g_engine->m_textureFilter = f;
@@ -222,17 +209,20 @@ YY_API s32 YY_C_DECL yyGetTextureAnisotropicLevel() {
 }
 
 YY_API yyResource* YY_C_DECL yyCreateModel(yyModel* model) {
+	YY_DEBUG_PRINT_FUNC;
 	auto res = yyCreate<yyResourceImpl>();
 	res->InitModelResourse(model);
 	return res;
 }
 
 YY_API yyResource* YY_C_DECL yyCreateTexture(yyImage* image) {
+	YY_DEBUG_PRINT_FUNC;
 	auto res = yyCreate<yyResourceImpl>();
 	res->InitTextureResourse(image, 0);
 	return res;
 }
 YY_API yyResource* YY_C_DECL yyCreateRenderTargetTexture(const v2f& size) {
+	YY_DEBUG_PRINT_FUNC;
 	auto res = yyCreate<yyResourceImpl>();
 	res->InitTextureRenderTargetResourse(size);
 	res->Load();
@@ -240,6 +230,7 @@ YY_API yyResource* YY_C_DECL yyCreateRenderTargetTexture(const v2f& size) {
 }
 
 YY_API yyResource* YY_C_DECL yyCreateTextureFromFile(const char* fileName) {
+	YY_DEBUG_PRINT_FUNC;
 	assert(fileName);
 	auto res = yyCreate<yyResourceImpl>();
 	res->InitTextureResourse(0, fileName);
@@ -247,6 +238,7 @@ YY_API yyResource* YY_C_DECL yyCreateTextureFromFile(const char* fileName) {
 }
 
 YY_API yyResource* YY_C_DECL yyGetTextureFromCache(const char* fileName){
+	YY_DEBUG_PRINT_FUNC;
 	assert(fileName);
 	yy_fs::path p = fileName;
 	for (auto & node : g_engine->m_textureCache)
@@ -268,6 +260,9 @@ YY_API yyResource* YY_C_DECL yyGetTextureFromCache(const char* fileName){
 		cache_node.m_resource = res;
 		cache_node.m_path = p;
 		g_engine->m_textureCache.push_back(cache_node);
+
+		yyResourceImpl* impl = (yyResourceImpl*)res;
+		impl->m_flags |= impl->flag_fromCache;
 	}
 	else
 	{
@@ -278,6 +273,7 @@ YY_API yyResource* YY_C_DECL yyGetTextureFromCache(const char* fileName){
 }
 
 YY_API void YY_C_DECL yyRemoveTextureFromCache(yyResource* r) {
+	YY_DEBUG_PRINT_FUNC;
 	auto curr = g_engine->m_textureCache.head();
 	if (!curr)
 		return;

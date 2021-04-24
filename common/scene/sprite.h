@@ -71,12 +71,31 @@ struct yySprite
 	}
 
 	~yySprite(){
+#ifdef YY_DEBUG
+		yyLogWriteInfo("%s\n",YY_FUNCTION);
+#endif
 		for(u16 i = 0, sz = m_states.size(); i < sz; ++i)
 		{
 			yyDestroy(m_states[i]);
 		}
 		if (m_model)
 			yyDestroy(m_model);
+		if (m_texture)
+		{
+			if (m_texture->IsFromCache())
+			{
+				m_texture->Unload();
+				if (!m_texture->IsLoaded())
+				{
+					yyRemoveTextureFromCache(m_texture);
+					yyDestroy(m_texture);
+				}
+			}
+			else
+			{
+				yyDestroy(m_texture);
+			}
+		}
 	}
 
 	void _updateUVCoords() {

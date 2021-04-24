@@ -157,6 +157,7 @@ public:
 	virtual void Unload() = 0;
 	virtual u32 GetRefCount() = 0;
 	virtual bool IsLoaded() = 0;
+	virtual bool IsFromCache() = 0;
 
 	virtual yyResourceImplementation* GetImplementation() = 0;
 	
@@ -199,8 +200,8 @@ extern "C"
 	YY_API yyTextureComparisonFunc YY_C_DECL yyGetTextureComparisonFunc();
 	
 
-	// call yyDestroy(newRes); for destroy
 	// don't forget to call newRes->Load(); 
+	// call yyDestroy(newRes); for destroy
 	YY_API yyResource* YY_C_DECL yyCreateModel(yyModel*);
 
 	// загрузить модель и поместить её в кеш. следующий вызов - получить из кеша

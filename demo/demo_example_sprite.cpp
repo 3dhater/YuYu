@@ -24,6 +24,9 @@ DemoExample_Sprite::DemoExample_Sprite()
 }
 
 DemoExample_Sprite::~DemoExample_Sprite(){
+#ifdef YY_DEBUG
+	yyLogWriteInfo("%s\n", YY_FUNCTION);
+#endif
 	Shutdown();
 }
 
@@ -105,11 +108,11 @@ void DemoExample_Sprite::Shutdown()
 		m_spriteHero = 0;
 	}
 
-	if (m_textureLevel)
+	/*if (m_textureLevel)
 	{
 		yyDestroy(m_textureLevel);
 		m_textureLevel = 0;
-	}
+	}*/
 	if (m_spriteLevel)
 	{
 		yyDestroy(m_spriteLevel);

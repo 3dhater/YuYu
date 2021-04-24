@@ -73,9 +73,12 @@ struct yyImage
 		m_mipCount(1),
 		m_pitch(0),
 		m_format(yyImageFormat::R8G8B8A8)
-	{}
+	{
+		YY_DEBUG_PRINT_FUNC;
+	}
 	~yyImage()
 	{
+		YY_DEBUG_PRINT_FUNC;
 		if( m_data )
 			yyMemFree(m_data);
 	}

@@ -364,14 +364,17 @@ YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* bas
 	element->SetBuildRect(rect);
 	element->m_id = id;
 	element->m_baseTexture = baseTexture;
-	if (!element->m_baseTexture->IsLoaded())
-		element->m_baseTexture->Load();
 
 	if (!baseTexture)
 	{
 		element->m_baseTexture = yyGetDefaultTexture();
 		element->SetMouseHoverTexture(element->m_baseTexture);
 		element->SetMouseClickTexture(element->m_baseTexture);
+	}
+	else
+	{
+		if (!element->m_baseTexture->IsLoaded())
+			element->m_baseTexture->Load();
 	}
 
 	if (uv)
