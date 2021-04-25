@@ -12,17 +12,20 @@ D3D11ShaderGUI::D3D11ShaderGUI()
 	m_cbVertex(0),
 	m_cbPixel(0)
 {
+	YY_DEBUG_PRINT_FUNC;
 }
 
 D3D11ShaderGUI::~D3D11ShaderGUI()
 {
+	YY_DEBUG_PRINT_FUNC;
 	if (m_cbVertex) m_cbVertex->Release();
 	if (m_cbPixel) m_cbPixel->Release();
 }
 
 bool D3D11ShaderGUI::init()
 {
-	const char * text = 
+	YY_DEBUG_PRINT_FUNC;
+	const char * text =
 		"Texture2D tex2d_1;\n"
 		"SamplerState tex2D_sampler_1;\n"
 		"struct VSIn{\n"

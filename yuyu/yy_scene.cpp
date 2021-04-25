@@ -10,8 +10,8 @@ extern Engine * g_engine;
 extern "C"
 {
 
-YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& r, yyResource* texture, u8 pivotPosition)
-{
+YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& r, yyResource* texture, u8 pivotPosition){
+	YY_DEBUG_PRINT_FUNC;
 	auto rect = yySpriteGetNewPivot(r, pivotPosition);
 	yySprite* newSprite = yyCreate<yySprite>();
 	auto vAPI = yyGetVideoDriverAPI();
@@ -28,8 +28,8 @@ YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& r, yyResource* texture, u8 
 	return newSprite;
 }
 
-YY_API yySprite2* YY_C_DECL yyCreateSprite2(yyResource* texture)
-{
+YY_API yySprite2* YY_C_DECL yyCreateSprite2(yyResource* texture){
+	YY_DEBUG_PRINT_FUNC;
 	yySprite2* newSprite = yyCreate<yySprite2>();
 	newSprite->m_texture = texture;
 	if (!newSprite->m_texture->IsLoaded())

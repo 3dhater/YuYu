@@ -101,7 +101,7 @@ bool DemoExample_Lines::Init(){
 void DemoExample_Lines::Shutdown(){
 	if (m_lineModel)
 	{
-		yyDestroy(m_lineModel);
+		yyMegaAllocator::Destroy(m_lineModel);
 		m_lineModel = 0;
 	}
 	if (m_editorCamera)

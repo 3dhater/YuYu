@@ -7,24 +7,24 @@
 
 #include "math/mat.h"
 
-OpenGLShaderSimple::OpenGLShaderSimple()
-{
+OpenGLShaderSimple::OpenGLShaderSimple(){
+	YY_DEBUG_PRINT_FUNC;
 	m_program = 0;
 	m_VAO = 0;
 	m_uniform_WVP = 0;
 }
 
-OpenGLShaderSimple::~OpenGLShaderSimple()
-{
+OpenGLShaderSimple::~OpenGLShaderSimple(){
+	YY_DEBUG_PRINT_FUNC;
 	if( m_VAO )
 		gglDeleteVertexArrays(1,&m_VAO);
 	if( m_program )
 		gglDeleteProgram(m_program);
 }
 
-bool OpenGLShaderSimple::init()
-{
-	const char * text_v = 
+bool OpenGLShaderSimple::init(){
+	YY_DEBUG_PRINT_FUNC;
+	const char * text_v =
 		"#version 330\n"
 		"layout(location = 0) in vec3 inputPosition;\n"
 		"layout(location = 1) in vec2 inputTexCoord;\n"
@@ -61,8 +61,8 @@ bool OpenGLShaderSimple::init()
 }
 
 // ===============================================================================================
-OpenGLShaderSimpleAnimated::OpenGLShaderSimpleAnimated()
-{
+OpenGLShaderSimpleAnimated::OpenGLShaderSimpleAnimated(){
+	YY_DEBUG_PRINT_FUNC;
 	m_program = 0;
 	m_VAO = 0;
 	m_uniform_WVP = 0;
@@ -70,16 +70,16 @@ OpenGLShaderSimpleAnimated::OpenGLShaderSimpleAnimated()
 	m_uniform_Bones = 0;
 }
 
-OpenGLShaderSimpleAnimated::~OpenGLShaderSimpleAnimated()
-{
+OpenGLShaderSimpleAnimated::~OpenGLShaderSimpleAnimated(){
+	YY_DEBUG_PRINT_FUNC;
 	if (m_VAO)
 		gglDeleteVertexArrays(1, &m_VAO);
 	if (m_program)
 		gglDeleteProgram(m_program);
 }
 
-bool OpenGLShaderSimpleAnimated::init()
-{
+bool OpenGLShaderSimpleAnimated::init(){
+	YY_DEBUG_PRINT_FUNC;
 	const char * text_v =
 		"#version 330\n"
 		"layout(location = 0) in vec3 inputPosition;\n"

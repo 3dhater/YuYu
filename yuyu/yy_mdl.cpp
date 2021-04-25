@@ -10,8 +10,8 @@
 
 extern Engine * g_engine;
 
-void MDL_loadVersion1(yyMDL** _mdl, yyFileBuffer* f)
-{
+void MDL_loadVersion1(yyMDL** _mdl, yyFileBuffer* f){
+	YY_DEBUG_PRINT_FUNC;
 	yyMDL* newMDL = *_mdl;
 
 	yyMDLHeader mdlHeader;

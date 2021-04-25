@@ -10,6 +10,7 @@
 extern Engine * g_engine;
 
 yyGUIText::yyGUIText(){
+	YY_DEBUG_PRINT_FUNC;
 	m_font = 0;
 	m_type = yyGUIElementType::Text;
 	m_buffer = 0;
@@ -19,12 +20,14 @@ yyGUIText::yyGUIText(){
 }
 
 yyGUIText::~yyGUIText(){
+	YY_DEBUG_PRINT_FUNC;
 	if (m_buffer)
 	{
 		yyMemFree(m_buffer);
 		m_buffer = 0;
 	}
 	Clear();
+	
 }
 
 void yyGUIText::OnUpdate(f32 dt){
@@ -275,6 +278,7 @@ void yyGUIText::Rebuild() {
 }
 
 YY_API yyGUIText* YY_C_DECL yyGUICreateText(const v2f& position, yyGUIFont* font, const wchar_t* text, yyGUIDrawGroup* drawGroup){
+	YY_DEBUG_PRINT_FUNC;
 	yyGUIText* element = yyCreate<yyGUIText>();
 	element->SetDrawGroup(drawGroup);
 	element->m_font = font;

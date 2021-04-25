@@ -7,8 +7,8 @@
 
 #include "math/mat.h"
 
-OpenGLShaderDepth::OpenGLShaderDepth()
-{
+OpenGLShaderDepth::OpenGLShaderDepth(){
+	YY_DEBUG_PRINT_FUNC;
 	m_program = 0;
 	m_VAO = 0;
 	m_uniform_World = 0;
@@ -16,17 +16,17 @@ OpenGLShaderDepth::OpenGLShaderDepth()
 	m_uniform_LightProjection = 0;
 }
 
-OpenGLShaderDepth::~OpenGLShaderDepth()
-{
+OpenGLShaderDepth::~OpenGLShaderDepth(){
+	YY_DEBUG_PRINT_FUNC;
 	if( m_VAO )
 		gglDeleteVertexArrays(1,&m_VAO);
 	if( m_program )
 		gglDeleteProgram(m_program);
 }
 
-bool OpenGLShaderDepth::init()
-{
-	const char * text_v = 
+bool OpenGLShaderDepth::init(){
+	YY_DEBUG_PRINT_FUNC;
+	const char * text_v =
 		"#version 130\n"
 		"in vec3 inputPosition;\n"
 		"in vec2 inputTexCoord;\n"

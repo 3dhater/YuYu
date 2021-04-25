@@ -85,8 +85,7 @@ typedef struct {
 #define _TGA_ORIGIN_UL 2
 #define _TGA_ORIGIN_UR 3
 
-static int ReadTGAHeader(FILE *f, _tga_header_t *h)
-{
+static int ReadTGAHeader(FILE *f, _tga_header_t *h){
 	unsigned char buf[18];
 	int pos;
 
@@ -137,8 +136,7 @@ static int ReadTGAHeader(FILE *f, _tga_header_t *h)
 	}
 }
 
-static void ReadTGA_RLE(unsigned char *buf, int size, int bpp,FILE *f)
-{
+static void ReadTGA_RLE(unsigned char *buf, int size, int bpp,FILE *f){
 	int repcount, bytes, k, n;
 	unsigned char pixel[4];
 	char c;
@@ -183,8 +181,8 @@ static void ReadTGA_RLE(unsigned char *buf, int size, int bpp,FILE *f)
 	}
 }
 
-yyImage* ImageLoader_TGA(const char* p)
-{
+yyImage* ImageLoader_TGA(const char* p){
+	YY_DEBUG_PRINT_FUNC;
 	_tga_header_t h;
 	unsigned char *cmap, *pix, tmp, *src, *dst;
 	int cmapsize, pixsize, pixsize2;

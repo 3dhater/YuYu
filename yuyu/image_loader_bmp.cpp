@@ -64,8 +64,8 @@ struct BitmapInfoHeader_v5 {
 void decompress4BitRLE(u8*& rleData, u8*& inds, u32 size, u32 width, u32 height);
 void decompress8BitRLE(u8*& rleData, u8*& inds, u32 size, u32 width, u32 height);
 
-yyImage* ImageLoader_BMP(const char* p)
-{
+yyImage* ImageLoader_BMP(const char* p){
+	YY_DEBUG_PRINT_FUNC;
 	auto file_size = yy_fs::file_size(p);
 
 	FILE * file = fopen(p, "rb");

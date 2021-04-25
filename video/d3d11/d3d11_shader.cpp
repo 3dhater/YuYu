@@ -5,8 +5,8 @@
 
 extern D3D11 * g_d3d11;
 
-bool D3D11_createConstantBuffer(u32 byteSize, ID3D11Buffer** cb)
-{
+bool D3D11_createConstantBuffer(u32 byteSize, ID3D11Buffer** cb){
+	YY_DEBUG_PRINT_FUNC;
 	D3D11_BUFFER_DESC mbd;
 	memset(&mbd, 0, sizeof(mbd));
 	mbd.Usage = D3D11_USAGE_DYNAMIC;
@@ -38,6 +38,7 @@ bool D3D11_createShaders(
 	ID3D11PixelShader** ps,
 	ID3D11InputLayout** il)
 {
+	YY_DEBUG_PRINT_FUNC;
 	ID3D10Blob*		m_VsBlob = nullptr;
 	ID3D10Blob*		m_PsBlob = nullptr;
 	ID3D10Blob*		m_errorBlob = nullptr;

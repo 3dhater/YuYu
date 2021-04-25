@@ -3,10 +3,12 @@
 
 struct yyGUITextDrawNode 
 {
-	yyGUITextDrawNode() 
-	{
+	yyGUITextDrawNode() 	{
 		m_texture = 0;
 		m_model = 0;
+	}
+	~yyGUITextDrawNode() {
+		if (m_model) yyMegaAllocator::Destroy(m_model);
 	}
 	yyResource* m_texture;
 	yyResource* m_model;

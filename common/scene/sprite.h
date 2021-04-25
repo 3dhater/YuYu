@@ -79,7 +79,7 @@ struct yySprite
 			yyDestroy(m_states[i]);
 		}
 		if (m_model)
-			yyDestroy(m_model);
+			yyMegaAllocator::Destroy(m_model);
 		if (m_texture)
 		{
 			if (m_texture->IsFromCache())
@@ -88,12 +88,12 @@ struct yySprite
 				if (!m_texture->IsLoaded())
 				{
 					yyRemoveTextureFromCache(m_texture);
-					yyDestroy(m_texture);
+					yyMegaAllocator::Destroy(m_texture);
 				}
 			}
 			else
 			{
-				yyDestroy(m_texture);
+				yyMegaAllocator::Destroy(m_texture);
 			}
 		}
 	}

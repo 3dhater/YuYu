@@ -11,6 +11,7 @@
 extern Engine * g_engine;
 
 yyGUIFont::yyGUIFont(){
+	YY_DEBUG_PRINT_FUNC;
 	m_maxHeight = 0;
 	m_glyphs.reserve(0xffff);
 	for (u32 i = 0; i < 0xffff; ++i)
@@ -20,6 +21,7 @@ yyGUIFont::yyGUIFont(){
 }
 
 yyGUIFont::~yyGUIFont(){
+	YY_DEBUG_PRINT_FUNC;
 	for (u32 i = 0, sz = m_glyphs.size(); i < sz; ++i)
 	{
 		if (m_glyphs[i])
@@ -44,6 +46,7 @@ yyGUIFontGlyph* yyGUIFont::GetGlyph(wchar_t ch){
 void yyGUIFont::Rebuild(){}
 
 YY_API yyGUIFont* YY_C_DECL yyGUILoadFont(const char* fileName){
+	YY_DEBUG_PRINT_FUNC;
 	yy_fs::path p = fileName;
 	if (!yy_fs::exists(p))
 	{

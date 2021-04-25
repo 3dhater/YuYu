@@ -80,6 +80,7 @@ void yyGUIElement::CheckCursorInRect() {
 }
 
 YY_API void YY_C_DECL yyGUIDeleteElement(yyGUIElement* elem){
+	YY_DEBUG_PRINT_FUNC;
 	assert(elem);
 	//g_engine->m_guiElements.erase_first(elem);
 	elem->m_drawGroup->RemoveElement(elem);
@@ -87,12 +88,14 @@ YY_API void YY_C_DECL yyGUIDeleteElement(yyGUIElement* elem){
 }
 
 YY_API void YY_C_DECL yyGUIRemoveElement(yyGUIElement* elem){
+	YY_DEBUG_PRINT_FUNC;
 	assert(elem);
 	elem->m_drawGroup->RemoveElement(elem);
 	//g_engine->m_guiElements.erase_first(elem);
 }
 
 YY_API yyGUIDrawGroup* YY_C_DECL yyGUICreateDrawGroup() {
+	YY_DEBUG_PRINT_FUNC;
 	yyGUIDrawGroup* new_dg = yyCreate<yyGUIDrawGroup>();
 	if (!g_engine->m_mainGUIDrawGroup)
 		g_engine->m_mainGUIDrawGroup = new_dg;
@@ -102,6 +105,7 @@ YY_API yyGUIDrawGroup* YY_C_DECL yyGUICreateDrawGroup() {
 }
 
 YY_API void YY_C_DECL yyGUIDeleteDrawGroup(yyGUIDrawGroup* dg) {
+	YY_DEBUG_PRINT_FUNC;
 	assert(dg);
 	yyDestroy(dg);
 	if (dg == g_engine->m_mainGUIDrawGroup)
@@ -113,12 +117,14 @@ YY_API void YY_C_DECL yyGUIDeleteDrawGroup(yyGUIDrawGroup* dg) {
 }
 
 YY_API void YY_C_DECL yyGUIDrawGroupMoveBack(yyGUIDrawGroup* dg) {
+	YY_DEBUG_PRINT_FUNC;
 	assert(dg);
 	g_engine->m_GUIDrawGroups.erase_first(dg);
 	g_engine->m_GUIDrawGroups.push_back(dg);
 }
 
 YY_API void YY_C_DECL yyGUIDrawGroupMoveFront(yyGUIDrawGroup* dg) {
+	YY_DEBUG_PRINT_FUNC;
 	assert(dg);
 	g_engine->m_GUIDrawGroups.erase_first(dg);
 	g_engine->m_GUIDrawGroups.push_front(dg);

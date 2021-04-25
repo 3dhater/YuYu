@@ -98,16 +98,44 @@ struct yyResourceDataImage
 	f32 m_size[2];
 	s32 m_anisotropicLevel;
 };
+struct yyResourceDataModel
+{
+	yyResourceDataModel() { m_material = 0; }
+	~yyResourceDataModel() {
+		if( m_material ) 
+			yyMegaAllocator::Destroy(m_material);
+	}
+	yyMaterial* m_material;
+};
 
 struct yyResourceData
 {
-	yyResourceData()
-	{
+	yyResourceData(){
 		m_type = yyResourceType::None;
 		m_source = 0;
+		m_imageData = 0;
+		m_modelData = 0;
 	}
 
-	yyResourceDataImage m_imageData;
+	~yyResourceData(){
+		switch (m_type)
+		{
+		default:
+			break;
+		case yyResourceType::Texture:
+		case yyResourceType::RenderTargetTexture:
+			if (m_imageData) yyDestroy(m_imageData);
+			break;
+		case yyResourceType::Model:
+			if (m_modelData) yyDestroy(m_modelData);
+			break;
+		}
+	}
+
+	union {
+		yyResourceDataImage* m_imageData;
+		yyResourceDataModel* m_modelData;
+	};
 
 	yyResourceType m_type;
 	void * m_source;
@@ -177,14 +205,14 @@ extern "C"
 
 	// get from cache. if not found, create GPU resource, add to cache.
 	// ++m_refCount;
-	// call yyRemoveTextureFromCache(newRes); before yyDestroy(newRes); 
+	// call yyRemoveTextureFromCache(newRes); before yyMegaAllocator::Destroy(newRes); 
 	//	if you want delete by yourself
 	YY_API yyResource* YY_C_DECL yyGetTextureFromCache(const char*);
 	YY_API void YY_C_DECL yyRemoveTextureFromCache(yyResource*);
 	
-	// call yyDestroy(newRes); for destroy
+	// call yyMegaAllocator::Destroy(newRes); for destroy
 	YY_API yyResource* YY_C_DECL yyCreateTexture(yyImage*);
-	// call yyDestroy(newRes); for destroy
+	// call yyMegaAllocator::Destroy(newRes); for destroy
 	YY_API yyResource* YY_C_DECL yyCreateTextureFromFile(const char*);
 	// do not call Load(); if yyResource is render target texture
 	YY_API yyResource* YY_C_DECL yyCreateRenderTargetTexture(const v2f& size);
@@ -201,7 +229,7 @@ extern "C"
 	
 
 	// don't forget to call newRes->Load(); 
-	// call yyDestroy(newRes); for destroy
+	// call yyMegaAllocator::Destroy(newRes); for destroy
 	YY_API yyResource* YY_C_DECL yyCreateModel(yyModel*);
 
 	// загрузить модель и поместить её в кеш. следующий вызов - получить из кеша

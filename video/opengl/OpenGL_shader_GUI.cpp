@@ -17,19 +17,20 @@ OpenGLShaderGUI::OpenGLShaderGUI()
 	m_uniform_Texture(0),
 	m_uniform_Color(0)
 {
+	YY_DEBUG_PRINT_FUNC;
 }
 
-OpenGLShaderGUI::~OpenGLShaderGUI()
-{
+OpenGLShaderGUI::~OpenGLShaderGUI(){
+	YY_DEBUG_PRINT_FUNC;
 	if( m_VAO )
 		gglDeleteVertexArrays(1,&m_VAO);
 	if( m_program )
 		gglDeleteProgram(m_program);
 }
 
-bool OpenGLShaderGUI::init()
-{
-	const char * text_v = 
+bool OpenGLShaderGUI::init(){
+	YY_DEBUG_PRINT_FUNC;
+	const char * text_v =
 		"#version 330\n"
 		"layout(location = 0) in vec2 Position;\n"
 		"layout(location = 1) in vec2 UV;\n"

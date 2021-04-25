@@ -16,8 +16,11 @@
 HANDLE		g_hFind = 0;
 #endif
 
-yyFileSystemInternal::yyFileSystemInternal(){}
+yyFileSystemInternal::yyFileSystemInternal(){
+	YY_DEBUG_PRINT_FUNC;
+}
 yyFileSystemInternal::~yyFileSystemInternal(){
+	YY_DEBUG_PRINT_FUNC;
 #ifdef YY_PLATFORM_WINDOWS
 	if (g_hFind)
 		FindClose(g_hFind);

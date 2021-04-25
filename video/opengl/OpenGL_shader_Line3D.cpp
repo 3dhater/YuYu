@@ -7,8 +7,8 @@
 
 #include "math/mat.h"
 
-OpenGLShaderLine3D::OpenGLShaderLine3D()
-{
+OpenGLShaderLine3D::OpenGLShaderLine3D(){
+	YY_DEBUG_PRINT_FUNC;
 	m_program = 0;
 	m_VAO = 0;
 	m_uniform_ProjMtx = 0;
@@ -17,17 +17,17 @@ OpenGLShaderLine3D::OpenGLShaderLine3D()
 	m_uniform_Color = 0;
 }
 
-OpenGLShaderLine3D::~OpenGLShaderLine3D()
-{
+OpenGLShaderLine3D::~OpenGLShaderLine3D(){
+	YY_DEBUG_PRINT_FUNC;
 	if( m_VAO )
 		glDeleteVertexArrays(1,&m_VAO);
 	if( m_program )
 		glDeleteProgram(m_program);
 }
 
-bool OpenGLShaderLine3D::init()
-{
-	const char * text_v = 
+bool OpenGLShaderLine3D::init(){
+	YY_DEBUG_PRINT_FUNC;
+	const char * text_v =
 		"#version 130\n"
 		"uniform mat4 ProjMtx;\n"
 		"uniform vec4 P1;\n"

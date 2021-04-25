@@ -41,6 +41,7 @@ void SetViewport(f32 x, f32 y, f32 width, f32 height, yyWindow* window) {
 }
 
 u32 GetAPIVersion(){
+	YY_DEBUG_PRINT_FUNC;
 	return yyVideoDriverAPIVersion;
 }
 
@@ -517,10 +518,12 @@ void SwapBuffers(){
 }
 
 yyResourceImplementation* CreateTextureImplementation() {
+	YY_DEBUG_PRINT_FUNC;
 	return yyCreate<D3D11Texture>();
 }
 
 yyResourceImplementation* CreateModelImplementation() {
+	YY_DEBUG_PRINT_FUNC;
 	return yyCreate<D3D11Model>();
 }
 
@@ -563,8 +566,8 @@ void DrawRectangle(const v4f& corners, const yyColor& color1, const yyColor& col
 
 extern "C"
 {
-	YY_API yyVideoDriverAPI* YY_C_DECL GetAPI()
-	{
+	YY_API yyVideoDriverAPI* YY_C_DECL GetAPI(){
+		YY_DEBUG_PRINT_FUNC;
 		g_api.BeginDraw = BeginDraw;
 		g_api.BeginDrawGUI = BeginDrawGUI;
 		g_api.ClearAll = ClearAll;

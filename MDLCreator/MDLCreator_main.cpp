@@ -195,7 +195,7 @@ void deleteLayer(yyMDLObject* object){
 	g_sceneObject->m_layerInfo.erase(g_selectedLayer);
 	if (layer->m_meshGPU)
 	{
-		yyDestroy(layer->m_meshGPU);
+		yyMegaAllocator::Destroy(layer->m_meshGPU);
 		layer->m_meshGPU = nullptr;
 	}
 	yyDestroy(layer);
@@ -213,7 +213,7 @@ void reloadTexture(yyMDLObject* object, int textureSlot, const wchar_t* path){
 		printf("Not exist\n");
 		if (layer->m_textureGPU[textureSlot])
 		{
-			yyDestroy(layer->m_textureGPU[textureSlot]);
+			yyMegaAllocator::Destroy(layer->m_textureGPU[textureSlot]);
 			layer->m_textureGPU[textureSlot] = 0;
 		}
 		return;
@@ -224,7 +224,7 @@ void reloadTexture(yyMDLObject* object, int textureSlot, const wchar_t* path){
 	
 	if (texture)
 	{
-		yyDestroy(texture);
+		yyMegaAllocator::Destroy(texture);
 	}
 
 	yyStringA str;

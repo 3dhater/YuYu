@@ -17,9 +17,11 @@ OpenGLShaderRectangle::OpenGLShaderRectangle()
 	m_uniform_Color2(0),
 	m_uniform_Corners(0)
 {
+	YY_DEBUG_PRINT_FUNC;
 }
 
 OpenGLShaderRectangle::~OpenGLShaderRectangle(){
+	YY_DEBUG_PRINT_FUNC;
 	if( m_VAO )
 		gglDeleteVertexArrays(1,&m_VAO);
 	if( m_program )
@@ -27,7 +29,8 @@ OpenGLShaderRectangle::~OpenGLShaderRectangle(){
 }
 
 bool OpenGLShaderRectangle::init(){
-	const char * text_v = 
+	YY_DEBUG_PRINT_FUNC;
+	const char * text_v =
 		"#version 330\n"
 		"uniform mat4 ProjMtx;\n"
 		"uniform vec4 Corners;\n"

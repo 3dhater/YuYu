@@ -16,18 +16,20 @@ yyGUIPictureBox::yyGUIPictureBox()
 	m_pictureBoxModel(nullptr),
 	m_onClick(nullptr)
 {
+	YY_DEBUG_PRINT_FUNC;
 	m_type = yyGUIElementType::PictureBox;
 }
 
 yyGUIPictureBox::~yyGUIPictureBox(){
+	YY_DEBUG_PRINT_FUNC;
 	auto vAPI = yyGetVideoDriverAPI();
 	if( this->m_pictureBoxModel )
-		yyDestroy(this->m_pictureBoxModel);
+		yyMegaAllocator::Destroy(this->m_pictureBoxModel);
 	
 	// do not delete texture here
 	// because it can be from cache
 	/*if( this->m_texture )
-		yyDestroy(this->m_texture);*/
+		yyMegaAllocator::Destroy(this->m_texture);*/
 }
 
 yyResource* yyGUIPictureBox::DropTexture() {
@@ -41,7 +43,7 @@ void yyGUIPictureBox::Rebuild() {
 	auto vAPI = yyGetVideoDriverAPI();
 
 	if (this->m_pictureBoxModel)
-		yyDestroy(this->m_pictureBoxModel);
+		yyMegaAllocator::Destroy(this->m_pictureBoxModel);
 
 	auto model = yyCreate<yyModel>();
 
@@ -94,6 +96,7 @@ void yyGUIPictureBox::Rebuild() {
 
 
 YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResource* texture, s32 id, yyGUIDrawGroup* drawGroup, v4i* uv){
+	YY_DEBUG_PRINT_FUNC;
 	assert(texture);
 	yyGUIPictureBox* element = yyCreate<yyGUIPictureBox>();
 	element->SetDrawGroup(drawGroup);

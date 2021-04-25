@@ -15,9 +15,12 @@ D3D11Model::D3D11Model()
 	m_iCount(0),
 	m_indexType(DXGI_FORMAT_R16_UINT),
 	m_vertexType(yyVertexType::Model)
-{}
+{
+	YY_DEBUG_PRINT_FUNC;
+}
 
 D3D11Model::~D3D11Model(){
+	YY_DEBUG_PRINT_FUNC;
 	Unload();
 }
 

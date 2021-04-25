@@ -20,12 +20,12 @@ Hitbox::Hitbox()
 }
 Hitbox::~Hitbox()
 {
-	if (m_gpuModel) yyDestroy(m_gpuModel);
+	if (m_gpuModel) yyMegaAllocator::Destroy(m_gpuModel);
 }
 
 void Hitbox::rebuild()
 {
-	if (m_gpuModel) yyDestroy(m_gpuModel);
+	if (m_gpuModel) yyMegaAllocator::Destroy(m_gpuModel);
 	if (m_hitbox.m_mesh) yyDestroy(m_hitbox.m_mesh);
 
 	if (m_type == type::Box)

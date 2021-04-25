@@ -12,6 +12,7 @@ class yyGUIButton;
 class yyWindow;
 class Mat4;
 class yyFileBuffer;
+class yyResource;
 //class yyAudioSource;
 
 struct yyMDLAnimation;

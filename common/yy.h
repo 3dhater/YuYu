@@ -30,7 +30,7 @@ enum class yyCompressType : u32
 
 extern "C"
 {
-	YY_API yySystemState* YY_C_DECL yyStart(yyInputContext* input);
+	YY_API yySystemState* YY_C_DECL yyStart(yyInputContext* input, yyPoolSetup* poolSetup = 0);
 	YY_API void YY_C_DECL yyStop();
 	YY_API void YY_C_DECL yyQuit();
 	YY_API bool YY_C_DECL yyRun(f32* deltaTime);

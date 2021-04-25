@@ -6,6 +6,7 @@
 #include "yy_async.h"
 #include "yy_gui.h"
 #include "yy_input.h"
+#include "yy_model.h"
 #include "scene/common.h"
 #include "strings\string.h"
 #include "strings\utils.h"
@@ -37,7 +38,7 @@
 Engine * g_engine = nullptr;
 yyWindow* g_mainWindow = nullptr;
 
-Engine::Engine()
+Engine::Engine(yyPoolSetup* ps)
 	:
 	m_inputContext(nullptr),
 	m_state(yySystemState::Run),
@@ -48,6 +49,20 @@ Engine::Engine()
 	m_backgroundWorker(nullptr),
 	m_cctx(nullptr)
 {
+	YY_DEBUG_PRINT_FUNC;
+
+	if (ps)
+	{
+		m_poolSetup = *ps;
+	}
+	else
+	{
+		m_poolSetup.m_resourceCount = 100;
+		m_poolSetup.m_materialCount = 100;
+	}
+	m_poolResource.Init(m_poolSetup.m_resourceCount);
+	m_poolMaterial.Init(m_poolSetup.m_materialCount);
+
 	m_textureAnisotropicLevel = 1;
 	m_textureAddressMode = yyTextureAddressMode::Wrap;
 	m_textureComparisonFunc = yyTextureComparisonFunc::Always;
@@ -57,6 +72,8 @@ Engine::Engine()
 	m_cursorInGUI = false;
 	m_guiElementInMouseFocus = 0;
 	m_mainGUIDrawGroup = yyCreate<yyGUIDrawGroup>();
+
+
 
 	m_cctx = ZSTD_createCCtx();
 
@@ -102,10 +119,21 @@ Engine::Engine()
 }
 
 Engine::~Engine(){
+	YY_DEBUG_PRINT_FUNC;
 	/*if(m_inputContext)
 	{
 		yyDestroy(m_inputContext);
 	}*/
+
+	for (auto n : m_textureCache)
+	{
+		yyMegaAllocator::Destroy(n.m_resource);
+	}
+
+	for (auto n : m_modelCache)
+	{
+		yyDestroy(n.m_resource);
+	}
 
 #ifdef YY_PLATFORM_WINDOWS
 	if (m_fileSaveDialog) m_fileSaveDialog->Release();
@@ -356,9 +384,9 @@ extern "C"
 	}
 
 
-	YY_API yySystemState* YY_C_DECL yyStart(yyInputContext* input){
+	YY_API yySystemState* YY_C_DECL yyStart(yyInputContext* input, yyPoolSetup* poolSetup){
 		assert(!g_engine);
-		g_engine = yyCreate<Engine>();
+		g_engine = yyCreate1<Engine>(poolSetup);
 		g_engine->m_inputContext = input;
 		//g_engine->m_resourceManager = new yyResourceManager;
 	//	g_engine->m_backgroundWorker = new std::thread(yyBackgroundWorkerFunction);
@@ -368,7 +396,8 @@ extern "C"
 	}
 
 	YY_API void YY_C_DECL yyStop(){
-		if(g_engine)	
+		YY_DEBUG_PRINT_FUNC;
+		if(g_engine)
 		{
 			if(g_engine->m_backgroundWorker)
 			{
@@ -391,6 +420,7 @@ extern "C"
 	}
 
 	YY_API void YY_C_DECL yyQuit(){
+		YY_DEBUG_PRINT_FUNC;
 		if(g_engine)
 		{
 			g_engine->m_state = yySystemState::Quit;
@@ -419,6 +449,7 @@ extern "C"
 //}
 
 	u8* Engine::compressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size){
+		YY_DEBUG_PRINT_FUNC;
 		u8* out_data = (u8*)yyMemAlloc(in_data_size);
 		if( !out_data )
 		{
@@ -441,6 +472,7 @@ extern "C"
 	}
 
 	u8* Engine::decompressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size){
+		YY_DEBUG_PRINT_FUNC;
 		unsigned long long const rSize = ZSTD_getFrameContentSize(in_data, in_data_size);
 		CHECK(rSize != ZSTD_CONTENTSIZE_ERROR, "%s: not compressed by zstd!");
 		CHECK(rSize != ZSTD_CONTENTSIZE_UNKNOWN, "%s: original size unknown!");
@@ -458,6 +490,7 @@ extern "C"
 	}
 
 	YY_API u8* YY_C_DECL yyCompressData( u8* in_data, u32 in_data_size, u32& out_data_size, yyCompressType ct ){
+		YY_DEBUG_PRINT_FUNC;
 		switch (ct)
 		{
 		case yyCompressType::WithoutCompress:
@@ -473,6 +506,7 @@ extern "C"
 	}
 
 	YY_API u8* YY_C_DECL yyDecompressData( u8* in_data, u32 in_data_size, u32& out_data_size, yyCompressType ct ){
+		YY_DEBUG_PRINT_FUNC;
 		switch (ct)
 		{
 		case yyCompressType::WithoutCompress:
@@ -516,6 +550,7 @@ extern "C"
 	}
 
 	YY_API bool YY_C_DECL yyInitVideoDriver(const char* dl, yyWindow* window){
+		YY_DEBUG_PRINT_FUNC;
 		if(g_engine)
 		{
 			if(g_engine->m_videoDriverLib)
@@ -583,6 +618,7 @@ extern "C"
 	YY_API yyString* YY_C_DECL yySaveFileDialog(const char* title, const char* okButtonLabel,
 		const char* extension)
 	{
+		YY_DEBUG_PRINT_FUNC;
 		assert(g_engine);
 		assert(g_mainWindow);
 		assert(title);
@@ -635,6 +671,7 @@ extern "C"
 	YY_API yyString* YY_C_DECL yyOpenFileDialog(const char* title, const char* okButtonLabel,
 		const char* extensions, const char* extensionTitle)
 	{
+		YY_DEBUG_PRINT_FUNC;
 		assert(g_engine);
 		assert(g_mainWindow);
 		assert(title);

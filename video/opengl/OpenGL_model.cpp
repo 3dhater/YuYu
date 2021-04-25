@@ -11,9 +11,12 @@ OpenGLModel::OpenGLModel()
 	m_iBuffer(0),
 	m_iCount(0),
 	m_vertexType(yyVertexType::Model)
-{}
+{
+	YY_DEBUG_PRINT_FUNC;
+}
 
 OpenGLModel::~OpenGLModel(){
+	YY_DEBUG_PRINT_FUNC;
 	Unload();
 }
 

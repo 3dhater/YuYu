@@ -14,15 +14,15 @@ D3D11ShaderSprite2::D3D11ShaderSprite2()
 	:
 	m_cb(0)
 {
+	YY_DEBUG_PRINT_FUNC;
 }
 
-D3D11ShaderSprite2::~D3D11ShaderSprite2()
-{
+D3D11ShaderSprite2::~D3D11ShaderSprite2(){
+	YY_DEBUG_PRINT_FUNC;
 	if (m_cb) m_cb->Release();
 }
 
-void D3D11ShaderSprite2::SetConstants(yyMaterial* material)
-{
+void D3D11ShaderSprite2::SetConstants(yyMaterial* material){
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	g_d3d11->m_d3d11DevCon->Map(m_cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	D3D11_BUFFER_DESC d;
@@ -31,8 +31,8 @@ void D3D11ShaderSprite2::SetConstants(yyMaterial* material)
 	g_d3d11->m_d3d11DevCon->Unmap(m_cb, 0);
 }
 
-bool D3D11ShaderSprite2::init()
-{
+bool D3D11ShaderSprite2::init(){
+	YY_DEBUG_PRINT_FUNC;
 	const char * text =
 		"Texture2D tex2d_1;\n"
 		"SamplerState tex2D_sampler_1;\n"

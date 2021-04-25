@@ -48,6 +48,7 @@ struct yyMDLObjectState
 	yyArraySmall<yyMDLObjectStateNode*> m_stateNodesWithAnimations;
 };
 
+// Установленную модель нужно будет удалять вручную
 struct yyMDLObject
 {
 	yyMDLObject()

@@ -12,14 +12,17 @@ D3D11ShaderRectangle::D3D11ShaderRectangle()
 	:
 	m_cbVertex(0)
 {
+	YY_DEBUG_PRINT_FUNC;
 }
 
 D3D11ShaderRectangle::~D3D11ShaderRectangle(){
+	YY_DEBUG_PRINT_FUNC;
 	if (m_cbVertex) m_cbVertex->Release();
 }
 
 bool D3D11ShaderRectangle::init(){
-	const char * text = 
+	YY_DEBUG_PRINT_FUNC;
+	const char * text =
 		"cbuffer cbVertex{\n"
 		"	float4x4 ProjMtx;\n"
 		"	float4 Corners;\n"

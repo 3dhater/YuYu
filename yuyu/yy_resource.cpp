@@ -210,20 +210,23 @@ YY_API s32 YY_C_DECL yyGetTextureAnisotropicLevel() {
 
 YY_API yyResource* YY_C_DECL yyCreateModel(yyModel* model) {
 	YY_DEBUG_PRINT_FUNC;
-	auto res = yyCreate<yyResourceImpl>();
+	//auto res = yyCreate<yyResourceImpl>();
+	auto res = (yyResourceImpl*)yyMegaAllocator::CreateResource();
 	res->InitModelResourse(model);
 	return res;
 }
 
 YY_API yyResource* YY_C_DECL yyCreateTexture(yyImage* image) {
 	YY_DEBUG_PRINT_FUNC;
-	auto res = yyCreate<yyResourceImpl>();
+	//auto res = yyCreate<yyResourceImpl>();
+	auto res = (yyResourceImpl*)yyMegaAllocator::CreateResource();
 	res->InitTextureResourse(image, 0);
 	return res;
 }
 YY_API yyResource* YY_C_DECL yyCreateRenderTargetTexture(const v2f& size) {
 	YY_DEBUG_PRINT_FUNC;
-	auto res = yyCreate<yyResourceImpl>();
+	//auto res = yyCreate<yyResourceImpl>();
+	auto res = (yyResourceImpl*)yyMegaAllocator::CreateResource();
 	res->InitTextureRenderTargetResourse(size);
 	res->Load();
 	return res;
@@ -232,7 +235,8 @@ YY_API yyResource* YY_C_DECL yyCreateRenderTargetTexture(const v2f& size) {
 YY_API yyResource* YY_C_DECL yyCreateTextureFromFile(const char* fileName) {
 	YY_DEBUG_PRINT_FUNC;
 	assert(fileName);
-	auto res = yyCreate<yyResourceImpl>();
+	//auto res = yyCreate<yyResourceImpl>();
+	auto res = (yyResourceImpl*)yyMegaAllocator::CreateResource();
 	res->InitTextureResourse(0, fileName);
 	return res;
 }

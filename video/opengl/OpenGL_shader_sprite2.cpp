@@ -18,18 +18,19 @@ OpenGLShaderSprite2::OpenGLShaderSprite2()
 	m_uniform_CameraScale(0),
 	m_uniform_Texture(0)
 {
+	YY_DEBUG_PRINT_FUNC;
 }
 
-OpenGLShaderSprite2::~OpenGLShaderSprite2()
-{
+OpenGLShaderSprite2::~OpenGLShaderSprite2(){
+	YY_DEBUG_PRINT_FUNC;
 	if( m_VAO )
 		gglDeleteVertexArrays(1,&m_VAO);
 	if( m_program )
 		gglDeleteProgram(m_program);
 }
 
-bool OpenGLShaderSprite2::init()
-{
+bool OpenGLShaderSprite2::init(){
+	YY_DEBUG_PRINT_FUNC;
 	const char * text_v =
 		"#version 330\n"
 		"layout(location = 0) in vec2 Position;\n"

@@ -15,8 +15,7 @@
 #include "d3d11_shader_LineModel.h"
 #include "d3d11_shader_Rectangle.h"
 
-void D3D11::UpdateGUIProjectionMatrix(const v2i& windowSize)
-{
+void D3D11::UpdateGUIProjectionMatrix(const v2i& windowSize){
 //	gglViewport(0, 0, (GLsizei)windowSize.x, (GLsizei)windowSize.y);
 	float L = 0;
 	float R = (float)windowSize.x;
@@ -35,8 +34,8 @@ void D3D11::UpdateGUIProjectionMatrix(const v2i& windowSize)
 	m_guiProjectionMatrix.m_data[3] = v4f((R + L) / (L - R), (T + B) / (B - T), 0.0f, 1.0f);*/
 }
 
-D3D11::D3D11()
-{
+D3D11::D3D11(){
+	YY_DEBUG_PRINT_FUNC;
 	m_mainTarget = 0;
 	m_mainTargetSurface = 0;
 	for (u32 i = 0; i < yyVideoDriverMaxTextures; ++i)
@@ -78,8 +77,8 @@ D3D11::D3D11()
 	m_blendStateAlphaEnabledWithATC = nullptr;
 	m_blendStateAlphaDisabled = nullptr;
 }
-D3D11::~D3D11()
-{
+D3D11::~D3D11(){
+	YY_DEBUG_PRINT_FUNC;
 	if (m_mainTarget) yyDestroy(m_mainTarget);
 	if (m_mainTargetSurface) yyDestroy(m_mainTargetSurface);
 
@@ -111,8 +110,8 @@ D3D11::~D3D11()
 
 	if (m_d3d11Device)                          m_d3d11Device->Release();
 }
-bool D3D11::Init(yyWindow* window)
-{
+bool D3D11::Init(yyWindow* window){
+	YY_DEBUG_PRINT_FUNC;
 	assert(window);
 	yyLogWriteInfo("Init video driver - D3D11...\n");
 
@@ -496,16 +495,17 @@ bool D3D11::Init(yyWindow* window)
 	return true;
 }
 
-bool D3D11::updateMainTarget()
-{
+bool D3D11::updateMainTarget(){
 	if (m_mainTarget) yyDestroy(m_mainTarget);
 	if (m_mainTargetSurface) yyDestroy(m_mainTargetSurface);
 
 	m_mainTarget = yyCreate<D3D11Texture>();
-	yyResourceData rd;
+	static yyResourceData rd;
 	rd.m_type = yyResourceType::RenderTargetTexture;
-	rd.m_imageData.m_size[0] = m_mainTargetSize.x;
-	rd.m_imageData.m_size[1] = m_mainTargetSize.y;
+	if(!rd.m_imageData)
+		rd.m_imageData = yyCreate<yyResourceDataImage>();
+	rd.m_imageData->m_size[0] = m_mainTargetSize.x;
+	rd.m_imageData->m_size[1] = m_mainTargetSize.y;
 	m_mainTarget->Load(&rd);
 	/*if (!this->initRTT(m_mainTarget, m_mainTargetSize, false, false))
 	{
@@ -549,13 +549,6 @@ bool D3D11::updateMainTarget()
 	rd2.m_source = model;
 	rd2.m_type = yyResourceType::Model;
 	m_mainTargetSurface->Load(&rd2);
-	/*if (!initModel(model, m_mainTargetSurface))
-	{
-		yyDestroy(model);
-		yyLogWriteError("Can't create main render target surface...");
-		YY_PRINT_FAILED;
-		return false;
-	}*/
 	yyDestroy(model);
 
 	m_d3d11DevCon->OMSetRenderTargets(0, 0, 0);
@@ -582,8 +575,7 @@ bool D3D11::updateMainTarget()
 	return true;
 }
 
-bool D3D11::_createBackBuffer(int x, int y)
-{
+bool D3D11::_createBackBuffer(int x, int y){
 	if (m_depthStencilBuffer)
 	{
 		m_depthStencilBuffer->Release();
@@ -652,8 +644,7 @@ bool D3D11::_createBackBuffer(int x, int y)
 	return true;
 }
 
-void D3D11::SetShader(D3D11ShaderCommon* shader)
-{
+void D3D11::SetShader(D3D11ShaderCommon* shader){
 //	if (shader != m_activeShader)
 	{
 		m_activeShader = shader;

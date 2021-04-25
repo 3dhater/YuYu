@@ -9,17 +9,17 @@
 
 extern D3D11 * g_d3d11;
 
-D3D11ShaderLine3D::D3D11ShaderLine3D()
-{
+D3D11ShaderLine3D::D3D11ShaderLine3D(){
+	YY_DEBUG_PRINT_FUNC;
 	m_cb = 0;
 }
 
-D3D11ShaderLine3D::~D3D11ShaderLine3D()
-{
+D3D11ShaderLine3D::~D3D11ShaderLine3D(){
+	YY_DEBUG_PRINT_FUNC;
 }
 
-bool D3D11ShaderLine3D::init()
-{
+bool D3D11ShaderLine3D::init(){
+	YY_DEBUG_PRINT_FUNC;
 	const char * text =
 		"struct VSIn{\n"
 		"	uint vertexID : SV_VertexID;\n"
@@ -110,15 +110,14 @@ bool D3D11ShaderLine3D::init()
 	return true;
 }
 
-void D3D11ShaderLine3D::SetData(const v4f& p1, const v4f& p2, const yyColor& color, const Mat4& projMat)
-{
+void D3D11ShaderLine3D::SetData(const v4f& p1, const v4f& p2, const yyColor& color, const Mat4& projMat){
 	m_cbData.P1 = p1;
 	m_cbData.P2 = p2;
 	m_cbData.Color = color;
 	m_cbData.VP = projMat; // g_d3d11->m_matrixViewProjection;
 }
-void D3D11ShaderLine3D::SetConstants(yyMaterial* material)
-{
+
+void D3D11ShaderLine3D::SetConstants(yyMaterial* material){
 
 	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &m_cb);
 	D3D11_MAPPED_SUBRESOURCE mappedResource;

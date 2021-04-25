@@ -10,10 +10,19 @@
 
 extern D3D11 * g_d3d11;
 
-D3D11ShaderLineModel::D3D11ShaderLineModel(){}
-D3D11ShaderLineModel::~D3D11ShaderLineModel(){}
+D3D11ShaderLineModel::D3D11ShaderLineModel(){
+	YY_DEBUG_PRINT_FUNC;
+	m_cbVertex = 0;
+	m_cbPixel = 0;
+}
+D3D11ShaderLineModel::~D3D11ShaderLineModel(){
+	YY_DEBUG_PRINT_FUNC;
+	if (m_cbVertex)m_cbVertex->Release();
+	if (m_cbPixel)m_cbPixel->Release();
+}
 
 bool D3D11ShaderLineModel::init(){
+	YY_DEBUG_PRINT_FUNC;
 	const char * text =
 		"struct VSIn{\n"
 		"   float3 position : POSITION;\n"
@@ -105,8 +114,16 @@ void D3D11ShaderLineModel::SetConstants(yyMaterial* material){
 
 
 
-D3D11ShaderLineModelAnimated::D3D11ShaderLineModelAnimated() {}
-D3D11ShaderLineModelAnimated::~D3D11ShaderLineModelAnimated() {}
+D3D11ShaderLineModelAnimated::D3D11ShaderLineModelAnimated() {
+	YY_DEBUG_PRINT_FUNC;
+	m_cbVertex = 0;
+	m_cbPixel = 0;
+}
+D3D11ShaderLineModelAnimated::~D3D11ShaderLineModelAnimated() {
+	YY_DEBUG_PRINT_FUNC;
+	if (m_cbVertex)m_cbVertex->Release();
+	if (m_cbPixel)m_cbPixel->Release();
+}
 
 void D3D11ShaderLineModelAnimated::SetConstants(yyMaterial* material) {
 	m_cbVertexData.WVP = g_d3d11->m_matrixWorldViewProjection;
@@ -130,6 +147,7 @@ void D3D11ShaderLineModelAnimated::SetConstants(yyMaterial* material) {
 }
 
 bool D3D11ShaderLineModelAnimated::init() {
+	YY_DEBUG_PRINT_FUNC;
 	const char * text =
 		"struct VSIn{\n"
 		"   float3 position : POSITION;\n"

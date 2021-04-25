@@ -32,6 +32,8 @@ struct yyMaterial
 		m_fogData.x = 1.f;
 		m_fogColor = ColorWhite;
 	}
+	~yyMaterial() {}
+
 	yyMaterialType m_type;
 	bool m_wireframe;
 	bool m_cullBackFace;

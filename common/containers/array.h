@@ -413,6 +413,10 @@ public:
 	yyArraySimple() :m_allocated(0),m_size(0), m_data(0){}
 	~yyArraySimple() { free_memory(); }
 
+	u32 capacity() {
+		return m_allocated;
+	}
+
 	void reserve(u16 new_capacity)
 	{
 		if (new_capacity > m_allocated)
@@ -432,7 +436,7 @@ public:
 	{
 		if (m_data)
 		{
-			for (u32 i = 0u; i < m_size; ++i)
+			for (u32 i = 0u; i < m_allocated; ++i)
 			{
 				(&m_data[i])->~type();
 			}

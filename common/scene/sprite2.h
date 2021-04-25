@@ -143,7 +143,7 @@ struct yySprite2State
 		auto gpu = yyGetVideoDriverAPI();
 		for(u16 i = 0, sz = m_framesGPU.size(); i < sz; ++i)
 		{
-			yyDestroy(m_framesGPU[i]);
+			yyMegaAllocator::Destroy(m_framesGPU[i]);
 		}
 
 		DeleteFramesCPU();
@@ -206,12 +206,12 @@ struct yySprite2
 				if (!m_texture->IsLoaded())
 				{
 					yyRemoveTextureFromCache(m_texture);
-					yyDestroy(m_texture);
+					yyMegaAllocator::Destroy(m_texture);
 				}
 			}
 			else
 			{
-				yyDestroy(m_texture);
+				yyMegaAllocator::Destroy(m_texture);
 			}
 		}
 	}

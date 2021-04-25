@@ -262,68 +262,6 @@ struct yyModel
 	}
 };
 
-//struct yyModel
-//{
-//	yyModel():
-//		m_refCount(0)
-//	{}
-//	~yyModel()
-//	{
-//		for(u16 i = 0, sz = m_meshBuffers.size(); i < sz; ++i)
-//		{
-//			yyDestroy( m_meshBuffers[i] );
-//		}
-//	}
-//
-//	yyArraySmall<yyMeshBuffer*> m_meshBuffers;
-//
-//	bool isRayIntersect(const yyRay& ray, v4f& ip, f32& len, const v4f& position, Mat4* matrix = nullptr)
-//	{
-//		yyTriangle triangle;
-//		for (u16 imb = 0, szmb = m_meshBuffers.size(); imb < szmb; ++imb)
-//		{
-//			auto mb = m_meshBuffers[imb];
-//			yyVertexModel* verts = (yyVertexModel*)mb->m_vertices;
-//			u16* inds = (u16*)mb->m_indices;
-//			for (u32 i = 0; i < mb->m_iCount; i += 3)
-//			{
-//				triangle.v1 = verts[inds[i]].Position;
-//				if (matrix) 
-//					triangle.v1 = math::mul(triangle.v1, *matrix);
-//				triangle.v1 += position;
-//
-//				triangle.v2 = verts[inds[i + 1]].Position;
-//				if (matrix)
-//					triangle.v2 = math::mul(triangle.v2, *matrix);
-//				triangle.v2 += position;
-//
-//				triangle.v3 = verts[inds[i + 2]].Position;
-//				if (matrix)
-//					triangle.v3 = math::mul(triangle.v3, *matrix);
-//				triangle.v3 += position;
-//
-//				triangle.update();
-//
-//				f32 U, V, W = 0.f;
-//				if (triangle.rayTest_MT(ray, false, len, U, V, W))
-//				{
-//					ip = ray.m_origin + (ray.m_direction * len);
-//					return true;
-//				}
-//			}
-//		}
-//
-//		return false;
-//	}
-//
-//	// используется в yyGetModel и yyDeleteModel
-//	// если вызван yyGetModel то ++m_refCount
-//	// если вызван yyDeleteModel то --m_refCount
-//	u32 m_refCount;
-//
-//	Aabb m_aabb;
-//};
-
 // Идея такая - MDL это оболочка к yyModel
 // MDL может хранить множество слоёв (мешбуферов)
 #define YY_MDL_LAYER_NUM_OF_TEXTURES 4
@@ -343,10 +281,10 @@ struct yyMDLLayer
 		/*for (u32 i = 0; i < YY_MDL_LAYER_NUM_OF_TEXTURES; ++i)
 		{
 			if (m_textureGPU[i])
-				yyDestroy(m_textureGPU[i]);
+				yyMegaAllocator::Destroy(m_textureGPU[i]);
 		}*/
 		if (m_meshGPU)
-			yyDestroy(m_meshGPU);
+			yyMegaAllocator::Destroy(m_meshGPU);
 	}
 
 	yyVideoDriverAPI * m_gpu;

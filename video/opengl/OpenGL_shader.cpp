@@ -11,8 +11,8 @@ GLuint _createShaderProgram(GLuint v, GLuint f, GLuint g);
 bool _checkShader(GLuint shader);
 bool _checkProgram(GLuint program);
 
-bool createShader( const char * v, const char * f, const char * g, GLuint& out_program )
-{
+bool createShader( const char * v, const char * f, const char * g, GLuint& out_program ){
+	YY_DEBUG_PRINT_FUNC;
 	auto shader_vert = _createShader(GL_VERTEX_SHADER,v);
 	if(!_checkShader(shader_vert))
 	{
@@ -46,8 +46,8 @@ bool createShader( const char * v, const char * f, const char * g, GLuint& out_p
 		gglDeleteShader(shader_geom);
 	return true;
 }
-bool _checkProgram(GLuint program)
-{
+bool _checkProgram(GLuint program){
+	YY_DEBUG_PRINT_FUNC;
 	GLint link_result = 0;
 	gglGetProgramiv(program, GL_LINK_STATUS, &link_result);
 	if (link_result == GL_FALSE)
@@ -63,15 +63,15 @@ bool _checkProgram(GLuint program)
 	}
 	return true;
 }
-GLuint _createShader(GLenum type, const char * text)
-{
+GLuint _createShader(GLenum type, const char * text){
+	YY_DEBUG_PRINT_FUNC;
 	auto shader = gglCreateShader(type);
 	gglShaderSource(shader, 1, &text, nullptr );
 	gglCompileShader(shader);
 	return shader;
 }
-GLuint _createShaderProgram(GLuint v, GLuint f, GLuint g)
-{
+GLuint _createShaderProgram(GLuint v, GLuint f, GLuint g){
+	YY_DEBUG_PRINT_FUNC;
 	auto program = gglCreateProgram();
 	gglAttachShader(program, v);
 	gglAttachShader(program, f);
@@ -80,8 +80,8 @@ GLuint _createShaderProgram(GLuint v, GLuint f, GLuint g)
 	gglLinkProgram(program);
 	return program;
 }
-bool _checkShader(GLuint shader)
-{
+bool _checkShader(GLuint shader){
+	YY_DEBUG_PRINT_FUNC;
 	GLint compile_result = 0;
 	gglGetShaderiv(shader, GL_COMPILE_STATUS, &compile_result);
 	if(compile_result == GL_FALSE)

@@ -39,6 +39,7 @@ extern wglSwapIntervalEXT_t gwglSwapIntervalEXT;
 #endif
 
 u32 GetAPIVersion(){
+	YY_DEBUG_PRINT_FUNC;
 	return yyVideoDriverAPIVersion;
 }
 
@@ -515,6 +516,7 @@ void* GetVideoDriverObjects(){
 }
 
 const char* GetVideoDriverName(){
+	YY_DEBUG_PRINT_FUNC;
 	return "OpenGL 3.3";
 }
 
@@ -578,10 +580,12 @@ void UpdateMainRenderTarget(const v2i& windowsSize, const v2f& bufferSize){
 }
 
 yyResourceImplementation* CreateTextureImplementation() {
+	YY_DEBUG_PRINT_FUNC;
 	return yyCreate<OpenGLTexture>();
 }
 
 yyResourceImplementation* CreateModelImplementation() {
+	YY_DEBUG_PRINT_FUNC;
 	return yyCreate<OpenGLModel>();
 }
 
@@ -593,8 +597,8 @@ void SetGUIShaderData(yyGUIElement* guielement){
 
 extern "C"
 {
-	YY_API yyVideoDriverAPI* YY_C_DECL GetAPI()
-	{
+	YY_API yyVideoDriverAPI* YY_C_DECL GetAPI()	{
+		YY_DEBUG_PRINT_FUNC;
 		g_api.BeginDraw = BeginDraw;
 		g_api.BeginDrawGUI = BeginDrawGUI;
 		g_api.ClearAll = ClearAll;

@@ -21,8 +21,7 @@
 
 #include "math/mat.h"
 
-void OpenGL::UpdateGUIProjectionMatrix(const v2i& windowSize)
-{
+void OpenGL::UpdateGUIProjectionMatrix(const v2i& windowSize){
 	glViewport(0, 0, (GLsizei)windowSize.x, (GLsizei)windowSize.y);
 	float L = 0;
 	float R = (float)windowSize.x;
@@ -124,6 +123,7 @@ OpenGL::OpenGL()
 	m_isGUI(false),
 	m_spriteCameraScale(v2f(1.f,1.f))
 {
+	YY_DEBUG_PRINT_FUNC;
 #ifdef YY_PLATFORM_WINDOWS
 	m_OpenGL_lib = nullptr;
 	m_windowDC = nullptr;
@@ -143,8 +143,8 @@ OpenGL::OpenGL()
 	m_shader_rectangle = 0;
 }
 
-OpenGL::~OpenGL()
-{
+OpenGL::~OpenGL(){
+	YY_DEBUG_PRINT_FUNC;
 	yyLogWriteInfo("Destroy video driver...\n");
 
 	if (m_mainTarget) yyDestroy(m_mainTarget);
@@ -165,17 +165,6 @@ OpenGL::~OpenGL()
 	if (m_shader_simple) yyDestroy(m_shader_simple);
 	if (m_shader_simpleAnimated) yyDestroy(m_shader_simpleAnimated);
 
-	/*for(size_t i = 0, sz = m_textures.size(); i < sz; ++i)
-	{
-		if( m_textures[i] )
-			yyDestroy( m_textures[i] );
-	}
-
-	for(size_t i = 0, sz = m_models.size(); i < sz; ++i)
-	{
-		if( m_models[i] )
-			yyDestroy( m_models[i] );
-	}*/
 
 #ifdef YY_PLATFORM_WINDOWS
 	if(m_OpenGL_lib)
@@ -185,8 +174,7 @@ OpenGL::~OpenGL()
 #endif
 }
 
-void* OpenGL::get_proc(const char *proc)
-{
+void* OpenGL::get_proc(const char *proc){
 	void * res = nullptr;
 
 #ifdef YY_PLATFORM_WINDOWS
@@ -199,8 +187,7 @@ void* OpenGL::get_proc(const char *proc)
 	return res;
 }
 
-void OpenGL::SetActive(yyWindow* window)
-{
+void OpenGL::SetActive(yyWindow* window){
 #ifdef YY_PLATFORM_WINDOWS
 	m_windowDC = window->m_dc;
 	gwglMakeCurrent(m_windowDC, m_renderingContext);
@@ -208,8 +195,9 @@ void OpenGL::SetActive(yyWindow* window)
 #error Need implementation
 #endif
 }
-void OpenGL::InitWindow(yyWindow* window)
-{
+
+void OpenGL::InitWindow(yyWindow* window){
+	YY_DEBUG_PRINT_FUNC;
 #ifdef YY_PLATFORM_WINDOWS
 	auto dc = window->m_dc;
 	int attributeListInt[] =
@@ -247,8 +235,9 @@ void OpenGL::InitWindow(yyWindow* window)
 #error Need implementation
 #endif
 }
-bool OpenGL::Init(yyWindow* window)
-{
+
+bool OpenGL::Init(yyWindow* window){
+	YY_DEBUG_PRINT_FUNC;
 	yyLogWriteInfo("Init video driver - OpenGL...\n");
 	//m_window = window;
 
@@ -431,10 +420,10 @@ bool OpenGL::Init(yyWindow* window)
 		yyLogWriteInfo("Vendor: %s\n", vendor);
 	if(renderer)
 		yyLogWriteInfo("Renderer: %s\n", renderer);
-	gglClearDepth(1.0f);
-	gglEnable(GL_DEPTH_TEST);
-	gglFrontFace(GL_CW);
-	gglViewport(0, 0, window->m_currentSize.x, window->m_currentSize.y);
+	glClearDepth(1.0f);
+	glEnable(GL_DEPTH_TEST);
+	glFrontFace(GL_CW);
+	glViewport(0, 0, window->m_currentSize.x, window->m_currentSize.y);
 
 	UpdateGUIProjectionMatrix(window->m_currentSize);
 
@@ -454,9 +443,9 @@ bool OpenGL::Init(yyWindow* window)
 	//}
 	//m_defaultMaterial.m_textureLayer[0].m_texture = m_defaultTexture;
 
-	gglEnable(GL_BLEND);
-	gglBlendEquation(GL_FUNC_ADD);
-	gglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glBlendEquation(GL_FUNC_ADD);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//_createdefaultShaders();
 	m_shader_gui = yyCreate<OpenGLShaderGUI>();
@@ -585,23 +574,18 @@ bool OpenGL::Init(yyWindow* window)
 	return true;
 }
 
-bool OpenGL::updateMainTarget()
-{
+bool OpenGL::updateMainTarget(){
 	if (m_mainTarget) yyDestroy(m_mainTarget);
 	if (m_mainTargetSurface) yyDestroy(m_mainTargetSurface);
 
 	m_mainTarget = yyCreate<OpenGLTexture>();
-	yyResourceData rd;
+	static yyResourceData rd;
 	rd.m_type = yyResourceType::RenderTargetTexture;
-	rd.m_imageData.m_size[0] = m_mainTargetSize.x;
-	rd.m_imageData.m_size[1] = m_mainTargetSize.y;
+	if(!rd.m_imageData)
+		rd.m_imageData = yyCreate<yyResourceDataImage>();
+	rd.m_imageData->m_size[0] = m_mainTargetSize.x;
+	rd.m_imageData->m_size[1] = m_mainTargetSize.y;
 	m_mainTarget->Load(&rd);
-	/*if (!initFBO(m_mainTarget, m_mainTargetSize, false, false))
-	{
-		yyLogWriteError("Can't create main render target...");
-		YY_PRINT_FAILED;
-		return false;
-	}*/
 
 	auto model = yyCreate<yyModel>();
 	model->m_iCount = 6;

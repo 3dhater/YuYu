@@ -36,8 +36,8 @@
 //	return true;
 //}
 
-yyImage* ImageLoader_DDS(const char* p)
-{
+yyImage* ImageLoader_DDS(const char* p){
+	YY_DEBUG_PRINT_FUNC;
 	//auto file_size = std::filesystem::file_size(p);
 	auto file_size = yy_fs::file_size(p);
 

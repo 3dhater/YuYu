@@ -40,9 +40,12 @@ D3D11Texture::D3D11Texture()
 	m_RTV(0),
 	m_h(0),
 	m_w(0)
-{}
+{
+	YY_DEBUG_PRINT_FUNC;
+}
 
 D3D11Texture::~D3D11Texture(){
+	YY_DEBUG_PRINT_FUNC;
 	Unload();
 }
 
@@ -60,7 +63,7 @@ void D3D11Texture::UnmapModelForWriteVerts() {}
 void D3D11Texture::Load(yyResourceData* imageData) {
 	YY_DEBUG_PRINT_FUNC;
 	D3D11_FILTER filter;
-	yyTextureFilter tf = imageData->m_imageData.m_filter;
+	yyTextureFilter tf = imageData->m_imageData->m_filter;
 	switch (tf)
 	{
 	case yyTextureFilter::PPP:
@@ -226,8 +229,8 @@ void D3D11Texture::Load(yyResourceData* imageData) {
 	}
 	else
 	{
-		m_h = imageData->m_imageData.m_size[0];
-		m_w = imageData->m_imageData.m_size[1];
+		m_h = imageData->m_imageData->m_size[0];
+		m_w = imageData->m_imageData->m_size[1];
 
 		D3D11_TEXTURE2D_DESC desc;
 		ZeroMemory(&desc, sizeof(desc));
@@ -284,7 +287,7 @@ void D3D11Texture::Load(yyResourceData* imageData) {
 	}
 	
 	D3D11_TEXTURE_ADDRESS_MODE tam;
-	switch (imageData->m_imageData.m_addressMode)
+	switch (imageData->m_imageData->m_addressMode)
 	{
 	case yyTextureAddressMode::Wrap:
 	default:
@@ -305,7 +308,7 @@ void D3D11Texture::Load(yyResourceData* imageData) {
 	}
 
 	D3D11_COMPARISON_FUNC cmpFunc;
-	switch (imageData->m_imageData.m_comparisonFunc)
+	switch (imageData->m_imageData->m_comparisonFunc)
 	{
 	case yyTextureComparisonFunc::Never:
 		cmpFunc = D3D11_COMPARISON_NEVER;
@@ -335,7 +338,7 @@ void D3D11Texture::Load(yyResourceData* imageData) {
 	}
 
 
-	auto hr = D3D11Texture_createSamplerState(filter, tam, imageData->m_imageData.m_anisotropicLevel,
+	auto hr = D3D11Texture_createSamplerState(filter, tam, imageData->m_imageData->m_anisotropicLevel,
 		&m_samplerState, cmpFunc);
 	if (FAILED(hr))
 	{

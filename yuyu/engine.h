@@ -8,6 +8,7 @@
 #include "containers/list.h"
 #include "containers/array.h"
 #include "yy_fs.h"
+#include "yyResourceImpl.h"
 
 void yyBackgroundWorkerFunction();
 
@@ -88,8 +89,12 @@ class Engine
 {
 	void GUIRebuildElement(yyGUIElement*);
 public:
-	Engine();
+	Engine(yyPoolSetup*);
 	~Engine();
+
+	yyPoolSetup m_poolSetup;
+	yyPoolAllocator<yyResourceImpl> m_poolResource;
+	yyPoolAllocator<yyMaterial> m_poolMaterial;
 
 	yyInputContext* m_inputContext;
 

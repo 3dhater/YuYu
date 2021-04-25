@@ -124,12 +124,13 @@ bool yyResourceImpl::IsLoaded() {
 void yyResourceImpl::InitTextureRenderTargetResourse(const v2f& size) {
 	m_type = yyResourceType::RenderTargetTexture;
 	m_resourceData.m_type = m_type;
-	m_resourceData.m_imageData.m_size[0] = size.x;
-	m_resourceData.m_imageData.m_size[1] = size.y;
-	m_resourceData.m_imageData.m_anisotropicLevel = g_engine->m_textureAnisotropicLevel;
-	m_resourceData.m_imageData.m_filter = g_engine->m_textureFilter;
-	m_resourceData.m_imageData.m_addressMode = g_engine->m_textureAddressMode;
-	m_resourceData.m_imageData.m_comparisonFunc = g_engine->m_textureComparisonFunc;
+	m_resourceData.m_imageData = yyCreate<yyResourceDataImage>();
+	m_resourceData.m_imageData->m_size[0] = size.x;
+	m_resourceData.m_imageData->m_size[1] = size.y;
+	m_resourceData.m_imageData->m_anisotropicLevel = g_engine->m_textureAnisotropicLevel;
+	m_resourceData.m_imageData->m_filter = g_engine->m_textureFilter;
+	m_resourceData.m_imageData->m_addressMode = g_engine->m_textureAddressMode;
+	m_resourceData.m_imageData->m_comparisonFunc = g_engine->m_textureComparisonFunc;
 	if (!m_implementation)
 		m_implementation = g_engine->m_videoAPI->CreateTextureImplementation();
 }
@@ -140,10 +141,11 @@ void yyResourceImpl::InitTextureResourse(yyImage* img, const char* fileName){
 	m_resourceData.m_path = fileName;
 	m_resourceData.m_source = img;
 
-	m_resourceData.m_imageData.m_anisotropicLevel = g_engine->m_textureAnisotropicLevel;
-	m_resourceData.m_imageData.m_filter = g_engine->m_textureFilter;
-	m_resourceData.m_imageData.m_addressMode = g_engine->m_textureAddressMode;
-	m_resourceData.m_imageData.m_comparisonFunc = g_engine->m_textureComparisonFunc;
+	m_resourceData.m_imageData = yyCreate<yyResourceDataImage>();
+	m_resourceData.m_imageData->m_anisotropicLevel = g_engine->m_textureAnisotropicLevel;
+	m_resourceData.m_imageData->m_filter = g_engine->m_textureFilter;
+	m_resourceData.m_imageData->m_addressMode = g_engine->m_textureAddressMode;
+	m_resourceData.m_imageData->m_comparisonFunc = g_engine->m_textureComparisonFunc;
 	if(!m_implementation)
 		m_implementation = g_engine->m_videoAPI->CreateTextureImplementation();
 }
@@ -152,6 +154,8 @@ void yyResourceImpl::InitModelResourse(yyModel* m) {
 	m_type = yyResourceType::Model;
 	m_resourceData.m_type = m_type;
 	m_resourceData.m_source = m;
+	m_resourceData.m_modelData = yyCreate<yyResourceDataModel>();
+	m_resourceData.m_modelData->m_material = yyMegaAllocator::CreateMaterial();
 
 	if (!m_implementation)
 		m_implementation = g_engine->m_videoAPI->CreateModelImplementation();
