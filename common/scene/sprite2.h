@@ -86,7 +86,7 @@ v4f yySpriteGetNewPivot(const v4f& r, u8 pivotPosition)
 YY_FORCE_INLINE
 yyModel* yySpriteCreateNew(const v4f& rect, const v2f& UV_leftBottom, const v2f& UV_rightTop)
 {
-	auto model = yyCreate<yyModel>();
+	auto model = yyMegaAllocator::CreateModel();
 	model->m_iCount = 6;
 	model->m_vCount = 4;
 	model->m_stride = sizeof(yyVertexGUI);
@@ -158,7 +158,7 @@ struct yySprite2State
 	{
 		for (u16 i = 0, sz = m_framesCPU.size(); i < sz; ++i)
 		{
-			yyDestroy(m_framesCPU[i]);
+			yyMegaAllocator::Destroy(m_framesCPU[i]);
 		}
 		m_framesCPU.clear();
 		m_activeFrameCPU = 0;

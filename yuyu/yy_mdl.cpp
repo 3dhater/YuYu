@@ -2,6 +2,7 @@
 
 #include "yy_resource.h"
 #include "yy_model.h"
+#include "yy_material.h"
 #include "io/file_buffer.h"
 
 #include <cassert>
@@ -56,9 +57,9 @@ void MDL_loadVersion1(yyMDL** _mdl, yyFileBuffer* f){
 		f->read(&layerHeader, sizeof(yyMDLLayerHeader));
 		
 		yyMDLLayer* newLayer = yyCreate<yyMDLLayer>();
-		newLayer->m_model = yyCreate<yyModel>();
+		newLayer->m_model = yyMegaAllocator::CreateModel();
 
-		newLayer->m_model->m_material.m_type = (yyMaterialType)layerHeader.m_shaderType;
+		newLayer->m_model->m_material->m_type = (yyMaterialType)layerHeader.m_shaderType;
 		
 		newLayer->m_model->m_indices  = (u8*)yyMemAlloc(layerHeader.m_indexDataSize);
 		newLayer->m_model->m_iCount = layerHeader.m_indexCount;
@@ -155,7 +156,7 @@ void MDL_loadVersion1(yyMDL** _mdl, yyFileBuffer* f){
 		{
 		case yyMDLHitbox::HitboxType::Mesh:
 		{
-			newHitBox->m_mesh = yyCreate<yyModel>();
+			newHitBox->m_mesh = yyMegaAllocator::CreateModel();
 			newHitBox->m_mesh->m_iCount = hitboxHeader.m_indexCount;
 			newHitBox->m_mesh->m_vCount = hitboxHeader.m_vertexCount;
 			newHitBox->m_mesh->m_indexType = yyMeshIndexType::u16;

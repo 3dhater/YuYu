@@ -4,14 +4,14 @@
 struct yyGUITextDrawNode 
 {
 	yyGUITextDrawNode() 	{
-		m_texture = 0;
-		m_model = 0;
+		m_textureGPU = 0;
+		m_modelGPU = 0;
 	}
 	~yyGUITextDrawNode() {
-		if (m_model) yyMegaAllocator::Destroy(m_model);
+		if (m_modelGPU) yyMegaAllocator::Destroy(m_modelGPU);
 	}
-	yyResource* m_texture;
-	yyResource* m_model;
+	yyResource* m_textureGPU;
+	yyResource* m_modelGPU;
 };
 
 class yyGUIText: public yyGUIElement

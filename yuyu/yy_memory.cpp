@@ -1,6 +1,7 @@
 ﻿#include "yy.h"
 #include "yy_image.h"
 #include "yy_material.h"
+#include "yy_model.h"
 
 #include "engine.h"
 extern Engine * g_engine;
@@ -35,8 +36,8 @@ yyMegaAllocator::~yyMegaAllocator() {
 yyMaterial* yyMegaAllocator::CreateMaterial() {
 	auto ptr = g_engine->m_poolMaterial.GetObject();
 	new(ptr)yyMaterial();
-	/*printf(">>> get [%i] - freeCount[%i]\n", g_engine->m_poolMaterial.GetUsedCount(),
-		g_engine->m_poolMaterial.GetFreeCount());*/
+	printf(">>> get [%i] - freeCount[%i]\n", g_engine->m_poolMaterial.GetUsedCount(),
+		g_engine->m_poolMaterial.GetFreeCount());
 	return ptr;
 }
 yyResource* yyMegaAllocator::CreateResource() {
@@ -44,16 +45,30 @@ yyResource* yyMegaAllocator::CreateResource() {
 	new(ptr)yyResourceImpl();
 	return ptr;
 }
+yyModel* yyMegaAllocator::CreateModel() {
+	auto ptr = g_engine->m_poolModel.GetObject();
+	new(ptr)yyModel();
+	/*printf(">>> get [%i] - freeCount[%i]\n", g_engine->m_poolModel.GetUsedCount(),
+		g_engine->m_poolModel.GetFreeCount());*/
+	return ptr;
+}
 
 void yyMegaAllocator::Destroy(yyMaterial* ptr) {
 	assert(ptr);
 	ptr->~yyMaterial();
 	g_engine->m_poolMaterial.PutBack(ptr);
-	/*printf(">>> put [%i] - freeCount[%i]\n", g_engine->m_poolMaterial.GetUsedCount(),
-		g_engine->m_poolMaterial.GetFreeCount());*/
+	printf(">>> put [%i] - freeCount[%i]\n", g_engine->m_poolMaterial.GetUsedCount(),
+		g_engine->m_poolMaterial.GetFreeCount());
 }
 void yyMegaAllocator::Destroy(yyResource* ptr) {
 	assert(ptr);
 	ptr->~yyResource();
 	g_engine->m_poolResource.PutBack((yyResourceImpl*)ptr);
+}
+void yyMegaAllocator::Destroy(yyModel* ptr) {
+	assert(ptr);
+	ptr->~yyModel();
+	g_engine->m_poolModel.PutBack(ptr);
+	/*printf(">>> put [%i] - freeCount[%i]\n", g_engine->m_poolModel.GetUsedCount(),
+		g_engine->m_poolModel.GetFreeCount());*/
 }

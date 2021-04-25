@@ -33,6 +33,7 @@ struct yySprite2;
 struct v4f;
 struct v2f;
 struct v2i;
+struct yyGUIFontGlyph;
 
 
 

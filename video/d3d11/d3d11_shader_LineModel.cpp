@@ -1,6 +1,7 @@
 ﻿#include "yy.h"
 
 #include "yy_video.h"
+#include "yy_material.h"
 
 #include "vid_d3d11.h"
 #include "d3d11_shader.h"

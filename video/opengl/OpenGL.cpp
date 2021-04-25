@@ -587,7 +587,7 @@ bool OpenGL::updateMainTarget(){
 	rd.m_imageData->m_size[1] = m_mainTargetSize.y;
 	m_mainTarget->Load(&rd);
 
-	auto model = yyCreate<yyModel>();
+	auto model = yyMegaAllocator::CreateModel();
 	model->m_iCount = 6;
 	model->m_vCount = 4;
 	model->m_stride = sizeof(yyVertexGUI);
@@ -629,6 +629,6 @@ bool OpenGL::updateMainTarget(){
 		YY_PRINT_FAILED;
 		return false;
 	}*/
-	yyDestroy(model);
+	yyMegaAllocator::Destroy(model);
 	return true;
 }

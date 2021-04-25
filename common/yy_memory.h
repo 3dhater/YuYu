@@ -126,9 +126,11 @@ public:
 
 	static yyMaterial* CreateMaterial();
 	static yyResource* CreateResource();
+	static yyModel* CreateModel();
 	
 	static void Destroy(yyMaterial*);
 	static void Destroy(yyResource*);
+	static void Destroy(yyModel*);
 };
 
 
@@ -202,8 +204,9 @@ public:
 // default pool setup will be in class Engine
 struct yyPoolSetup
 {
-	s32 m_resourceCount; // 100
-	s32 m_materialCount; // 100
+	s32 m_resourceCount;
+	s32 m_materialCount;
+	s32 m_modelCount;
 };
 
 

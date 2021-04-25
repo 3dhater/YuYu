@@ -95,7 +95,7 @@ void ImportOBJ(yyMDLObject* object, const char* fileName)
 	OBJFace f;
 	char s[0xff];
 	
-	yyModel* newModel = yyCreate<yyModel>();
+	yyModel* newModel = yyMegaAllocator::CreateModel();
 
 	v4i last_counter;
 	

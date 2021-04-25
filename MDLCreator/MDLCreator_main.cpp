@@ -7,6 +7,7 @@
 
 #include "yy.h"
 #include "yy_window.h"
+#include "yy_material.h"
 
 #include "yy_ptr.h"
 #include "math/math.h"
@@ -682,13 +683,13 @@ int main(int argc, char* argv[])
 							activeHitbox->rebuild();
 						
 						static ImVec4 color = ImVec4(255.0f, 255.0f, 0.0f, 255.0f);
-						color.x = activeHitbox->m_material.m_baseColor.m_data[0];
-						color.y = activeHitbox->m_material.m_baseColor.m_data[1];
-						color.z = activeHitbox->m_material.m_baseColor.m_data[2];
+						color.x = activeHitbox->m_material->m_baseColor.m_data[0];
+						color.y = activeHitbox->m_material->m_baseColor.m_data[1];
+						color.z = activeHitbox->m_material->m_baseColor.m_data[2];
 						ImGui::ColorEdit3("HB color", (float*)&color);
-						activeHitbox->m_material.m_baseColor.setRed(color.x);
-						activeHitbox->m_material.m_baseColor.setGreen(color.y);
-						activeHitbox->m_material.m_baseColor.setBlue(color.z);
+						activeHitbox->m_material->m_baseColor.setRed(color.x);
+						activeHitbox->m_material->m_baseColor.setGreen(color.y);
+						activeHitbox->m_material->m_baseColor.setBlue(color.z);
 
 						const char * label = " ";
 						if (activeHitbox->m_hitbox.m_jointID != -1)
@@ -849,7 +850,7 @@ int main(int argc, char* argv[])
 				for (int i = 0, sz = g_sceneObject->m_hitboxes.size(); i < sz; ++i)
 				{
 					auto hb = g_sceneObject->m_hitboxes[i];
-					g_videoDriver->SetMaterial(&hb->m_material);
+					g_videoDriver->SetMaterial(hb->m_material);
 					Mat4 W;
 
 					if (hb->m_hitbox.m_jointID != -1)
@@ -938,7 +939,7 @@ void SaveMDL(const char* fileName)
 		auto layer = g_sceneObject->m_mdlObject->m_mdl->m_layers[i];
 
 		yyMDLLayerHeader layerHeader;
-		layerHeader.m_shaderType = (u32)layer->m_model->m_material.m_type;
+		layerHeader.m_shaderType = (u32)layer->m_model->m_material->m_type;
 		for (u32 p = 0; p < YY_MDL_LAYER_NUM_OF_TEXTURES; ++p)
 		{
 			if (layer->m_texturePath[p].size())

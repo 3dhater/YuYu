@@ -7,6 +7,7 @@
 #include "yy_gui.h"
 #include "yy_input.h"
 #include "yy_model.h"
+#include "yy_material.h"
 #include "scene/common.h"
 #include "strings\string.h"
 #include "strings\utils.h"
@@ -57,11 +58,13 @@ Engine::Engine(yyPoolSetup* ps)
 	}
 	else
 	{
-		m_poolSetup.m_resourceCount = 100;
-		m_poolSetup.m_materialCount = 100;
+		m_poolSetup.m_resourceCount = yyPoolSetup_default_resourceCount;
+		m_poolSetup.m_materialCount = yyPoolSetup_default_materialCount;
+		m_poolSetup.m_modelCount = yyPoolSetup_default_modelCount;
 	}
 	m_poolResource.Init(m_poolSetup.m_resourceCount);
 	m_poolMaterial.Init(m_poolSetup.m_materialCount);
+	m_poolModel.Init(m_poolSetup.m_modelCount);
 
 	m_textureAnisotropicLevel = 1;
 	m_textureAddressMode = yyTextureAddressMode::Wrap;

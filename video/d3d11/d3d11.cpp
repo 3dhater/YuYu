@@ -514,7 +514,7 @@ bool D3D11::updateMainTarget(){
 		return false;
 	}*/
 
-	auto model = yyCreate<yyModel>();
+	auto model = yyMegaAllocator::CreateModel();
 	model->m_iCount = 6;
 	model->m_vCount = 4;
 	model->m_stride = sizeof(yyVertexGUI);
@@ -549,7 +549,7 @@ bool D3D11::updateMainTarget(){
 	rd2.m_source = model;
 	rd2.m_type = yyResourceType::Model;
 	m_mainTargetSurface->Load(&rd2);
-	yyDestroy(model);
+	yyMegaAllocator::Destroy(model);
 
 	m_d3d11DevCon->OMSetRenderTargets(0, 0, 0);
 

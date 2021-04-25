@@ -566,7 +566,7 @@ void ImportSMD(yyMDLObject* object, const char* file)
 		for (size_t i = 0, sz = materialNames.size(); i < sz; ++i)
 		{
 			yyMDLLayer* newMDLLayer = yyCreate<yyMDLLayer>();
-			newMDLLayer->m_model = yyCreate<yyModel>();
+			newMDLLayer->m_model = yyMegaAllocator::CreateModel();
 
 			newMDLLayer->m_model->m_name = "Model";
 

@@ -6,6 +6,8 @@
 #include "math\aabb.h"
 #include "math\triangle.h"
 
+#include "yy_memory.h"
+
 #include "yy_model.h"
 #include "yy_fs.h"
 #include "io\file_io.h"
@@ -190,7 +192,7 @@ struct yyTerrainSector
 		m_visible = false;
 		m_currentIndex = 0;
 
-		m_model = yyCreate<yyModel>();
+		m_model = yyMegaAllocator::CreateModel();
 		m_meshBuffer = yyCreate<yyMeshBuffer>();
 		m_meshBuffer->m_indexType = yyMeshIndexType::u16;
 		m_meshBuffer->m_iCount = ((yyTerrainSectorSize * yyTerrainSectorSize * 2) * 3);
@@ -222,7 +224,7 @@ struct yyTerrainSector
 		if (m_physicsData)
 			yyDestroy(m_physicsData);
 		if (m_model)
-			yyDestroy(m_model);
+			yyMegaAllocator::Destroy(m_model);
 	}
 
 	u32 m_currentIndex;

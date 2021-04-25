@@ -1,7 +1,19 @@
-﻿  demo_example_gui.cpp
+﻿  yy_window.cpp
+e:\code\yuyu\common\win32\yy_window.cpp(302): warning C4244: '=' : conversion from 'LONG' to 'f32', possible loss of data
+e:\code\yuyu\common\win32\yy_window.cpp(303): warning C4244: '=' : conversion from 'LONG' to 'f32', possible loss of data
   Generating Code...
-  Skipping... (no relevant changes detected)
+  Compiling...
+  demo_main.cpp
+  demo_example_sprite.cpp
   demo_example_lines.cpp
+e:\code\yuyu\demo\demo_example_lines.cpp(75): warning C4018: '<' : signed/unsigned mismatch
+  demo_example_gui.cpp
   demo_example_MDL.cpp
+e:\code\yuyu\demo\demo_example_mdl.cpp(177): warning C4244: 'argument' : conversion from 'u32' to 'f32', possible loss of data
+  demo_example.cpp
   demo.cpp
+e:\code\yuyu\demo\demo.cpp(153): warning C4244: 'argument' : conversion from 's32' to 'f32', possible loss of data
+e:\code\yuyu\demo\demo.cpp(153): warning C4244: 'argument' : conversion from 'int' to 'f32', possible loss of data
+e:\code\yuyu\demo\demo.cpp(201): warning C4244: 'argument' : conversion from 's32' to 'f32', possible loss of data
+  Generating Code...
   demo.vcxproj -> E:\Code\YuYu\demo\../bin32/demo.exe

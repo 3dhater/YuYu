@@ -23,7 +23,7 @@ OpenGLModel::~OpenGLModel(){
 void OpenGLModel::Load(yyResourceData* rd) {
 	yyModel * model = (yyModel *)rd->m_source;
 
-	m_material = model->m_material;
+	m_material = *model->m_material;
 	m_vertexType = model->m_vertexType;
 
 	glGenVertexArrays(1, &m_VAO);

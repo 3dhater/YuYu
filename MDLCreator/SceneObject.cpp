@@ -1,4 +1,5 @@
 ﻿#include "yy.h"
+#include "yy_material.h"
 #include "scene\common.h"
 #include "scene\mdl_object.h"
 
@@ -15,11 +16,13 @@ Hitbox::Hitbox()
 	m_type = type::Box;
 	m_gpuModel = 0;
 
-	m_material.m_wireframe = true;
-	m_material.m_baseColor = ColorLime;
+	m_material = yyMegaAllocator::CreateMaterial();
+	m_material->m_wireframe = true;
+	m_material->m_baseColor = ColorLime;
 }
 Hitbox::~Hitbox()
 {
+	if (m_material) yyMegaAllocator::Destroy(m_material);
 	if (m_gpuModel) yyMegaAllocator::Destroy(m_gpuModel);
 }
 
@@ -30,7 +33,7 @@ void Hitbox::rebuild()
 
 	if (m_type == type::Box)
 	{
-		m_hitbox.m_mesh = yyCreate<yyModel>();
+		m_hitbox.m_mesh = yyMegaAllocator::CreateModel();
 		m_hitbox.m_mesh->m_vertexType = yyVertexType::Model;
 		m_hitbox.m_mesh->m_indexType = yyMeshIndexType::u16;
 		m_hitbox.m_mesh->m_stride = sizeof(yyVertexModel);

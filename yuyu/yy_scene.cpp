@@ -21,7 +21,7 @@ YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& r, yyResource* texture, u8 
 	newSprite->m_texture = texture;
 	if (!newSprite->m_texture->IsLoaded())
 		newSprite->m_texture->Load();
-	yyDestroy(model);
+	yyMegaAllocator::Destroy(model);
 
 	yyLogWriteInfo("Create sprite\n");
 

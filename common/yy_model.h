@@ -6,7 +6,8 @@
 #include "math/ray.h"
 #include "math\triangle.h"
 #include "math\aabb.h"
-#include "yy_material.h"
+#include "yy_memory.h"
+//#include "yy_material.h"
 
 struct yyVertexGUI
 {
@@ -96,12 +97,13 @@ struct yyModel
 		m_stride(0),
 		m_vertexType(yyVertexType::GUI)
 	{
+		m_material = yyMegaAllocator::CreateMaterial();
 	}
 	~yyModel()
 	{
 		if(m_vertices) yyMemFree( m_vertices );
 		if(m_indices) yyMemFree( m_indices ); 
-		
+		if (m_material) yyMegaAllocator::Destroy(m_material);
 	}
 
 	Aabb m_aabb;
@@ -116,7 +118,7 @@ struct yyModel
 
 	yyVertexType m_vertexType;
 
-	yyMaterial m_material;
+	yyMaterial* m_material;
 	yyStringA m_name;
 
 	
@@ -277,7 +279,7 @@ struct yyMDLLayer
 		m_gpu = yyGetVideoDriverAPI();
 	}
 	~yyMDLLayer() {
-		if (m_model) yyDestroy(m_model);
+		if (m_model) yyMegaAllocator::Destroy(m_model);
 		/*for (u32 i = 0; i < YY_MDL_LAYER_NUM_OF_TEXTURES; ++i)
 		{
 			if (m_textureGPU[i])
@@ -595,7 +597,7 @@ struct yyMDLHitboxHeader
 struct yyMDLHitbox
 {
 	yyMDLHitbox() :m_mesh(0), m_jointID(-1), m_uniqueID(-1), m_userData(0) {}
-	~yyMDLHitbox() { if (m_mesh) yyDestroy(m_mesh); }
+	~yyMDLHitbox() { if (m_mesh) yyMegaAllocator::Destroy(m_mesh); }
 	enum HitboxType
 	{
 		Mesh,

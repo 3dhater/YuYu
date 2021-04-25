@@ -24,7 +24,7 @@ struct Hitbox
 	v3f m_max;
 
 	yyStringA m_name;
-	yyMaterial m_material;
+	yyMaterial* m_material;
 };
 
 // У движка есть только примитивы для создания более сложных объектов.

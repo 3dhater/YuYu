@@ -9,6 +9,65 @@
 
 extern Engine * g_engine;
 
+_yyGui_text_model::_yyGui_text_model() {
+	m_model = 0;
+	m_isUsing = false;
+	m_numOfSymbols = 0;
+}
+_yyGui_text_model::~_yyGui_text_model() {
+	if (m_model)
+		yyMegaAllocator::Destroy(m_model);
+}
+void _yyGui_text_model::Reserve(u32 numSymbols) {
+	if (m_numOfSymbols == numSymbols)
+		return;
+	m_numOfSymbols = numSymbols;
+
+	if (m_model->m_indices)  yyMemFree(m_model->m_indices);
+	if (m_model->m_vertices) yyMemFree(m_model->m_vertices);
+
+	m_model->m_vertices = (u8*)yyMemAlloc(sizeof(yyVertexGUI) * 4 * numSymbols);
+	m_model->m_indices = (u8*)yyMemAlloc(numSymbols * 2 * 3 * sizeof(u16));
+}
+
+//v4f(TXN, TYN, TXP, TYP)
+void _yyGui_text_model::AddChar(const v4f& rect, yyGUIFontGlyph* glyph) {
+	yyVertexGUI v1, v2, v3, v4;
+
+	v1.m_position.set(rect.x, rect.w);
+	v2.m_position.set(rect.x, rect.y);
+	v3.m_position.set(rect.z, rect.y);
+	v4.m_position.set(rect.z, rect.w);
+
+	v1.m_tcoords = glyph->lb;
+	v2.m_tcoords = glyph->lt;
+	v3.m_tcoords = glyph->rt;
+	v4.m_tcoords = glyph->rb;
+
+	auto v = (yyVertexGUI*)m_model->m_vertices;
+	v += m_model->m_vCount;
+	*v = v1;
+	v++;
+	*v = v3;
+	v++;
+	*v = v4;
+	v++;
+	*v = v2;
+	v++;
+
+	u16 * i = (u16*)m_model->m_indices;
+	i += m_model->m_iCount;
+	*i = m_model->m_vCount;    ++i;
+	*i = m_model->m_vCount + 1; ++i;
+	*i = m_model->m_vCount + 2; ++i;
+	*i = m_model->m_vCount; ++i;
+	*i = m_model->m_vCount + 3; ++i;
+	*i = m_model->m_vCount + 1; ++i;
+
+	m_model->m_vCount += 4;
+	m_model->m_iCount += 6;
+}
+
 yyGUIText::yyGUIText(){
 	YY_DEBUG_PRINT_FUNC;
 	m_font = 0;
@@ -57,10 +116,10 @@ void yyGUIText::OnDraw(){
 	for (u16 k = 0, ksz = m_drawNodes.m_size; k < ksz; ++k)
 	{
 		auto & dn = m_drawNodes.m_data[k];
-		if (dn.m_texture)
-			g_engine->m_videoAPI->SetTexture(0, dn.m_texture);
-		if (dn.m_model)
-			g_engine->m_videoAPI->SetModel(dn.m_model);
+		if (dn.m_textureGPU)
+			g_engine->m_videoAPI->SetTexture(0, dn.m_textureGPU);
+		if (dn.m_modelGPU)
+			g_engine->m_videoAPI->SetModel(dn.m_modelGPU);
 		g_engine->m_videoAPI->Draw();
 	}
 }
@@ -77,71 +136,6 @@ void yyGUIText::SetBufferSize(u32 newSize){
 	m_bufferSize = newSize;
 }
 
-#define YY_MAX_FONT_TEXTURES 100
-struct _yyGui_text_model {
-	_yyGui_text_model() {
-		m_model = 0;
-		m_isUsing = false;
-		m_numOfSymbols = 0;
-	}
-	~_yyGui_text_model() {
-		if (m_model)
-			yyDestroy(m_model);
-	}
-	void Reserve(u32 numSymbols) {
-		if (m_numOfSymbols == numSymbols)
-			return;
-		m_numOfSymbols = numSymbols;
-
-		if (m_model->m_indices)  yyMemFree(m_model->m_indices);
-		if (m_model->m_vertices) yyMemFree(m_model->m_vertices);
-
-		m_model->m_vertices = (u8*)yyMemAlloc(sizeof(yyVertexGUI) * 4 * numSymbols);
-		m_model->m_indices = (u8*)yyMemAlloc(numSymbols * 2 * 3 * sizeof(u16));
-	}
-
-	//v4f(TXN, TYN, TXP, TYP)
-	void AddChar(const v4f& rect, yyGUIFontGlyph* glyph){
-		yyVertexGUI v1, v2, v3, v4;
-		
-		v1.m_position.set(rect.x, rect.w);
-		v2.m_position.set(rect.x, rect.y);
-		v3.m_position.set(rect.z, rect.y);
-		v4.m_position.set(rect.z, rect.w);
-
-		v1.m_tcoords = glyph->lb;
-		v2.m_tcoords = glyph->lt;
-		v3.m_tcoords = glyph->rt;
-		v4.m_tcoords = glyph->rb;
-
-		auto v = (yyVertexGUI*)m_model->m_vertices;
-		v += m_model->m_vCount;
-		*v = v1; 
-		v++;
-		*v = v3; 
-		v++;
-		*v = v4; 
-		v++;
-		*v = v2; 
-		v++;
-
-		u16 * i = (u16*)m_model->m_indices;
-		i += m_model->m_iCount;
-		*i = m_model->m_vCount;    ++i;
-		*i = m_model->m_vCount +1; ++i;
-		*i = m_model->m_vCount +2; ++i;
-		*i = m_model->m_vCount ; ++i;
-		*i = m_model->m_vCount +3; ++i;
-		*i = m_model->m_vCount +1; ++i;
-
-		m_model->m_vCount += 4;
-		m_model->m_iCount += 6;
-	}
-	yyModel* m_model;
-	bool m_isUsing;   // создавать ли на её основе GPU ресурс
-	u32 m_numOfSymbols;
-};
-_yyGui_text_model g_text_models[YY_MAX_FONT_TEXTURES];
 
 void yyGUIText::SetText(const wchar_t* format, ...){
 	assert(m_font);
@@ -173,7 +167,7 @@ void yyGUIText::SetText(const wchar_t* format, ...){
 		if (!glyph)
 			continue;
 
-		auto & model = g_text_models[glyph->textureID];
+		auto & model = g_engine->m_text_models[glyph->textureID];
 		model.m_isUsing = true;
 		model.Reserve(len);
 
@@ -203,7 +197,7 @@ void yyGUIText::SetText(const wchar_t* format, ...){
 	u32 array_index_counter = 0;
 	for (int i = 0; i < YY_MAX_FONT_TEXTURES; ++i)
 	{
-		if (g_text_models[i].m_isUsing)
+		if (g_engine->m_text_models[i].m_isUsing)
 		{
 			yyGUITextDrawNode * dn = 0;
 
@@ -218,16 +212,16 @@ void yyGUIText::SetText(const wchar_t* format, ...){
 			else
 				m_drawNodes.m_size++;
 
-			dn->m_texture = m_font->m_textures[i];
-			if (dn->m_model)
+			dn->m_textureGPU = m_font->m_textures[i];
+			if (dn->m_modelGPU)
 			{
-				if(!dn->m_model->IsLoaded())
-					dn->m_model->Load();
+				if(!dn->m_modelGPU->IsLoaded())
+					dn->m_modelGPU->Load();
 			}
 			else
 			{
-				dn->m_model = yyCreateModel(g_text_models[i].m_model);
-				dn->m_model->Load();
+				dn->m_modelGPU = yyCreateModel(g_engine->m_text_models[i].m_model);
+				dn->m_modelGPU->Load();
 				/*printf("Verts:\n");
 				for (int vi = 0; vi < g_text_models[i].m_model->m_vCount; ++vi)
 				{
@@ -250,23 +244,23 @@ void yyGUIText::SetText(const wchar_t* format, ...){
 void yyGUIText::Clear(){
 	for (int i = 0; i < YY_MAX_FONT_TEXTURES; ++i)
 	{
-		if (!g_text_models[i].m_model) {
-			g_text_models[i].m_model = yyCreate<yyModel>();
-			g_text_models[i].m_model->m_stride = sizeof(yyVertexGUI);
-			g_text_models[i].m_model->m_vertexType = yyVertexType::GUI;
+		if (!g_engine->m_text_models[i].m_model) {
+			g_engine->m_text_models[i].m_model = yyMegaAllocator::CreateModel();
+			g_engine->m_text_models[i].m_model->m_stride = sizeof(yyVertexGUI);
+			g_engine->m_text_models[i].m_model->m_vertexType = yyVertexType::GUI;
 		}
-		g_text_models[i].m_model->m_iCount = 0;
-		g_text_models[i].m_model->m_vCount = 0;
-		g_text_models[i].m_isUsing = false;
+		g_engine->m_text_models[i].m_model->m_iCount = 0;
+		g_engine->m_text_models[i].m_model->m_vCount = 0;
+		g_engine->m_text_models[i].m_isUsing = false;
 	}
 
 	for (u16 i = 0; i < m_drawNodes.m_size; ++i)
 	{
 		auto & dn = m_drawNodes.m_data[i];
-		if (dn.m_model)
+		if (dn.m_modelGPU)
 		{
-			if (dn.m_model->IsLoaded())
-				dn.m_model->Unload();
+			if (dn.m_modelGPU->IsLoaded())
+				dn.m_modelGPU->Unload();
 		}
 	}
 	m_drawNodes.clear();
