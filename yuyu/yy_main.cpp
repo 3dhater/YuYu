@@ -325,7 +325,7 @@ extern "C"
 
 	YY_API void YY_C_DECL yySetDefaultTexture(yyResource* r) {
 		if (!r->IsLoaded())
-			r->Load();
+			r->Load(false);
 		g_engine->m_defaultTexture = r;
 	}
 
@@ -396,7 +396,8 @@ extern "C"
 		g_engine = yyCreate1<Engine>(poolSetup);
 		g_engine->m_inputContext = input;
 		//g_engine->m_resourceManager = new yyResourceManager;
-	//	g_engine->m_backgroundWorker = new std::thread(yyBackgroundWorkerFunction);
+	
+		g_engine->m_backgroundWorker = new std::thread(yyBackgroundWorkerFunction);
 		//g_engine->m_inputContext = yyCreate<yyInputContext>();
 
 		return &g_engine->m_state;
@@ -408,7 +409,7 @@ extern "C"
 		{
 			if(g_engine->m_backgroundWorker)
 			{
-				g_engine->m_workerCommands.put(BackgroundWorkerCommands(BackgroundWorkerCommands::type::ExitThread,0,0));
+				g_engine->m_workerCommands.put(BackgroundWorkerCommands(BackgroundWorkerCommands::type::ExitThread,0));
 				g_engine->m_backgroundWorker->join();
 				delete g_engine->m_backgroundWorker;
 			}
@@ -533,8 +534,8 @@ extern "C"
 	}
 
 	YY_API void YY_C_DECL yyUpdateAsyncLoader(){
-		if(!g_engine->m_asyncEventHandler)
-			return;
+		/*if(!g_engine->m_asyncEventHandler)
+			return;*/
 
 		for(int i = 0, sz = g_engine->m_workerResults.m_size; i < sz; ++i)
 		{
@@ -545,8 +546,11 @@ extern "C"
 				break;
 			case BackgroundWorkerResults::type::None:
 				break;
-			case BackgroundWorkerResults::type::LoadImage:
-				g_engine->m_asyncEventHandler( obj.m_id, obj.m_data );
+			case BackgroundWorkerResults::type::LoadSource:
+				//g_engine->m_asyncEventHandler( obj.m_id, obj.m_resource );
+				obj.m_resource->LoadImplementation();
+				yyLogWriteInfo("Async LoadImplementation\n");
+				obj.m_resource->DestroySource();
 				break;
 			}
 		}

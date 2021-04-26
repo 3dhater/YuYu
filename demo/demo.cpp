@@ -211,6 +211,8 @@ void Demo::MainLoop(){
 			}
 		}
 
+		yyUpdateAsyncLoader();
+
 		switch (*m_engineContext->m_state)
 		{
 		default:
@@ -366,10 +368,11 @@ void Demo::StopDemo(){
 
 void Demo::StartDemo(){
 	m_activeExample = m_examples[m_selectedExample];
+	yyStringA stra;
+	stra += m_activeExample->GetTitle();
+	yyLogWriteInfo("Start Demo: %s\n", stra.data());
 	if (!m_activeExample->Init())
 	{
-		yyStringA stra;
-		stra += m_activeExample->GetTitle();
 		yyLogWriteWarning("Can't start demo [%s]\n", stra.data());
 
 		m_activeExample->Shutdown();

@@ -9,11 +9,13 @@ public:
 	virtual ~yyResourceImpl();
 
 	virtual yyResourceType GetType();
-	virtual void Load();
+	virtual void Load(bool async);
 	virtual void Unload();
+	virtual void AddRef();
 	virtual u32 GetRefCount();
 	virtual bool IsLoaded();
 	virtual bool IsFromCache();
+	
 	virtual void LoadSource();
 	virtual void LoadImplementation();
 	virtual void DestroySource();
@@ -35,7 +37,8 @@ public:
 	yyResourceData m_resourceData;
 
 	enum {
-		flag_fromCache = BIT(0)
+		flag_fromCache = BIT(0),
+		flag_isLoaded = BIT(1),
 	};
 	u32 m_flags;
 };

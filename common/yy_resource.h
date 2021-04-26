@@ -177,6 +177,8 @@ public:
 
 	virtual yyResourceType GetType() = 0;
 
+
+
 	/*	Ресурс должен иметь методы для загрузки и удаления данных ресурса
 		При этом, сам указатель на ресурс остаётся активным. В любое
 		время можно будет загрузить ресурс или удалить.
@@ -188,8 +190,9 @@ public:
 		счётчика. Когда вызывается Unload, значение счётчика уменьшается на 1
 		и если равен 0 то данные ресурса удаляются.
 	*/
-	virtual void Load() = 0;
+	virtual void Load(bool async = false) = 0;
 	virtual void Unload() = 0;
+	virtual void AddRef() = 0;
 	virtual u32 GetRefCount() = 0;
 	virtual bool IsLoaded() = 0;
 	virtual bool IsFromCache() = 0;
@@ -222,6 +225,7 @@ extern "C"
 	//	if you want delete by yourself
 	YY_API yyResource* YY_C_DECL yyGetTextureFromCache(const char*);
 	YY_API void YY_C_DECL yyRemoveTextureFromCache(yyResource*);
+	YY_API void YY_C_DECL yyDeleteTexture(yyResource*, bool doUnload); // only if refCount == 0
 	
 	// call yyMegaAllocator::Destroy(newRes); for destroy
 	YY_API yyResource* YY_C_DECL yyCreateTexture(yyImage*);

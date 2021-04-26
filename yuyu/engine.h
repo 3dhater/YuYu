@@ -17,27 +17,27 @@ struct BackgroundWorkerResults
 	enum type
 	{
 		None,
-		LoadImage,
+		LoadSource,
 	};
 
 	BackgroundWorkerResults()
 	:
 		m_type(type::None),
 		m_id(-1),
-		m_data(nullptr)
+		m_resource(nullptr)
 	{}
 	BackgroundWorkerResults(type t)
 		:
 		m_type(t),
 		m_id(-1),
-		m_data(nullptr)
+		m_resource(nullptr)
 	{}
 
 	~BackgroundWorkerResults(){}
 	
 	type m_type;
 	s32 m_id;
-	void* m_data;
+	yyResource* m_resource;
 };
 
 struct BackgroundWorkerCommands
@@ -46,27 +46,28 @@ struct BackgroundWorkerCommands
 	{
 		None,
 		ExitThread,
-		LoadImage,
+		LoadSource,
+
 	};
 
 	BackgroundWorkerCommands()
 	:
 		m_type(type::None),
-		m_fileName(nullptr),
 		m_id(-1)
-	{}
-	BackgroundWorkerCommands(type t, const char* fn, s32 id)
+	{
+		m_resource = 0;
+	}
+	BackgroundWorkerCommands(type t,  s32 id)
 	:
 		m_type(t),
-		m_fileName(fn),
 		m_id(id)
 	{}
 	~BackgroundWorkerCommands(){}
 
 
 	type m_type;
-	const char* m_fileName ;
 	s32 m_id;
+	yyResource* m_resource;
 };
 
 template<typename T>

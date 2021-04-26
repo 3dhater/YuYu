@@ -280,11 +280,13 @@ struct yyMDLLayer
 	}
 	~yyMDLLayer() {
 		if (m_model) yyMegaAllocator::Destroy(m_model);
-		/*for (u32 i = 0; i < YY_MDL_LAYER_NUM_OF_TEXTURES; ++i)
+		Unload();
+
+		for (u32 i = 0; i < YY_MDL_LAYER_NUM_OF_TEXTURES; ++i)
 		{
-			if (m_textureGPU[i])
-				yyMegaAllocator::Destroy(m_textureGPU[i]);
-		}*/
+			if(m_textureGPU[i])
+				yyDeleteTexture(m_textureGPU[i], false);
+		}
 		if (m_meshGPU)
 			yyMegaAllocator::Destroy(m_meshGPU);
 	}
@@ -297,13 +299,13 @@ struct yyMDLLayer
 	yyResource* m_textureGPU[YY_MDL_LAYER_NUM_OF_TEXTURES];
 	yyResource* m_meshGPU;
 
-	void Load()
+	void Load(bool async)
 	{
 		for (u32 i = 0; i < YY_MDL_LAYER_NUM_OF_TEXTURES; ++i)
 		{
 			//if (m_textureGPU[i])m_gpu->LoadTexture(m_textureGPU[i]);
 			if (m_textureGPU[i])
-				m_textureGPU[i]->Load();
+				m_textureGPU[i]->Load(async);
 		}
 
 		//if (m_meshGPU) m_gpu->LoadModel(m_meshGPU);
@@ -326,7 +328,6 @@ struct yyMDLLayer
 			}*/
 		}
 
-		//if (m_meshGPU) m_gpu->UnloadModel(m_meshGPU);
 		if (m_meshGPU)
 		{
 			if(m_meshGPU->IsLoaded())
@@ -679,7 +680,7 @@ struct yyMDL
 	// По этому нужно сделать так-же, методы Unload и Load
 	// Где-то отдельной функцией при загурзке файла надо дать возможность выбора, 
 	//  загружать ли ресурс сразу или отложить загрузку на потом.
-	void Load()
+	void Load(bool async = false)
 	{
 		++m_refCount;
 
@@ -687,7 +688,7 @@ struct yyMDL
 		{
 			for (u16 i = 0, sz = m_layers.size(); i < sz; ++i)
 			{
-				m_layers[i]->Load();
+				m_layers[i]->Load(async);
 			}
 		}
 	}
@@ -703,7 +704,7 @@ struct yyMDL
 			}
 		}
 	}
-	
+
 	Mat4	m_preRotation;
 	//Mat4	m_rootTransformInvert;
 

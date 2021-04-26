@@ -37,7 +37,9 @@ yyResourceImplementation* yyResourceImpl::GetImplementation() {
 }
 
 void yyResourceImpl::GetTextureSize(v2f* ptr){ 
-	m_implementation->GetTextureSize(ptr);
+	//m_implementation->GetTextureSize(ptr);
+	ptr->x = m_resourceData.m_imageData->m_size[0];
+	ptr->y = m_resourceData.m_imageData->m_size[1];
 }
 void yyResourceImpl::GetTextureHandle(void** ptr) {
 	m_implementation->GetTextureHandle(ptr);
@@ -72,6 +74,7 @@ void yyResourceImpl::LoadSource() {
 }
 void yyResourceImpl::LoadImplementation() {
 	m_implementation->Load(&m_resourceData);
+	m_flags |= this->flag_isLoaded;
 }
 
 void yyResourceImpl::DestroySource() {
@@ -92,15 +95,30 @@ void yyResourceImpl::DestroySource() {
 	m_resourceData.m_source = 0;
 }
 
-void yyResourceImpl::Load() {
-	assert(m_implementation);
+void yyResourceImpl::AddRef() {
 	++m_refCount;
+}
 
-	if (m_refCount == 1)
+void yyResourceImpl::Load(bool async) {
+	assert(m_implementation);
+	AddRef();
+
+	if (!IsLoaded())
 	{
-		LoadSource();
-		LoadImplementation();
-		DestroySource();
+		if (async)
+		{
+			BackgroundWorkerCommands cmd;
+			cmd.m_type = cmd.LoadSource;
+			cmd.m_resource = this;
+			g_engine->m_workerCommands.put(cmd);
+		}
+		else
+		{
+			LoadSource();
+			LoadImplementation();
+			if (!m_isSource)
+				DestroySource();
+		}
 	}
 }
 
@@ -116,6 +134,9 @@ void yyResourceImpl::Unload() {
 
 	if (m_refCount == 0)
 	{
+		if (m_flags & this->flag_isLoaded)
+			m_flags ^= this->flag_isLoaded;
+
 		m_implementation->Unload();
 	}
 }
@@ -125,7 +146,7 @@ u32 yyResourceImpl::GetRefCount() {
 }
 
 bool yyResourceImpl::IsLoaded() {
-	return m_refCount != 0;
+	return (bool)(m_flags & this->flag_isLoaded);
 }
 
 void yyResourceImpl::InitTextureRenderTargetResourse(const v2f& size) {
@@ -147,11 +168,22 @@ void yyResourceImpl::InitTextureResourse(yyImage* img, const char* fileName){
 	m_resourceData.m_type = m_type;
 	m_resourceData.m_path = fileName;
 	m_resourceData.m_source = img;
-
-	//yyImage img;
-	//yyLoadImageAsync
-
+	
 	m_resourceData.m_imageData = yyCreate<yyResourceDataImage>();
+
+	if (fileName)
+	{
+		yyImage img;
+		yyLoadImageGetInfo(fileName, &img);
+		m_resourceData.m_imageData->m_size[0] = img.m_width;
+		m_resourceData.m_imageData->m_size[1] = img.m_height;
+	}
+	else
+	{
+		m_resourceData.m_imageData->m_size[0] = img->m_width;
+		m_resourceData.m_imageData->m_size[1] = img->m_height;
+	}
+
 	m_resourceData.m_imageData->m_anisotropicLevel = g_engine->m_textureAnisotropicLevel;
 	m_resourceData.m_imageData->m_filter = g_engine->m_textureFilter;
 	m_resourceData.m_imageData->m_addressMode = g_engine->m_textureAddressMode;

@@ -16,10 +16,6 @@ extern Engine * g_engine;
 
 extern "C"
 {
-
-//YY_API void YY_C_DECL yyLoadImageAsync(const char* fn, s32 id){
-//	g_engine->m_workerCommands.put(BackgroundWorkerCommands(BackgroundWorkerCommands::LoadImage, fn, id));
-//}
 	YY_API void YY_C_DECL yyLoadImageGetInfo(const char* fileName, yyImage* img) {
 		assert(fileName);
 		if (!yy_fs::exists(fileName))
@@ -253,7 +249,7 @@ YY_API yyResource* YY_C_DECL yyCreateRenderTargetTexture(const v2f& size) {
 	//auto res = yyCreate<yyResourceImpl>();
 	auto res = (yyResourceImpl*)yyMegaAllocator::CreateResource();
 	res->InitTextureRenderTargetResourse(size);
-	res->Load();
+	res->Load(false);
 	return res;
 }
 
@@ -274,7 +270,8 @@ YY_API yyResource* YY_C_DECL yyGetTextureFromCache(const char* fileName){
 	{
 		if (node.m_path == p)
 		{
-			node.m_resource->Load(); // ++refCount;
+			//node.m_resource->Load(async); // ++refCount;
+			node.m_resource->AddRef();
 			return node.m_resource;
 		}
 	}
@@ -322,6 +319,17 @@ YY_API void YY_C_DECL yyRemoveTextureFromCache(yyResource* r) {
 
 		curr = curr->m_right;
 	}
+}
+
+YY_API void YY_C_DECL yyDeleteTexture(yyResource* r, bool doUnload) {
+	if (r->IsLoaded())
+	{
+		if(doUnload)
+			r->Unload();
+	}
+
+	yyRemoveTextureFromCache(r);
+	yyMegaAllocator::Destroy(r);
 }
 
 }

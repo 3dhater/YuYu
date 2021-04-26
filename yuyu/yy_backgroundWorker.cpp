@@ -23,12 +23,14 @@ void yyBackgroundWorkerFunction()
 			{
 			case BackgroundWorkerCommands::type::ExitThread:
 				return;
-			case BackgroundWorkerCommands::type::LoadImage:
+			case BackgroundWorkerCommands::type::LoadSource:
 			{
 				BackgroundWorkerResults res;
-				res.m_type = BackgroundWorkerResults::type::LoadImage;
+				res.m_type = BackgroundWorkerResults::type::LoadSource;
 				res.m_id   = obj.m_id;
-				res.m_data = yyLoadImage(obj.m_fileName);
+				res.m_resource = obj.m_resource;
+				res.m_resource->LoadSource();
+				yyLogWriteInfo("Async LoadSource\n");
 				g_engine->m_workerResults.put(res);
 			}break;
 			default:
