@@ -117,6 +117,12 @@ vidOk:
 
 	yySetDefaultTexture(yyGetTextureFromCache("../res/textures/editor/white.dds"));
 
+	yyImage testImg;
+	yyLoadImageGetInfo("../res/image.dds", &testImg);
+	yyLoadImageGetInfo("../res/load.png", &testImg);
+	yyLoadImageGetInfo("../res/1_32bit.bmp", &testImg);
+	yyLoadImageGetInfo("../res/image.tga", &testImg);
+
 	m_defaultFont = yyGUILoadFont("../res/fonts/Noto/notosans.txt");
 	if (!m_defaultFont)
 	{

@@ -83,18 +83,22 @@ Engine::Engine(yyPoolSetup* ps)
 	yyImageLoader imageLoader;
 	imageLoader.ext = ".dds";
 	imageLoader.image_loader_callback = ImageLoader_DDS;
+	imageLoader.image_loader_getInfo_callback = ImageLoaderGetInfo_DDS;
 	m_imageLoaders.push_back(imageLoader);
 	
 	imageLoader.ext = ".png";
 	imageLoader.image_loader_callback = ImageLoader_PNG;
+	imageLoader.image_loader_getInfo_callback = ImageLoaderGetInfo_PNG;
 	m_imageLoaders.push_back(imageLoader);
 
 	imageLoader.ext = ".bmp";
 	imageLoader.image_loader_callback = ImageLoader_BMP;
+	imageLoader.image_loader_getInfo_callback = ImageLoaderGetInfo_BMP;
 	m_imageLoaders.push_back(imageLoader);
 
 	imageLoader.ext = ".tga";
 	imageLoader.image_loader_callback = ImageLoader_TGA;
+	imageLoader.image_loader_getInfo_callback = ImageLoaderGetInfo_TGA;
 	m_imageLoaders.push_back(imageLoader);
 
 #ifdef YY_PLATFORM_WINDOWS

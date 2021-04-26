@@ -181,6 +181,33 @@ static void ReadTGA_RLE(unsigned char *buf, int size, int bpp,FILE *f){
 	}
 }
 
+void ImageLoaderGetInfo_TGA(const char* p, yyImage* img) {
+	_tga_header_t h;
+	unsigned char *cmap, *pix, tmp, *src, *dst;
+	int cmapsize, pixsize, pixsize2;
+	int bpp, bpp2, k, m, n, swapx, swapy;
+
+	FILE* f = fopen(p, "rb");
+	if (!f)
+	{
+		YY_PRINT_FAILED;
+		return;
+	}
+
+	// Read TGA header
+	if (!ReadTGAHeader(f, &h))
+	{
+		fclose(f);
+		YY_PRINT_FAILED;
+		return;
+	}
+
+	img->m_width = h.width;
+	img->m_height = h.height;
+
+	fclose(f);
+}
+
 yyImage* ImageLoader_TGA(const char* p){
 	YY_DEBUG_PRINT_FUNC;
 	_tga_header_t h;
@@ -212,6 +239,7 @@ yyImage* ImageLoader_TGA(const char* p){
 		if ((h.cmapentrysize != 24 && h.cmapentrysize != 32) ||
 			h.cmaplen == 0 || h.cmaplen > 256)
 		{
+			fclose(f);
 			return 0;
 		}
 
@@ -219,6 +247,7 @@ yyImage* ImageLoader_TGA(const char* p){
 		cmap = (unsigned char *)yyMemAlloc(cmapsize);
 		if (cmap == NULL)
 		{
+			fclose(f);
 			return 0;
 		}
 
@@ -270,6 +299,8 @@ yyImage* ImageLoader_TGA(const char* p){
 	{
 		fread(pix, pixsize, 1, f);
 	}
+	
+	fclose(f);
 
 	// If the image origin is not what we want, re-arrange the pixels
 	switch (h._origin)

@@ -8,6 +8,8 @@
 
 #define yyPoolSetup_default_resourceCount 100
 #define yyPoolSetup_default_materialCount 100 // every model have material so it must me at least equal
-#define yyPoolSetup_default_modelCount yyPoolSetup_default_materialCount //  and it depends on YY_MAX_FONT_TEXTURES
+//  and it depends on YY_MAX_FONT_TEXTURES, because if font have 20 textures
+//   then text can have 1-20 models
+#define yyPoolSetup_default_modelCount yyPoolSetup_default_materialCount 
 
 #endif

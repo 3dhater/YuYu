@@ -12,33 +12,46 @@
 #include "yy_ptr.h"
 #include "yy_fs.h"
 
-//bool ImageLoader_DDS_export(yyImage* img, const char* fileName, const char* extName)
-//{
-//	char filePath[256];
-//	sprintf(filePath, "%s.%s", fileName, extName);
-//	
-//	yyFileIO f;
-//	if(!f.open(filePath, "wb+"))
-//	{
-//		YY_PRINT_FAILED;
-//		return false;
-//	}
-//
-//	DDS_HEADER hdr;
-//	hdr.height = img->m_height;
-//	hdr.width = img->m_width;
-//	hdr.pitchOrLinearSize = img->m_dataSize;
-//	
-//	const unsigned int dds_magic = 0x20534444;
-//	f.writeUnsignedInt(dds_magic);
-//	f.writeBytes(&hdr, hdr.size);
-//	f.writeBytes(img->m_data, img->m_dataSize);
-//	return true;
-//}
+void ImageLoaderGetInfo_DDS(const char* p, yyImage* img) {
+	std::ifstream in(p, std::ios::binary);
+	if (!in)
+	{
+		YY_PRINT_FAILED;
+		return;
+	}
+	u32 magic = 0;
+	in.read((char*)&magic, sizeof(u32));
+
+	DDS_HEADER h;
+	in.read((char*)&h, sizeof(DDS_HEADER));
+	img->m_format = GetDDSImageFormat(h.ddspf);
+	if (img->m_format == yyImageFormat::Unknown)
+	{
+		YY_PRINT_FAILED;
+		return;
+	}
+
+	if (h.flags & DDS_HEADER_FLAGS_VOLUME)
+	{
+		YY_PRINT_FAILED;
+		return;
+	}
+
+	if (h.caps2 & DDS_CUBEMAP)
+	{
+		YY_PRINT_FAILED;
+		return;
+	}
+	img->m_width = h.width;
+	img->m_height = h.height;
+	if (img->m_format == yyImageFormat::R8G8B8A8 || img->m_format == yyImageFormat::A8R8G8B8)
+		img->m_pitch = 4 * h.width;
+	else
+		img->m_pitch = h.pitchOrLinearSize;
+}
 
 yyImage* ImageLoader_DDS(const char* p){
 	YY_DEBUG_PRINT_FUNC;
-	//auto file_size = std::filesystem::file_size(p);
 	auto file_size = yy_fs::file_size(p);
 
 	if( file_size < sizeof(u32) + sizeof(DDS_HEADER) )
@@ -46,15 +59,6 @@ yyImage* ImageLoader_DDS(const char* p){
 		YY_PRINT_FAILED;
 		return 0;
 	}
-
-	/*u8* file_data = new u8[(u32)file_size];
-	if(!file_data)
-	{
-		YY_PRINT_FAILED;
-		return 0;
-	}*/
-
-	//yyPtr<u8> _u8_destroyer(file_data);
 
 	yyPtr<yyImage> image = yyCreate<yyImage>();
 	if (!image.m_data)
@@ -76,7 +80,6 @@ yyImage* ImageLoader_DDS(const char* p){
 		YY_PRINT_FAILED;
 		return 0;
 	}
-
 
 	in.read((char*)image.m_data->m_data, file_size);
 	if( in.gcount() < (std::streamsize)file_size )

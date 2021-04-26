@@ -17,9 +17,34 @@ extern Engine * g_engine;
 extern "C"
 {
 
-YY_API void YY_C_DECL yyLoadImageAsync(const char* fn, s32 id){
-	g_engine->m_workerCommands.put(BackgroundWorkerCommands(BackgroundWorkerCommands::LoadImage, fn, id));
-}
+//YY_API void YY_C_DECL yyLoadImageAsync(const char* fn, s32 id){
+//	g_engine->m_workerCommands.put(BackgroundWorkerCommands(BackgroundWorkerCommands::LoadImage, fn, id));
+//}
+	YY_API void YY_C_DECL yyLoadImageGetInfo(const char* fileName, yyImage* img) {
+		assert(fileName);
+		if (!yy_fs::exists(fileName))
+		{
+			yyLogWriteWarning("File %s not found\n", fileName);
+			YY_PRINT_FAILED;
+			return;
+		}
+
+		yyStringA str(fileName);
+		util::stringToLower(str);
+		auto ext = util::stringGetExtension(str, true);
+		if (!ext.size())
+		{
+			YY_PRINT_FAILED;
+			return;
+		}
+
+		for (auto & loader : g_engine->m_imageLoaders)
+		{
+			if (loader.ext == ext)
+				loader.image_loader_getInfo_callback(fileName, img);
+		}
+		return;
+	}
 
 YY_API yyImage* YY_C_DECL yyLoadImage(const char* fileName){
 	YY_DEBUG_PRINT_FUNC;

@@ -43,10 +43,48 @@ void PNGAPI user_read_fn( png_structp png_ptr, png_bytep data, png_size_t length
 	f->read( (char*)data, (u32)length );
 }
 
+void ImageLoaderGetInfo_PNG(const char* p, yyImage* img) {
+	std::ifstream in(p, std::ios::binary);
+	if (!in)
+	{
+		YY_PRINT_FAILED;
+		return;
+	}
+
+	u8 buf[4];
+	in.read((char*)buf, 4);
+	if (png_sig_cmp(buf, (png_size_t)0, 4)) {
+		YY_PRINT_FAILED;
+		return;
+	}
+
+	PNG png;
+	png.png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, user_error_fn, user_warning_fn);
+	if (!png.png_ptr) {
+		YY_PRINT_FAILED;
+		return;
+	}
+
+	png.info_ptr = png_create_info_struct(png.png_ptr);
+	if (!png.info_ptr) {
+		YY_PRINT_FAILED;
+		return;
+	}
+
+	if (setjmp(png_jmpbuf(png.png_ptr))) {
+		return;
+	}
+
+	png_set_read_fn(png.png_ptr, (void *)&in, user_read_fn);
+	png_set_sig_bytes(png.png_ptr, 4);
+	png_read_info(png.png_ptr, png.info_ptr);
+	img->m_width = png_get_image_width(png.png_ptr, png.info_ptr);
+	img->m_height = png_get_image_height(png.png_ptr, png.info_ptr);
+	//png_read_end(png.png_ptr, NULL);
+}
+
 yyImage* ImageLoader_PNG(const char* p){
 	YY_DEBUG_PRINT_FUNC;
-	//auto file_size = std::filesystem::file_size(p);
-	auto file_size = yy_fs::file_size(p);
 	std::ifstream in(p, std::ios::binary);
 	if(!in)
 	{

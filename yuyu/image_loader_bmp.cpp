@@ -64,10 +64,39 @@ struct BitmapInfoHeader_v5 {
 void decompress4BitRLE(u8*& rleData, u8*& inds, u32 size, u32 width, u32 height);
 void decompress8BitRLE(u8*& rleData, u8*& inds, u32 size, u32 width, u32 height);
 
+void ImageLoaderGetInfo_BMP(const char* p, yyImage* img) {
+	FILE * file = fopen(p, "rb");
+	if (!file)
+	{
+		yyLogWriteWarning("BMP: Image could not be opened\n");
+		YY_PRINT_FAILED;
+		return;
+	}
+	BitmapHeader header;
+	BitmapInfoHeader_v5 info;
+	if (fread(&header, 1, sizeof(BitmapHeader), file) != sizeof(BitmapHeader))
+	{
+		yyLogWriteWarning("BMP: Not a correct BMP file\n");
+		YY_PRINT_FAILED;
+		fclose(file);
+		return;
+	}
+	fread(&info, 1, sizeof(BitmapInfoHeader_v5), file);
+	if (info.bV5Size < 40U)
+	{
+		yyLogWriteWarning("BMP: Bad header size\n");
+		YY_PRINT_FAILED;
+		fclose(file);
+		return;
+	}
+	fclose(file);
+	img->m_width = static_cast<u32>(info.bV5Width);
+	img->m_height = static_cast<u32>(info.bV5Height);
+	img->m_bits = info.bV5BitCount;
+}
+
 yyImage* ImageLoader_BMP(const char* p){
 	YY_DEBUG_PRINT_FUNC;
-	auto file_size = yy_fs::file_size(p);
-
 	FILE * file = fopen(p, "rb");
 	if (!file) 
 	{

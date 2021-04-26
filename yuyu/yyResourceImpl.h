@@ -3,6 +3,7 @@
 
 class yyResourceImpl : public yyResource
 {
+	bool m_isSource;
 public:
 	yyResourceImpl();
 	virtual ~yyResourceImpl();
@@ -13,6 +14,9 @@ public:
 	virtual u32 GetRefCount();
 	virtual bool IsLoaded();
 	virtual bool IsFromCache();
+	virtual void LoadSource();
+	virtual void LoadImplementation();
+	virtual void DestroySource();
 
 	virtual yyResourceImplementation* GetImplementation();
 

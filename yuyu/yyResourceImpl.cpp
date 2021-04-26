@@ -7,6 +7,7 @@ extern Engine * g_engine;
 
 yyResourceImpl::yyResourceImpl() {
 	YY_DEBUG_PRINT_FUNC;
+	m_isSource = false;
 	m_type = yyResourceType::None;
 	m_refCount = 0;
 	m_implementation = 0;
@@ -48,52 +49,58 @@ void yyResourceImpl::UnmapModelForWriteVerts() {
 	m_implementation->UnmapModelForWriteVerts();
 }
 
+void yyResourceImpl::LoadSource() {
+	m_isSource = m_resourceData.m_source != nullptr;
+	if (!m_isSource)
+	{
+		switch (m_resourceData.m_type)
+		{
+		default:
+			YY_DEBUGBREAK;
+			break;
+		case yyResourceType::Texture:
+			m_resourceData.m_source = yyLoadImage(m_resourceData.m_path.data());
+			break;
+		case yyResourceType::Model:
+			break;
+		case yyResourceType::RenderTargetTexture:
+			break;
+		}
+	}
+		
+	assert(m_resourceData.m_source);
+}
+void yyResourceImpl::LoadImplementation() {
+	m_implementation->Load(&m_resourceData);
+}
+
+void yyResourceImpl::DestroySource() {
+	switch (m_resourceData.m_type)
+	{
+	default:
+		YY_DEBUGBREAK;
+		break;
+	case yyResourceType::Texture:
+	{
+		yyDestroy((yyImage*)m_resourceData.m_source);
+	}break;
+	case yyResourceType::Model:
+		break;
+	case yyResourceType::RenderTargetTexture:
+		break;
+	}
+	m_resourceData.m_source = 0;
+}
+
 void yyResourceImpl::Load() {
 	assert(m_implementation);
 	++m_refCount;
 
 	if (m_refCount == 1)
 	{
-		bool isSource = m_resourceData.m_source != nullptr;
-		if (!isSource)
-		{
-			switch (m_resourceData.m_type)
-			{
-			default:
-				YY_DEBUGBREAK;
-				break;
-			case yyResourceType::Texture:
-				m_resourceData.m_source = yyLoadImage(m_resourceData.m_path.data());
-				break;
-			case yyResourceType::Model:
-				break;
-			case yyResourceType::RenderTargetTexture:
-				break;
-			}
-		}
-		
-		assert(m_resourceData.m_source);
-
-		m_implementation->Load(&m_resourceData);
-
-		if (!isSource)
-		{
-			switch (m_resourceData.m_type)
-			{
-			default:
-				YY_DEBUGBREAK;
-				break;
-			case yyResourceType::Texture:
-			{
-				yyDestroy((yyImage*)m_resourceData.m_source);
-			}break;
-			case yyResourceType::Model:
-				break;
-			case yyResourceType::RenderTargetTexture:
-				break;
-			}
-			m_resourceData.m_source = 0;
-		}
+		LoadSource();
+		LoadImplementation();
+		DestroySource();
 	}
 }
 
@@ -140,6 +147,9 @@ void yyResourceImpl::InitTextureResourse(yyImage* img, const char* fileName){
 	m_resourceData.m_type = m_type;
 	m_resourceData.m_path = fileName;
 	m_resourceData.m_source = img;
+
+	//yyImage img;
+	//yyLoadImageAsync
 
 	m_resourceData.m_imageData = yyCreate<yyResourceDataImage>();
 	m_resourceData.m_imageData->m_anisotropicLevel = g_engine->m_textureAnisotropicLevel;

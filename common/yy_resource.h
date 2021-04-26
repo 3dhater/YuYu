@@ -58,8 +58,13 @@ yyImage* ImageLoader_DDS(const char* p);
 yyImage* ImageLoader_PNG(const char* p);
 yyImage* ImageLoader_TGA(const char* p);
 yyImage* ImageLoader_BMP(const char* p); 
+void ImageLoaderGetInfo_DDS(const char* p, yyImage*);
+void ImageLoaderGetInfo_PNG(const char* p, yyImage*);
+void ImageLoaderGetInfo_TGA(const char* p, yyImage*);
+void ImageLoaderGetInfo_BMP(const char* p, yyImage*);
 
 typedef yyImage*(*ImageLoaderFunction_t)(const char* p);
+typedef void(*ImageLoaderGetInfoFunction_t)(const char* p, yyImage*);
 //using ImageLoaderExportFunction_t = bool(*)(yyImage* image, const char* fileName, const char* extName );
 
 void MDL_loadVersion1(yyMDL** mdl, yyFileBuffer* file);
@@ -68,11 +73,13 @@ struct yyImageLoader
 {
 	yyImageLoader()
 		:
-		image_loader_callback(nullptr)
+		image_loader_callback(nullptr),
+		image_loader_getInfo_callback(nullptr)
 	{}
 
 	yyStringA ext;
 	ImageLoaderFunction_t image_loader_callback;
+	ImageLoaderGetInfoFunction_t image_loader_getInfo_callback;
 };
 
 enum class yyResourceType : u16
@@ -187,6 +194,11 @@ public:
 	virtual bool IsLoaded() = 0;
 	virtual bool IsFromCache() = 0;
 
+	// используется при асинхронной загрузке
+	virtual void LoadSource() = 0;
+	virtual void LoadImplementation() = 0;
+	virtual void DestroySource() = 0;
+
 	virtual yyResourceImplementation* GetImplementation() = 0;
 	
 	virtual void GetTextureSize(v2f*) = 0;
@@ -198,7 +210,8 @@ public:
 extern "C"
 {
 	YY_API yyImage* YY_C_DECL yyLoadImage(const char*); // after loading, you must call yyDestroy(image)
-	YY_API void YY_C_DECL yyLoadImageAsync(const char*, s32 id); // after loading, you must call yyDestroyImage
+	YY_API void YY_C_DECL yyLoadImageGetInfo(const char*, yyImage*); // get width\height and other without loading
+	//YY_API void YY_C_DECL yyLoadImageAsync(const char*, s32 id); // after loading, you must call yyDestroyImage
 
 	// all resources(and MDL) are unloaded
 	// call newRes->Load(); for loading
