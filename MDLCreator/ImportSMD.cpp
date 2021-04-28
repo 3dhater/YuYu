@@ -463,7 +463,7 @@ void ImportSMD(yyMDLObject* object, const char* file)
 	if (isAnimation)
 	{
 		newMDLAnimation = yyCreate<yyMDLAnimation>();
-		newMDLAnimation->m_len = num_of_frames - 1; 
+		newMDLAnimation->m_len = (f32)num_of_frames - 1.f; 
 		yy_fs::path p = file;
 		auto fn = p.filename();
 		newMDLAnimation->m_name = fn.generic_string().data();

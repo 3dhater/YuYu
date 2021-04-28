@@ -84,7 +84,6 @@ void ImageLoaderGetInfo_PNG(const char* p, yyImage* img) {
 }
 
 yyImage* ImageLoader_PNG(const char* p){
-	YY_DEBUG_PRINT_FUNC;
 	std::ifstream in(p, std::ios::binary);
 	if(!in)
 	{

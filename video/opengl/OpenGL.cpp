@@ -243,8 +243,8 @@ bool OpenGL::Init(yyWindow* window){
 
 	m_windowSize.x = window->m_currentSize.x;
 	m_windowSize.y = window->m_currentSize.y;
-	m_mainTargetSize.x = window->m_currentSize.x;
-	m_mainTargetSize.y = window->m_currentSize.y;
+	m_mainTargetSize.x = (f32)window->m_currentSize.x;
+	m_mainTargetSize.y = (f32)window->m_currentSize.y;
 
 #ifdef YY_PLATFORM_WINDOWS
 	m_OpenGL_lib = LoadLibrary(L"OpenGL32.dll");

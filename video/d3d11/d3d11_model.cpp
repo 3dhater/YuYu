@@ -16,11 +16,9 @@ D3D11Model::D3D11Model()
 	m_indexType(DXGI_FORMAT_R16_UINT),
 	m_vertexType(yyVertexType::Model)
 {
-	YY_DEBUG_PRINT_FUNC;
 }
 
 D3D11Model::~D3D11Model(){
-	YY_DEBUG_PRINT_FUNC;
 	Unload();
 }
 
@@ -51,7 +49,7 @@ void D3D11Model::UnmapModelForWriteVerts() {
 void D3D11Model::Load(yyResourceData* modelData) {
 	yyModel * model = (yyModel *)modelData->m_source;
 
-	m_material = *model->m_material;
+	//m_material = *model->m_material;
 	m_vertexType = model->m_vertexType;
 
 	D3D11_BUFFER_DESC	vbd, ibd;

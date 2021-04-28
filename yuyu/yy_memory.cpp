@@ -36,8 +36,8 @@ yyMegaAllocator::~yyMegaAllocator() {
 yyMaterial* yyMegaAllocator::CreateMaterial() {
 	auto ptr = g_engine->m_poolMaterial.GetObject();
 	new(ptr)yyMaterial();
-	printf(">>> get [%i] - freeCount[%i]\n", g_engine->m_poolMaterial.GetUsedCount(),
-		g_engine->m_poolMaterial.GetFreeCount());
+	//printf(">>> get [%i] - freeCount[%i]\n", g_engine->m_poolMaterial.GetUsedCount(),
+	//	g_engine->m_poolMaterial.GetFreeCount());
 	return ptr;
 }
 yyResource* yyMegaAllocator::CreateResource() {
@@ -57,8 +57,8 @@ void yyMegaAllocator::Destroy(yyMaterial* ptr) {
 	assert(ptr);
 	ptr->~yyMaterial();
 	g_engine->m_poolMaterial.PutBack(ptr);
-	printf(">>> put [%i] - freeCount[%i]\n", g_engine->m_poolMaterial.GetUsedCount(),
-		g_engine->m_poolMaterial.GetFreeCount());
+	//printf(">>> put [%i] - freeCount[%i]\n", g_engine->m_poolMaterial.GetUsedCount(),
+	//	g_engine->m_poolMaterial.GetFreeCount());
 }
 void yyMegaAllocator::Destroy(yyResource* ptr) {
 	assert(ptr);

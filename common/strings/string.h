@@ -370,11 +370,11 @@ public:
 		const auto * ptr = other.data();
 		for( u32 i = 0u; i < sz; ++i )
 		{
-			if( ptr[ i ] == m_data[ i ]  ) 
-				return false;
+			if( ptr[ i ] != m_data[ i ]  ) 
+				return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	void clear()

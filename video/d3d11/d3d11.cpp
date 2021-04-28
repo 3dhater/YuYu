@@ -117,8 +117,8 @@ bool D3D11::Init(yyWindow* window){
 
 	m_windowSize.x = window->m_currentSize.x;
 	m_windowSize.y = window->m_currentSize.y;
-	m_mainTargetSize.x = window->m_currentSize.x;
-	m_mainTargetSize.y = window->m_currentSize.y;
+	m_mainTargetSize.x = (f32)window->m_currentSize.x;
+	m_mainTargetSize.y = (f32)window->m_currentSize.y;
 
 	DXGI_MODE_DESC	bufferDesc;
 	ZeroMemory(&bufferDesc, sizeof(bufferDesc));

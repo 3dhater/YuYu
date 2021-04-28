@@ -43,7 +43,6 @@ extern "C"
 	}
 
 YY_API yyImage* YY_C_DECL yyLoadImage(const char* fileName){
-	YY_DEBUG_PRINT_FUNC;
 	assert(fileName);
 	if(!yy_fs::exists(fileName))
 	{
@@ -70,7 +69,6 @@ YY_API yyImage* YY_C_DECL yyLoadImage(const char* fileName){
 }
 
 YY_API void YY_C_DECL yyRemoveMDLFromCache(yyMDL* mdl) {
-	YY_DEBUG_PRINT_FUNC;
 	auto curr = g_engine->m_modelCache.head();
 	if (!curr)
 		return;
@@ -230,7 +228,6 @@ YY_API s32 YY_C_DECL yyGetTextureAnisotropicLevel() {
 }
 
 YY_API yyResource* YY_C_DECL yyCreateModel(yyModel* model) {
-	YY_DEBUG_PRINT_FUNC;
 	//auto res = yyCreate<yyResourceImpl>();
 	auto res = (yyResourceImpl*)yyMegaAllocator::CreateResource();
 	res->InitModelResourse(model);
@@ -238,14 +235,12 @@ YY_API yyResource* YY_C_DECL yyCreateModel(yyModel* model) {
 }
 
 YY_API yyResource* YY_C_DECL yyCreateTexture(yyImage* image) {
-	YY_DEBUG_PRINT_FUNC;
 	//auto res = yyCreate<yyResourceImpl>();
 	auto res = (yyResourceImpl*)yyMegaAllocator::CreateResource();
 	res->InitTextureResourse(image, 0);
 	return res;
 }
 YY_API yyResource* YY_C_DECL yyCreateRenderTargetTexture(const v2f& size) {
-	YY_DEBUG_PRINT_FUNC;
 	//auto res = yyCreate<yyResourceImpl>();
 	auto res = (yyResourceImpl*)yyMegaAllocator::CreateResource();
 	res->InitTextureRenderTargetResourse(size);
@@ -254,7 +249,6 @@ YY_API yyResource* YY_C_DECL yyCreateRenderTargetTexture(const v2f& size) {
 }
 
 YY_API yyResource* YY_C_DECL yyCreateTextureFromFile(const char* fileName) {
-	YY_DEBUG_PRINT_FUNC;
 	assert(fileName);
 	//auto res = yyCreate<yyResourceImpl>();
 	auto res = (yyResourceImpl*)yyMegaAllocator::CreateResource();
@@ -263,7 +257,6 @@ YY_API yyResource* YY_C_DECL yyCreateTextureFromFile(const char* fileName) {
 }
 
 YY_API yyResource* YY_C_DECL yyGetTextureFromCache(const char* fileName){
-	YY_DEBUG_PRINT_FUNC;
 	assert(fileName);
 	yy_fs::path p = fileName;
 	for (auto & node : g_engine->m_textureCache)
@@ -299,7 +292,6 @@ YY_API yyResource* YY_C_DECL yyGetTextureFromCache(const char* fileName){
 }
 
 YY_API void YY_C_DECL yyRemoveTextureFromCache(yyResource* r) {
-	YY_DEBUG_PRINT_FUNC;
 	auto curr = g_engine->m_textureCache.head();
 	if (!curr)
 		return;
@@ -321,15 +313,20 @@ YY_API void YY_C_DECL yyRemoveTextureFromCache(yyResource* r) {
 	}
 }
 
-YY_API void YY_C_DECL yyDeleteTexture(yyResource* r, bool doUnload) {
-	if (r->IsLoaded())
+YY_API void YY_C_DECL yyDeleteTexture(yyResource* r, bool onlyUnloaded) {
+	if (onlyUnloaded)
 	{
-		if(doUnload)
-			r->Unload();
+		if (!r->IsLoaded())
+		{
+			yyRemoveTextureFromCache(r);
+			yyMegaAllocator::Destroy(r);
+		}
 	}
-
-	yyRemoveTextureFromCache(r);
-	yyMegaAllocator::Destroy(r);
+	else
+	{
+		yyRemoveTextureFromCache(r);
+		yyMegaAllocator::Destroy(r);
+	}
 }
 
 }

@@ -84,6 +84,127 @@ struct yyJoint
 
 };
 
+#define YY_MDL_VERSION 1
+
+struct yyMDLHeader
+{
+	yyMDLHeader()
+	{
+		m_numOfLayers = 0;
+		m_numOfJoints = 0;
+		m_numOfAnimations = 0;
+		m_numOfHitboxes = 0;
+		m_stringsOffset = 0;
+	}
+	u32 m_numOfLayers;
+	u32 m_numOfJoints;
+	u32 m_numOfAnimations;
+	u32 m_numOfHitboxes;
+
+	v3f m_aabbMin;
+	v3f m_aabbMax;
+
+	u32 m_stringsOffset;
+
+	Mat4 m_preRotation;
+};
+struct yyMDLLayerHeader
+{
+	yyMDLLayerHeader()
+	{
+		m_shaderType = 0;
+		for (s32 i = 0; i < YY_MDL_LAYER_NUM_OF_TEXTURES; ++i)
+		{
+			m_textureStrID[i] = -1;
+		}
+		m_vertexCount = 0;
+		m_vertexType = 0;
+		m_vertexDataSize = 0;
+		m_indexCount = 0;
+		m_indexType = 0;
+		m_indexDataSize = 0;
+	}
+	// 0 - simple
+	u32 m_shaderType;
+	s32 m_textureStrID[YY_MDL_LAYER_NUM_OF_TEXTURES];
+	u32 m_vertexCount;
+	// 0 - yyVertexModel
+	// 1 - yyVertexAnimatedModel
+	u32 m_vertexType;
+	u32 m_vertexDataSize;
+	u32 m_indexCount;
+	// 0 - 16bit
+	// 1 - 32bit
+	u32 m_indexType;
+	u32 m_indexDataSize;
+};
+struct yyMDLJointHeader
+{
+	yyMDLJointHeader()
+	{
+		m_nameStrID = -1;
+		m_parentID = -1;
+	}
+	s32 m_nameStrID;
+	s32 m_parentID;
+	Mat4					m_matrixBindInverse;
+	Mat4					m_matrixOffset;
+	Mat4					m_matrixWorld;
+};
+struct yyMDLAnimationHeader
+{
+	yyMDLAnimationHeader()
+	{
+		m_nameStrID = -1;
+		m_length = 0.f;
+		m_fps = 0.f;
+		m_numOfAnimatedJoints = 0;
+		m_flags = 0;
+	}
+	s32 m_nameStrID;
+	f32 m_length;
+	f32 m_fps;
+	u32 m_numOfAnimatedJoints;
+	u32 m_flags;
+};
+struct yyMDLAnimatedJointHeader
+{
+	yyMDLAnimatedJointHeader()
+	{
+		m_jointID = -1;
+		m_jointID = m_numOfKeyFrames;
+	}
+	s32 m_jointID;
+	u32 m_numOfKeyFrames;
+};
+struct yyMDLJointKeyframeHeader
+{
+	yyMDLJointKeyframeHeader()
+	{
+		m_time = 0;
+		m_scale.set(1.f);
+	}
+	s32 m_time;
+	v3f m_position;
+	v3f m_scale;
+	Quat m_rotation;
+};
+
+struct yyMDLHitboxHeader
+{
+	yyMDLHitboxHeader()
+	{
+		m_type = 0;
+		m_jointID = -1;
+		m_vertexCount = 0;
+		m_indexCount = 0;
+	}
+	u32 m_type;
+	s32 m_jointID;
+	u32 m_vertexCount;
+	u32 m_indexCount;
+};
+
 // описание одного буфера для рисования
 struct yyModel
 {
@@ -97,13 +218,13 @@ struct yyModel
 		m_stride(0),
 		m_vertexType(yyVertexType::GUI)
 	{
-		m_material = yyMegaAllocator::CreateMaterial();
+		//m_material = yyMegaAllocator::CreateMaterial();
 	}
 	~yyModel()
 	{
 		if(m_vertices) yyMemFree( m_vertices );
 		if(m_indices) yyMemFree( m_indices ); 
-		if (m_material) yyMegaAllocator::Destroy(m_material);
+		//if (m_material) yyMegaAllocator::Destroy(m_material);
 	}
 
 	Aabb m_aabb;
@@ -118,7 +239,7 @@ struct yyModel
 
 	yyVertexType m_vertexType;
 
-	yyMaterial* m_material;
+	//yyMaterial* m_material;
 	yyStringA m_name;
 
 	
@@ -266,7 +387,6 @@ struct yyModel
 
 // Идея такая - MDL это оболочка к yyModel
 // MDL может хранить множество слоёв (мешбуферов)
-#define YY_MDL_LAYER_NUM_OF_TEXTURES 4
 struct yyMDLLayer
 {
 	yyMDLLayer() {
@@ -285,11 +405,13 @@ struct yyMDLLayer
 		for (u32 i = 0; i < YY_MDL_LAYER_NUM_OF_TEXTURES; ++i)
 		{
 			if(m_textureGPU[i])
-				yyDeleteTexture(m_textureGPU[i], false);
+				yyDeleteTexture(m_textureGPU[i], true);
 		}
 		if (m_meshGPU)
 			yyMegaAllocator::Destroy(m_meshGPU);
 	}
+	
+	yyMDLLayerHeader m_layerHeader;
 
 	yyVideoDriverAPI * m_gpu;
 
@@ -475,126 +597,7 @@ struct yyMDLAnimation
 	}
 };
 
-#define YY_MDL_VERSION 1
 
-struct yyMDLHeader
-{
-	yyMDLHeader()
-	{
-		m_numOfLayers = 0;
-		m_numOfJoints = 0;
-		m_numOfAnimations = 0;
-		m_numOfHitboxes = 0;
-		m_stringsOffset = 0;
-	}
-	u32 m_numOfLayers;
-	u32 m_numOfJoints;
-	u32 m_numOfAnimations;
-	u32 m_numOfHitboxes;
-
-	v3f m_aabbMin;
-	v3f m_aabbMax;
-
-	u32 m_stringsOffset;
-
-	Mat4 m_preRotation;
-};
-struct yyMDLLayerHeader
-{
-	yyMDLLayerHeader()
-	{
-		m_shaderType = 0;
-		for (s32 i = 0; i < YY_MDL_LAYER_NUM_OF_TEXTURES; ++i)
-		{
-			m_textureStrID[i] = -1;
-		}
-		m_vertexCount = 0;
-		m_vertexType = 0;
-		m_vertexDataSize = 0;
-		m_indexCount = 0;
-		m_indexType = 0;
-		m_indexDataSize = 0;
-	}
-	// 0 - simple
-	u32 m_shaderType;
-	s32 m_textureStrID[YY_MDL_LAYER_NUM_OF_TEXTURES];
-	u32 m_vertexCount;
-	// 0 - yyVertexModel
-	// 1 - yyVertexAnimatedModel
-	u32 m_vertexType;
-	u32 m_vertexDataSize;
-	u32 m_indexCount;
-	// 0 - 16bit
-	// 1 - 32bit
-	u32 m_indexType;
-	u32 m_indexDataSize;
-};
-struct yyMDLJointHeader
-{
-	yyMDLJointHeader()
-	{
-		m_nameStrID = -1;
-		m_parentID = -1;
-	}
-	s32 m_nameStrID;
-	s32 m_parentID;
-	Mat4					m_matrixBindInverse;
-	Mat4					m_matrixOffset;
-	Mat4					m_matrixWorld;
-};
-struct yyMDLAnimationHeader
-{
-	yyMDLAnimationHeader()
-	{
-		m_nameStrID = -1;
-		m_length = 0.f;
-		m_fps = 0.f;
-		m_numOfAnimatedJoints = 0;
-		m_flags = 0;
-	}
-	s32 m_nameStrID;
-	f32 m_length;
-	f32 m_fps;
-	u32 m_numOfAnimatedJoints;
-	u32 m_flags;
-};
-struct yyMDLAnimatedJointHeader
-{
-	yyMDLAnimatedJointHeader()
-	{
-		m_jointID = -1;
-		m_jointID = m_numOfKeyFrames;
-	}
-	s32 m_jointID;
-	u32 m_numOfKeyFrames;
-};
-struct yyMDLJointKeyframeHeader
-{
-	yyMDLJointKeyframeHeader()
-	{
-		m_time = 0;
-		m_scale.set(1.f);
-	}
-	s32 m_time;
-	v3f m_position;
-	v3f m_scale;
-	Quat m_rotation;
-};
-
-struct yyMDLHitboxHeader
-{
-	yyMDLHitboxHeader()
-	{
-		m_type = 0;
-		m_jointID = -1;
-		m_vertexCount = 0;
-		m_indexCount = 0;
-	}
-	u32 m_type;
-	s32 m_jointID;
-	u32 m_vertexCount;
-	u32 m_indexCount;
-};
 struct yyMDLHitbox
 {
 	yyMDLHitbox() :m_mesh(0), m_jointID(-1), m_uniqueID(-1), m_userData(0) {}

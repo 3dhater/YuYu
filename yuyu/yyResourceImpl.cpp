@@ -6,7 +6,6 @@
 extern Engine * g_engine;
 
 yyResourceImpl::yyResourceImpl() {
-	YY_DEBUG_PRINT_FUNC;
 	m_isSource = false;
 	m_type = yyResourceType::None;
 	m_refCount = 0;
@@ -15,7 +14,6 @@ yyResourceImpl::yyResourceImpl() {
 }
 
 yyResourceImpl::~yyResourceImpl() {
-	YY_DEBUG_PRINT_FUNC;
 	if (m_implementation)
 	{
 		if(m_refCount)
@@ -146,7 +144,7 @@ u32 yyResourceImpl::GetRefCount() {
 }
 
 bool yyResourceImpl::IsLoaded() {
-	return (bool)(m_flags & this->flag_isLoaded);
+	return (m_flags & this->flag_isLoaded) == this->flag_isLoaded;
 }
 
 void yyResourceImpl::InitTextureRenderTargetResourse(const v2f& size) {
@@ -175,13 +173,13 @@ void yyResourceImpl::InitTextureResourse(yyImage* img, const char* fileName){
 	{
 		yyImage img;
 		yyLoadImageGetInfo(fileName, &img);
-		m_resourceData.m_imageData->m_size[0] = img.m_width;
-		m_resourceData.m_imageData->m_size[1] = img.m_height;
+		m_resourceData.m_imageData->m_size[0] = (f32)img.m_width;
+		m_resourceData.m_imageData->m_size[1] = (f32)img.m_height;
 	}
 	else
 	{
-		m_resourceData.m_imageData->m_size[0] = img->m_width;
-		m_resourceData.m_imageData->m_size[1] = img->m_height;
+		m_resourceData.m_imageData->m_size[0] = (f32)img->m_width;
+		m_resourceData.m_imageData->m_size[1] = (f32)img->m_height;
 	}
 
 	m_resourceData.m_imageData->m_anisotropicLevel = g_engine->m_textureAnisotropicLevel;

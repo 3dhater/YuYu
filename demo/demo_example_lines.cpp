@@ -72,7 +72,7 @@ bool DemoExample_Lines::Init(){
 	model.m_iCount = 44;
 	model.m_indices = (u8*)yyMemAlloc(model.m_iCount * sizeof(u16));
 	u16* index = (u16*)model.m_indices;
-	for (s32 i = 0; i < model.m_iCount; ++i)
+	for (u32 i = 0; i < model.m_iCount; ++i)
 	{
 		*index = (u16)i;
 		index++;

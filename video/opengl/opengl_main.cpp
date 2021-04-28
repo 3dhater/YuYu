@@ -208,12 +208,9 @@ void SetRenderTarget(yyResource* rtt){
 }
 
 void SetViewport(f32 _x, f32 _y, f32 _width, f32 _height, yyWindow* window){
-	f32 x = _x;
-	f32 y = (f32)window->m_currentSize.y - _y;
-	f32 z = _width;
-	f32 w = _height;
-	y -= w;
-	glViewport(x, y, z, w);
+	GLint x = (GLint)_x;
+	GLint y = (GLint)window->m_currentSize.y - (GLint)_y;
+	glViewport(x, y - (GLsizei)_height, (GLsizei)_width, (GLsizei)_height);
 }
 
 void SetTexture(u32 slot, yyResource* res){
@@ -248,7 +245,7 @@ void Draw(){
 	{
 		auto material = g_openGL->m_currentMaterial;
 		if (!material)
-			material = &g_openGL->m_currentModel->m_material;
+			material = &g_openGL->m_defaultMaterial;
 
 		if (material->m_wireframe)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -528,7 +525,7 @@ void BeginDraw(){
 	g_drawBegin = true;
 #endif
 	glBindFramebuffer(GL_FRAMEBUFFER, g_openGL->m_mainTarget->m_FBO);
-	glViewport(0, 0, g_openGL->m_mainTargetSize.x, g_openGL->m_mainTargetSize.y);
+	glViewport(0, 0, (GLsizei)g_openGL->m_mainTargetSize.x, (GLsizei)g_openGL->m_mainTargetSize.y);
 	UseDepth(true);
 	
 }
@@ -580,12 +577,10 @@ void UpdateMainRenderTarget(const v2i& windowsSize, const v2f& bufferSize){
 }
 
 yyResourceImplementation* CreateTextureImplementation() {
-	YY_DEBUG_PRINT_FUNC;
 	return yyCreate<OpenGLTexture>();
 }
 
 yyResourceImplementation* CreateModelImplementation() {
-	YY_DEBUG_PRINT_FUNC;
 	return yyCreate<OpenGLModel>();
 }
 

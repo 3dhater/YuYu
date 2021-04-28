@@ -174,7 +174,7 @@ bool DemoExample_MDL::Init(){
 	
 	m_gunBulletCurr = m_gunBulletMax;
 	m_guiTextBullets =
-		yyGUICreateText(v2f(g_demo->m_window->m_creationSize.x - 50.f, g_demo->m_window->m_creationSize.y - g_demo->m_defaultFont->m_maxHeight),
+		yyGUICreateText(v2f((f32)g_demo->m_window->m_creationSize.x - 50.f, (f32)g_demo->m_window->m_creationSize.y - (f32)g_demo->m_defaultFont->m_maxHeight),
 			g_demo->m_defaultFont, L" ", 0);
 	m_guiTextBullets->SetText(L"Bullets: %i", m_gunBulletCurr);
 	m_guiTextBullets->m_align = m_guiTextBullets->AlignRightBottom;

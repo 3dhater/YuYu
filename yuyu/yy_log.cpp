@@ -104,4 +104,44 @@ YY_API void YY_C_DECL yyLogWriteWarning(const char* format,...){
 	g_loger.print(Log::EMT_WARNING);
 }
 
+YY_API void YY_C_DECL				yyLogWriteErrorW(const wchar_t*fmt, ...) {
+	wchar_t buff[1024];
+	memset(buff, 0, 1024 * sizeof(wchar_t));
+	va_list arg;
+	va_start(arg, fmt);
+	_vsnwprintf(buff, 1024, fmt, arg);
+	va_end(arg);
+	for (int i = 0; i < 1024; ++i)
+	{
+		g_loger.m_buffer[i] = (char)buff[i];
+	}
+	g_loger.print(Log::EMT_ERROR);
+}
+YY_API void YY_C_DECL				yyLogWriteInfoW(const wchar_t*fmt, ...) {
+	wchar_t buff[1024];
+	memset(buff, 0, 1024 * sizeof(wchar_t));
+	va_list arg;
+	va_start(arg, fmt);
+	_vsnwprintf(buff, 1024, fmt, arg);
+	va_end(arg);
+	for (int i = 0; i < 1024; ++i)
+	{
+		g_loger.m_buffer[i] = (char)buff[i];
+	}
+	g_loger.print(Log::EMT_INFO);
+}
+YY_API void YY_C_DECL				yyLogWriteWarningW(const wchar_t*fmt, ...) {
+	wchar_t buff[1024];
+	memset(buff, 0, 1024 * sizeof(wchar_t));
+	va_list arg;
+	va_start(arg, fmt);
+	_vsnwprintf(buff, 1024, fmt, arg);
+	va_end(arg);
+	for (int i = 0; i < 1024; ++i)
+	{
+		g_loger.m_buffer[i] = (char)buff[i];
+	}
+	g_loger.print(Log::EMT_WARNING);
+}
+
 }

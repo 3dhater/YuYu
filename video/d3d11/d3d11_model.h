@@ -28,7 +28,7 @@ public:
 	DXGI_FORMAT m_indexType;
 
 	yyVertexType m_vertexType;
-	yyMaterial m_material;
+	//yyMaterial m_material;
 };
 
 

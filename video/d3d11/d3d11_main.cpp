@@ -180,10 +180,10 @@ void EndDrawGUI(){
 
 void SetScissorRect(const v4f& rect, yyWindow* window) {
 	D3D11_RECT r;
-	r.left = rect.x;
-	r.top = rect.y;
-	r.right = rect.z;
-	r.bottom = rect.w;
+	r.left = (LONG)rect.x;
+	r.top = (LONG)rect.y;
+	r.right = (LONG)rect.z;
+	r.bottom = (LONG)rect.w;
 	g_d3d11->m_d3d11DevCon->RSSetScissorRects(1, &r);
 }
 
@@ -218,7 +218,7 @@ void Draw(){
 	{
 		auto material = g_d3d11->m_currentMaterial;
 		if (!material)
-			material = &g_d3d11->m_currentModel->m_material;
+			material = &g_d3d11->m_defaultMaterial;
 
 		if (material->m_wireframe)
 		{
@@ -466,7 +466,7 @@ void BeginDraw(){
 void EndDraw(){
 	g_d3d11->m_d3d11DevCon->OMSetRenderTargets(1, &g_d3d11->m_MainTargetView, g_d3d11->m_depthStencilView);
 	g_d3d11->m_currentTargetView = g_d3d11->m_MainTargetView;
-	SetViewport(0, 0, g_d3d11->m_windowSize.x, g_d3d11->m_windowSize.y, 0);
+	SetViewport(0, 0, (f32)g_d3d11->m_windowSize.x, (f32)g_d3d11->m_windowSize.y, 0);
 	SetScissorRect(v4f(0.f, 0.f, (f32)g_d3d11->m_windowSize.x, (f32)g_d3d11->m_windowSize.y), 0);
 	ClearColor();
 
@@ -518,12 +518,10 @@ void SwapBuffers(){
 }
 
 yyResourceImplementation* CreateTextureImplementation() {
-	YY_DEBUG_PRINT_FUNC;
 	return yyCreate<D3D11Texture>();
 }
 
 yyResourceImplementation* CreateModelImplementation() {
-	YY_DEBUG_PRINT_FUNC;
 	return yyCreate<D3D11Model>();
 }
 

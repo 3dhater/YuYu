@@ -51,7 +51,6 @@ void ImageLoaderGetInfo_DDS(const char* p, yyImage* img) {
 }
 
 yyImage* ImageLoader_DDS(const char* p){
-	YY_DEBUG_PRINT_FUNC;
 	auto file_size = yy_fs::file_size(p);
 
 	if( file_size < sizeof(u32) + sizeof(DDS_HEADER) )

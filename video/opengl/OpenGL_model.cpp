@@ -12,18 +12,16 @@ OpenGLModel::OpenGLModel()
 	m_iCount(0),
 	m_vertexType(yyVertexType::Model)
 {
-	YY_DEBUG_PRINT_FUNC;
 }
 
 OpenGLModel::~OpenGLModel(){
-	YY_DEBUG_PRINT_FUNC;
 	Unload();
 }
 
 void OpenGLModel::Load(yyResourceData* rd) {
 	yyModel * model = (yyModel *)rd->m_source;
 
-	m_material = *model->m_material;
+	//m_material = *model->m_material;
 	m_vertexType = model->m_vertexType;
 
 	glGenVertexArrays(1, &m_VAO);

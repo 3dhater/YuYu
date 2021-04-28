@@ -156,7 +156,7 @@ void Demo::MainLoop(){
 	yyGUIText* gui_text_fps = yyGUICreateText(v2f(0.f, 0.f), m_defaultFont, 0, 0);
 	
 	yyGUIButton* gui_button_exit = yyGUICreateButton(
-		v4f(m_window->m_creationSize.x - 50, 0, m_window->m_creationSize.x, 25),
+		v4f((f32)m_window->m_creationSize.x - 50.f, 0.f, (f32)m_window->m_creationSize.x, 25.f),
 		//v4f(0.f, m_window->m_creationSize.y-50, 50, m_window->m_creationSize.y),
 		yyGetTextureFromCache("../res/exit.png"), 0, 0);
 	gui_button_exit->SetMouseHoverTexture(yyGetTextureFromCache("../res/exit_hov.png"));
@@ -204,7 +204,7 @@ void Demo::MainLoop(){
 			case yyEventType::Window: {
 				if (currentEvent.m_event_window.m_event == yyEvent_Window::size_changed) {
 					yyGetVideoDriverAPI()->UpdateMainRenderTarget(m_window->m_currentSize, 
-					v2f(m_window->m_currentSize.x, m_window->m_currentSize.y));
+					v2f((f32)m_window->m_currentSize.x, (f32)m_window->m_currentSize.y));
 					yyGUIRebuild();
 				}
 			}break;

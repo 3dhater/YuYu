@@ -13,16 +13,13 @@ OpenGLTexture::OpenGLTexture()
 	m_h(0),
 	m_w(0)
 {
-	YY_DEBUG_PRINT_FUNC;
 }
 
 OpenGLTexture::~OpenGLTexture(){
-	YY_DEBUG_PRINT_FUNC;
 	Unload();
 }
 
 void OpenGLTexture::Load(yyResourceData* rd) {
-	YY_DEBUG_PRINT_FUNC;
 	GLint minFilter = 0;
 	GLint magFilter = 0;
 
@@ -188,8 +185,8 @@ void OpenGLTexture::Load(yyResourceData* rd) {
 	}
 	else
 	{
-		m_w = rd->m_imageData->m_size[0];
-		m_h = rd->m_imageData->m_size[1];
+		m_w = (u32)rd->m_imageData->m_size[0];
+		m_h = (u32)rd->m_imageData->m_size[1];
 		glGenFramebuffers(1, &m_FBO);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 
@@ -219,7 +216,6 @@ void OpenGLTexture::Load(yyResourceData* rd) {
 	}
 }
 void OpenGLTexture::Unload() {
-	YY_DEBUG_PRINT_FUNC;
 	if (m_FBO)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -237,8 +233,8 @@ void OpenGLTexture::Unload() {
 }
 
 void OpenGLTexture::GetTextureSize(v2f* ptr) {
-	ptr->x = m_w;
-	ptr->y = m_h;
+	ptr->x = (f32)m_w;
+	ptr->y = (f32)m_h;
 }
 void OpenGLTexture::GetTextureHandle(void** ptr) {
 	*ptr = &m_texture;

@@ -209,7 +209,6 @@ void ImageLoaderGetInfo_TGA(const char* p, yyImage* img) {
 }
 
 yyImage* ImageLoader_TGA(const char* p){
-	YY_DEBUG_PRINT_FUNC;
 	_tga_header_t h;
 	unsigned char *cmap, *pix, tmp, *src, *dst;
 	int cmapsize, pixsize, pixsize2;

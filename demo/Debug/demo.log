@@ -1,13 +1,2 @@
-﻿  demo.cpp
-e:\code\yuyu\demo\demo.cpp(159): warning C4244: 'argument' : conversion from 's32' to 'f32', possible loss of data
-e:\code\yuyu\demo\demo.cpp(159): warning C4244: 'argument' : conversion from 'int' to 'f32', possible loss of data
-e:\code\yuyu\demo\demo.cpp(207): warning C4244: 'argument' : conversion from 's32' to 'f32', possible loss of data
-  Generating Code...
-  Compiling...
-  demo_example_sprite.cpp
-  demo_example_lines.cpp
-e:\code\yuyu\demo\demo_example_lines.cpp(75): warning C4018: '<' : signed/unsigned mismatch
-  demo_example_MDL.cpp
-e:\code\yuyu\demo\demo_example_mdl.cpp(177): warning C4244: 'argument' : conversion from 'u32' to 'f32', possible loss of data
-  Generating Code...
+﻿  demo_example_sprite.cpp
   demo.vcxproj -> E:\Code\YuYu\demo\../bin32/demo.exe

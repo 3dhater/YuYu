@@ -18,7 +18,6 @@ yyGUIButton::yyGUIButton()
 	m_onRelease(0),
 	m_onClick(nullptr)
 {
-	YY_DEBUG_PRINT_FUNC;
 	m_type = yyGUIElementType::Button;
 	m_textResizeButton = true;
 	m_isInActiveAreaRect = false;
@@ -37,7 +36,6 @@ yyGUIButton::yyGUIButton()
 }
 
 yyGUIButton::~yyGUIButton(){
-	YY_DEBUG_PRINT_FUNC;
 	if (m_textElement) yyDestroy(m_textElement);
 	if (m_basePB) yyDestroy(m_basePB);
 	if (m_mouseHoverPB) yyDestroy(m_mouseHoverPB);
@@ -361,7 +359,6 @@ void yyGUIButton::Rebuild(){
 }
 
 YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* baseTexture, s32 id, yyGUIDrawGroup* drawGroup, v4i* uv){
-	YY_DEBUG_PRINT_FUNC;
 	yyGUIButton* element = yyCreate<yyGUIButton>();
 	element->SetDrawGroup(drawGroup);
 	element->SetBuildRect(rect);

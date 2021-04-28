@@ -939,7 +939,7 @@ void SaveMDL(const char* fileName)
 		auto layer = g_sceneObject->m_mdlObject->m_mdl->m_layers[i];
 
 		yyMDLLayerHeader layerHeader;
-		layerHeader.m_shaderType = (u32)layer->m_model->m_material->m_type;
+		layerHeader.m_shaderType = (u32)layer->m_layerHeader.m_shaderType;
 		for (u32 p = 0; p < YY_MDL_LAYER_NUM_OF_TEXTURES; ++p)
 		{
 			if (layer->m_texturePath[p].size())

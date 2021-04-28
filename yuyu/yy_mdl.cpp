@@ -53,21 +53,20 @@ void MDL_loadVersion1(yyMDL** _mdl, yyFileBuffer* f){
 	f->seek(savePosition, f->SeekPos_Begin);
 	for (u32 i = 0; i < mdlHeader.m_numOfLayers; ++i)
 	{
-		yyMDLLayerHeader layerHeader;
-		f->read(&layerHeader, sizeof(yyMDLLayerHeader));
-		
 		yyMDLLayer* newLayer = yyCreate<yyMDLLayer>();
+		f->read(&newLayer->m_layerHeader, sizeof(yyMDLLayerHeader));
+		
 		newLayer->m_model = yyMegaAllocator::CreateModel();
 
-		newLayer->m_model->m_material->m_type = (yyMaterialType)layerHeader.m_shaderType;
+		//newLayer->m_model->m_material->m_type = (yyMaterialType)newLayer->m_layerHeader.m_shaderType;
 		
-		newLayer->m_model->m_indices  = (u8*)yyMemAlloc(layerHeader.m_indexDataSize);
-		newLayer->m_model->m_iCount = layerHeader.m_indexCount;
-		newLayer->m_model->m_indexType = (yyMeshIndexType)layerHeader.m_indexType;
+		newLayer->m_model->m_indices  = (u8*)yyMemAlloc(newLayer->m_layerHeader.m_indexDataSize);
+		newLayer->m_model->m_iCount = newLayer->m_layerHeader.m_indexCount;
+		newLayer->m_model->m_indexType = (yyMeshIndexType)newLayer->m_layerHeader.m_indexType;
 
-		newLayer->m_model->m_vertices = (u8*)yyMemAlloc(layerHeader.m_vertexDataSize);
-		newLayer->m_model->m_vCount = layerHeader.m_vertexCount;
-		newLayer->m_model->m_vertexType = (yyVertexType)layerHeader.m_vertexType;
+		newLayer->m_model->m_vertices = (u8*)yyMemAlloc(newLayer->m_layerHeader.m_vertexDataSize);
+		newLayer->m_model->m_vCount = newLayer->m_layerHeader.m_vertexCount;
+		newLayer->m_model->m_vertexType = (yyVertexType)newLayer->m_layerHeader.m_vertexType;
 
 		switch (newLayer->m_model->m_vertexType)
 		{
@@ -82,7 +81,7 @@ void MDL_loadVersion1(yyMDL** _mdl, yyFileBuffer* f){
 		
 		for (int o = 0; o < YY_MDL_LAYER_NUM_OF_TEXTURES; ++o)
 		{
-			s32 id = layerHeader.m_textureStrID[o];
+			s32 id = newLayer->m_layerHeader.m_textureStrID[o];
 			if (id != -1)
 			{
 				//newLayer->m_texturePath[o] = strings[id].data();
@@ -90,8 +89,8 @@ void MDL_loadVersion1(yyMDL** _mdl, yyFileBuffer* f){
 			}
 		}
 
-		f->read(newLayer->m_model->m_vertices, layerHeader.m_vertexDataSize);
-		f->read(newLayer->m_model->m_indices, layerHeader.m_indexDataSize);
+		f->read(newLayer->m_model->m_vertices, newLayer->m_layerHeader.m_vertexDataSize);
+		f->read(newLayer->m_model->m_indices, newLayer->m_layerHeader.m_indexDataSize);
 
 		newLayer->m_meshGPU = yyCreateModel(newLayer->m_model);
 

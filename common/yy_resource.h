@@ -225,7 +225,7 @@ extern "C"
 	//	if you want delete by yourself
 	YY_API yyResource* YY_C_DECL yyGetTextureFromCache(const char*);
 	YY_API void YY_C_DECL yyRemoveTextureFromCache(yyResource*);
-	YY_API void YY_C_DECL yyDeleteTexture(yyResource*, bool doUnload); // only if refCount == 0
+	YY_API void YY_C_DECL yyDeleteTexture(yyResource*, bool onlyUnloaded); // only if refCount == 0
 	
 	// call yyMegaAllocator::Destroy(newRes); for destroy
 	YY_API yyResource* YY_C_DECL yyCreateTexture(yyImage*);

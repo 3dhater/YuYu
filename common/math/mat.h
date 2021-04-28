@@ -239,6 +239,7 @@ public:
 		this->m_data[ 3u ] = tmp[ 3u ];
 	}
 
+	//https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/matrix-inverse
 	bool invert()
 	{
 		Mat4 mat; 

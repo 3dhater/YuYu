@@ -22,8 +22,8 @@ public:
 
 	
 
-	f32 m_h;
-	f32 m_w;
+	u32 m_h;
+	u32 m_w;
 };
 
 #endif

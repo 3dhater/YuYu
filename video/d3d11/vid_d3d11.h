@@ -4,6 +4,7 @@
 #include <d3d11.h>
 
 #include "yy_color.h"
+#include "yy_material.h"
 #include "math\mat.h"
 
 //#define YY_D3D11_CALL
@@ -120,6 +121,7 @@ public:
 	D3D11Texture* m_currentTextures[yyVideoDriverMaxTextures];
 	D3D11Model*   m_currentModel;
 	yyMaterial * m_currentMaterial;
+	yyMaterial m_defaultMaterial;
 	
 	Mat4 m_matrixWorld;
 	Mat4 m_matrixView;

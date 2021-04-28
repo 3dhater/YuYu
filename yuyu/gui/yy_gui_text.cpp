@@ -9,29 +9,29 @@
 
 extern Engine * g_engine;
 
-_yyGui_text_model::_yyGui_text_model() {
-	m_model = 0;
-	m_isUsing = false;
-	m_numOfSymbols = 0;
-}
-_yyGui_text_model::~_yyGui_text_model() {
-	if (m_model)
-		yyMegaAllocator::Destroy(m_model);
-}
-void _yyGui_text_model::Reserve(u32 numSymbols) {
-	if (m_numOfSymbols == numSymbols)
-		return;
-	m_numOfSymbols = numSymbols;
-
-	if (m_model->m_indices)  yyMemFree(m_model->m_indices);
-	if (m_model->m_vertices) yyMemFree(m_model->m_vertices);
-
-	m_model->m_vertices = (u8*)yyMemAlloc(sizeof(yyVertexGUI) * 4 * numSymbols);
-	m_model->m_indices = (u8*)yyMemAlloc(numSymbols * 2 * 3 * sizeof(u16));
-}
-
-//v4f(TXN, TYN, TXP, TYP)
-void _yyGui_text_model::AddChar(const v4f& rect, yyGUIFontGlyph* glyph) {
+//_yyGui_text_model::_yyGui_text_model() {
+//	m_model = 0;
+//	m_isUsing = false;
+//	m_numOfSymbols = 0;
+//}
+//_yyGui_text_model::~_yyGui_text_model() {
+//	if (m_model)
+//		yyMegaAllocator::Destroy(m_model);
+//}
+//void _yyGui_text_model::Reserve(u32 numSymbols) {
+//	if (m_numOfSymbols == numSymbols)
+//		return;
+//	m_numOfSymbols = numSymbols;
+//
+//	if (m_model->m_indices)  yyMemFree(m_model->m_indices);
+//	if (m_model->m_vertices) yyMemFree(m_model->m_vertices);
+//
+//	m_model->m_vertices = (u8*)yyMemAlloc(sizeof(yyVertexGUI) * 4 * numSymbols);
+//	m_model->m_indices = (u8*)yyMemAlloc(numSymbols * 2 * 3 * sizeof(u16));
+//}
+//
+////v4f(TXN, TYN, TXP, TYP)
+void _yyGui_text_model_AddChar(const v4f& rect, yyGUIFontGlyph* glyph, yyModel* model) {
 	yyVertexGUI v1, v2, v3, v4;
 
 	v1.m_position.set(rect.x, rect.w);
@@ -44,8 +44,8 @@ void _yyGui_text_model::AddChar(const v4f& rect, yyGUIFontGlyph* glyph) {
 	v3.m_tcoords = glyph->rt;
 	v4.m_tcoords = glyph->rb;
 
-	auto v = (yyVertexGUI*)m_model->m_vertices;
-	v += m_model->m_vCount;
+	auto v = (yyVertexGUI*)model->m_vertices;
+	v += model->m_vCount;
 	*v = v1;
 	v++;
 	*v = v3;
@@ -55,21 +55,22 @@ void _yyGui_text_model::AddChar(const v4f& rect, yyGUIFontGlyph* glyph) {
 	*v = v2;
 	v++;
 
-	u16 * i = (u16*)m_model->m_indices;
-	i += m_model->m_iCount;
-	*i = m_model->m_vCount;    ++i;
-	*i = m_model->m_vCount + 1; ++i;
-	*i = m_model->m_vCount + 2; ++i;
-	*i = m_model->m_vCount; ++i;
-	*i = m_model->m_vCount + 3; ++i;
-	*i = m_model->m_vCount + 1; ++i;
+	u16 * i = (u16*)model->m_indices;
+	i += model->m_iCount;
+	*i = model->m_vCount;    ++i;
+	*i = model->m_vCount + 1; ++i;
+	*i = model->m_vCount + 2; ++i;
+	*i = model->m_vCount; ++i;
+	*i = model->m_vCount + 3; ++i;
+	*i = model->m_vCount + 1; ++i;
 
-	m_model->m_vCount += 4;
-	m_model->m_iCount += 6;
+	model->m_vCount += 4;
+	model->m_iCount += 6;
 }
 
 yyGUIText::yyGUIText(){
-	YY_DEBUG_PRINT_FUNC;
+	m_drawNodes = 0;
+	m_textureCount = 0;
 	m_font = 0;
 	m_type = yyGUIElementType::Text;
 	m_buffer = 0;
@@ -79,7 +80,6 @@ yyGUIText::yyGUIText(){
 }
 
 yyGUIText::~yyGUIText(){
-	YY_DEBUG_PRINT_FUNC;
 	if (m_buffer)
 	{
 		yyMemFree(m_buffer);
@@ -87,6 +87,14 @@ yyGUIText::~yyGUIText(){
 	}
 	Clear();
 	
+	if (m_drawNodes) delete[] m_drawNodes;
+
+	/*for (int i = 0; i < YY_MAX_FONT_TEXTURES; ++i)
+	{
+		if (m_text_models[i].m_model) {
+			yyMegaAllocator::Destroy(m_text_models[i].m_model);
+		}
+	}*/
 }
 
 void yyGUIText::OnUpdate(f32 dt){
@@ -113,13 +121,18 @@ void yyGUIText::OnUpdate(f32 dt){
 void yyGUIText::OnDraw(){
 	if (!m_visible) return;
 	g_engine->m_videoAPI->SetGUIShaderData(this); 
-	for (u16 k = 0, ksz = m_drawNodes.m_size; k < ksz; ++k)
+	for (u16 i = 0; i < m_textureCount; ++i)
 	{
-		auto & dn = m_drawNodes.m_data[k];
-		if (dn.m_textureGPU)
-			g_engine->m_videoAPI->SetTexture(0, dn.m_textureGPU);
-		if (dn.m_modelGPU)
-			g_engine->m_videoAPI->SetModel(dn.m_modelGPU);
+		auto dn = &m_drawNodes[i];
+		if (!dn->m_isDraw)
+			continue;
+		if (!dn->m_textureGPU)
+			continue;
+		if (!dn->m_modelGPU)
+			continue;
+		
+		g_engine->m_videoAPI->SetTexture(0, dn->m_textureGPU);
+		g_engine->m_videoAPI->SetModel(dn->m_modelGPU);
 		g_engine->m_videoAPI->Draw();
 	}
 }
@@ -167,9 +180,19 @@ void yyGUIText::SetText(const wchar_t* format, ...){
 		if (!glyph)
 			continue;
 
-		auto & model = g_engine->m_text_models[glyph->textureID];
-		model.m_isUsing = true;
-		model.Reserve(len);
+		auto dn = &m_drawNodes[glyph->textureID];
+		dn->m_isDraw = true;
+		if (len > dn->m_numOfSymbols)
+		{
+			dn->m_numOfSymbols = len;
+			if (dn->m_modelSource->m_indices)  yyMemFree(dn->m_modelSource->m_indices);
+			if (dn->m_modelSource->m_vertices) yyMemFree(dn->m_modelSource->m_vertices);
+			dn->m_modelSource->m_vertices = (u8*)yyMemAlloc(sizeof(yyVertexGUI) * 4 * len);
+			dn->m_modelSource->m_indices = (u8*)yyMemAlloc(len * 2 * 3 * sizeof(u16));
+		}
+		//auto & model = m_text_models[glyph->textureID];
+		//model.m_isUsing = true;
+		//model.Reserve(len);
 
 		auto TXN = text_pointer.x;
 		auto TXP = TXN + glyph->width;
@@ -179,8 +202,9 @@ void yyGUIText::SetText(const wchar_t* format, ...){
 
 		if (glyph->height > glyph_max_height)
 			glyph_max_height = glyph->height;
-
-		model.AddChar(v4f(TXN, TYN, TXP, TYP), glyph);
+		
+		_yyGui_text_model_AddChar(v4f(TXN, TYN, TXP, TYP), glyph, dn->m_modelSource);
+		//model.AddChar(v4f(TXN, TYN, TXP, TYP), glyph);
 
 		text_pointer.x += glyph->width;
 		textLen.x += glyph->width;
@@ -194,76 +218,30 @@ void yyGUIText::SetText(const wchar_t* format, ...){
 
 	//this->SetBuildRect(m_buildRectInPixels);
 
-	u32 array_index_counter = 0;
-	for (int i = 0; i < YY_MAX_FONT_TEXTURES; ++i)
+	for (u16 i = 0; i < m_textureCount; ++i)
 	{
-		if (g_engine->m_text_models[i].m_isUsing)
-		{
-			yyGUITextDrawNode * dn = 0;
+		auto dn = &m_drawNodes[i];
+		if (!dn->m_isDraw)
+			continue;
 
-			dn = m_drawNodes.get(array_index_counter);
+		if (dn->m_modelGPU->IsLoaded())
+			dn->m_modelGPU->Unload();
 
-			if (!dn)
-			{
-				yyGUITextDrawNode ndn;
-				m_drawNodes.push_back(ndn);
-				dn = m_drawNodes.get(m_drawNodes.m_size - 1);
-			}
-			else
-				m_drawNodes.m_size++;
-
-			dn->m_textureGPU = m_font->m_textures[i];
-			if (dn->m_modelGPU)
-			{
-				if(!dn->m_modelGPU->IsLoaded())
-					dn->m_modelGPU->Load();
-			}
-			else
-			{
-				dn->m_modelGPU = yyCreateModel(g_engine->m_text_models[i].m_model);
-				dn->m_modelGPU->Load();
-				/*printf("Verts:\n");
-				for (int vi = 0; vi < g_text_models[i].m_model->m_vCount; ++vi)
-				{
-					yyVertexGUI* vg = (yyVertexGUI*)g_text_models[i].m_model->m_vertices;
-					printf("\t[%f %f] [%f %f]\n", vg[vi].m_position.x, vg[vi].m_position.y, vg[vi].m_tcoords.x, vg[vi].m_tcoords.y);
-				}
-				printf("Inds:\n");
-				for (int vi = 0; vi < g_text_models[i].m_model->m_iCount; ++vi)
-				{
-					u16* vg = (u16*)g_text_models[i].m_model->m_indices;
-					printf("\t%u\n", vg[vi]);
-				}*/
-			}
-
-			++array_index_counter;
-		}
+		dn->m_modelGPU->Load();
 	}
 }
 
 void yyGUIText::Clear(){
-	for (int i = 0; i < YY_MAX_FONT_TEXTURES; ++i)
+	for (u16 i = 0; i < m_textureCount; ++i)
 	{
-		if (!g_engine->m_text_models[i].m_model) {
-			g_engine->m_text_models[i].m_model = yyMegaAllocator::CreateModel();
-			g_engine->m_text_models[i].m_model->m_stride = sizeof(yyVertexGUI);
-			g_engine->m_text_models[i].m_model->m_vertexType = yyVertexType::GUI;
-		}
-		g_engine->m_text_models[i].m_model->m_iCount = 0;
-		g_engine->m_text_models[i].m_model->m_vCount = 0;
-		g_engine->m_text_models[i].m_isUsing = false;
+		if(m_drawNodes[i].m_modelGPU->IsLoaded())
+			m_drawNodes[i].m_modelGPU->Unload();
+		m_drawNodes[i].m_isDraw = false;
+		m_drawNodes[i].m_modelSource->m_stride = sizeof(yyVertexGUI);
+		m_drawNodes[i].m_modelSource->m_vertexType = yyVertexType::GUI;
+		m_drawNodes[i].m_modelSource->m_iCount = 0;
+		m_drawNodes[i].m_modelSource->m_vCount = 0;
 	}
-
-	for (u16 i = 0; i < m_drawNodes.m_size; ++i)
-	{
-		auto & dn = m_drawNodes.m_data[i];
-		if (dn.m_modelGPU)
-		{
-			if (dn.m_modelGPU->IsLoaded())
-				dn.m_modelGPU->Unload();
-		}
-	}
-	m_drawNodes.clear();
 }
 
 void yyGUIText::Rebuild() {
@@ -271,11 +249,27 @@ void yyGUIText::Rebuild() {
 	SetText(L"%s", m_text.data());
 }
 
+void yyGUIText::SetFont(yyGUIFont* newFont) {
+	assert(newFont);
+	m_font = newFont;
+	m_textureCount = m_font->GetTextureCount();
+	assert(m_textureCount > 0);
+
+	if (m_drawNodes) delete[] m_drawNodes;
+
+	m_drawNodes = new yyGUITextDrawNode[m_textureCount];
+	for (u16 i = 0; i < m_textureCount; ++i)
+	{
+		m_drawNodes[i].m_modelGPU = yyCreateModel(m_drawNodes[i].m_modelSource);
+		m_drawNodes[i].m_textureGPU = m_font->m_textures[i];
+	}
+}
+
 YY_API yyGUIText* YY_C_DECL yyGUICreateText(const v2f& position, yyGUIFont* font, const wchar_t* text, yyGUIDrawGroup* drawGroup){
-	YY_DEBUG_PRINT_FUNC;
+	assert(font);
 	yyGUIText* element = yyCreate<yyGUIText>();
 	element->SetDrawGroup(drawGroup);
-	element->m_font = font;
+	element->SetFont(font);
 	element->m_position = position;
 	element->SetBuildRect(v4f(position.x, position.y, position.x, position.y));
 

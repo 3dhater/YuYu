@@ -299,8 +299,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					L"Mouse: Device=0x%08X, Flags=%04x, WheelDelta=%d, X=%d, Y=%d\n",
 					deviceHandle, flags, wheelDelta, x, y);*/
 
-				input->m_mouseDelta.x = x;
-				input->m_mouseDelta.y = y;
+				input->m_mouseDelta.x = (f32)x;
+				input->m_mouseDelta.y = (f32)y;
 				if(wheelDelta)
 					input->m_wheelDelta = (f32)wheelDelta / (f32)WHEEL_DELTA;
 

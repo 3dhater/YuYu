@@ -13,7 +13,6 @@ yyGUIGroup::yyGUIGroup()
 	:
 	m_onClick(nullptr)
 {
-	YY_DEBUG_PRINT_FUNC;
 	m_type = yyGUIElementType::Group;
 	m_onMouseInRect = 0;
 	m_onMouseLeave = 0;
@@ -22,7 +21,6 @@ yyGUIGroup::yyGUIGroup()
 }
 
 yyGUIGroup::~yyGUIGroup(){
-	YY_DEBUG_PRINT_FUNC;
 }
 
 void yyGUIGroup::Rebuild() {
@@ -31,7 +29,6 @@ void yyGUIGroup::Rebuild() {
 
 
 YY_API yyGUIGroup* YY_C_DECL yyGUICreateGroup(const v4f& rect, s32 id, yyGUIDrawGroup* drawGroup){
-	YY_DEBUG_PRINT_FUNC;
 	yyGUIGroup* element = yyCreate<yyGUIGroup>();
 	element->SetDrawGroup(drawGroup);
 	element->SetBuildRect(rect);

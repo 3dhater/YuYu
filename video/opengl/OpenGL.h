@@ -1,6 +1,7 @@
 ﻿#ifndef _YY_OPENGL_H_
 #define _YY_OPENGL_H_
 
+#include "yy_material.h"
 
 #include <random>
 
@@ -1296,6 +1297,7 @@ public:
 	OpenGLTexture* m_currentTextures[yyVideoDriverMaxTextures];
 	OpenGLModel*   m_currentModel;
 	yyMaterial * m_currentMaterial;
+	yyMaterial m_defaultMaterial;
 
 #ifdef YY_PLATFORM_WINDOWS
 	HMODULE m_OpenGL_lib;

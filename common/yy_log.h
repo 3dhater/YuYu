@@ -6,6 +6,9 @@ extern "C"
 YY_API void YY_C_DECL				yyLogWriteError(const char*fmt,...);
 YY_API void YY_C_DECL				yyLogWriteInfo(const char*fmt,...);
 YY_API void YY_C_DECL				yyLogWriteWarning(const char*fmt,...);
+YY_API void YY_C_DECL				yyLogWriteErrorW(const wchar_t*fmt, ...);
+YY_API void YY_C_DECL				yyLogWriteInfoW(const wchar_t*fmt, ...);
+YY_API void YY_C_DECL				yyLogWriteWarningW(const wchar_t*fmt, ...);
 YY_API void YY_C_DECL				yyLogSetErrorOutput(void(*)(const char* message));
 YY_API void YY_C_DECL				yyLogSetInfoOutput(void(*)(const char* message));
 YY_API void YY_C_DECL				yyLogSetWarningOutput(void(*)(const char* message));

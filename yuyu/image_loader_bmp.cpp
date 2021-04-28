@@ -96,7 +96,6 @@ void ImageLoaderGetInfo_BMP(const char* p, yyImage* img) {
 }
 
 yyImage* ImageLoader_BMP(const char* p){
-	YY_DEBUG_PRINT_FUNC;
 	FILE * file = fopen(p, "rb");
 	if (!file) 
 	{

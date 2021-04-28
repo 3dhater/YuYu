@@ -34,6 +34,10 @@ public:
 	virtual void OnUpdate(f32 dt) {}
 	virtual void OnDraw() {}
 	virtual void Rebuild();
+	
+	u16 GetTextureCount() {
+		return m_textures.size();
+	}
 
 	yyArray<yyGUIFontGlyph*> m_glyphs;
 
@@ -42,11 +46,8 @@ public:
 	// from engine texture cache. do not delete
 	yyArraySmall<yyResource*> m_textures;
 
-	u32 m_maxHeight;
-	//yyResource* m_texture;
-	//yyResource* m_pictureBoxModel; // yyResourceType::Model
 
-	//yyGUICallback m_onClick; // LMB down
+	u32 m_maxHeight;
 };
 
 #endif
