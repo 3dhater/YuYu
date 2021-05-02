@@ -74,6 +74,7 @@ yyGUIText::yyGUIText(){
 	m_font = 0;
 	m_type = yyGUIElementType::Text;
 	m_buffer = 0;
+	m_bufferSize = 0;
 	SetBufferSize(1024);
 	m_onMouseInRect = 0;
 	m_onClick = 0;

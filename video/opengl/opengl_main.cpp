@@ -39,11 +39,17 @@ extern wglSwapIntervalEXT_t gwglSwapIntervalEXT;
 #endif
 
 u32 GetAPIVersion(){
-	YY_DEBUG_PRINT_FUNC;
 	return yyVideoDriverAPIVersion;
 }
 
 OpenGL * g_openGL = nullptr;
+
+void GetDepthRange(v2f* d) {
+	assert(d);
+	d->x = -1.f;
+	d->y = 1.f;
+}
+
 
 bool Init(yyWindow* window){
 	assert(window);
@@ -609,6 +615,7 @@ extern "C"
 		g_api.EndDraw = EndDraw;
 		g_api.EndDrawGUI = EndDrawGUI;
 		g_api.GetAPIVersion = GetAPIVersion;
+		g_api.GetDepthRange = GetDepthRange;
 		g_api.GetSpriteCameraPosition = GetSpriteCameraPosition;
 		g_api.GetSpriteCameraScale = GetSpriteCameraScale;
 		g_api.GetVideoDriverName = GetVideoDriverName;

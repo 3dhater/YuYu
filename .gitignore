@@ -79,3 +79,10 @@ MDLCreator/Production
 demo/Debug
 demo/Release
 demo/Production
+demo/x64/Production
+MDLCreator/x64/Release
+video/d3d11/x64/Production
+video/d3d11/x64/Release
+yuyu/x64/Production
+demo/x64/Release
+demo/Debug

@@ -1,6 +1,13 @@
 ﻿#ifndef _YUYU_GUI_GROUPH_
 #define _YUYU_GUI_GROUPH_
 
+
+/* How to set without pixels, using only values from 0 to 1
+
+m_gui_group = yyGUICreateGroup(v4f(), -1, 0);
+m_gui_group->m_buildRect = m_creationRect;        // set 0 to 1 here
+m_gui_group->SetRectsFromBuildRect();             // then call this
+*/
 class yyGUIGroup: public yyGUIElement
 {
 	void _setVisible(yyGUIElement*, bool);

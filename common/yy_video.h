@@ -26,7 +26,9 @@ struct yyVideoDriverAPI
 	
 	void (*UseVSync)(bool);
 	void(*UseDepth)(bool);
-	void (*UseBlend)(bool);
+	void(*UseBlend)(bool);
+	
+	void (*GetDepthRange)(v2f*);
 	
 	void (*SetClearColor)(f32 r, f32 g, f32 b, f32 a);
 	
