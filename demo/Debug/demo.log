@@ -1,12 +1,7 @@
-﻿  yy_window.cpp
+﻿  demo.cpp
   Generating Code...
-  Compiling...
-  demo_main.cpp
+  Skipping... (no relevant changes detected)
   demo_example_sprite.cpp
   demo_example_lines.cpp
-  demo_example_gui.cpp
   demo_example_MDL.cpp
-  demo_example.cpp
-  demo.cpp
-  Generating Code...
   demo.vcxproj -> E:\Code\YuYu\demo\../bin32/demo.exe
