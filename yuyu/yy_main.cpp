@@ -66,6 +66,7 @@ Engine::Engine(yyPoolSetup* ps)
 	m_poolMaterial.Init(m_poolSetup.m_materialCount);
 	m_poolModel.Init(m_poolSetup.m_modelCount);
 
+
 	m_textureAnisotropicLevel = 1;
 	m_textureAddressMode = yyTextureAddressMode::Wrap;
 	m_textureComparisonFunc = yyTextureComparisonFunc::Always;

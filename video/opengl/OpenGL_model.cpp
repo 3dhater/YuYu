@@ -59,6 +59,9 @@ void OpenGLModel::Load(yyResourceData* rd) {
 		// tangent
 		glEnableVertexAttribArray(4);
 		glVertexAttribPointer(4, 3, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (11 * sizeof(float)));
+
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (14 * sizeof(float)));
 	}
 	else if (model->m_vertexType == yyVertexType::AnimatedModel)
 	{
@@ -72,10 +75,14 @@ void OpenGLModel::Load(yyResourceData* rd) {
 		glVertexAttribPointer(3, 3, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (8 * sizeof(float)));
 		glEnableVertexAttribArray(4);
 		glVertexAttribPointer(4, 3, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (11 * sizeof(float)));
+		
 		glEnableVertexAttribArray(5);
 		glVertexAttribPointer(5, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (14 * sizeof(float)));
+
 		glEnableVertexAttribArray(6);
-		glVertexAttribIPointer(6, 4, GL_INT, model->m_stride, (unsigned char*)NULL + (18 * sizeof(float)));
+		glVertexAttribPointer(6, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (18 * sizeof(float)));
+		glEnableVertexAttribArray(7);
+		glVertexAttribIPointer(7, 4, GL_INT, model->m_stride, (unsigned char*)NULL + (22 * sizeof(float)));
 	}
 	else if (model->m_vertexType == yyVertexType::LineModel)
 	{
@@ -93,7 +100,7 @@ void OpenGLModel::Load(yyResourceData* rd) {
 		glVertexAttribPointer(1, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (3 * sizeof(float)));
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (7 * sizeof(float)));
-		glEnableVertexAttribArray(6);
+		glEnableVertexAttribArray(3);
 		glVertexAttribIPointer(3, 3, GL_INT, model->m_stride, (unsigned char*)NULL + (11 * sizeof(float)));
 	}
 

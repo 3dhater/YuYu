@@ -31,9 +31,12 @@ bool OpenGLShaderSimple::init(){
 		"layout(location = 2) in vec3 inputNormal;\n"
 		"layout(location = 3) in vec3 inputBinormal;\n"
 		"layout(location = 4) in vec3 inputTangent;\n"
+		"layout(location = 5) in vec4 inputColor;\n"
 		"out vec2 texCoord;\n"
+		"out vec4 vertColor;\n"
 		"uniform mat4 WVP;\n"
 		"void main(){\n"
+		"vertColor = inputColor;\n"
 		"gl_Position = WVP * vec4(inputPosition.xyz,1.0f);\n"
 		"texCoord.x = inputTexCoord.x;\n"
 		"texCoord.y = inputTexCoord.y;\n"
@@ -41,11 +44,13 @@ bool OpenGLShaderSimple::init(){
 	const char * text_f =
 		"#version 330\n"
 		"in vec2 texCoord;\n"
+		"in vec4 vertColor;\n"
 		"uniform sampler2D diffuseTexture;\n"
 		"uniform vec4 BaseColor;\n"
 		"out vec4 color;\n"
 		"void main(){\n"
 		"color = texture(diffuseTexture, texCoord) * BaseColor;\n"
+		"color.xyz *= vertColor.xyz;\n"
 		"}\n";
 	if( !createShader(text_v, text_f, nullptr, m_program) )
 		return false;
@@ -87,8 +92,9 @@ bool OpenGLShaderSimpleAnimated::init(){
 		"layout(location = 2) in vec3 inputNormal;\n"
 		"layout(location = 3) in vec3 inputBinormal;\n"
 		"layout(location = 4) in vec3 inputTangent;\n"
-		"layout(location = 5) in vec4 inputWeights;\n"
-		"layout(location = 6) in uvec4 inputBones;\n"
+		"layout(location = 5) in vec4 inputColor;\n"
+		"layout(location = 6) in vec4 inputWeights;\n"
+		"layout(location = 7) in uvec4 inputBones;\n"
 		"out vec2 texCoord;\n"
 		"uniform mat4 WVP;\n"
 		"uniform mat4 World;\n"

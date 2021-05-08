@@ -1,1 +1,1 @@
-MDLCreator opengl
+MDLCreator vdopengl

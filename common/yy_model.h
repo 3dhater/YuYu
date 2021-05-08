@@ -21,6 +21,7 @@ struct yyVertexModel
 	v3f Normal;
 	v3f Binormal;
 	v3f Tangent;
+	v4f Color;
 };
 struct yyVertexAnimatedModel
 {
@@ -29,6 +30,7 @@ struct yyVertexAnimatedModel
 	v3f Normal;
 	v3f Binormal;
 	v3f Tangent;
+	v4f Color;
 
 	v4f Weights; // потом надо переделать на байты чтобы уменьшить вес
 	v4i Bones;

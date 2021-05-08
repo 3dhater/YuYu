@@ -164,6 +164,10 @@ void ImportOBJ(yyMDLObject* object, const char* fileName)
 				yyVertexModel newVertex1;
 				yyVertexModel newVertex2;
 				yyVertexModel newVertex3;
+				newVertex1.Color = v4f(1.f);
+				newVertex2.Color = v4f(1.f);
+				newVertex3.Color = v4f(1.f);
+
 				newVertex1.Position = position[pos_index1];
 				newVertex2.Position = position[pos_index2];
 				newVertex3.Position = position[pos_index3];
@@ -205,7 +209,7 @@ void ImportOBJ(yyMDLObject* object, const char* fileName)
 				yyVertexModel* v1_ptr = &newVertex1;
 				yyVertexModel* v2_ptr = &newVertex2;
 				yyVertexModel* v3_ptr = &newVertex3;
-				for (u32 k = 0, ksz = modelVerts.size(); k < ksz; ++k)
+				/*for (u32 k = 0, ksz = modelVerts.size(); k < ksz; ++k)
 				{
 					auto _v = &modelVerts[k];
 					if (_v->Position == v1_ptr->Position
@@ -217,7 +221,7 @@ void ImportOBJ(yyMDLObject* object, const char* fileName)
 					if (_v->Position == v3_ptr->Position
 						&& _v->Normal == v3_ptr->Normal
 						&& _v->TCoords == v3_ptr->TCoords) { v3_ptr = _v; vIndex3 = k; }
-				}
+				}*/
 
 				if (vIndex1 == 0xffffffff) { vIndex1 = modelVerts.size(); modelVerts.push_back(*v1_ptr); }
 				if (vIndex2 == 0xffffffff) { vIndex2 = modelVerts.size(); modelVerts.push_back(*v2_ptr); }
@@ -288,6 +292,8 @@ void ImportOBJ(yyMDLObject* object, const char* fileName)
 	newLayer->m_model = newModel;
 
 	newLayer->m_meshGPU = yyCreateModel(newModel);
+	newLayer->m_meshGPU->Load();
+
 	object->m_mdl->m_layers.push_back(newLayer);
 	g_sceneObject->m_layerInfo.push_back(LayerInfo());
 }

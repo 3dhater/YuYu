@@ -109,7 +109,7 @@ bool D3D11_createShaders(
 
 	if (vertexType != yyVertexType::Null)
 	{
-		D3D11_INPUT_ELEMENT_DESC vertexLayout[7];
+		D3D11_INPUT_ELEMENT_DESC vertexLayout[8];
 		u32 vertexLayoutSize = 0;
 		/*
 		LPCSTR SemanticName;
@@ -141,7 +141,7 @@ bool D3D11_createShaders(
 			vertexLayout[1].InstanceDataStepRate = 0;
 			break;
 		case yyVertexType::Model:
-			vertexLayoutSize = 5;
+			vertexLayoutSize = 6;
 			vertexLayout[0].SemanticName = "POSITION";
 			vertexLayout[0].SemanticIndex = 0;
 			vertexLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -181,9 +181,17 @@ bool D3D11_createShaders(
 			vertexLayout[4].AlignedByteOffset = 44;
 			vertexLayout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 			vertexLayout[4].InstanceDataStepRate = 0;
+
+			vertexLayout[5].SemanticName = "COLOR";
+			vertexLayout[5].SemanticIndex = 0;
+			vertexLayout[5].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+			vertexLayout[5].InputSlot = 0;
+			vertexLayout[5].AlignedByteOffset = 56;
+			vertexLayout[5].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[5].InstanceDataStepRate = 0;
 			break;
 		case yyVertexType::AnimatedModel:
-			vertexLayoutSize = 7;
+			vertexLayoutSize = 8;
 			vertexLayout[0].SemanticName = "POSITION";
 			vertexLayout[0].SemanticIndex = 0;
 			vertexLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -224,7 +232,7 @@ bool D3D11_createShaders(
 			vertexLayout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 			vertexLayout[4].InstanceDataStepRate = 0;
 
-			vertexLayout[5].SemanticName = "WEIGHTS";
+			vertexLayout[5].SemanticName = "COLOR";
 			vertexLayout[5].SemanticIndex = 0;
 			vertexLayout[5].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 			vertexLayout[5].InputSlot = 0;
@@ -232,13 +240,21 @@ bool D3D11_createShaders(
 			vertexLayout[5].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 			vertexLayout[5].InstanceDataStepRate = 0;
 
-			vertexLayout[6].SemanticName = "BONES";
+			vertexLayout[6].SemanticName = "WEIGHTS";
 			vertexLayout[6].SemanticIndex = 0;
-			vertexLayout[6].Format = DXGI_FORMAT_R32G32B32A32_UINT;
+			vertexLayout[6].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 			vertexLayout[6].InputSlot = 0;
 			vertexLayout[6].AlignedByteOffset = 72;
 			vertexLayout[6].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 			vertexLayout[6].InstanceDataStepRate = 0;
+
+			vertexLayout[7].SemanticName = "BONES";
+			vertexLayout[7].SemanticIndex = 0;
+			vertexLayout[7].Format = DXGI_FORMAT_R32G32B32A32_UINT;
+			vertexLayout[7].InputSlot = 0;
+			vertexLayout[7].AlignedByteOffset = 88;
+			vertexLayout[7].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			vertexLayout[7].InstanceDataStepRate = 0;
 
 			break;
 		case yyVertexType::LineModel:

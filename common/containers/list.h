@@ -357,6 +357,9 @@ public:
 					node->m_right->m_left = node->m_left;
 					m_allocator.destruct(node);
 					m_allocator.deallocate(node);
+					
+					if (node == m_head)
+						m_head = 0;
 				}
 				return true;
 			}
