@@ -50,7 +50,8 @@ bool OpenGLShaderSimple::init(){
 		"out vec4 color;\n"
 		"void main(){\n"
 		"color = texture(diffuseTexture, texCoord) * BaseColor;\n"
-		"color.xyz *= vertColor.xyz;\n"
+		"vec4 vcolor = clamp(vertColor + color,0.f,1.f);\n"
+		"color = vcolor;\n"
 		"}\n";
 	if( !createShader(text_v, text_f, nullptr, m_program) )
 		return false;
@@ -131,7 +132,8 @@ bool OpenGLShaderSimpleAnimated::init(){
 		"out vec4 color;\n"
 		"void main(){\n"
 		"	color = texture(diffuseTexture, texCoord) * BaseColor;\n"
-		"color.xyz *= vertColor.xyz;\n"
+		"vec4 vcolor = clamp(vertColor + color,0.f,1.f);\n"
+		"color = vcolor;\n"
 		"}\n";
 	if (!createShader(text_v, text_f, nullptr, m_program))
 		return false;

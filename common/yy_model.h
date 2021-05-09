@@ -16,10 +16,6 @@ struct yyVertexGUI
 };
 struct yyVertexModel
 {
-	yyVertexModel() {
-		Color.set(1.f);
-	}
-
 	v3f Position;
 	v2f TCoords;
 	v3f Normal;
@@ -29,10 +25,6 @@ struct yyVertexModel
 };
 struct yyVertexAnimatedModel
 {
-	yyVertexAnimatedModel() {
-		Color.set(1.f);
-	}
-
 	v3f Position;
 	v2f TCoords;
 	v3f Normal;

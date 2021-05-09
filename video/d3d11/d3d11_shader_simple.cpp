@@ -61,7 +61,7 @@ bool D3D11ShaderSimple::init(){
 		"PSOut PSMain(VSOut input){\n"
 		"    PSOut output;\n"
 		"    output.color = tex2d_1.Sample(tex2D_sampler_1, input.uv) * BaseColor;\n"
-		"    output.color *= input.color;\n"
+		"	output.color.xyz = saturate(output.color.xyz + input.color.xyz);\n"
 		"    return output;\n"
 		"}\n";
 	if (!D3D11_createShaders(
@@ -190,12 +190,12 @@ bool D3D11ShaderSimpleAnimated::init() {
 		"	output.uv.x    = input.uv.x;\n"
 		"	output.uv.y    = input.uv.y;\n"
 		"	output.color    = input.color;\n"
-		"    output.color *= input.color;\n"
 		"	return output;\n"
 		"}\n"
 		"PSOut PSMain(VSOut input){\n"
 		"    PSOut output;\n"
 		"    output.color = tex2d_1.Sample(tex2D_sampler_1, input.uv) * BaseColor;\n"
+		"	output.color.xyz = saturate(output.color.xyz + input.color.xyz);\n"
 		"    return output;\n"
 		"}\n";
 	if (!D3D11_createShaders(
