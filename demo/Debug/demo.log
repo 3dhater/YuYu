@@ -1,10 +1,11 @@
-﻿  demo_main.cpp
-  demo_example_sprite.cpp
-  demo_example_MDL.cpp
-  demo_example_lines.cpp
-  demo_example_gui.cpp
-  demo_example.cpp
+﻿  yy_window.cpp
+  Generating Code...
+  Compiling...
   demo.cpp
-  yy_window.cpp
+  Generating Code...
+  Compiling...
+  demo_example_sprite.cpp
+  demo_example_lines.cpp
+  demo_example_MDL.cpp
   Generating Code...
   demo.vcxproj -> E:\Code\YuYu\demo\../bin32/demo.exe

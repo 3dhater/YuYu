@@ -23,7 +23,6 @@ OpenGLShaderSimple::~OpenGLShaderSimple(){
 }
 
 bool OpenGLShaderSimple::init(){
-	YY_DEBUG_PRINT_FUNC;
 	const char * text_v =
 		"#version 330\n"
 		"layout(location = 0) in vec3 inputPosition;\n"
@@ -50,8 +49,8 @@ bool OpenGLShaderSimple::init(){
 		"out vec4 color;\n"
 		"void main(){\n"
 		"color = texture(diffuseTexture, texCoord) * BaseColor;\n"
-		"vec4 vcolor = clamp(vertColor + color,0.f,1.f);\n"
-		"color = vcolor;\n"
+		"vec3 vcolor = clamp(vertColor.xyz + normalize(vertColor.xyz + color.xyz),0.f,1.f);\n"
+		"color.xyz = vcolor.xyz;\n"
 		"}\n";
 	if( !createShader(text_v, text_f, nullptr, m_program) )
 		return false;
@@ -68,7 +67,6 @@ bool OpenGLShaderSimple::init(){
 
 // ===============================================================================================
 OpenGLShaderSimpleAnimated::OpenGLShaderSimpleAnimated(){
-	YY_DEBUG_PRINT_FUNC;
 	m_program = 0;
 	m_VAO = 0;
 	m_uniform_WVP = 0;
@@ -132,8 +130,8 @@ bool OpenGLShaderSimpleAnimated::init(){
 		"out vec4 color;\n"
 		"void main(){\n"
 		"	color = texture(diffuseTexture, texCoord) * BaseColor;\n"
-		"vec4 vcolor = clamp(vertColor + color,0.f,1.f);\n"
-		"color = vcolor;\n"
+		"vec3 vcolor = clamp(vertColor.xyz + normalize(vertColor.xyz + color.xyz),0.f,1.f);\n"
+		"color.xyz = vcolor.xyz;\n"
 		"}\n";
 	if (!createShader(text_v, text_f, nullptr, m_program))
 		return false;
