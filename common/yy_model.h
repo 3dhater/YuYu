@@ -38,11 +38,13 @@ struct yyVertexAnimatedModel
 struct yyVertexLineModel
 {
 	v3f Position;
+	v3f Normal;
 	v4f Color;
 };
 struct yyVertexAnimatedLineModel
 {
 	v3f Position;
+	v3f Normal;
 	v4f Color;
 
 	v4f Weights; // потом надо переделать на байты чтобы уменьшить вес

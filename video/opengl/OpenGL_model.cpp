@@ -88,20 +88,31 @@ void OpenGLModel::Load(yyResourceData* rd) {
 	{
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, false, model->m_stride, 0);
-
+		
+		// Normals
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (3 * sizeof(float)));
+		glVertexAttribPointer(1, 3, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (3 * sizeof(float)));
+
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (6 * sizeof(float)));
 	}
 	else if (model->m_vertexType == yyVertexType::AnimatedLineModel)
 	{
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, false, model->m_stride, 0);
+		
+		// Normals
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (3 * sizeof(float)));
+		glVertexAttribPointer(1, 3, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (3 * sizeof(float)));
+
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (7 * sizeof(float)));
+		glVertexAttribPointer(2, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (6 * sizeof(float)));
+
 		glEnableVertexAttribArray(3);
-		glVertexAttribIPointer(3, 3, GL_INT, model->m_stride, (unsigned char*)NULL + (11 * sizeof(float)));
+		glVertexAttribPointer(3, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (10 * sizeof(float)));
+
+		glEnableVertexAttribArray(4);
+		glVertexAttribIPointer(4, 3, GL_INT, model->m_stride, (unsigned char*)NULL + (14 * sizeof(float)));
 	}
 
 

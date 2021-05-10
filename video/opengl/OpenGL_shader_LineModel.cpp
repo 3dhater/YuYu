@@ -27,7 +27,8 @@ bool OpenGLShaderLineModel::init(){
 	const char * text_v =
 		"#version 330\n"
 		"layout(location = 0) in vec3 inputPosition;\n"
-		"layout(location = 1) in vec4 inputColor;\n"
+		"layout(location = 1) in vec3 inputNormal;\n"
+		"layout(location = 2) in vec4 inputColor;\n"
 		"out vec4 vertexColor;\n"
 		"uniform mat4 WVP;\n"
 		"void main(){\n"
@@ -77,9 +78,10 @@ bool OpenGLShaderLineModelAnimated::init(){
 	const char * text_v =
 		"#version 330\n"
 		"layout(location = 0) in vec3 inputPosition;\n"
-		"layout(location = 1) in vec4 inputColor;\n"
-		"layout(location = 2) in vec4 inputWeights;\n"
-		"layout(location = 3) in uvec4 inputBones;\n"
+		"layout(location = 1) in vec3 inputNormal;\n"
+		"layout(location = 2) in vec4 inputColor;\n"
+		"layout(location = 3) in vec4 inputWeights;\n"
+		"layout(location = 4) in uvec4 inputBones;\n"
 		"out vec4 vertexColor;\n"
 		"uniform mat4 WVP;\n"
 		"uniform mat4 World;\n"

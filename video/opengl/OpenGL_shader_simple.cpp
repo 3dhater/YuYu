@@ -49,8 +49,8 @@ bool OpenGLShaderSimple::init(){
 		"out vec4 color;\n"
 		"void main(){\n"
 		"color = texture(diffuseTexture, texCoord) * BaseColor;\n"
-		"vec3 vcolor = clamp(vertColor.xyz + normalize(vertColor.xyz + color.xyz),0.f,1.f);\n"
-		"color.xyz = vcolor.xyz;\n"
+		"vec3 vcolor = (color.xyz + vec3(1.f,1.f,1.f)) * vertColor.xyz;\n"
+		"color.xyz = clamp(vcolor.xyz - vec3(1.f,1.f,1.f), 0.f, 1.f);\n"
 		"}\n";
 	if( !createShader(text_v, text_f, nullptr, m_program) )
 		return false;

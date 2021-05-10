@@ -27,6 +27,7 @@ bool D3D11ShaderLineModel::init(){
 	const char * text =
 		"struct VSIn{\n"
 		"   float3 position : POSITION;\n"
+		"	float3 normal : NORMAL;\n"
 		"	float4 color : COLOR;\n"
 		"};\n"
 		"cbuffer cbVertex{\n"
@@ -152,6 +153,7 @@ bool D3D11ShaderLineModelAnimated::init() {
 	const char * text =
 		"struct VSIn{\n"
 		"   float3 position : POSITION;\n"
+		"	float3 normal : NORMAL;\n"
 		"	float4 color : COLOR;\n"
 		"	float4 weights : WEIGHTS;\n"
 		"	uint4 bones : BONES;\n"
