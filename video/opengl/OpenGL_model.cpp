@@ -60,6 +60,7 @@ void OpenGLModel::Load(yyResourceData* rd) {
 		glEnableVertexAttribArray(4);
 		glVertexAttribPointer(4, 3, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (11 * sizeof(float)));
 
+		// color
 		glEnableVertexAttribArray(5);
 		glVertexAttribPointer(5, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (14 * sizeof(float)));
 	}

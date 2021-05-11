@@ -220,9 +220,11 @@ extern "C"
 	// call newRes->Load(); for loading
 
 	// get from cache. if not found, create GPU resource, add to cache.
-	// ++m_refCount;
-	// call yyRemoveTextureFromCache(newRes); before yyMegaAllocator::Destroy(newRes); 
-	//	if you want delete by yourself
+	// ++m_refCount; 
+	// Don't forget to call Load();
+	//  Use Unload() for --m_refCount
+	//  Use IsLoaded(). If not loaded, you can call yyDeleteTexture
+	// call yyRemoveTextureFromCache(newRes); before yyMegaAllocator::Destroy(newRes); you want delete by yourself
 	YY_API yyResource* YY_C_DECL yyGetTextureFromCache(const char*);
 	YY_API void YY_C_DECL yyRemoveTextureFromCache(yyResource*);
 	YY_API void YY_C_DECL yyDeleteTexture(yyResource*, bool onlyUnloaded); // only if refCount == 0
