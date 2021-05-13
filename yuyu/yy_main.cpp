@@ -236,6 +236,68 @@ EngineDestroyer g_engineDestroyer;
 
 extern "C"
 {
+	YY_API void YY_C_DECL yySetMatrix(yyMatrixType t, const Mat4& m) {
+		switch (t)
+		{
+		case World:
+			g_engine->m_matrixWorld = m;
+			break;
+		case View:
+			g_engine->m_matrixView = m;
+			break;
+		case Projection:
+			g_engine->m_matrixProjection = m;
+			break;
+		case ViewProjection:
+			g_engine->m_matrixViewProjection = m;
+			break;
+		case WorldViewProjection:
+			g_engine->m_matrixWorldViewProjection = m;
+			break;
+		case ViewInvert:
+			g_engine->m_matrixViewInvert = m;
+			break;
+		default:
+			YY_PRINT_FAILED;
+			break;
+		}
+	}
+	YY_API void YY_C_DECL yySetBoneMatrix(u32 boneIndex, const Mat4& m) {
+		assert(boneIndex < YY_MAX_BONES);
+		g_engine->m_matrixBones[boneIndex] = m;
+	}
+	YY_API Mat4* YY_C_DECL yyGetMatrix(yyMatrixType t) {
+		switch (t)
+		{
+		case World:
+			return &g_engine->m_matrixWorld;
+			break;
+		case View:
+			return &g_engine->m_matrixView;
+			break;
+		case Projection:
+			return &g_engine->m_matrixProjection;
+			break;
+		case ViewProjection:
+			return &g_engine->m_matrixViewProjection;
+			break;
+		case WorldViewProjection:
+			return &g_engine->m_matrixWorldViewProjection;
+			break;
+		case ViewInvert:
+			return &g_engine->m_matrixViewInvert;
+			break;
+		default:
+			YY_PRINT_FAILED;
+			break;
+		}
+		return 0;
+	}
+	YY_API Mat4* YY_C_DECL yyGetBoneMatrix(u32 boneIndex) {
+		assert(boneIndex < YY_MAX_BONES);
+		return &g_engine->m_matrixBones[boneIndex];
+	}
+
 	YY_API bool YY_C_DECL yyRun(f32* deltaTime) {
 		static u64 t1 = 0;
 		u64 t2 = yyGetTime();

@@ -115,6 +115,31 @@ void OpenGLModel::Load(yyResourceData* rd) {
 		glEnableVertexAttribArray(4);
 		glVertexAttribIPointer(4, 3, GL_INT, model->m_stride, (unsigned char*)NULL + (14 * sizeof(float)));
 	}
+	else if (model->m_vertexType == yyVertexType::Point)
+	{
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, false, model->m_stride, 0);
+
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (3 * sizeof(float)));
+
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 3, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (7 * sizeof(float)));
+	}
+	else if (model->m_vertexType == yyVertexType::AnimatedPoint)
+	{
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, false, model->m_stride, 0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 3, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (7 * sizeof(float)));
+
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (10 * sizeof(float)));
+		glEnableVertexAttribArray(4);
+		glVertexAttribIPointer(4, 4, GL_INT, model->m_stride, (unsigned char*)NULL + (15 * sizeof(float)));
+	}
 
 
 	glGenBuffers(1, &m_iBuffer);

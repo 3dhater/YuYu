@@ -14,11 +14,9 @@ D3D11ShaderSprite::D3D11ShaderSprite()
 	:
 	m_cb(0)
 {
-	YY_DEBUG_PRINT_FUNC;
 }
 
 D3D11ShaderSprite::~D3D11ShaderSprite(){
-	YY_DEBUG_PRINT_FUNC;
 	if (m_cb) m_cb->Release();
 }
 
@@ -32,7 +30,6 @@ void D3D11ShaderSprite::SetConstants(yyMaterial* material){
 }
 
 bool D3D11ShaderSprite::init(){
-	YY_DEBUG_PRINT_FUNC;
 	const char * text =
 		"Texture2D tex2d_1;\n"
 		"SamplerState tex2D_sampler_1;\n"

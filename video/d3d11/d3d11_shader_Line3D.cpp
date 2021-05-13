@@ -10,16 +10,12 @@
 extern D3D11 * g_d3d11;
 
 D3D11ShaderLine3D::D3D11ShaderLine3D(){
-	YY_DEBUG_PRINT_FUNC;
 	m_cb = 0;
 }
 
-D3D11ShaderLine3D::~D3D11ShaderLine3D(){
-	YY_DEBUG_PRINT_FUNC;
-}
+D3D11ShaderLine3D::~D3D11ShaderLine3D() {}
 
 bool D3D11ShaderLine3D::init(){
-	YY_DEBUG_PRINT_FUNC;
 	const char * text =
 		"struct VSIn{\n"
 		"	uint vertexID : SV_VertexID;\n"

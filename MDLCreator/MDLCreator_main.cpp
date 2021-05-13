@@ -405,7 +405,7 @@ int main(int argc, char* argv[])
 		camera.update();
 
 		// for 3d line
-		g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::ViewProjection, camera.m_camera->m_viewProjectionMatrix);
+		yySetMatrix(yyMatrixType::ViewProjection, camera.m_camera->m_viewProjectionMatrix);
 		
 
 		
@@ -743,8 +743,8 @@ int main(int argc, char* argv[])
 
 			g_videoDriver->UseDepth(true);
 
-			g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::Projection, camera.m_camera->m_projectionMatrix);
-			g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::View, camera.m_camera->m_viewMatrix);
+			yySetMatrix(yyMatrixType::Projection, camera.m_camera->m_projectionMatrix);
+			yySetMatrix(yyMatrixType::View, camera.m_camera->m_viewMatrix);
 
 			
 			bool drawBind = false;
@@ -772,8 +772,8 @@ int main(int argc, char* argv[])
 
 
 
-				g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::World,  WorldMatrix);
-				g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection, camera.m_camera->m_projectionMatrix * camera.m_camera->m_viewMatrix * WorldMatrix);
+				yySetMatrix(yyMatrixType::World,  WorldMatrix);
+				yySetMatrix(yyMatrixType::WorldViewProjection, camera.m_camera->m_projectionMatrix * camera.m_camera->m_viewMatrix * WorldMatrix);
 				
 				for (u32 t = 0; t < YY_MDL_LAYER_NUM_OF_TEXTURES; ++t)
 				{
@@ -838,7 +838,7 @@ int main(int argc, char* argv[])
 								ColorLime);
 						}
 
-						g_videoDriver->SetBoneMatrix(i, objJoint.m_finalTransformation);
+						yySetBoneMatrix(i, objJoint.m_finalTransformation);
 					}
 				}
 				g_videoDriver->UseDepth(true);
@@ -859,8 +859,8 @@ int main(int argc, char* argv[])
 						W = g_sceneObject->m_mdlObject->m_mdl->m_preRotation * joint.m_globalTransformation;
 					}
 
-					g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::World, W);
-					g_videoDriver->SetMatrix(yyVideoDriverAPI::MatrixType::WorldViewProjection, camera.m_camera->m_projectionMatrix * camera.m_camera->m_viewMatrix * W);
+					yySetMatrix(yyMatrixType::World, W);
+					yySetMatrix(yyMatrixType::WorldViewProjection, camera.m_camera->m_projectionMatrix * camera.m_camera->m_viewMatrix * W);
 					g_videoDriver->SetModel(hb->m_gpuModel);
 					g_videoDriver->Draw();
 				}

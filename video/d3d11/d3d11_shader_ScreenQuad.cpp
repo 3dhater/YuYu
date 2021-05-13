@@ -8,15 +8,12 @@
 extern Mat4 g_guiProjectionMatrix;
 
 D3D11ShaderScreenQuad::D3D11ShaderScreenQuad(){
-	YY_DEBUG_PRINT_FUNC;
 }
 
 D3D11ShaderScreenQuad::~D3D11ShaderScreenQuad(){
-	YY_DEBUG_PRINT_FUNC;
 }
 
 bool D3D11ShaderScreenQuad::init(){
-	YY_DEBUG_PRINT_FUNC;
 	const char * text =
 		"Texture2D tex2d_1;\n"
 		"SamplerState tex2D_sampler_1;\n"

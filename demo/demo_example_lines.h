@@ -6,6 +6,7 @@
 class DemoExample_Lines : public DemoExample
 {
 	yyResource* m_lineModel;
+	yyResource* m_pointModel;
 	yyMaterial m_lineModelMaterial;
 	yyOrbitCamera* m_editorCamera;
 public:

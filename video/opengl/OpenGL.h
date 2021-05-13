@@ -1249,6 +1249,8 @@ class OpenGLShaderScreenQuad;
 class OpenGLShaderLineModel;
 class OpenGLShaderLineModelAnimated;
 class OpenGLShaderRectangle;
+class OpenGLShaderPoint;
+class OpenGLShaderPointAnimated;
 
 
 class OpenGLTexture;
@@ -1291,6 +1293,9 @@ public:
 	OpenGLShaderLineModel* m_shader_lineModel;
 	OpenGLShaderLineModelAnimated* m_shader_lineModelAnimated;
 	OpenGLShaderRectangle* m_shader_rectangle;
+	OpenGLShaderPoint* m_shader_point;
+	OpenGLShaderPointAnimated* m_shader_pointAnimated;
+
 
 	Mat4 m_guiProjectionMatrix;
 
@@ -1313,18 +1318,10 @@ public:
 
 	bool m_isGUI;
 
-	Mat4 m_matrixWorld;
-	Mat4 m_matrixView;
-	Mat4 m_matrixProjection;
-	Mat4 m_matrixViewProjection;
-	Mat4 m_matrixWorldViewProjection;
-	Mat4 m_matrixLightView;
-	Mat4 m_matrixLightProjection;
-	Mat4 m_matrixBones[255];
-
 	v2f m_spriteCameraPosition;
 	v2f m_spriteCameraScale;
 
+	v3f m_eyePosition;
 	//yyListFast<size_t> m_freeModelResourceIndex;
 	//yyListFast<size_t> m_freeTextureResourceIndex;
 };

@@ -153,6 +153,14 @@ public:
 
 	yyResource* m_defaultTexture;
 
+	Mat4 m_matrixWorld;
+	Mat4 m_matrixView;
+	Mat4 m_matrixViewInvert;
+	Mat4 m_matrixProjection;
+	Mat4 m_matrixViewProjection;
+	Mat4 m_matrixWorldViewProjection;
+	Mat4 m_matrixBones[YY_MAX_BONES];
+
 #ifdef YY_PLATFORM_WINDOWS
 	IFileSaveDialog * m_fileSaveDialog;
 	IFileOpenDialog * m_fileOpenDialog;

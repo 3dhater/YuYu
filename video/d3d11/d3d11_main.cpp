@@ -19,6 +19,7 @@
 #include "d3d11_shader_Line3D.h"
 #include "d3d11_shader_LineModel.h"
 #include "d3d11_shader_Rectangle.h"
+#include "d3d11_shader_points.h"
 
 #include "d3d11_shader_standart.h"
 
@@ -265,6 +266,16 @@ void Draw(){
 				g_d3d11->SetShader(g_d3d11->m_shaderLineModelAnimated);
 				g_d3d11->m_shaderLineModelAnimated->SetConstants(material);
 			}break;
+			case yyVertexType::Point:
+			{
+				g_d3d11->SetShader(g_d3d11->m_shaderPoints);
+				g_d3d11->m_shaderPoints->SetConstants(material);
+			}break;
+			case yyVertexType::AnimatedPoint:
+			{
+				g_d3d11->SetShader(g_d3d11->m_shaderPointsAnimated);
+				g_d3d11->m_shaderPointsAnimated->SetConstants(material);
+			}break;
 			}
 			if (g_d3d11->m_currentTextures[0])
 			{
@@ -387,38 +398,10 @@ void DrawLine3D(const v4f& p1, const v4f& p2, const yyColor& color){
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
 	g_d3d11->SetShader(g_d3d11->m_shaderLine3D);
-	g_d3d11->m_shaderLine3D->SetData(p1, p2, color, g_d3d11->m_matrixViewProjection);
+	g_d3d11->m_shaderLine3D->SetData(p1, p2, color, *yyGetMatrix(yyMatrixType::ViewProjection));
 	g_d3d11->m_shaderLine3D->SetConstants(0);
 	
 	g_d3d11->m_d3d11DevCon->Draw(2, 0);
-}
-
-void SetMatrix(yyVideoDriverAPI::MatrixType mt, const Mat4& mat){
-	switch(mt)
-	{
-	case yyVideoDriverAPI::World:
-		g_d3d11->m_matrixWorld = mat;
-		break;
-	case yyVideoDriverAPI::View:
-		g_d3d11->m_matrixView = mat;
-		break;
-	case yyVideoDriverAPI::Projection:
-		g_d3d11->m_matrixProjection = mat;
-		break;
-	case yyVideoDriverAPI::ViewProjection:
-		g_d3d11->m_matrixViewProjection = mat;
-		break;
-	case yyVideoDriverAPI::WorldViewProjection:
-		g_d3d11->m_matrixWorldViewProjection = mat;
-		break;
-	default:
-		YY_PRINT_FAILED;
-		break;
-	}
-}
-
-void SetBoneMatrix(u32 boneIndex, const Mat4& mat){
-	g_d3d11->m_matrixBones[boneIndex] = mat;
 }
 
 v2f* GetSpriteCameraPosition(){
@@ -566,6 +549,10 @@ void DrawRectangle(const v4f& corners, const yyColor& color1, const yyColor& col
 	g_d3d11->m_d3d11DevCon->Draw(6, 0);
 }
 
+void SetEyePosition(f32 x, f32 y, f32 z) {
+	g_d3d11->m_eyePosition.set(x, y, z);
+}
+
 extern "C"
 {
 	YY_API yyVideoDriverAPI* YY_C_DECL GetAPI(){
@@ -591,11 +578,10 @@ extern "C"
 		g_api.GetVideoDriverName = GetVideoDriverName;
 		g_api.GetVideoDriverObjects = GetVideoDriverObjects;
 		g_api.Init          = Init;
-		g_api.SetBoneMatrix = SetBoneMatrix;
 		g_api.SetClearColor = SetClearColor;
+		g_api.SetEyePosition = SetEyePosition;
 		g_api.SetGUIShaderData = SetGUIShaderData;
 		g_api.SetMaterial = SetMaterial;
-		g_api.SetMatrix = SetMatrix;
 		g_api.SetModel = SetModel;
 		g_api.SetRenderTarget = SetRenderTarget;
 		g_api.SetScissorRect = SetScissorRect;

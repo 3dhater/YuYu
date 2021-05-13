@@ -66,6 +66,9 @@
     <ClCompile Include="OpenGL_shader_Rectangle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="OpenGL_shader_point.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="OpenGL_texture.h">
@@ -108,6 +111,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="OpenGL_shader_Rectangle.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGL_shader_point.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

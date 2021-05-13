@@ -22,6 +22,7 @@
 #include "OpenGL_shader_ScreenQuad.h"
 #include "OpenGL_shader_LineModel.h"
 #include "OpenGL_shader_Rectangle.h"
+#include "OpenGL_shader_point.h"
 
 #include "scene/common.h"
 #include "scene/sprite.h"
@@ -291,30 +292,48 @@ void Draw(){
 			case yyVertexType::Model:
 			{
 				glUseProgram(g_openGL->m_shader_simple->m_program);
-				glUniformMatrix4fv(g_openGL->m_shader_simple->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr());
+				glUniformMatrix4fv(g_openGL->m_shader_simple->m_uniform_WVP, 1, GL_FALSE, yyGetMatrix(yyMatrixType::WorldViewProjection)->getPtr());
 				glUniform4fv(g_openGL->m_shader_simple->m_uniform_BaseColor, 1, &material->m_baseColor.m_data[0]);
 			}break;
 			case yyVertexType::AnimatedModel:
 			{
 				glUseProgram(g_openGL->m_shader_simpleAnimated->m_program);
-				glUniformMatrix4fv(g_openGL->m_shader_simpleAnimated->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr());
-				glUniformMatrix4fv(g_openGL->m_shader_simpleAnimated->m_uniform_World, 1, GL_FALSE, g_openGL->m_matrixWorld.getPtr());
-				glUniformMatrix4fv(g_openGL->m_shader_simpleAnimated->m_uniform_Bones, 255, GL_FALSE, g_openGL->m_matrixBones[0].getPtr());
+				glUniformMatrix4fv(g_openGL->m_shader_simpleAnimated->m_uniform_WVP, 1, GL_FALSE, yyGetMatrix(yyMatrixType::WorldViewProjection)->getPtr());
+				glUniformMatrix4fv(g_openGL->m_shader_simpleAnimated->m_uniform_World, 1, GL_FALSE, yyGetMatrix(yyMatrixType::World)->getPtr());
+				glUniformMatrix4fv(g_openGL->m_shader_simpleAnimated->m_uniform_Bones, YY_MAX_BONES, GL_FALSE, yyGetBoneMatrix(0)->getPtr());
 				glUniform4fv(g_openGL->m_shader_simpleAnimated->m_uniform_BaseColor, 1, &material->m_baseColor.m_data[0]);
 			}break;
 			case yyVertexType::LineModel:
 			{
 				glUseProgram(g_openGL->m_shader_lineModel->m_program);
-				glUniformMatrix4fv(g_openGL->m_shader_lineModel->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr());
+				glUniformMatrix4fv(g_openGL->m_shader_lineModel->m_uniform_WVP, 1, GL_FALSE, yyGetMatrix(yyMatrixType::WorldViewProjection)->getPtr());
+				glUniformMatrix4fv(g_openGL->m_shader_lineModel->m_uniform_W, 1, GL_FALSE, yyGetMatrix(yyMatrixType::World)->getPtr());
+				glUniformMatrix4fv(g_openGL->m_shader_lineModel->m_uniform_V, 1, GL_FALSE, yyGetMatrix(yyMatrixType::View)->getPtr());
+				glUniform3fv(g_openGL->m_shader_lineModel->m_uniform_Eye, 1, g_openGL->m_eyePosition.data());
 				glUniform4fv(g_openGL->m_shader_lineModel->m_uniform_BaseColor, 1, &material->m_baseColor.m_data[0]);
 			}break;
 			case yyVertexType::AnimatedLineModel:
 			{
 				glUseProgram(g_openGL->m_shader_lineModelAnimated->m_program);
-				glUniformMatrix4fv(g_openGL->m_shader_lineModelAnimated->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr());
-				glUniformMatrix4fv(g_openGL->m_shader_lineModelAnimated->m_uniform_World, 1, GL_FALSE, g_openGL->m_matrixWorld.getPtr());
-				glUniformMatrix4fv(g_openGL->m_shader_lineModelAnimated->m_uniform_Bones, 255, GL_FALSE, g_openGL->m_matrixBones[0].getPtr());
+				glUniformMatrix4fv(g_openGL->m_shader_lineModelAnimated->m_uniform_WVP, 1, GL_FALSE, yyGetMatrix(yyMatrixType::WorldViewProjection)->getPtr());
+				glUniformMatrix4fv(g_openGL->m_shader_lineModelAnimated->m_uniform_World, 1, GL_FALSE, yyGetMatrix(yyMatrixType::World)->getPtr());
+				glUniformMatrix4fv(g_openGL->m_shader_lineModelAnimated->m_uniform_Bones, YY_MAX_BONES, GL_FALSE, yyGetBoneMatrix(0)->getPtr());
 				glUniform4fv(g_openGL->m_shader_lineModelAnimated->m_uniform_BaseColor, 1, &material->m_baseColor.m_data[0]);
+			}break;
+			case yyVertexType::Point:
+			{
+				glUseProgram(g_openGL->m_shader_point->m_program);
+				glUniformMatrix4fv(g_openGL->m_shader_point->m_uniform_W, 1, GL_FALSE, yyGetMatrix(yyMatrixType::World)->getPtr());
+				glUniformMatrix4fv(g_openGL->m_shader_point->m_uniform_P, 1, GL_FALSE, yyGetMatrix(yyMatrixType::Projection)->getPtr());
+				glUniformMatrix4fv(g_openGL->m_shader_point->m_uniform_V, 1, GL_FALSE, yyGetMatrix(yyMatrixType::View)->getPtr());
+			}break;
+			case yyVertexType::AnimatedPoint:
+			{
+				glUseProgram(g_openGL->m_shader_pointAnimated->m_program);
+				glUniformMatrix4fv(g_openGL->m_shader_pointAnimated->m_uniform_W, 1, GL_FALSE, yyGetMatrix(yyMatrixType::World)->getPtr());
+				glUniformMatrix4fv(g_openGL->m_shader_pointAnimated->m_uniform_P, 1, GL_FALSE, yyGetMatrix(yyMatrixType::Projection)->getPtr());
+				glUniformMatrix4fv(g_openGL->m_shader_pointAnimated->m_uniform_V, 1, GL_FALSE, yyGetMatrix(yyMatrixType::View)->getPtr());
+				glUniformMatrix4fv(g_openGL->m_shader_pointAnimated->m_uniform_Bones, YY_MAX_BONES, GL_FALSE, yyGetBoneMatrix(0)->getPtr());
 			}break;
 			}
 			glActiveTexture(GL_TEXTURE0);
@@ -434,7 +453,7 @@ void DrawLine2D(const v3f& _p1, const v3f& _p2, const yyColor& color){
 
 void DrawLine3D(const v4f& _p1, const v4f& _p2, const yyColor& color){
 	glUseProgram( g_openGL->m_shader_line3d->m_program );
-	glUniformMatrix4fv(g_openGL->m_shader_line3d->m_uniform_ProjMtx, 1, GL_FALSE, g_openGL->m_matrixViewProjection.getPtr() );
+	glUniformMatrix4fv(g_openGL->m_shader_line3d->m_uniform_ProjMtx, 1, GL_FALSE, yyGetMatrix(yyMatrixType::ViewProjection)->getPtr() );
 	glUniform4fv(g_openGL->m_shader_line3d->m_uniform_P1, 1, _p1.cdata());
 	glUniform4fv(g_openGL->m_shader_line3d->m_uniform_P2, 1, _p2.cdata());
 	glUniform4fv(g_openGL->m_shader_line3d->m_uniform_Color, 1, color.data());
@@ -457,40 +476,6 @@ void DrawRectangle(const v4f& corners, const yyColor& color1, const yyColor& col
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	if (last_enable_cull_face) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
-}
-
-void SetMatrix(yyVideoDriverAPI::MatrixType mt, const Mat4& mat){
-	switch(mt)
-	{
-	case yyVideoDriverAPI::World:
-		g_openGL->m_matrixWorld = mat;
-		break;
-	case yyVideoDriverAPI::View:
-		g_openGL->m_matrixView = mat;
-		break;
-	case yyVideoDriverAPI::Projection:
-		g_openGL->m_matrixProjection = mat;
-		break;
-	case yyVideoDriverAPI::ViewProjection:
-		g_openGL->m_matrixViewProjection = mat;
-		break;
-	case yyVideoDriverAPI::WorldViewProjection:
-		g_openGL->m_matrixWorldViewProjection = mat;
-		break;
-	case yyVideoDriverAPI::LightView:
-		g_openGL->m_matrixLightView = mat;
-		break;
-	case yyVideoDriverAPI::LightProjection:
-		g_openGL->m_matrixLightProjection = mat;
-		break;
-	default:
-		YY_PRINT_FAILED;
-		break;
-	}
-}
-
-void SetBoneMatrix(u32 boneIndex, const Mat4& mat){
-	g_openGL->m_matrixBones[boneIndex] = mat;
 }
 
 v2f* GetSpriteCameraPosition(){
@@ -596,6 +581,10 @@ void SetGUIShaderData(yyGUIElement* guielement){
 	glUniform4fv(g_openGL->m_shader_gui->m_uniform_Color, 1, &guielement->m_color.m_data[0]);
 }
 
+void SetEyePosition(f32 x, f32 y, f32 z) {
+	g_openGL->m_eyePosition.set(x, y, z);
+}
+
 extern "C"
 {
 	YY_API yyVideoDriverAPI* YY_C_DECL GetAPI()	{
@@ -621,11 +610,10 @@ extern "C"
 		g_api.GetVideoDriverName = GetVideoDriverName;
 		g_api.GetVideoDriverObjects = GetVideoDriverObjects;
 		g_api.Init = Init;
-		g_api.SetBoneMatrix = SetBoneMatrix;
 		g_api.SetClearColor = SetClearColor;
+		g_api.SetEyePosition = SetEyePosition;
 		g_api.SetGUIShaderData = SetGUIShaderData;
 		g_api.SetMaterial = SetMaterial;
-		g_api.SetMatrix = SetMatrix;
 		g_api.SetModel = SetModel;
 		g_api.SetRenderTarget = SetRenderTarget;
 		g_api.SetScissorRect = SetScissorRect;

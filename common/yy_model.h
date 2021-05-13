@@ -14,6 +14,20 @@ struct yyVertexGUI
 	v2f m_position;
 	v2f m_tcoords;
 };
+struct yyVertexPoint
+{
+	v3f Position;
+	v4f Color;
+	v3f WorldPosition;
+};
+struct yyVertexAnimatedPoint
+{
+	v3f Position;
+	v4f Color;
+	v3f WorldPosition;
+	v4f Weights; // потом надо переделать на байты чтобы уменьшить вес
+	v4i Bones;
+};
 struct yyVertexModel
 {
 	v3f Position;
@@ -60,7 +74,9 @@ enum class yyVertexType : u32
 	Model,  // yyVertexModel
 	AnimatedModel,
 	LineModel,
-	AnimatedLineModel
+	AnimatedLineModel,
+	Point,
+	AnimatedPoint,
 };
 
 // предпологается что при создании MDL индекс будет устанавливаться автоматически, в зависимости от количества треугольников 

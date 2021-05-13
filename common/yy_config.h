@@ -8,6 +8,8 @@
 
 #define YY_MAX_FONT_TEXTURES 20
 
+#define YY_MAX_BONES 250
+
 #define yyPoolSetup_default_resourceCount 1000
 #define yyPoolSetup_default_materialCount 1000 // every model have material so it must be at least equal
 //  and it depends on YY_MAX_FONT_TEXTURES, because if font have 20 textures

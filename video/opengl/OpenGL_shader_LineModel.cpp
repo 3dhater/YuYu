@@ -8,14 +8,12 @@
 #include "math/mat.h"
 
 OpenGLShaderLineModel::OpenGLShaderLineModel(){
-	YY_DEBUG_PRINT_FUNC;
 	m_program = 0;
 	m_VAO = 0;
 	m_uniform_WVP = 0;
 }
 
 OpenGLShaderLineModel::~OpenGLShaderLineModel(){
-	YY_DEBUG_PRINT_FUNC;
 	if( m_VAO )
 		gglDeleteVertexArrays(1,&m_VAO);
 	if( m_program )
@@ -23,31 +21,45 @@ OpenGLShaderLineModel::~OpenGLShaderLineModel(){
 }
 
 bool OpenGLShaderLineModel::init(){
-	YY_DEBUG_PRINT_FUNC;
 	const char * text_v =
 		"#version 330\n"
 		"layout(location = 0) in vec3 inputPosition;\n"
 		"layout(location = 1) in vec3 inputNormal;\n"
 		"layout(location = 2) in vec4 inputColor;\n"
 		"out vec4 vertexColor;\n"
+		"out vec4 vertexNormal;\n"
+		"out vec3 viewDir;\n"
 		"uniform mat4 WVP;\n"
+		"uniform mat4 W;\n"
+		"uniform mat4 V;\n"
+		"uniform vec3 Eye;\n"
 		"void main(){\n"
-		"gl_Position = WVP * vec4(inputPosition.xyz,1.0f);\n"
+		"gl_Position = WVP * vec4(inputPosition,1.0f);\n"
+		"gl_Position.z -= 0.0001f;\n"
 		"vertexColor = inputColor;\n"
+		"vertexNormal = normalize(W * vec4(inputNormal,1.f));\n"
+		"viewDir = normalize(Eye - (mat3(W) * inputPosition));\n"
 		"}\n";
 	const char * text_f =
 		"#version 330\n"
 		"in vec4 vertexColor;\n"
+		"in vec4 vertexNormal;\n"
+		"in vec3 viewDir;\n"
 		"uniform vec4 BaseColor;\n"
 		"out vec4 color;\n"
 		"void main(){\n"
 		"color = vertexColor * BaseColor;\n"
+	//	"float d = clamp(dot(vertexNormal.xyz, viewDir) + 0.3f, 0.3f, 1.f);\n"
+	//	"color.xyz *= d;\n"
 		"}\n";
 	if( !createShader(text_v, text_f, nullptr, m_program) )
 		return false;
 
 	glUseProgram(m_program);
 	m_uniform_WVP = glGetUniformLocation(m_program, "WVP");
+	m_uniform_W = glGetUniformLocation(m_program, "W");
+	m_uniform_V = glGetUniformLocation(m_program, "V");
+	m_uniform_Eye = glGetUniformLocation(m_program, "Eye");
 	m_uniform_BaseColor = glGetUniformLocation(m_program, "BaseColor");
 	
 	glGenVertexArrays(1, &m_VAO);
@@ -57,7 +69,6 @@ bool OpenGLShaderLineModel::init(){
 
 // ===============================================================================================
 OpenGLShaderLineModelAnimated::OpenGLShaderLineModelAnimated(){
-	YY_DEBUG_PRINT_FUNC;
 	m_program = 0;
 	m_VAO = 0;
 	m_uniform_WVP = 0;
@@ -66,7 +77,6 @@ OpenGLShaderLineModelAnimated::OpenGLShaderLineModelAnimated(){
 }
 
 OpenGLShaderLineModelAnimated::~OpenGLShaderLineModelAnimated(){
-	YY_DEBUG_PRINT_FUNC;
 	if (m_VAO)
 		gglDeleteVertexArrays(1, &m_VAO);
 	if (m_program)
@@ -74,7 +84,6 @@ OpenGLShaderLineModelAnimated::~OpenGLShaderLineModelAnimated(){
 }
 
 bool OpenGLShaderLineModelAnimated::init(){
-	YY_DEBUG_PRINT_FUNC;
 	const char * text_v =
 		"#version 330\n"
 		"layout(location = 0) in vec3 inputPosition;\n"

@@ -30,7 +30,9 @@ struct yyVideoDriverAPI
 	
 	void (*GetDepthRange)(v2f*);
 	
-	void (*SetClearColor)(f32 r, f32 g, f32 b, f32 a);
+	void(*SetClearColor)(f32 r, f32 g, f32 b, f32 a);
+	
+	void (*SetEyePosition)(f32 x, f32 y, f32 z);
 	
 	// Вызвать перед началом рисования. После рисования обязательно нужно вызвать EndDraw и SwapBuffers
 	// video driver must set UseDepth(true)
@@ -90,19 +92,6 @@ struct yyVideoDriverAPI
 	void (*DrawLine2D)(const v3f& _p1, const v3f& _p2, const yyColor& color);
 	void (*DrawRectangle)(const v4f& corners, const yyColor& color1, const yyColor& color2);
 
-	enum MatrixType
-	{
-		World,
-		View,
-		Projection,
-		ViewProjection, //For 3d line
-		WorldViewProjection,
-		LightView,
-		LightProjection,
-	};
-	void(*SetMatrix)(MatrixType, const Mat4&);
-	void(*SetBoneMatrix)(u32 boneIndex, const Mat4&);
-	
 	v2f* (*GetSpriteCameraPosition)();
 	v2f* (*GetSpriteCameraScale)();
 

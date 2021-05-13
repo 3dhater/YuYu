@@ -9,15 +9,12 @@
 #include "math/mat.h"
 
 D3D11ShaderStd::D3D11ShaderStd(){
-	YY_DEBUG_PRINT_FUNC;
 }
 
 D3D11ShaderStd::~D3D11ShaderStd(){
-	YY_DEBUG_PRINT_FUNC;
 }
 
 bool D3D11ShaderStd::init(){
-	YY_DEBUG_PRINT_FUNC;
 	//const char * text_v = 
 	//	"#version 130\n"
 	//	"in vec3 inputPosition;\n"

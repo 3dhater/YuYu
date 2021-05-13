@@ -8,14 +8,12 @@
 #include "math/mat.h"
 
 OpenGLShaderStd::OpenGLShaderStd(){
-	YY_DEBUG_PRINT_FUNC;
 	m_program = 0;
 	m_VAO = 0;
 	m_uniform_WVP = 0;
 }
 
 OpenGLShaderStd::~OpenGLShaderStd(){
-	YY_DEBUG_PRINT_FUNC;
 	if( m_VAO )
 		gglDeleteVertexArrays(1,&m_VAO);
 	if( m_program )
@@ -23,7 +21,6 @@ OpenGLShaderStd::~OpenGLShaderStd(){
 }
 
 bool OpenGLShaderStd::init(){
-	YY_DEBUG_PRINT_FUNC;
 	const char * text_v =
 		"#version 130\n"
 		"in vec3 inputPosition;\n"

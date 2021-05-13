@@ -14,6 +14,7 @@
 #include "d3d11_shader_Line3D.h"
 #include "d3d11_shader_LineModel.h"
 #include "d3d11_shader_Rectangle.h"
+#include "d3d11_shader_points.h"
 
 void D3D11::UpdateGUIProjectionMatrix(const v2i& windowSize){
 //	gglViewport(0, 0, (GLsizei)windowSize.x, (GLsizei)windowSize.y);
@@ -56,6 +57,8 @@ D3D11::D3D11(){
 	m_shaderLineModel = 0;
 	m_shaderLineModelAnimated = 0;
 	m_shaderRectangle = 0;
+	m_shaderPoints = 0;
+	m_shaderPointsAnimated = 0;
 
 	m_isGUI = false;
 	m_vsync = true;
@@ -82,6 +85,8 @@ D3D11::~D3D11(){
 	if (m_mainTarget) yyDestroy(m_mainTarget);
 	if (m_mainTargetSurface) yyDestroy(m_mainTargetSurface);
 
+	if (m_shaderPoints) yyDestroy(m_shaderPoints);
+	if (m_shaderPointsAnimated) yyDestroy(m_shaderPointsAnimated);
 	if (m_shaderRectangle) yyDestroy(m_shaderRectangle);
 	if (m_shaderLine3D) yyDestroy(m_shaderLine3D);
 	if (m_shaderSimpleAnimated) yyDestroy(m_shaderSimpleAnimated);
@@ -482,6 +487,22 @@ bool D3D11::Init(yyWindow* window){
 	if (!m_shaderRectangle->init())
 	{
 		yyLogWriteError("Can't create rectangle shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	m_shaderPoints = yyCreate<D3D11ShaderPoints>();
+	if (!m_shaderPoints->init())
+	{
+		yyLogWriteError("Can't create points shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	m_shaderPointsAnimated = yyCreate<D3D11ShaderPointsAnimated>();
+	if (!m_shaderPointsAnimated->init())
+	{
+		yyLogWriteError("Can't create animated points shader...");
 		YY_PRINT_FAILED;
 		return false;
 	}

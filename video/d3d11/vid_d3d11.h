@@ -84,6 +84,8 @@ class D3D11ShaderLine3D;
 class D3D11ShaderLineModel;
 class D3D11ShaderLineModelAnimated;
 class D3D11ShaderRectangle;
+class D3D11ShaderPoints;
+class D3D11ShaderPointsAnimated;
 
 class D3D11
 {
@@ -123,16 +125,11 @@ public:
 	yyMaterial * m_currentMaterial;
 	yyMaterial m_defaultMaterial;
 	
-	Mat4 m_matrixWorld;
-	Mat4 m_matrixView;
-	Mat4 m_matrixProjection;
-	Mat4 m_matrixViewProjection;
-	Mat4 m_matrixWorldViewProjection;
-	Mat4 m_matrixBones[255];
-
 	v2f m_spriteCameraPosition;
 	v2f m_spriteCameraScale;
 
+	D3D11ShaderPoints* m_shaderPoints;
+	D3D11ShaderPointsAnimated* m_shaderPointsAnimated;
 	D3D11ShaderRectangle* m_shaderRectangle;
 	D3D11ShaderGUI* m_shaderGUI;
 	D3D11ShaderSprite* m_shaderSprite;
@@ -158,6 +155,8 @@ public:
 
 	yyColor m_clearColor;
 	bool m_vsync;
+	
+	v3f m_eyePosition;
 
 	bool Init(yyWindow* window);
 	//bool initModel(yyModel* model, D3D11Model* openglModel);

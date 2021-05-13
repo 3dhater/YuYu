@@ -12,19 +12,16 @@
 extern D3D11 * g_d3d11;
 
 D3D11ShaderSimple::D3D11ShaderSimple(){
-	YY_DEBUG_PRINT_FUNC;
 	m_cbVertex = 0;
 	m_cbPixel = 0;
 }
 
 D3D11ShaderSimple::~D3D11ShaderSimple(){
-	YY_DEBUG_PRINT_FUNC;
 	if (m_cbVertex)m_cbVertex->Release();
 	if (m_cbPixel)m_cbPixel->Release();
 }
 
 bool D3D11ShaderSimple::init(){
-	YY_DEBUG_PRINT_FUNC;
 	const char * text =
 		"Texture2D tex2d_1;\n"
 		"SamplerState tex2D_sampler_1;\n"
@@ -96,7 +93,7 @@ bool D3D11ShaderSimple::init(){
 }
 
 void D3D11ShaderSimple::SetConstants(yyMaterial* material){
-	m_cbVertexData.WVP = g_d3d11->m_matrixWorldViewProjection;
+	m_cbVertexData.WVP = *yyGetMatrix(yyMatrixType::WorldViewProjection);
 	m_cbPixelData.BaseColor = material->m_baseColor;
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -117,18 +114,16 @@ void D3D11ShaderSimple::SetConstants(yyMaterial* material){
 
 
 D3D11ShaderSimpleAnimated::D3D11ShaderSimpleAnimated() {
-	YY_DEBUG_PRINT_FUNC;
 	m_cbVertex = 0;
 	m_cbPixel = 0;
 }
 D3D11ShaderSimpleAnimated::~D3D11ShaderSimpleAnimated() {
-	YY_DEBUG_PRINT_FUNC;
 	if (m_cbVertex)m_cbVertex->Release();
 	if (m_cbPixel)m_cbPixel->Release();
 }
 void D3D11ShaderSimpleAnimated::SetConstants(yyMaterial* material) {
-	m_cbVertexData.WVP = g_d3d11->m_matrixWorldViewProjection;
-	memcpy(m_cbVertexData.Bones, g_d3d11->m_matrixBones[0].getPtr(), 255 * sizeof(Mat4));
+	m_cbVertexData.WVP = *yyGetMatrix(yyMatrixType::WorldViewProjection);
+	memcpy(m_cbVertexData.Bones, yyGetBoneMatrix(0)->getPtr(), YY_MAX_BONES * sizeof(Mat4));
 	m_cbPixelData.BaseColor = material->m_baseColor;
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -147,7 +142,6 @@ void D3D11ShaderSimpleAnimated::SetConstants(yyMaterial* material) {
 	g_d3d11->m_d3d11DevCon->PSSetConstantBuffers(0, 1, &m_cbPixel);
 }
 bool D3D11ShaderSimpleAnimated::init() {
-	YY_DEBUG_PRINT_FUNC;
 	const char * text =
 		"Texture2D tex2d_1;\n"
 		"SamplerState tex2D_sampler_1;\n"

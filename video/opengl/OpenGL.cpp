@@ -18,6 +18,7 @@
 #include "OpenGL_shader_ScreenQuad.h"
 #include "OpenGL_shader_LineModel.h"
 #include "OpenGL_shader_Rectangle.h"
+#include "OpenGL_shader_point.h"
 
 #include "math/mat.h"
 
@@ -141,6 +142,8 @@ OpenGL::OpenGL()
 	m_shader_lineModel = 0;
 	m_shader_lineModelAnimated = 0;
 	m_shader_rectangle = 0;
+	m_shader_point = 0;
+	m_shader_pointAnimated = 0;
 }
 
 OpenGL::~OpenGL(){
@@ -150,7 +153,8 @@ OpenGL::~OpenGL(){
 	if (m_mainTarget) yyDestroy(m_mainTarget);
 	if (m_mainTargetSurface) yyDestroy(m_mainTargetSurface);
 
-	
+	if (m_shader_point) yyDestroy(m_shader_point);
+	if (m_shader_pointAnimated) yyDestroy(m_shader_pointAnimated);
 	if (m_shader_rectangle) yyDestroy(m_shader_rectangle);
 	if (m_shader_lineModelAnimated) yyDestroy(m_shader_lineModelAnimated);
 	if (m_shader_lineModel) yyDestroy(m_shader_lineModel);
@@ -548,6 +552,22 @@ bool OpenGL::Init(yyWindow* window){
 	if (!m_shader_rectangle->init())
 	{
 		yyLogWriteError("Can't create rectangle shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	m_shader_point = yyCreate<OpenGLShaderPoint>();
+	if (!m_shader_point->init())
+	{
+		yyLogWriteError("Can't create point shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	m_shader_pointAnimated = yyCreate<OpenGLShaderPointAnimated>();
+	if (!m_shader_pointAnimated->init())
+	{
+		yyLogWriteError("Can't create point animated shader...");
 		YY_PRINT_FAILED;
 		return false;
 	}
