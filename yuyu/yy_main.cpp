@@ -236,6 +236,18 @@ EngineDestroyer g_engineDestroyer;
 
 extern "C"
 {
+	YY_API void YY_C_DECL yySetMaterial(const yyMaterial& mat) {
+		g_engine->m_currentMaterial = mat;
+	}
+	YY_API yyMaterial* YY_C_DECL yyGetMaterial() {
+		return &g_engine->m_currentMaterial;
+	}
+	YY_API void YY_C_DECL yySetEyePosition(const v3f& v) {
+		g_engine->m_eyePosition = v;
+	}
+	YY_API v3f* YY_C_DECL yyGetEyePosition() {
+		return &g_engine->m_eyePosition;
+	}
 	YY_API void YY_C_DECL yySetMatrix(yyMatrixType t, const Mat4& m) {
 		switch (t)
 		{

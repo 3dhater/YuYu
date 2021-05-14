@@ -1301,8 +1301,6 @@ public:
 
 	OpenGLTexture* m_currentTextures[yyVideoDriverMaxTextures];
 	OpenGLModel*   m_currentModel;
-	yyMaterial * m_currentMaterial;
-	yyMaterial m_defaultMaterial;
 
 #ifdef YY_PLATFORM_WINDOWS
 	HMODULE m_OpenGL_lib;
@@ -1321,9 +1319,6 @@ public:
 	v2f m_spriteCameraPosition;
 	v2f m_spriteCameraScale;
 
-	v3f m_eyePosition;
-	//yyListFast<size_t> m_freeModelResourceIndex;
-	//yyListFast<size_t> m_freeTextureResourceIndex;
 };
 
 #endif

@@ -250,9 +250,7 @@ void Draw(){
 	}
 	else
 	{
-		auto material = g_openGL->m_currentMaterial;
-		if (!material)
-			material = &g_openGL->m_defaultMaterial;
+		auto material = yyGetMaterial();
 
 		if (material->m_wireframe)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -309,7 +307,7 @@ void Draw(){
 				glUniformMatrix4fv(g_openGL->m_shader_lineModel->m_uniform_WVP, 1, GL_FALSE, yyGetMatrix(yyMatrixType::WorldViewProjection)->getPtr());
 				glUniformMatrix4fv(g_openGL->m_shader_lineModel->m_uniform_W, 1, GL_FALSE, yyGetMatrix(yyMatrixType::World)->getPtr());
 				glUniformMatrix4fv(g_openGL->m_shader_lineModel->m_uniform_V, 1, GL_FALSE, yyGetMatrix(yyMatrixType::View)->getPtr());
-				glUniform3fv(g_openGL->m_shader_lineModel->m_uniform_Eye, 1, g_openGL->m_eyePosition.data());
+				glUniform3fv(g_openGL->m_shader_lineModel->m_uniform_Eye, 1, yyGetEyePosition()->data());
 				glUniform4fv(g_openGL->m_shader_lineModel->m_uniform_BaseColor, 1, &material->m_baseColor.m_data[0]);
 			}break;
 			case yyVertexType::AnimatedLineModel:
@@ -494,10 +492,6 @@ void InitWindow(yyWindow* w){
 	g_openGL->InitWindow(w);
 }
 
-void SetMaterial(yyMaterial* mat){
-	g_openGL->m_currentMaterial = mat;
-}
-
 yyVideoDriverObjectOpenGL g_yyVideoDriverObjectOpenGL;
 void* GetVideoDriverObjects(){
 	return &g_yyVideoDriverObjectOpenGL;
@@ -581,10 +575,6 @@ void SetGUIShaderData(yyGUIElement* guielement){
 	glUniform4fv(g_openGL->m_shader_gui->m_uniform_Color, 1, &guielement->m_color.m_data[0]);
 }
 
-void SetEyePosition(f32 x, f32 y, f32 z) {
-	g_openGL->m_eyePosition.set(x, y, z);
-}
-
 extern "C"
 {
 	YY_API yyVideoDriverAPI* YY_C_DECL GetAPI()	{
@@ -611,9 +601,7 @@ extern "C"
 		g_api.GetVideoDriverObjects = GetVideoDriverObjects;
 		g_api.Init = Init;
 		g_api.SetClearColor = SetClearColor;
-		g_api.SetEyePosition = SetEyePosition;
 		g_api.SetGUIShaderData = SetGUIShaderData;
-		g_api.SetMaterial = SetMaterial;
 		g_api.SetModel = SetModel;
 		g_api.SetRenderTarget = SetRenderTarget;
 		g_api.SetScissorRect = SetScissorRect;

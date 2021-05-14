@@ -850,7 +850,7 @@ int main(int argc, char* argv[])
 				for (int i = 0, sz = g_sceneObject->m_hitboxes.size(); i < sz; ++i)
 				{
 					auto hb = g_sceneObject->m_hitboxes[i];
-					g_videoDriver->SetMaterial(hb->m_material);
+					yySetMaterial(*hb->m_material);
 					Mat4 W;
 
 					if (hb->m_hitbox.m_jointID != -1)
@@ -864,7 +864,6 @@ int main(int argc, char* argv[])
 					g_videoDriver->SetModel(hb->m_gpuModel);
 					g_videoDriver->Draw();
 				}
-				g_videoDriver->SetMaterial(0);
 				g_videoDriver->UseDepth(true);
 			}
 

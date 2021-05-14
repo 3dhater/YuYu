@@ -17,7 +17,6 @@
 #include "d3d11_shader_points.h"
 
 void D3D11::UpdateGUIProjectionMatrix(const v2i& windowSize){
-//	gglViewport(0, 0, (GLsizei)windowSize.x, (GLsizei)windowSize.y);
 	float L = 0;
 	float R = (float)windowSize.x;
 	float T = 0;
@@ -27,12 +26,6 @@ void D3D11::UpdateGUIProjectionMatrix(const v2i& windowSize){
 	m_guiProjectionMatrix.m_data[1] = v4f(0.0f, 2.0f / (T - B), 0.0f, 0.0f);
 	m_guiProjectionMatrix.m_data[2] = v4f(0.0f, 0.0f, 0.5f, 0.0f);
 	m_guiProjectionMatrix.m_data[3] = v4f((R + L) / (L - R), (T + B) / (B - T), 0.5f, 1.0f);
-
-	//opengl
-	/*m_guiProjectionMatrix.m_data[0] = v4f(2.0f / (R - L), 0.0f, 0.0f, 0.0f);
-	m_guiProjectionMatrix.m_data[1] = v4f(0.0f, 2.0f / (T - B), 0.0f, 0.0f);
-	m_guiProjectionMatrix.m_data[2] = v4f(0.0f, 0.0f, -1.0f, 0.0f);
-	m_guiProjectionMatrix.m_data[3] = v4f((R + L) / (L - R), (T + B) / (B - T), 0.0f, 1.0f);*/
 }
 
 D3D11::D3D11(){
@@ -42,7 +35,6 @@ D3D11::D3D11(){
 	{
 		m_currentTextures[i] = nullptr;
 	}
-	m_currentMaterial = nullptr;
 	m_currentModel = nullptr;
 
 	m_activeShader = 0;

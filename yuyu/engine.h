@@ -8,6 +8,7 @@
 #include "containers/list.h"
 #include "containers/array.h"
 #include "yy_fs.h"
+#include "yy_material.h"
 #include "yyResourceImpl.h"
 
 void yyBackgroundWorkerFunction();
@@ -153,6 +154,8 @@ public:
 
 	yyResource* m_defaultTexture;
 
+	yyMaterial m_currentMaterial;
+	v3f m_eyePosition;
 	Mat4 m_matrixWorld;
 	Mat4 m_matrixView;
 	Mat4 m_matrixViewInvert;

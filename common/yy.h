@@ -47,6 +47,10 @@ extern "C"
 	YY_API void YY_C_DECL yyQuit();
 	YY_API bool YY_C_DECL yyRun(f32* deltaTime);
 
+	YY_API void YY_C_DECL yySetMaterial(const yyMaterial& mat);
+	YY_API yyMaterial* YY_C_DECL yyGetMaterial();
+	YY_API void YY_C_DECL yySetEyePosition(const v3f&);
+	YY_API v3f* YY_C_DECL yyGetEyePosition();
 	YY_API void YY_C_DECL yySetMatrix(yyMatrixType, const Mat4&);
 	YY_API void YY_C_DECL yySetBoneMatrix(u32 boneIndex, const Mat4&);
 	YY_API Mat4* YY_C_DECL yyGetMatrix(yyMatrixType);

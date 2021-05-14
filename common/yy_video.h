@@ -32,8 +32,6 @@ struct yyVideoDriverAPI
 	
 	void(*SetClearColor)(f32 r, f32 g, f32 b, f32 a);
 	
-	void (*SetEyePosition)(f32 x, f32 y, f32 z);
-	
 	// Вызвать перед началом рисования. После рисования обязательно нужно вызвать EndDraw и SwapBuffers
 	// video driver must set UseDepth(true)
 	void (*BeginDraw)();
@@ -82,7 +80,6 @@ struct yyVideoDriverAPI
 	void (*SetTexture)(u32 slot, yyResource*);
 	// yyResource::m_type MUST BE yyResourceType::Model
 	void (*SetModel)(yyResource*);
-	void (*SetMaterial)(yyMaterial* mat);
 	// draw what we set above
 	void (*Draw)();
 	

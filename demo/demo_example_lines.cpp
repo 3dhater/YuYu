@@ -230,7 +230,7 @@ bool DemoExample_Lines::DemoStep(f32 deltaTime){
 		m_editorCamera->m_projectionMatrix * m_editorCamera->m_viewMatrix * WorldMatrix);
 
 	m_gpu->SetModel(m_lineModel);
-	m_gpu->SetMaterial(&m_lineModelMaterial);
+	yySetMaterial(m_lineModelMaterial);
 	m_gpu->Draw();
 	
 	//m_lineModelMaterial.m_cullBackFace = true;

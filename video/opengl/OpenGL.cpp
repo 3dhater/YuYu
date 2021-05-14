@@ -134,7 +134,6 @@ OpenGL::OpenGL()
 	{
 		m_currentTextures[i] = nullptr;
 	}
-	m_currentMaterial = nullptr;
 	m_currentModel = nullptr;
 	m_mainTarget = 0;
 	m_mainTargetSurface = 0;

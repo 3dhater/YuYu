@@ -221,9 +221,7 @@ void Draw(){
 	}
 	else
 	{
-		auto material = g_d3d11->m_currentMaterial;
-		if (!material)
-			material = &g_d3d11->m_defaultMaterial;
+		auto material = yyGetMaterial();
 
 		if (material->m_wireframe)
 		{
@@ -413,10 +411,6 @@ v2f* GetSpriteCameraScale(){
 }
 
 
-void SetMaterial(yyMaterial* mat){
-	g_d3d11->m_currentMaterial = mat;
-}
-
 yyVideoDriverObjectD3D11 g_yyVideoDriverObject;
 void* GetVideoDriverObjects(){
 	g_yyVideoDriverObject.m_context = g_d3d11->m_d3d11DevCon;
@@ -549,10 +543,6 @@ void DrawRectangle(const v4f& corners, const yyColor& color1, const yyColor& col
 	g_d3d11->m_d3d11DevCon->Draw(6, 0);
 }
 
-void SetEyePosition(f32 x, f32 y, f32 z) {
-	g_d3d11->m_eyePosition.set(x, y, z);
-}
-
 extern "C"
 {
 	YY_API yyVideoDriverAPI* YY_C_DECL GetAPI(){
@@ -579,9 +569,7 @@ extern "C"
 		g_api.GetVideoDriverObjects = GetVideoDriverObjects;
 		g_api.Init          = Init;
 		g_api.SetClearColor = SetClearColor;
-		g_api.SetEyePosition = SetEyePosition;
 		g_api.SetGUIShaderData = SetGUIShaderData;
-		g_api.SetMaterial = SetMaterial;
 		g_api.SetModel = SetModel;
 		g_api.SetRenderTarget = SetRenderTarget;
 		g_api.SetScissorRect = SetScissorRect;
