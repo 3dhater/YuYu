@@ -45,7 +45,7 @@ bool D3D11ShaderLineModel::init(){
 		"VSOut VSMain(VSIn input){\n"
 		"   VSOut output;\n"
 		"	output.pos   = mul(WVP, float4(input.position.x, input.position.y, input.position.z, 1.f));\n"
-		"	output.pos.z    -= 0.001f;\n"
+		"	output.pos.z    -= 0.0001f;\n"
 		"	output.color    = input.color;\n"
 		"	return output;\n"
 		"}\n"

@@ -17,8 +17,8 @@ struct yyVertexGUI
 struct yyVertexPoint
 {
 	v3f Position;
-	v4f Color;
 	v3f WorldPosition;
+	v4f Color;
 };
 struct yyVertexAnimatedPoint
 {

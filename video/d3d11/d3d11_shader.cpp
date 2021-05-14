@@ -355,23 +355,22 @@ bool D3D11_createShaders(
 			vertexLayout[ind].InstanceDataStepRate = 0;
 
 			ind++;
-			vertexLayout[ind].SemanticName = "COLOR";
+			vertexLayout[ind].SemanticName = "NORMAL";
 			vertexLayout[ind].SemanticIndex = 0;
-			vertexLayout[ind].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+			vertexLayout[ind].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 			vertexLayout[ind].InputSlot = 0;
 			vertexLayout[ind].AlignedByteOffset = 12;
 			vertexLayout[ind].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 			vertexLayout[ind].InstanceDataStepRate = 0;
 
 			ind++;
-			vertexLayout[ind].SemanticName = "NORMAL";
+			vertexLayout[ind].SemanticName = "COLOR";
 			vertexLayout[ind].SemanticIndex = 0;
-			vertexLayout[ind].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+			vertexLayout[ind].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 			vertexLayout[ind].InputSlot = 0;
-			vertexLayout[ind].AlignedByteOffset = 28;
+			vertexLayout[ind].AlignedByteOffset = 24;
 			vertexLayout[ind].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 			vertexLayout[ind].InstanceDataStepRate = 0;
-			
 			break;
 		case yyVertexType::AnimatedPoint:
 			ind = 0;

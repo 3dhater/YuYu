@@ -66,7 +66,7 @@ public:
 		m_aspect = 800.f / 600.f;
 
 		m_objectBase.m_localPosition = v4f(0.f, 0.f, 0.f, 5.f);
-		m_objectBase.m_rotation = v3f(math::degToRad(0.f), 0.f, 0.f);
+		m_objectBase.m_rotation = v3f(math::degToRad(-45.f), 0.f, 0.f);
 	}
 
 	void SetPosition(f32 x, f32 y, f32 z){

@@ -21,12 +21,10 @@ D3D11ShaderPoints::~D3D11ShaderPoints(){
 
 bool D3D11ShaderPoints::init(){
 	const char * text =
-		"Texture2D tex2d_1;\n"
-		"SamplerState tex2D_sampler_1;\n"
 		"struct VSIn{\n"
 		"   float3 position : POSITION;\n"
-		"   float4 color : COLOR;\n"
 		"   float3 worldPosition : NORMAL;\n"
+		"   float4 color : COLOR;\n"
 		"};\n"
 		"cbuffer cbVertex{\n"
 		"	float4x4 W;\n"
@@ -44,6 +42,7 @@ bool D3D11ShaderPoints::init(){
 		"VSOut VSMain(VSIn input){\n"
 		"   VSOut output;\n"
 		"	output.vColor    = input.color;\n"
+		"	output.vColor.w    = 1.f;\n"
 		
 		//"	output.pos   = mul(WVP, float4(input.position.x, input.position.y, input.position.z, 1.f));\n"
 
@@ -55,13 +54,17 @@ bool D3D11ShaderPoints::init(){
 		"	W2[3].w = 1.f;\n"
 		"	gl_Position = (P * V * W2) * vec4(inputPosition.xyz,1.f);\n"*/
 
-		"	float4x4 V2 = Vi;\n"
-		"	V2[3] = float4(0.f,0.f,0.f,1.f);\n"
-		"	float4x4 W2 = W * V2;\n"
-		"	W2[3].y = -W2[3].y;\n"
-		"	W2[3].xyz += input.worldPosition;\n"
+		"	float4x4 W2 = mul(W,Vi);\n"
+		"	W2[1].w = -W2[1].w;\n"
+
+		"	W2[0].w += input.worldPosition.x;\n"
+		"	W2[1].w += input.worldPosition.y;\n"
+		"	W2[2].w += input.worldPosition.z;\n"
 		"	W2[3].w = 1.f;\n"
-		"	output.pos = mul(P * V * W2, float4(input.position,1.f));\n"
+
+		"	output.pos = mul(W2, float4(input.position,1.f));\n"
+		"	output.pos = mul(V, output.pos);\n"
+		"	output.pos = mul(P, output.pos);\n"
 
 		"	return output;\n"
 		"}\n"
@@ -77,7 +80,7 @@ bool D3D11ShaderPoints::init(){
 		text,
 		"VSMain",
 		"PSMain",
-		yyVertexType::Model,
+		yyVertexType::Point,
 		&this->m_vShader,
 		&this->m_pShader,
 		&this->m_vLayout))
@@ -185,7 +188,7 @@ bool D3D11ShaderPointsAnimated::init() {
 		text,
 		"VSMain",
 		"PSMain",
-		yyVertexType::AnimatedModel,
+		yyVertexType::AnimatedPoint,
 		&this->m_vShader,
 		&this->m_pShader,
 		&this->m_vLayout))

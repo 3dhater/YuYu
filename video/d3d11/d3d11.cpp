@@ -36,7 +36,6 @@ void D3D11::UpdateGUIProjectionMatrix(const v2i& windowSize){
 }
 
 D3D11::D3D11(){
-	YY_DEBUG_PRINT_FUNC;
 	m_mainTarget = 0;
 	m_mainTargetSurface = 0;
 	for (u32 i = 0; i < yyVideoDriverMaxTextures; ++i)
@@ -81,7 +80,6 @@ D3D11::D3D11(){
 	m_blendStateAlphaDisabled = nullptr;
 }
 D3D11::~D3D11(){
-	YY_DEBUG_PRINT_FUNC;
 	if (m_mainTarget) yyDestroy(m_mainTarget);
 	if (m_mainTargetSurface) yyDestroy(m_mainTargetSurface);
 
@@ -116,7 +114,6 @@ D3D11::~D3D11(){
 	if (m_d3d11Device)                          m_d3d11Device->Release();
 }
 bool D3D11::Init(yyWindow* window){
-	YY_DEBUG_PRINT_FUNC;
 	assert(window);
 	yyLogWriteInfo("Init video driver - D3D11...\n");
 

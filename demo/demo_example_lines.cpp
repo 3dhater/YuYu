@@ -25,9 +25,9 @@ bool DemoExample_Lines::Init(){
 		model.m_vertexType = yyVertexType::Point;
 
 		yyArray<v3f> points;
+		points.push_back(v3f(-1.f, 0.f, 0.f));
 		points.push_back(v3f(1.f, 0.f, 0.f));
-		points.push_back(v3f(2.f, 0.f, 0.f));
-		points.push_back(v3f(-3.f, 0.f, 0.f));
+		points.push_back(v3f(0.f, 0.f, 2.f));
 
 		// 1 point = 4 verts
 		model.m_vCount = points.size() * 4;
@@ -240,10 +240,17 @@ bool DemoExample_Lines::DemoStep(f32 deltaTime){
 		m_editorCamera->m_viewMatrix.m_data[2].x, m_editorCamera->m_viewMatrix.m_data[2].y, m_editorCamera->m_viewMatrix.m_data[2].z, m_editorCamera->m_viewMatrix.m_data[2].w,
 		m_editorCamera->m_viewMatrix.m_data[3].x, m_editorCamera->m_viewMatrix.m_data[3].y, m_editorCamera->m_viewMatrix.m_data[3].z, m_editorCamera->m_viewMatrix.m_data[3].w);*/
 	math::makeScaleMatrix(v4f(0.5f),WorldMatrix);
-	WorldMatrix.m_data[3].set(2.f, 2.f, 2.f, 1.f);
-	yySetMatrix(yyMatrixType::World, WorldMatrix);
+	WorldMatrix.m_data[3].set(5.f, 2.f, 5.f, 1.f);
+	
+	auto Vi = m_editorCamera->m_viewMatrix;
+	Vi.m_data[3].set(0.f,0.f,0.f,1.f);
+	Vi.invert();
+
+	yySetMatrix(yyMatrixType::World, WorldMatrix );
 	yySetMatrix(yyMatrixType::View, m_editorCamera->m_viewMatrix);
-	yySetMatrix(yyMatrixType::ViewInvert, m_editorCamera->m_viewMatrixInvert);
+
+
+	yySetMatrix(yyMatrixType::ViewInvert, Vi);
 	yySetMatrix(yyMatrixType::Projection, m_editorCamera->m_projectionMatrix);
 	m_gpu->SetModel(m_pointModel);
 	m_gpu->Draw();

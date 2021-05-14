@@ -10,7 +10,6 @@ public:
 	virtual ~D3D11ShaderPoints();
 	
 	ID3D11Buffer*		m_cbVertex;
-	ID3D11Buffer*		m_cbPixel;
 
 	struct cbVertex
 	{

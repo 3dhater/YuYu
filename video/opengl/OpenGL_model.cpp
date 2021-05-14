@@ -121,10 +121,10 @@ void OpenGLModel::Load(yyResourceData* rd) {
 		glVertexAttribPointer(0, 3, GL_FLOAT, false, model->m_stride, 0);
 
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (3 * sizeof(float)));
+		glVertexAttribPointer(1, 3, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (3 * sizeof(float)));
 
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 3, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (7 * sizeof(float)));
+		glVertexAttribPointer(2, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (6 * sizeof(float)));
 	}
 	else if (model->m_vertexType == yyVertexType::AnimatedPoint)
 	{
