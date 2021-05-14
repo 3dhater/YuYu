@@ -31,6 +31,7 @@ bool D3D11ShaderPoints::init(){
 		"	float4x4 V;\n"
 		"	float4x4 Vi;\n"
 		"	float4x4 P;\n"
+		"	float4 Eye;\n"
 		"};\n"
 		"struct VSOut{\n"
 		"   float4 pos : SV_POSITION;\n"
@@ -54,7 +55,29 @@ bool D3D11ShaderPoints::init(){
 		"	W2[3].w = 1.f;\n"
 		"	gl_Position = (P * V * W2) * vec4(inputPosition.xyz,1.f);\n"*/
 
+		"	float dist = distance(Eye, input.worldPosition);\n"
+		//0,0001
+		"	float s = dist * 0.01f;\n"
+		"	float4x4 S;\n"
+		"	S[0].x = s;\n"
+		"	S[0].y = 0.f;\n"
+		"	S[0].z = 0.f;\n"
+		"	S[0].w = 0.f;\n"
+		"	S[1].x = 0;\n"
+		"	S[1].y = s;\n"
+		"	S[1].z = 0.f;\n"
+		"	S[1].w = 0.f;\n"
+		"	S[2].x = 0;\n"
+		"	S[2].y = 0.f;\n"
+		"	S[2].z = s;\n"
+		"	S[2].w = 0.f;\n"
+		"	S[3].x = 0.f;\n"
+		"	S[3].y = 0.f;\n"
+		"	S[3].z = 0.f;\n"
+		"	S[3].w = 1.f;\n"
+
 		"	float4x4 W2 = mul(W,Vi);\n"
+		"	W2 = mul(W2, S);\n"
 		"	W2[1].w = -W2[1].w;\n"
 
 		"	W2[0].w += input.worldPosition.x;\n"
@@ -65,6 +88,8 @@ bool D3D11ShaderPoints::init(){
 		"	output.pos = mul(W2, float4(input.position,1.f));\n"
 		"	output.pos = mul(V, output.pos);\n"
 		"	output.pos = mul(P, output.pos);\n"
+		
+		"	output.pos.z    -= 0.0001f;\n"
 
 		"	return output;\n"
 		"}\n"
@@ -103,6 +128,7 @@ void D3D11ShaderPoints::SetConstants(yyMaterial* material){
 	m_cbVertexData.V = *yyGetMatrix(yyMatrixType::View);
 	m_cbVertexData.Vi = *yyGetMatrix(yyMatrixType::ViewInvert);
 	m_cbVertexData.P = *yyGetMatrix(yyMatrixType::Projection);
+	m_cbVertexData.Eye = *yyGetEyePosition();
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	D3D11_BUFFER_DESC d;

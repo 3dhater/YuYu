@@ -17,6 +17,7 @@ public:
 		Mat4 V;
 		Mat4 Vi;
 		Mat4 P;
+		v4f Eye;
 	}m_cbVertexData;
 
 	bool init();

@@ -32,19 +32,42 @@ bool OpenGLShaderPoint::init(){
 		"uniform mat4 W;\n"
 		"uniform mat4 P;\n"
 		"uniform mat4 V;\n"
+		"uniform vec3 Eye;\n"
 		"void main(){\n"
 		"	vertColor = inputColor;\n"
 
+		"	float dist = distance(Eye, inputWorldPosition);\n"
+		//0,0001
+		"	float s = dist * 0.01f;\n"
+		"	mat4 S;\n"
+		"	S[0].x = s;\n"
+		"	S[0].y = 0.f;\n"
+		"	S[0].z = 0.f;\n"
+		"	S[0].w = 0.f;\n"
+		"	S[1].x = 0;\n"
+		"	S[1].y = s;\n"
+		"	S[1].z = 0.f;\n"
+		"	S[1].w = 0.f;\n"
+		"	S[2].x = 0;\n"
+		"	S[2].y = 0.f;\n"
+		"	S[2].z = s;\n"
+		"	S[2].w = 0.f;\n"
+		"	S[3].x = 0.f;\n"
+		"	S[3].y = 0.f;\n"
+		"	S[3].z = 0.f;\n"
+		"	S[3].w = 1.f;\n"
 
 		"	mat4 V2 = V;\n"
 		"	V2[3] = vec4(0,0,0,1.f);\n"
 
 		"	mat4 W2 = W * inverse(V2);\n"
+		"	W2 = W2 * S;\n"
 		"	W2[3].y = -W2[3].y;\n"
 		"	W2[3].xyz += inputWorldPosition;\n"
 		"	W2[3].w = 1.f;\n"
 		
 		"	gl_Position = (P * V * W2) * vec4(inputPosition.xyz ,1.f);\n"
+		"	gl_Position.z -= 0.0001f;\n"
 
 		"}\n";
 	const char * text_f =
@@ -61,6 +84,7 @@ bool OpenGLShaderPoint::init(){
 	m_uniform_W = glGetUniformLocation(m_program, "W");
 	m_uniform_P = glGetUniformLocation(m_program, "P");
 	m_uniform_V = glGetUniformLocation(m_program, "V");
+	m_uniform_Eye = glGetUniformLocation(m_program, "Eye");
 	
 	glUniform1i(glGetUniformLocation(m_program, "diffuseTexture"), 0); 
 	glGenVertexArrays(1, &m_VAO);

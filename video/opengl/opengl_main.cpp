@@ -324,6 +324,7 @@ void Draw(){
 				glUniformMatrix4fv(g_openGL->m_shader_point->m_uniform_W, 1, GL_FALSE, yyGetMatrix(yyMatrixType::World)->getPtr());
 				glUniformMatrix4fv(g_openGL->m_shader_point->m_uniform_P, 1, GL_FALSE, yyGetMatrix(yyMatrixType::Projection)->getPtr());
 				glUniformMatrix4fv(g_openGL->m_shader_point->m_uniform_V, 1, GL_FALSE, yyGetMatrix(yyMatrixType::View)->getPtr());
+				glUniform3fv(g_openGL->m_shader_point->m_uniform_Eye, 1, yyGetEyePosition()->data());
 			}break;
 			case yyVertexType::AnimatedPoint:
 			{

@@ -35,7 +35,7 @@ bool DemoExample_Lines::Init(){
 
 		yyVertexPoint* vertex = (yyVertexPoint*)model.m_vertices;
 		
-		f32 size = 0.1f;
+		f32 size = 1.f;
 
 		for (u32 i = 0, sz = points.size(); i < sz; ++i)
 		{
@@ -248,10 +248,13 @@ bool DemoExample_Lines::DemoStep(f32 deltaTime){
 	Vi.m_data[3].set(0.f,0.f,0.f,1.f);
 	Vi.invert();
 
+	yySetEyePosition(m_editorCamera->m_positionInWorld);
+	/*printf("%f %f %f\n", m_editorCamera->m_positionInWorld.x,
+		m_editorCamera->m_positionInWorld.y,
+		m_editorCamera->m_positionInWorld.z);*/
+
 	yySetMatrix(yyMatrixType::World, WorldMatrix );
 	yySetMatrix(yyMatrixType::View, m_editorCamera->m_viewMatrix);
-
-
 	yySetMatrix(yyMatrixType::ViewInvert, Vi);
 	yySetMatrix(yyMatrixType::Projection, m_editorCamera->m_projectionMatrix);
 	m_gpu->SetModel(m_pointModel);

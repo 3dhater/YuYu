@@ -12,6 +12,7 @@ public:
 	GLint m_uniform_W;
 	GLint m_uniform_P;
 	GLint m_uniform_V;
+	GLint m_uniform_Eye;
 
 	bool init();
 };
