@@ -34,6 +34,8 @@ bool DemoExample_Lines::Init(){
 		model.m_vertices = (u8*)yyMemAlloc(model.m_vCount * model.m_stride);
 
 		yyVertexPoint* vertex = (yyVertexPoint*)model.m_vertices;
+		
+		f32 size = 0.1f;
 
 		for (u32 i = 0, sz = points.size(); i < sz; ++i)
 		{
@@ -41,22 +43,22 @@ bool DemoExample_Lines::Init(){
 
 			vertex->WorldPosition = point;
 			vertex->Color.set(1.f,0.f,0.f,1.f);
-			vertex->Position.set(-0.2f, -0.2f, 0.f);
+			vertex->Position.set(-size, -size, 0.f);
 			vertex++;
 			
 			vertex->WorldPosition = point;
 			vertex->Color.set(1.f, 0.f, 0.f, 1.f);
-			vertex->Position.set(-0.2f, 0.2f, 0.f);
+			vertex->Position.set(-size, size, 0.f);
 			vertex++;
 			
 			vertex->WorldPosition = point;
 			vertex->Color.set(1.f, 0.f, 0.f, 1.f);
-			vertex->Position.set(0.2f, 0.2f, 0.f);
+			vertex->Position.set(size, size, 0.f);
 			vertex++;
 
 			vertex->WorldPosition = point;
 			vertex->Color.set(1.f, 0.f, 0.f, 1.f);
-			vertex->Position.set(0.2f, -0.2f, 0.f);
+			vertex->Position.set(size, -size, 0.f);
 			vertex++;
 		}
 
@@ -239,8 +241,8 @@ bool DemoExample_Lines::DemoStep(f32 deltaTime){
 		m_editorCamera->m_viewMatrix.m_data[1].x, m_editorCamera->m_viewMatrix.m_data[1].y, m_editorCamera->m_viewMatrix.m_data[1].z, m_editorCamera->m_viewMatrix.m_data[1].w,
 		m_editorCamera->m_viewMatrix.m_data[2].x, m_editorCamera->m_viewMatrix.m_data[2].y, m_editorCamera->m_viewMatrix.m_data[2].z, m_editorCamera->m_viewMatrix.m_data[2].w,
 		m_editorCamera->m_viewMatrix.m_data[3].x, m_editorCamera->m_viewMatrix.m_data[3].y, m_editorCamera->m_viewMatrix.m_data[3].z, m_editorCamera->m_viewMatrix.m_data[3].w);*/
-	math::makeScaleMatrix(v4f(0.5f),WorldMatrix);
-	WorldMatrix.m_data[3].set(5.f, 2.f, 5.f, 1.f);
+	math::makeScaleMatrix(v4f(1.f),WorldMatrix);
+	WorldMatrix.m_data[3].set(0.f, 0.f, 0.f, 1.f);
 	
 	auto Vi = m_editorCamera->m_viewMatrix;
 	Vi.m_data[3].set(0.f,0.f,0.f,1.f);

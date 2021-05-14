@@ -35,6 +35,7 @@ bool OpenGLShaderPoint::init(){
 		"void main(){\n"
 		"	vertColor = inputColor;\n"
 
+
 		"	mat4 V2 = V;\n"
 		"	V2[3] = vec4(0,0,0,1.f);\n"
 
@@ -42,8 +43,9 @@ bool OpenGLShaderPoint::init(){
 		"	W2[3].y = -W2[3].y;\n"
 		"	W2[3].xyz += inputWorldPosition;\n"
 		"	W2[3].w = 1.f;\n"
+		
+		"	gl_Position = (P * V * W2) * vec4(inputPosition.xyz ,1.f);\n"
 
-		"	gl_Position = (P * V * W2) * vec4(inputPosition.xyz,1.f);\n"
 		"}\n";
 	const char * text_f =
 		"#version 330\n"

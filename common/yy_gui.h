@@ -105,6 +105,7 @@ public:
 		AlignLeftBottom,
 		AlignRightBottom,
 		AlignCenter,
+		AlignCenterTop,
 	}m_align;
 	yyGUIElement* m_parent;
 	yyList<yyGUIElement*> m_children;

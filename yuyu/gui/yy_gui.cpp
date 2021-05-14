@@ -383,6 +383,25 @@ void Engine::GUIRebuildElement(yyGUIElement* e) {
 		e->m_clipRectInPixels = e->m_buildRectInPixels;
 		e->m_sensorRectInPixels = e->m_buildRectInPixels;
 	}break;
+	case yyGUIElement::Align::AlignCenterTop: {
+		if (e->m_useProportionalScaling)
+		{
+			if (e->m_buildRect.x != 0.f) e->m_buildRectInPixels.x = e->m_buildRect.x / parentRectSizeX_1;
+			if (e->m_buildRect.z != 0.f) e->m_buildRectInPixels.z = e->m_buildRect.z / parentRectSizeX_1;
+			//if (e->m_buildRect.y != 0.f) e->m_buildRectInPixels.y = e->m_buildRect.y / parentRectSizeY_1;
+			//if (e->m_buildRect.w != 0.f) e->m_buildRectInPixels.w = e->m_buildRect.w / parentRectSizeY_1;
+		}
+		else
+		{
+			e->m_buildRectInPixels.x = e->m_buildRectInPixelsCreation.x + parentRectSizeDiff_X;
+			e->m_buildRectInPixels.z = e->m_buildRectInPixelsCreation.z + parentRectSizeDiff_X;
+			//e->m_buildRectInPixels.y = e->m_buildRectInPixelsCreation.y + parentRectSizeDiff_Y;
+			//e->m_buildRectInPixels.w = e->m_buildRectInPixelsCreation.w + parentRectSizeDiff_Y;
+		}
+
+		e->m_clipRectInPixels = e->m_buildRectInPixels;
+		e->m_sensorRectInPixels = e->m_buildRectInPixels;
+	}break;
 	}
 
 	e->Rebuild();
