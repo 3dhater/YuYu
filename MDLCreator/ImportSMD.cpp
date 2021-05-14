@@ -570,7 +570,7 @@ void ImportSMD(yyMDLObject* object, const char* file)
 
 			newMDLLayer->m_model->m_name = "Model";
 
-			yyArray<yyVertexAnimatedModel> verts;
+			yyArray<yyVertexAnimatedTriangle> verts;
 			verts.setAddMemoryValue(0xffff);
 			yyArray<u32> inds;
 			inds.setAddMemoryValue(0xffff);
@@ -592,7 +592,7 @@ void ImportSMD(yyMDLObject* object, const char* file)
 					newMDLLayer->m_model->m_name += ch;
 				}
 
-				yyVertexAnimatedModel v1, v2, v3;
+				yyVertexAnimatedTriangle v1, v2, v3;
 
 				v1.Position = tri.m_triangle[0].m_position;
 				v2.Position = tri.m_triangle[1].m_position;
@@ -644,9 +644,9 @@ void ImportSMD(yyMDLObject* object, const char* file)
 
 			newMDLLayer->m_model->m_name = ModelCheckName(object, newMDLLayer->m_model->m_name.data());
 			newMDLLayer->m_model->m_vertexType = yyVertexType::AnimatedModel;
-			newMDLLayer->m_model->m_stride = sizeof(yyVertexAnimatedModel);
-			newMDLLayer->m_model->m_vertices = (u8*)yyMemAlloc(verts.size() * sizeof(yyVertexAnimatedModel));
-			memcpy(newMDLLayer->m_model->m_vertices, verts.data(), verts.size() * sizeof(yyVertexAnimatedModel));
+			newMDLLayer->m_model->m_stride = sizeof(yyVertexAnimatedTriangle);
+			newMDLLayer->m_model->m_vertices = (u8*)yyMemAlloc(verts.size() * sizeof(yyVertexAnimatedTriangle));
+			memcpy(newMDLLayer->m_model->m_vertices, verts.data(), verts.size() * sizeof(yyVertexAnimatedTriangle));
 			if (inds.size() / 3 > 21845)
 			{
 				newMDLLayer->m_model->m_indexType = yyMeshIndexType::u32;

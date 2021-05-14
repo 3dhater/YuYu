@@ -83,7 +83,7 @@ void ImportOBJ(yyMDLObject* object, const char* fileName)
 	uv.setAddMemoryValue(0xffff);
 	normal.setAddMemoryValue(0xffff);
 
-	yyArray<yyVertexModel> modelVerts;
+	yyArray<yyVertexTriangle> modelVerts;
 	modelVerts.reserve(0xffff);
 	modelVerts.setAddMemoryValue(0xffff);
 	yyArray<u32> modelInds;
@@ -161,9 +161,9 @@ void ImportOBJ(yyMDLObject* object, const char* fileName)
 				if (pos_index2 < 0) pos_index2 = last_counter.x + pos_index2 + 1;
 				if (pos_index3 < 0) pos_index3 = last_counter.x + pos_index3 + 1;
 
-				yyVertexModel newVertex1;
-				yyVertexModel newVertex2;
-				yyVertexModel newVertex3;
+				yyVertexTriangle newVertex1;
+				yyVertexTriangle newVertex2;
+				yyVertexTriangle newVertex3;
 
 				newVertex1.Position = position[pos_index1];
 				newVertex2.Position = position[pos_index2];
@@ -203,9 +203,9 @@ void ImportOBJ(yyMDLObject* object, const char* fileName)
 				u32 vIndex1 = 0xffffffff;
 				u32 vIndex2 = 0xffffffff;
 				u32 vIndex3 = 0xffffffff;
-				yyVertexModel* v1_ptr = &newVertex1;
-				yyVertexModel* v2_ptr = &newVertex2;
-				yyVertexModel* v3_ptr = &newVertex3;
+				yyVertexTriangle* v1_ptr = &newVertex1;
+				yyVertexTriangle* v2_ptr = &newVertex2;
+				yyVertexTriangle* v3_ptr = &newVertex3;
 				for (u32 k = 0, ksz = modelVerts.size(); k < ksz; ++k)
 				{
 					auto _v = &modelVerts[k];
@@ -257,8 +257,8 @@ void ImportOBJ(yyMDLObject* object, const char* fileName)
 		}
 	}
 
-	newModel->m_vertices = (u8*)yyMemAlloc(modelVerts.size() * sizeof(yyVertexModel));
-	memcpy(newModel->m_vertices, modelVerts.data(), modelVerts.size() * sizeof(yyVertexModel));
+	newModel->m_vertices = (u8*)yyMemAlloc(modelVerts.size() * sizeof(yyVertexTriangle));
+	memcpy(newModel->m_vertices, modelVerts.data(), modelVerts.size() * sizeof(yyVertexTriangle));
 
 	if (modelInds.size() / 3 > 21845)
 	{
@@ -281,7 +281,7 @@ void ImportOBJ(yyMDLObject* object, const char* fileName)
 	newModel->m_name = ModelCheckName(object, name_word );
 	newModel->m_vCount = modelVerts.size();
 	newModel->m_iCount = modelInds.size();
-	newModel->m_stride = sizeof(yyVertexModel);
+	newModel->m_stride = sizeof(yyVertexTriangle);
 	newModel->m_vertexType = yyVertexType::Model;
 	
 

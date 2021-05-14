@@ -72,10 +72,10 @@ void MDL_loadVersion1(yyMDL** _mdl, yyFileBuffer* f){
 		{
 		default:
 		case yyVertexType::Model:
-			newLayer->m_model->m_stride = sizeof(yyVertexModel);
+			newLayer->m_model->m_stride = sizeof(yyVertexTriangle);
 			break;
 		case yyVertexType::AnimatedModel:
-			newLayer->m_model->m_stride = sizeof(yyVertexAnimatedModel);
+			newLayer->m_model->m_stride = sizeof(yyVertexAnimatedTriangle);
 			break;
 		}
 		
@@ -159,7 +159,7 @@ void MDL_loadVersion1(yyMDL** _mdl, yyFileBuffer* f){
 			newHitBox->m_mesh->m_iCount = hitboxHeader.m_indexCount;
 			newHitBox->m_mesh->m_vCount = hitboxHeader.m_vertexCount;
 			newHitBox->m_mesh->m_indexType = yyMeshIndexType::u16;
-			newHitBox->m_mesh->m_stride = sizeof(yyVertexModel);
+			newHitBox->m_mesh->m_stride = sizeof(yyVertexTriangle);
 			newHitBox->m_mesh->m_vertexType = yyVertexType::Model;
 			newHitBox->m_mesh->m_indices = (u8*)yyMemAlloc(newHitBox->m_mesh->m_iCount * sizeof(u16));
 			newHitBox->m_mesh->m_vertices = (u8*)yyMemAlloc(newHitBox->m_mesh->m_vCount * newHitBox->m_mesh->m_stride);

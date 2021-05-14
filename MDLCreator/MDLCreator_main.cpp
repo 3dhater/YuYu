@@ -1032,7 +1032,7 @@ void SaveMDL(const char* fileName)
 		fwrite(&hitboxHeader, sizeof(yyMDLHitboxHeader), 1, f);
 		if (hitbox->m_mesh)
 		{
-			fwrite(hitbox->m_mesh->m_vertices, hitbox->m_mesh->m_vCount * sizeof(yyVertexModel), 1, f);
+			fwrite(hitbox->m_mesh->m_vertices, hitbox->m_mesh->m_vCount * sizeof(yyVertexTriangle), 1, f);
 			fwrite(hitbox->m_mesh->m_indices, hitbox->m_mesh->m_iCount * sizeof(u16), 1, f);
 		}
 	}

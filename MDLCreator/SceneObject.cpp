@@ -36,13 +36,13 @@ void Hitbox::rebuild()
 		m_hitbox.m_mesh = yyMegaAllocator::CreateModel();
 		m_hitbox.m_mesh->m_vertexType = yyVertexType::Model;
 		m_hitbox.m_mesh->m_indexType = yyMeshIndexType::u16;
-		m_hitbox.m_mesh->m_stride = sizeof(yyVertexModel);
+		m_hitbox.m_mesh->m_stride = sizeof(yyVertexTriangle);
 		m_hitbox.m_mesh->m_vCount = 8;
 		m_hitbox.m_mesh->m_iCount = 36;
 		m_hitbox.m_mesh->m_vertices = (u8*)yyMemAlloc(m_hitbox.m_mesh->m_vCount * m_hitbox.m_mesh->m_stride);
 		m_hitbox.m_mesh->m_indices = (u8*)yyMemAlloc(m_hitbox.m_mesh->m_iCount * sizeof(u16));
 
-		yyVertexModel* vertex = (yyVertexModel*)m_hitbox.m_mesh->m_vertices;
+		yyVertexTriangle* vertex = (yyVertexTriangle*)m_hitbox.m_mesh->m_vertices;
 		u16* index = (u16*)m_hitbox.m_mesh->m_indices;
 
 		vertex[0].Position.set(m_min.x, m_min.y, m_min.z);

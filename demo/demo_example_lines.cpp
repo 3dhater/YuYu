@@ -86,13 +86,13 @@ bool DemoExample_Lines::Init(){
 		m_pointModel->Load();
 	}
 	yyModel model;
-	model.m_stride = sizeof(yyVertexLineModel);
+	model.m_stride = sizeof(yyVertexLine);
 	model.m_vertexType = yyVertexType::LineModel;
 	
 	model.m_vCount = 44;
 	model.m_vertices = (u8*)yyMemAlloc(model.m_vCount * model.m_stride);
 	
-	yyVertexLineModel* vertex = (yyVertexLineModel*)model.m_vertices;
+	yyVertexLine* vertex = (yyVertexLine*)model.m_vertices;
 
 	v4f colorWhite(1.f);
 	v4f colorRed(1.f, 0.f, 0.f, 1.f);

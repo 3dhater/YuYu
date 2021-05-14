@@ -28,7 +28,7 @@ struct yyVertexAnimatedPoint
 	v4f Weights; // потом надо переделать на байты чтобы уменьшить вес
 	v4i Bones;
 };
-struct yyVertexModel
+struct yyVertexTriangle
 {
 	v3f Position;
 	v2f TCoords;
@@ -37,7 +37,7 @@ struct yyVertexModel
 	v3f Tangent;
 	v4f Color;
 };
-struct yyVertexAnimatedModel
+struct yyVertexAnimatedTriangle
 {
 	v3f Position;
 	v2f TCoords;
@@ -49,13 +49,13 @@ struct yyVertexAnimatedModel
 	v4f Weights; // потом надо переделать на байты чтобы уменьшить вес
 	v4i Bones;
 };
-struct yyVertexLineModel
+struct yyVertexLine
 {
 	v3f Position;
 	v3f Normal;
 	v4f Color;
 };
-struct yyVertexAnimatedLineModel
+struct yyVertexAnimatedLine
 {
 	v3f Position;
 	v3f Normal;
@@ -292,7 +292,7 @@ struct yyModel
 	void GenerateTangents_u16()
 	{
 		u16* idx = (u16*)m_indices;
-		yyVertexModel* v = (yyVertexModel*)m_vertices;
+		yyVertexTriangle* v = (yyVertexTriangle*)m_vertices;
 
 		v3f localNormal;
 		for (u32 i = 0; i < m_iCount; i += 3)
@@ -340,7 +340,7 @@ struct yyModel
 	void GenerateTangents_u32()
 	{
 		u32* idx = (u32*)m_indices;
-		yyVertexModel* v = (yyVertexModel*)m_vertices;
+		yyVertexTriangle* v = (yyVertexTriangle*)m_vertices;
 
 		v3f localNormal;
 		for (u32 i = 0; i < m_iCount; i += 3)
