@@ -17,4 +17,8 @@ bool D3D11_createShaders(
 	ID3D11PixelShader** ps,
 	ID3D11InputLayout** il);
 bool D3D11_createConstantBuffer(u32 byteSize, ID3D11Buffer**);
+bool D3D11_createGeometryShaders(const char* target,
+	const s8 * shaderText,
+	const s8 * entryPoint,
+	ID3D11GeometryShader** gs);
 #endif

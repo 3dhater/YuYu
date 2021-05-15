@@ -143,6 +143,7 @@ OpenGL::OpenGL()
 	m_shader_rectangle = 0;
 	m_shader_point = 0;
 	m_shader_pointAnimated = 0;
+
 }
 
 OpenGL::~OpenGL(){
@@ -449,6 +450,10 @@ bool OpenGL::Init(yyWindow* window){
 	glEnable(GL_BLEND);
 	glBlendEquation(GL_FUNC_ADD);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//glPointSize(GL_PROGRAM_POINT_SIZE);
+	glEnable(GL_PROGRAM_POINT_SIZE);
+
 
 	//_createdefaultShaders();
 	m_shader_gui = yyCreate<OpenGLShaderGUI>();

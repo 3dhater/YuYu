@@ -59,7 +59,7 @@ void D3D11Model::Load(yyResourceData* modelData) {
 
 	vbd.Usage = D3D11_USAGE_DEFAULT;
 	//vbd.Usage = D3D11_USAGE_DYNAMIC;
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_STREAM_OUTPUT;
 
 	ibd.Usage = D3D11_USAGE_DEFAULT;
 	//ibd.Usage = D3D11_USAGE_DYNAMIC;
@@ -85,26 +85,28 @@ void D3D11Model::Load(yyResourceData* modelData) {
 		return;
 	}
 
-
-	u32 index_sizeof = sizeof(u16);
-	m_indexType = DXGI_FORMAT_R16_UINT;
-	if (model->m_indexType == yyMeshIndexType::u32)
-	{
-		m_indexType = DXGI_FORMAT_R32_UINT;
-		index_sizeof = sizeof(u32);
-	}
-	ibd.ByteWidth = index_sizeof * model->m_iCount;
-	iData.pSysMem = &model->m_indices[0];
-
-	m_iCount = model->m_iCount;
 	m_stride = model->m_stride;
-
-	hr = g_d3d11->m_d3d11Device->CreateBuffer(&ibd, &iData, &m_iBuffer);
-	if (FAILED(hr))
+	m_iCount = model->m_iCount;
+	if (model->m_indices)
 	{
-		yyLogWriteError("Can't create Direct3D 11 index buffer [%u]\n", hr);
-		YY_PRINT_FAILED;
-		return;
+		u32 index_sizeof = sizeof(u16);
+		m_indexType = DXGI_FORMAT_R16_UINT;
+		if (model->m_indexType == yyMeshIndexType::u32)
+		{
+			m_indexType = DXGI_FORMAT_R32_UINT;
+			index_sizeof = sizeof(u32);
+		}
+		ibd.ByteWidth = index_sizeof * model->m_iCount;
+		iData.pSysMem = &model->m_indices[0];
+
+
+		hr = g_d3d11->m_d3d11Device->CreateBuffer(&ibd, &iData, &m_iBuffer);
+		if (FAILED(hr))
+		{
+			yyLogWriteError("Can't create Direct3D 11 index buffer [%u]\n", hr);
+			YY_PRINT_FAILED;
+			return;
+		}
 	}
 
 	return;

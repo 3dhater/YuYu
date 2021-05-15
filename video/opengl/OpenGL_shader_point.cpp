@@ -10,9 +10,7 @@
 OpenGLShaderPoint::OpenGLShaderPoint(){
 	m_program = 0;
 	m_VAO = 0;
-	m_uniform_W = 0;
-	m_uniform_P = 0;
-	m_uniform_V = 0;
+	m_uniform_WVP = 0;
 }
 
 OpenGLShaderPoint::~OpenGLShaderPoint(){
@@ -26,49 +24,14 @@ bool OpenGLShaderPoint::init(){
 	const char * text_v =
 		"#version 330\n"
 		"layout(location = 0) in vec3 inputPosition;\n"
-		"layout(location = 1) in vec3 inputWorldPosition;\n"
-		"layout(location = 2) in vec4 inputColor;\n"
+		"layout(location = 1) in vec4 inputColor;\n"
 		"out vec4 vertColor;\n"
-		"uniform mat4 W;\n"
-		"uniform mat4 P;\n"
-		"uniform mat4 V;\n"
-		"uniform vec3 Eye;\n"
+		"uniform mat4 WVP;\n"
 		"void main(){\n"
 		"	vertColor = inputColor;\n"
-
-		"	float dist = distance(Eye, inputWorldPosition);\n"
-		//0,0001
-		"	float s = dist * 0.01f;\n"
-		"	mat4 S;\n"
-		"	S[0].x = s;\n"
-		"	S[0].y = 0.f;\n"
-		"	S[0].z = 0.f;\n"
-		"	S[0].w = 0.f;\n"
-		"	S[1].x = 0;\n"
-		"	S[1].y = s;\n"
-		"	S[1].z = 0.f;\n"
-		"	S[1].w = 0.f;\n"
-		"	S[2].x = 0;\n"
-		"	S[2].y = 0.f;\n"
-		"	S[2].z = s;\n"
-		"	S[2].w = 0.f;\n"
-		"	S[3].x = 0.f;\n"
-		"	S[3].y = 0.f;\n"
-		"	S[3].z = 0.f;\n"
-		"	S[3].w = 1.f;\n"
-
-		"	mat4 V2 = V;\n"
-		"	V2[3] = vec4(0,0,0,1.f);\n"
-
-		"	mat4 W2 = W * inverse(V2);\n"
-		"	W2 = W2 * S;\n"
-		"	W2[3].y = -W2[3].y;\n"
-		"	W2[3].xyz += inputWorldPosition;\n"
-		"	W2[3].w = 1.f;\n"
-		
-		"	gl_Position = (P * V * W2) * vec4(inputPosition.xyz ,1.f);\n"
+		"	gl_PointSize = 5.0;\n"
+		"	gl_Position = WVP * vec4(inputPosition.xyz ,1.f);\n"
 		"	gl_Position.z -= 0.0001f;\n"
-
 		"}\n";
 	const char * text_f =
 		"#version 330\n"
@@ -81,10 +44,7 @@ bool OpenGLShaderPoint::init(){
 		return false;
 
 	glUseProgram(m_program);
-	m_uniform_W = glGetUniformLocation(m_program, "W");
-	m_uniform_P = glGetUniformLocation(m_program, "P");
-	m_uniform_V = glGetUniformLocation(m_program, "V");
-	m_uniform_Eye = glGetUniformLocation(m_program, "Eye");
+	m_uniform_WVP = glGetUniformLocation(m_program, "WVP");
 	
 	glUniform1i(glGetUniformLocation(m_program, "diffuseTexture"), 0); 
 	glGenVertexArrays(1, &m_VAO);
@@ -96,9 +56,7 @@ bool OpenGLShaderPoint::init(){
 OpenGLShaderPointAnimated::OpenGLShaderPointAnimated(){
 	m_program = 0;
 	m_VAO = 0;
-	m_uniform_W = 0;
-	m_uniform_P = 0;
-	m_uniform_V = 0;
+	m_uniform_WVP = 0;
 	m_uniform_Bones = 0;
 }
 
@@ -114,13 +72,10 @@ bool OpenGLShaderPointAnimated::init(){
 		"#version 330\n"
 		"layout(location = 0) in vec3 inputPosition;\n"
 		"layout(location = 1) in vec4 inputColor;\n"
-		"layout(location = 2) in vec3 inputWorldPosition;\n"
-		"layout(location = 3) in vec4 inputWeights;\n"
-		"layout(location = 4) in uvec4 inputBones;\n"
+		"layout(location = 2) in vec4 inputWeights;\n"
+		"layout(location = 3) in uvec4 inputBones;\n"
 		"out vec4 vertColor;\n"
-		"uniform mat4 W;\n"
-		"uniform mat4 P;\n"
-		"uniform mat4 V;\n"
+		"uniform mat4 WVP;\n"
 		"uniform mat4 Bones[250];\n"
 		"void main(){\n"
 		"	vertColor = inputColor;\n"
@@ -132,16 +87,9 @@ bool OpenGLShaderPointAnimated::init(){
 		"	BoneTransform     += Bones[inputBones.z] * inputWeights.z;\n"
 		"	BoneTransform     += Bones[inputBones.w] * inputWeights.w;\n"
 		"	vec4 outPos = BoneTransform * inPos;\n"
-		//"	gl_Position = WVP * outPos;\n"
-		"	mat4 V2 = V;\n"
-		"	V2[3] = vec4(0,0,0,1.f);\n"
-
-		"	mat4 W2 = W * inverse(V2);\n"
-		"	W2[3].y = -W2[3].y;\n"
-		"	W2[3].xyz += inputWorldPosition;\n"
-		"	W2[3].w = 1.f;\n"
-
-		"	gl_Position = (P * V * W2) * vec4(inputPosition.xyz,1.f);\n"
+		"	gl_Position = WVP * outPos;\n"
+		"	gl_PointSize = 2.0;\n"
+		//"	gl_Position.z -= 0.0001f;\n"
 		"}\n";
 	const char * text_f =
 		"#version 330\n"
@@ -154,9 +102,7 @@ bool OpenGLShaderPointAnimated::init(){
 		return false;
 
 	glUseProgram(m_program);
-	m_uniform_W = glGetUniformLocation(m_program, "W");
-	m_uniform_P = glGetUniformLocation(m_program, "P");
-	m_uniform_V = glGetUniformLocation(m_program, "V");
+	m_uniform_WVP = glGetUniformLocation(m_program, "WVP");
 	m_uniform_Bones = glGetUniformLocation(m_program, "Bones");
 
 	glUniform1i(glGetUniformLocation(m_program, "diffuseTexture"), 0);

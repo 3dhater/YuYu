@@ -321,17 +321,12 @@ void Draw(){
 			case yyVertexType::Point:
 			{
 				glUseProgram(g_openGL->m_shader_point->m_program);
-				glUniformMatrix4fv(g_openGL->m_shader_point->m_uniform_W, 1, GL_FALSE, yyGetMatrix(yyMatrixType::World)->getPtr());
-				glUniformMatrix4fv(g_openGL->m_shader_point->m_uniform_P, 1, GL_FALSE, yyGetMatrix(yyMatrixType::Projection)->getPtr());
-				glUniformMatrix4fv(g_openGL->m_shader_point->m_uniform_V, 1, GL_FALSE, yyGetMatrix(yyMatrixType::View)->getPtr());
-				glUniform3fv(g_openGL->m_shader_point->m_uniform_Eye, 1, yyGetEyePosition()->data());
+				glUniformMatrix4fv(g_openGL->m_shader_point->m_uniform_WVP, 1, GL_FALSE, yyGetMatrix(yyMatrixType::WorldViewProjection)->getPtr());
 			}break;
 			case yyVertexType::AnimatedPoint:
 			{
 				glUseProgram(g_openGL->m_shader_pointAnimated->m_program);
-				glUniformMatrix4fv(g_openGL->m_shader_pointAnimated->m_uniform_W, 1, GL_FALSE, yyGetMatrix(yyMatrixType::World)->getPtr());
-				glUniformMatrix4fv(g_openGL->m_shader_pointAnimated->m_uniform_P, 1, GL_FALSE, yyGetMatrix(yyMatrixType::Projection)->getPtr());
-				glUniformMatrix4fv(g_openGL->m_shader_pointAnimated->m_uniform_V, 1, GL_FALSE, yyGetMatrix(yyMatrixType::View)->getPtr());
+				glUniformMatrix4fv(g_openGL->m_shader_pointAnimated->m_uniform_WVP, 1, GL_FALSE, yyGetMatrix(yyMatrixType::World)->getPtr());
 				glUniformMatrix4fv(g_openGL->m_shader_pointAnimated->m_uniform_Bones, YY_MAX_BONES, GL_FALSE, yyGetBoneMatrix(0)->getPtr());
 			}break;
 			}
@@ -376,6 +371,10 @@ void Draw(){
 	glBindVertexArray(g_openGL->m_currentModel->m_VAO);
 	switch (g_openGL->m_currentModel->m_vertexType)
 	{
+	case yyVertexType::AnimatedPoint:
+	case yyVertexType::Point:
+		glDrawArrays(GL_POINTS, 0, g_openGL->m_currentModel->m_iCount);
+		break;
 	case yyVertexType::AnimatedLineModel:
 	case yyVertexType::LineModel:
 		glDrawElements(GL_LINES, g_openGL->m_currentModel->m_iCount, g_openGL->m_currentModel->m_indexType, 0);

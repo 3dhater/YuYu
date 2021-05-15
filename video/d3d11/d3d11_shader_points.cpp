@@ -13,6 +13,7 @@ extern D3D11 * g_d3d11;
 
 D3D11ShaderPoints::D3D11ShaderPoints(){
 	m_cbVertex = 0;
+	m_gShader = 0;
 }
 
 D3D11ShaderPoints::~D3D11ShaderPoints(){
@@ -23,15 +24,13 @@ bool D3D11ShaderPoints::init(){
 	const char * text =
 		"struct VSIn{\n"
 		"   float3 position : POSITION;\n"
-		"   float3 worldPosition : NORMAL;\n"
 		"   float4 color : COLOR;\n"
 		"};\n"
 		"cbuffer cbVertex{\n"
-		"	float4x4 W;\n"
-		"	float4x4 V;\n"
-		"	float4x4 Vi;\n"
-		"	float4x4 P;\n"
+		"	float4x4 WVP;\n"
 		"	float4 Eye;\n"
+		"	float2 Viewport;\n"
+		"	float2 Padding;\n"
 		"};\n"
 		"struct VSOut{\n"
 		"   float4 pos : SV_POSITION;\n"
@@ -45,51 +44,10 @@ bool D3D11ShaderPoints::init(){
 		"	output.vColor    = input.color;\n"
 		"	output.vColor.w    = 1.f;\n"
 		
-		//"	output.pos   = mul(WVP, float4(input.position.x, input.position.y, input.position.z, 1.f));\n"
 
-		/*"	mat4 V2 = V;\n"
-		"	V2[3] = vec4(0,0,0,1.f);\n"
-		"	mat4 W2 = W * inverse(V2);\n"
-		"	W2[3].y = -W2[3].y;\n"
-		"	W2[3].xyz += inputWorldPosition;\n"
-		"	W2[3].w = 1.f;\n"
-		"	gl_Position = (P * V * W2) * vec4(inputPosition.xyz,1.f);\n"*/
-
-		"	float dist = distance(Eye, input.worldPosition);\n"
-		//0,0001
-		"	float s = dist * 0.01f;\n"
-		"	float4x4 S;\n"
-		"	S[0].x = s;\n"
-		"	S[0].y = 0.f;\n"
-		"	S[0].z = 0.f;\n"
-		"	S[0].w = 0.f;\n"
-		"	S[1].x = 0;\n"
-		"	S[1].y = s;\n"
-		"	S[1].z = 0.f;\n"
-		"	S[1].w = 0.f;\n"
-		"	S[2].x = 0;\n"
-		"	S[2].y = 0.f;\n"
-		"	S[2].z = s;\n"
-		"	S[2].w = 0.f;\n"
-		"	S[3].x = 0.f;\n"
-		"	S[3].y = 0.f;\n"
-		"	S[3].z = 0.f;\n"
-		"	S[3].w = 1.f;\n"
-
-		"	float4x4 W2 = mul(W,Vi);\n"
-		"	W2 = mul(W2, S);\n"
-		"	W2[1].w = -W2[1].w;\n"
-
-		"	W2[0].w += input.worldPosition.x;\n"
-		"	W2[1].w += input.worldPosition.y;\n"
-		"	W2[2].w += input.worldPosition.z;\n"
-		"	W2[3].w = 1.f;\n"
-
-		"	output.pos = mul(W2, float4(input.position,1.f));\n"
-		"	output.pos = mul(V, output.pos);\n"
-		"	output.pos = mul(P, output.pos);\n"
-		
+		"	output.pos = mul(WVP, float4(input.position,1.f));\n"
 		"	output.pos.z    -= 0.0001f;\n"
+		"	output.pos = output.pos / output.pos.w;\n"
 
 		"	return output;\n"
 		"}\n"
@@ -97,6 +55,33 @@ bool D3D11ShaderPoints::init(){
 		"   PSOut output;\n"
 		"	output.color = input.vColor;\n"
 		"   return output;\n"
+		"}\n"
+		"[maxvertexcount(4)]\n"
+		"void GSMain(point VSOut input[1], inout TriangleStream<VSOut> TriStream ){\n"
+		"	VSOut Out;\n"
+
+		"	const float sz = 5.f;\n"
+		"	float h = 2.f / Viewport.y;\n"
+		"	float w = 2.f / Viewport.x;\n"
+		"	float x = sz * w;\n"
+		"	float y = sz * h;\n"
+		"	float half_x = x * 0.5f;\n"
+		"	float half_y = y * 0.5f;\n"
+		"	const float4 sizes[4] = {\n"
+		"		float4(-half_x, -half_y, 0, 0),\n"
+		"		float4(-half_x, half_y, 0, 0),\n"
+		"		float4(half_x, -half_y, 0, 0),\n"
+		"		float4(half_x, half_y, 0, 0)\n"
+		"	};\n"
+		"	for (uint i = 0; i<4; ++i)\n"
+		"	{\n"
+		"		Out.pos =input[0].pos;\n"
+		"		Out.pos += sizes[i];\n"
+		"		Out.vColor = input[0].vColor;\n"
+		"		TriStream.Append(Out);\n"
+		"	}\n"
+
+		"	TriStream.RestartStrip();\n"
 		"}\n";
 	if (!D3D11_createShaders(
 		"vs_4_0",
@@ -114,6 +99,12 @@ bool D3D11ShaderPoints::init(){
 		return false;
 	}
 
+	if (!D3D11_createGeometryShaders("gs_4_0", text, "GSMain", &m_gShader))
+	{
+		YY_PRINT_FAILED;
+		return false;
+	}
+
 	if (!D3D11_createConstantBuffer(sizeof(cbVertex), &m_cbVertex))
 	{
 		YY_PRINT_FAILED;
@@ -124,11 +115,9 @@ bool D3D11ShaderPoints::init(){
 }
 
 void D3D11ShaderPoints::SetConstants(yyMaterial* material){
-	m_cbVertexData.W = *yyGetMatrix(yyMatrixType::World);
-	m_cbVertexData.V = *yyGetMatrix(yyMatrixType::View);
-	m_cbVertexData.Vi = *yyGetMatrix(yyMatrixType::ViewInvert);
-	m_cbVertexData.P = *yyGetMatrix(yyMatrixType::Projection);
+	m_cbVertexData.WVP = *yyGetMatrix(yyMatrixType::WorldViewProjection);
 	m_cbVertexData.Eye = *yyGetEyePosition();
+	m_cbVertexData.Viewport = g_d3d11->m_viewportSize;
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	D3D11_BUFFER_DESC d;
@@ -137,6 +126,7 @@ void D3D11ShaderPoints::SetConstants(yyMaterial* material){
 	memcpy(mappedResource.pData, &m_cbVertexData, d.ByteWidth);
 	g_d3d11->m_d3d11DevCon->Unmap(m_cbVertex, 0);
 	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &m_cbVertex);
+	g_d3d11->m_d3d11DevCon->GSSetConstantBuffers(0, 1, &m_cbVertex);
 }
 
 
@@ -148,10 +138,7 @@ D3D11ShaderPointsAnimated::~D3D11ShaderPointsAnimated() {
 	if (m_cbVertex)m_cbVertex->Release();
 }
 void D3D11ShaderPointsAnimated::SetConstants(yyMaterial* material) {
-	m_cbVertexData.W = *yyGetMatrix(yyMatrixType::World);
-	m_cbVertexData.V = *yyGetMatrix(yyMatrixType::View);
-	m_cbVertexData.Vi = *yyGetMatrix(yyMatrixType::ViewInvert);
-	m_cbVertexData.P = *yyGetMatrix(yyMatrixType::Projection);
+	m_cbVertexData.WVP = *yyGetMatrix(yyMatrixType::WorldViewProjection);
 	memcpy(m_cbVertexData.Bones, yyGetBoneMatrix(0)->getPtr(), YY_MAX_BONES * sizeof(Mat4));
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -165,20 +152,14 @@ void D3D11ShaderPointsAnimated::SetConstants(yyMaterial* material) {
 }
 bool D3D11ShaderPointsAnimated::init() {
 	const char * text =
-		"Texture2D tex2d_1;\n"
-		"SamplerState tex2D_sampler_1;\n"
 		"struct VSIn{\n"
 		"   float3 position : POSITION;\n"
 		"   float4 color : COLOR;\n"
-		"   float3 worldPosition : NORMAL;\n"
 		"	float4 weights : WEIGHTS;\n"
 		"	uint4 bones : BONES;\n"
 		"};\n"
 		"cbuffer cbVertex{\n"
-		"	float4x4 W;\n"
-		"	float4x4 V;\n"
-		"	float4x4 Vi;\n"
-		"	float4x4 P;\n"
+		"	float4x4 WVP;\n"
 		"	float4x4 Bones[250];\n"
 		"};\n"
 		"struct VSOut{\n"
@@ -198,7 +179,7 @@ bool D3D11ShaderPointsAnimated::init() {
 		"	BoneTransform     += mul(Bones[input.bones.w], input.weights.w);\n"
 		"	float4 outPos = mul(BoneTransform, inPos);\n"
 
-		"	output.pos   = mul(P*V*W, outPos);\n"
+		"	output.pos   = mul(WVP, outPos);\n"
 		"	output.vColor    = input.color;\n"
 		"	return output;\n"
 		"}\n"

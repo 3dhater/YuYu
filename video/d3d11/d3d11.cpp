@@ -660,6 +660,7 @@ void D3D11::SetShader(D3D11ShaderCommon* shader){
 		m_activeShader = shader;
 		m_d3d11DevCon->IASetInputLayout(shader->m_vLayout);
 		m_d3d11DevCon->VSSetShader(shader->m_vShader, 0, 0);
+		m_d3d11DevCon->GSSetShader(shader->m_gShader, 0, 0);
 		m_d3d11DevCon->PSSetShader(shader->m_pShader, 0, 0);
 	}
 }

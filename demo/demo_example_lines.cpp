@@ -25,65 +25,28 @@ bool DemoExample_Lines::Init(){
 		model.m_vertexType = yyVertexType::Point;
 
 		yyArray<v3f> points;
-		points.push_back(v3f(-1.f, 0.f, 0.f));
-		points.push_back(v3f(1.f, 0.f, 0.f));
-		points.push_back(v3f(0.f, 0.f, 2.f));
+		points.push_back(v3f(0.f, 0.f, 0.f));
+		//points.push_back(v3f(-0.1f, 0.f, 0.f));
+		//points.push_back(v3f(0.f, 0.f, 0.1f));
 
 		// 1 point = 4 verts
-		model.m_vCount = points.size() * 4;
+		model.m_vCount = points.size();
 		model.m_vertices = (u8*)yyMemAlloc(model.m_vCount * model.m_stride);
 
 		yyVertexPoint* vertex = (yyVertexPoint*)model.m_vertices;
 		
-		f32 size = 1.f;
-
 		for (u32 i = 0, sz = points.size(); i < sz; ++i)
 		{
 			auto & point = points[i];
 
-			vertex->WorldPosition = point;
 			vertex->Color.set(1.f,0.f,0.f,1.f);
-			vertex->Position.set(-size, -size, 0.f);
-			vertex++;
-			
-			vertex->WorldPosition = point;
-			vertex->Color.set(1.f, 0.f, 0.f, 1.f);
-			vertex->Position.set(-size, size, 0.f);
-			vertex++;
-			
-			vertex->WorldPosition = point;
-			vertex->Color.set(1.f, 0.f, 0.f, 1.f);
-			vertex->Position.set(size, size, 0.f);
-			vertex++;
-
-			vertex->WorldPosition = point;
-			vertex->Color.set(1.f, 0.f, 0.f, 1.f);
-			vertex->Position.set(size, -size, 0.f);
+			vertex->Position = point;
 			vertex++;
 		}
 
-		model.m_iCount = points.size() * 6;
-		model.m_indices = (u8*)yyMemAlloc(model.m_iCount * sizeof(u16));
+		model.m_iCount = points.size();
+		model.m_indices = 0;
 		
-		u16* index = (u16*)model.m_indices;
-		
-		u16 index_base = 0;
-		u16 index_count = 1;
-		for (u32 i = 0; i < model.m_iCount;)
-		{
-			*index = index_base; index++;
-			*index = index_count; index++;
-			*index = index_count+1; index++;
-			*index = index_base; index++;
-			*index = index_count+1; index++;
-			*index = index_count+2; index++;
-
-			index_base = index_count + 3;
-			index_count = index_base + 1;
-
-			i += 6;
-		}
-
 		m_pointModel = yyCreateModel(&model);
 		m_pointModel->Load();
 	}
@@ -160,9 +123,9 @@ bool DemoExample_Lines::Init(){
 	m_editorCamera->Reset();
 
 	yyColor clColor;
-	clColor.setAsByteRed(118);
-	clColor.setAsByteGreen(118);
-	clColor.setAsByteBlue(118);
+	clColor.setAsByteRed(255);
+	clColor.setAsByteGreen(255);
+	clColor.setAsByteBlue(255);
 	m_lineModelMaterial.SetFogColor(clColor);
 
 	m_gpu->SetClearColor(clColor.m_data[0], clColor.m_data[1], clColor.m_data[2], 1.f);
@@ -231,7 +194,7 @@ bool DemoExample_Lines::DemoStep(f32 deltaTime){
 
 	m_gpu->SetModel(m_lineModel);
 	yySetMaterial(m_lineModelMaterial);
-	m_gpu->Draw();
+//	m_gpu->Draw();
 	
 	//m_lineModelMaterial.m_cullBackFace = true;
 	//m_gpu->SetMaterial(&m_lineModelMaterial);
@@ -241,22 +204,12 @@ bool DemoExample_Lines::DemoStep(f32 deltaTime){
 		m_editorCamera->m_viewMatrix.m_data[1].x, m_editorCamera->m_viewMatrix.m_data[1].y, m_editorCamera->m_viewMatrix.m_data[1].z, m_editorCamera->m_viewMatrix.m_data[1].w,
 		m_editorCamera->m_viewMatrix.m_data[2].x, m_editorCamera->m_viewMatrix.m_data[2].y, m_editorCamera->m_viewMatrix.m_data[2].z, m_editorCamera->m_viewMatrix.m_data[2].w,
 		m_editorCamera->m_viewMatrix.m_data[3].x, m_editorCamera->m_viewMatrix.m_data[3].y, m_editorCamera->m_viewMatrix.m_data[3].z, m_editorCamera->m_viewMatrix.m_data[3].w);*/
-	math::makeScaleMatrix(v4f(1.f),WorldMatrix);
-	WorldMatrix.m_data[3].set(0.f, 0.f, 0.f, 1.f);
 	
-	auto Vi = m_editorCamera->m_viewMatrix;
-	Vi.m_data[3].set(0.f,0.f,0.f,1.f);
-	Vi.invert();
-
 	yySetEyePosition(m_editorCamera->m_positionInWorld);
 	/*printf("%f %f %f\n", m_editorCamera->m_positionInWorld.x,
 		m_editorCamera->m_positionInWorld.y,
 		m_editorCamera->m_positionInWorld.z);*/
 
-	yySetMatrix(yyMatrixType::World, WorldMatrix );
-	yySetMatrix(yyMatrixType::View, m_editorCamera->m_viewMatrix);
-	yySetMatrix(yyMatrixType::ViewInvert, Vi);
-	yySetMatrix(yyMatrixType::Projection, m_editorCamera->m_projectionMatrix);
 	m_gpu->SetModel(m_pointModel);
 	m_gpu->Draw();
 	

@@ -121,10 +121,7 @@ void OpenGLModel::Load(yyResourceData* rd) {
 		glVertexAttribPointer(0, 3, GL_FLOAT, false, model->m_stride, 0);
 
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (3 * sizeof(float)));
-
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (6 * sizeof(float)));
+		glVertexAttribPointer(1, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (3 * sizeof(float)));
 	}
 	else if (model->m_vertexType == yyVertexType::AnimatedPoint)
 	{
@@ -132,28 +129,28 @@ void OpenGLModel::Load(yyResourceData* rd) {
 		glVertexAttribPointer(0, 3, GL_FLOAT, false, model->m_stride, 0);
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (3 * sizeof(float)));
+
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 3, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (7 * sizeof(float)));
-
+		glVertexAttribPointer(2, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (7 * sizeof(float)));
 		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 4, GL_FLOAT, false, model->m_stride, (unsigned char*)NULL + (10 * sizeof(float)));
-		glEnableVertexAttribArray(4);
-		glVertexAttribIPointer(4, 4, GL_INT, model->m_stride, (unsigned char*)NULL + (15 * sizeof(float)));
+		glVertexAttribIPointer(3, 4, GL_INT, model->m_stride, (unsigned char*)NULL + (11 * sizeof(float)));
 	}
 
-
-	glGenBuffers(1, &m_iBuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_iBuffer);
-
-	u32 index_sizeof = sizeof(u16);
-	m_indexType = GL_UNSIGNED_SHORT;
-	if (model->m_indexType == yyMeshIndexType::u32)
+	if (model->m_indices)
 	{
-		m_indexType = GL_UNSIGNED_INT;
-		index_sizeof = sizeof(u32);
-	}
+		glGenBuffers(1, &m_iBuffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_iBuffer);
 
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, model->m_iCount * index_sizeof, model->m_indices, GL_DYNAMIC_DRAW);
+		u32 index_sizeof = sizeof(u16);
+		m_indexType = GL_UNSIGNED_SHORT;
+		if (model->m_indexType == yyMeshIndexType::u32)
+		{
+			m_indexType = GL_UNSIGNED_INT;
+			index_sizeof = sizeof(u32);
+		}
+
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, model->m_iCount * index_sizeof, model->m_indices, GL_DYNAMIC_DRAW);
+	}
 
 	m_iCount = model->m_iCount;
 

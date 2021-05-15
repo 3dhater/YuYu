@@ -80,6 +80,7 @@ public:
 
 	v2f m_mainTargetSize;
 	v2i m_windowSize;
+	v2f m_viewportSize;
 	v2i m_swapChainSize;
 	D3D11Texture* m_mainTarget;
 	D3D11Model*   m_mainTargetSurface;

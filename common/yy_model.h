@@ -17,14 +17,12 @@ struct yyVertexGUI
 struct yyVertexPoint
 {
 	v3f Position;
-	v3f WorldPosition;
 	v4f Color;
 };
 struct yyVertexAnimatedPoint
 {
 	v3f Position;
 	v4f Color;
-	v3f WorldPosition;
 	v4f Weights; // потом надо переделать на байты чтобы уменьшить вес
 	v4i Bones;
 };

@@ -39,6 +39,8 @@ void SetViewport(f32 x, f32 y, f32 width, f32 height, yyWindow* window) {
 	viewport.TopLeftX = x;
 	viewport.TopLeftY = y;
 	g_d3d11->m_d3d11DevCon->RSSetViewports(1, &viewport);
+	g_d3d11->m_viewportSize.x = width;
+	g_d3d11->m_viewportSize.y = height;
 }
 
 u32 GetAPIVersion(){
@@ -290,14 +292,28 @@ void Draw(){
 	default:
 		g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	break;
+	case yyVertexType::AnimatedPoint:
+	case yyVertexType::Point:
+		g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
+		break;
 	case yyVertexType::LineModel:
 	case yyVertexType::AnimatedLineModel:
 		g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 	break;
 	}
+
 	g_d3d11->m_d3d11DevCon->IASetVertexBuffers(0, 1, &g_d3d11->m_currentModel->m_vBuffer, &g_d3d11->m_currentModel->m_stride, &offset);
-	g_d3d11->m_d3d11DevCon->IASetIndexBuffer(g_d3d11->m_currentModel->m_iBuffer, g_d3d11->m_currentModel->m_indexType, 0);
-	g_d3d11->m_d3d11DevCon->DrawIndexed(g_d3d11->m_currentModel->m_iCount, 0, 0);
+	switch (g_d3d11->m_currentModel->m_vertexType)
+	{
+	default:
+		g_d3d11->m_d3d11DevCon->IASetIndexBuffer(g_d3d11->m_currentModel->m_iBuffer, g_d3d11->m_currentModel->m_indexType, 0);
+		g_d3d11->m_d3d11DevCon->DrawIndexed(g_d3d11->m_currentModel->m_iCount, 0, 0);
+	break;
+	case yyVertexType::AnimatedPoint:
+	case yyVertexType::Point:
+		g_d3d11->m_d3d11DevCon->Draw(g_d3d11->m_currentModel->m_iCount, 0);
+		break;
+	}
 }
 
 void DrawSprite(yySprite* sprite){

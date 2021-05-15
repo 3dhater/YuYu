@@ -13,11 +13,10 @@ public:
 
 	struct cbVertex
 	{
-		Mat4 W;
-		Mat4 V;
-		Mat4 Vi;
-		Mat4 P;
+		Mat4 WVP;
 		v4f Eye;
+		v2f Viewport;
+		v2f padding;
 	}m_cbVertexData;
 
 	bool init();
@@ -38,10 +37,7 @@ public:
 
 	struct cbVertex
 	{
-		Mat4 W;
-		Mat4 V;
-		Mat4 Vi;
-		Mat4 P;
+		Mat4 WVP;
 		Mat4 Bones[YY_MAX_BONES];
 	}m_cbVertexData;
 

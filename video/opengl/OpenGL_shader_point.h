@@ -9,10 +9,7 @@ public:
 
 	GLuint m_program;
 	GLuint m_VAO;
-	GLint m_uniform_W;
-	GLint m_uniform_P;
-	GLint m_uniform_V;
-	GLint m_uniform_Eye;
+	GLint m_uniform_WVP;
 
 	bool init();
 };
@@ -24,9 +21,7 @@ public:
 
 	GLuint m_program;
 	GLuint m_VAO;
-	GLint m_uniform_W;
-	GLint m_uniform_P;
-	GLint m_uniform_V;
+	GLint m_uniform_WVP;
 	GLint m_uniform_Bones;
 
 	bool init();
