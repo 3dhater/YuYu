@@ -1,17 +1,6 @@
 ﻿#ifndef _YUYU_GUI_TEXT_H_
 #define _YUYU_GUI_TEXT_H_
 
-//struct _yyGui_text_model
-//{
-//	_yyGui_text_model();
-//	~_yyGui_text_model();
-//	void Reserve(u32 numSymbols);
-//	void AddChar(const v4f& rect, yyGUIFontGlyph* glyph);
-//	yyModel* m_model;
-//	bool m_isUsing;   // создавать ли на её основе GPU ресурс
-//	u32 m_numOfSymbols;
-//};
-
 struct yyGUITextDrawNode 
 {
 	yyGUITextDrawNode() 	{
@@ -35,7 +24,6 @@ struct yyGUITextDrawNode
 
 class yyGUIText: public yyGUIElement
 {
-	//_yyGui_text_model m_text_models[YY_MAX_FONT_TEXTURES];
 public:
 	yyGUIText();
 	virtual ~yyGUIText();

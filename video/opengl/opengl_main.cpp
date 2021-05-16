@@ -76,16 +76,16 @@ void Destroy(){
 }
 
 void SetClearColor(f32 r, f32 g, f32 b, f32 a){
-	gglClearColor( r, g, b, a );
+	glClearColor( r, g, b, a );
 }
 
 void SetScissorRect(const v4f& rect, yyWindow* window) {
-	/*f32 x = rect.x;
-	f32 y = rect.y;
+	f32 x = rect.x;
+	f32 y = window->m_currentSize.y - rect.y;
 	f32 z = rect.z - rect.x;
 	f32 w = rect.w - rect.y;
-	y -= w;*/
-	glScissor((GLint)rect.x, (GLint)rect.y, (GLsizei)rect.z, (GLsizei)rect.w);
+	y -= w;
+	glScissor((GLint)x, (GLint)y, (GLsizei)z, (GLsizei)w);
 }
 
 void UseVSync(bool v){
@@ -136,30 +136,30 @@ GLboolean last_enable_cull_face;
 GLboolean last_enable_depth_test;
 GLboolean last_enable_scissor_test;
 void BeginDrawGUI(){
-	gglGetIntegerv(GL_ACTIVE_TEXTURE, (GLint*)&last_active_texture);
-	gglActiveTexture(GL_TEXTURE0);
-	gglGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
-	gglGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+	glGetIntegerv(GL_ACTIVE_TEXTURE, (GLint*)&last_active_texture);
+	glActiveTexture(GL_TEXTURE0);
+	glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
+	glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
 #ifdef GL_SAMPLER_BINDING
-	gglGetIntegerv(GL_SAMPLER_BINDING, &last_sampler);
+	glGetIntegerv(GL_SAMPLER_BINDING, &last_sampler);
 #endif
-	gglGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
-	gglGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array_object);
+	glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
+	glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array_object);
 #ifdef GL_POLYGON_MODE
-	gglGetIntegerv(GL_POLYGON_MODE, last_polygon_mode);
+	glGetIntegerv(GL_POLYGON_MODE, last_polygon_mode);
 #endif
-	gglGetIntegerv(GL_VIEWPORT, last_viewport);
-	gglGetIntegerv(GL_SCISSOR_BOX, last_scissor_box);
-	gglGetIntegerv(GL_BLEND_SRC_RGB, (GLint*)&last_blend_src_rgb);
-	gglGetIntegerv(GL_BLEND_DST_RGB, (GLint*)&last_blend_dst_rgb);
-	gglGetIntegerv(GL_BLEND_SRC_ALPHA, (GLint*)&last_blend_src_alpha);
-	gglGetIntegerv(GL_BLEND_DST_ALPHA, (GLint*)&last_blend_dst_alpha);
-	gglGetIntegerv(GL_BLEND_EQUATION_RGB, (GLint*)&last_blend_equation_rgb);
-	gglGetIntegerv(GL_BLEND_EQUATION_ALPHA, (GLint*)&last_blend_equation_alpha);
-	last_enable_blend = gglIsEnabled(GL_BLEND);
-	last_enable_cull_face = gglIsEnabled(GL_CULL_FACE);
-	last_enable_depth_test = gglIsEnabled(GL_DEPTH_TEST);
-	last_enable_scissor_test = gglIsEnabled(GL_SCISSOR_TEST);
+	glGetIntegerv(GL_VIEWPORT, last_viewport);
+	glGetIntegerv(GL_SCISSOR_BOX, last_scissor_box);
+	glGetIntegerv(GL_BLEND_SRC_RGB, (GLint*)&last_blend_src_rgb);
+	glGetIntegerv(GL_BLEND_DST_RGB, (GLint*)&last_blend_dst_rgb);
+	glGetIntegerv(GL_BLEND_SRC_ALPHA, (GLint*)&last_blend_src_alpha);
+	glGetIntegerv(GL_BLEND_DST_ALPHA, (GLint*)&last_blend_dst_alpha);
+	glGetIntegerv(GL_BLEND_EQUATION_RGB, (GLint*)&last_blend_equation_rgb);
+	glGetIntegerv(GL_BLEND_EQUATION_ALPHA, (GLint*)&last_blend_equation_alpha);
+	last_enable_blend = glIsEnabled(GL_BLEND);
+	last_enable_cull_face = glIsEnabled(GL_CULL_FACE);
+	last_enable_depth_test = glIsEnabled(GL_DEPTH_TEST);
+	last_enable_scissor_test = glIsEnabled(GL_SCISSOR_TEST);
 
 	glEnable(GL_BLEND);
 	glBlendEquation(GL_FUNC_ADD);
@@ -191,10 +191,10 @@ void EndDrawGUI(){
 	glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
 	glBlendEquationSeparate(last_blend_equation_rgb, last_blend_equation_alpha);
 	glBlendFuncSeparate(last_blend_src_rgb, last_blend_dst_rgb, last_blend_src_alpha, last_blend_dst_alpha);
-	if (last_enable_blend) gglEnable(GL_BLEND); else gglDisable(GL_BLEND);
-	if (last_enable_cull_face) gglEnable(GL_CULL_FACE); else gglDisable(GL_CULL_FACE);
-	if (last_enable_depth_test) gglEnable(GL_DEPTH_TEST); else gglDisable(GL_DEPTH_TEST);
-	if (last_enable_scissor_test) gglEnable(GL_SCISSOR_TEST); else gglDisable(GL_SCISSOR_TEST);
+	if (last_enable_blend) glEnable(GL_BLEND); else glDisable(GL_BLEND);
+	if (last_enable_cull_face) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
+	if (last_enable_depth_test) glEnable(GL_DEPTH_TEST); else glDisable(GL_DEPTH_TEST);
+	if (last_enable_scissor_test) glEnable(GL_SCISSOR_TEST); else glDisable(GL_SCISSOR_TEST);
 #ifdef GL_POLYGON_MODE
 	glPolygonMode(GL_FRONT_AND_BACK, (GLenum)last_polygon_mode[0]);
 #endif
@@ -383,6 +383,7 @@ void Draw(){
 		glDrawElements(GL_TRIANGLES, g_openGL->m_currentModel->m_iCount, g_openGL->m_currentModel->m_indexType, 0);
 		break;
 	}
+	glBindVertexArray(0);
 }
 
 void DrawSprite(yySprite* sprite){
@@ -470,10 +471,15 @@ void DrawRectangle(const v4f& corners, const yyColor& color1, const yyColor& col
 	glUniform4fv(g_openGL->m_shader_rectangle->m_uniform_Color1, 1, color1.data());
 	glUniform4fv(g_openGL->m_shader_rectangle->m_uniform_Color2, 1, color2.data());
 
-	glBindVertexArray(g_openGL->m_shader_rectangle->m_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glEnableVertexAttribArray(0);
 
+	glBindVertexArray(g_openGL->m_shader_rectangle->m_VAO);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	if (last_enable_cull_face) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
+	glBindVertexArray(0);
 }
 
 v2f* GetSpriteCameraPosition(){
@@ -498,7 +504,6 @@ void* GetVideoDriverObjects(){
 }
 
 const char* GetVideoDriverName(){
-	YY_DEBUG_PRINT_FUNC;
 	return "OpenGL 3.3";
 }
 
@@ -530,7 +535,7 @@ void ClearDepth(){
 void EndDraw(){
 	glBindFramebuffer(GL_FRAMEBUFFER, 0); // window
 	glViewport(0, 0, g_openGL->m_windowSize.x, g_openGL->m_windowSize.y);
-	SetScissorRect(v4f(0.f, 0.f, (f32)g_openGL->m_windowSize.x, (f32)g_openGL->m_windowSize.y), 0);
+	SetScissorRect(v4f(0.f, 0.f, (f32)g_openGL->m_windowSize.x, (f32)g_openGL->m_windowSize.y), yyGetMainWindow());
 
 	UseDepth(false);
 

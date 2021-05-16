@@ -249,6 +249,9 @@
     <ClCompile Include="yyResourceImpl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gui\yy_gui_textInput.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="yyResourceImpl.h">

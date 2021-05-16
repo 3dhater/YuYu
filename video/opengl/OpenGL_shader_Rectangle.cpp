@@ -23,9 +23,9 @@ OpenGLShaderRectangle::OpenGLShaderRectangle()
 OpenGLShaderRectangle::~OpenGLShaderRectangle(){
 	YY_DEBUG_PRINT_FUNC;
 	if( m_VAO )
-		gglDeleteVertexArrays(1,&m_VAO);
+		glDeleteVertexArrays(1,&m_VAO);
 	if( m_program )
-		gglDeleteProgram(m_program);
+		glDeleteProgram(m_program);
 }
 
 bool OpenGLShaderRectangle::init(){

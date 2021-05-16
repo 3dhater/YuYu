@@ -95,6 +95,7 @@ public:
 	Engine(yyPoolSetup*);
 	~Engine();
 	
+	yyWindow* m_mainWindow;
 
 	yyPoolSetup m_poolSetup;
 	yyPoolAllocator<yyResourceImpl> m_poolResource;

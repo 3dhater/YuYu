@@ -13,6 +13,7 @@ class DemoExample_GUI : public DemoExample
 	yyGUIText* m_textGr1;
 	yyGUIText* m_textGr2;
 	yyGUIText* m_text1;
+	yyGUITextInput* m_textInput;
 
 public:
 	DemoExample_GUI();

@@ -27,6 +27,10 @@ enum yyWindowFlags
 // put files from this location into your project
 class yyWindow
 {
+	void _set_current_rect() {
+		m_currentRect.z = (f32)m_currentSize.x;
+		m_currentRect.w = (f32)m_currentSize.y;
+	}
 public:
 	yyWindow();
 	~yyWindow();
@@ -57,6 +61,7 @@ public:
 	//yyWindow_callbackKeyboard m_onKeyboard;
 
 	v2i m_currentSize;
+	v4f m_currentRect;
 	v2i m_oldSize;
 	v2i m_creationSize;
 	//v2i m_clientSize;

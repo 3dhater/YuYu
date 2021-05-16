@@ -13,6 +13,7 @@ enum class yyGUIElementType  : u32
 	PictureBox,
 	Button,
 	Text,
+	TextInput,
 	Group
 };
 
@@ -138,6 +139,7 @@ public:
 #include "gui\yy_gui_group.h"
 #include "gui\yy_gui_pictureBox.h"
 #include "gui\yy_gui_text.h"
+#include "gui\yy_gui_textInput.h"
 
 #include "gui\yy_gui_button.h"
 
@@ -153,6 +155,7 @@ extern "C"
 	// auto delete
 	YY_API yyGUIFont* YY_C_DECL yyGUILoadFont(const char* path);
 	YY_API yyGUIText* YY_C_DECL yyGUICreateText(const v2f& position, yyGUIFont* font, const wchar_t* text, yyGUIDrawGroup* drawGroup);
+	YY_API yyGUITextInput* YY_C_DECL yyGUICreateTextInput(const v4f& rect, yyGUIFont* font, const wchar_t* text, yyGUIDrawGroup* drawGroup);
 	// baseTexture can be 0
 	YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* baseTexture, s32 id, yyGUIDrawGroup* drawGroup, v4i* uv = 0);
 	YY_API void YY_C_DECL yyGUIDeleteElement(yyGUIElement* elem);

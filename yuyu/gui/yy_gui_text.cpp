@@ -9,28 +9,6 @@
 
 extern Engine * g_engine;
 
-//_yyGui_text_model::_yyGui_text_model() {
-//	m_model = 0;
-//	m_isUsing = false;
-//	m_numOfSymbols = 0;
-//}
-//_yyGui_text_model::~_yyGui_text_model() {
-//	if (m_model)
-//		yyMegaAllocator::Destroy(m_model);
-//}
-//void _yyGui_text_model::Reserve(u32 numSymbols) {
-//	if (m_numOfSymbols == numSymbols)
-//		return;
-//	m_numOfSymbols = numSymbols;
-//
-//	if (m_model->m_indices)  yyMemFree(m_model->m_indices);
-//	if (m_model->m_vertices) yyMemFree(m_model->m_vertices);
-//
-//	m_model->m_vertices = (u8*)yyMemAlloc(sizeof(yyVertexGUI) * 4 * numSymbols);
-//	m_model->m_indices = (u8*)yyMemAlloc(numSymbols * 2 * 3 * sizeof(u16));
-//}
-//
-////v4f(TXN, TYN, TXP, TYP)
 void _yyGui_text_model_AddChar(const v4f& rect, yyGUIFontGlyph* glyph, yyModel* model) {
 	yyVertexGUI v1, v2, v3, v4;
 
@@ -215,7 +193,8 @@ void yyGUIText::SetText(const wchar_t* format, ...){
 	m_buildRectInPixels.z = m_buildRectInPixels.x + textLen.x;
 	m_buildRectInPixels.w = m_buildRectInPixels.y + textLen.y;
 	m_sensorRectInPixels = m_buildRectInPixels;
-	//m_buildRectInPixelsCreation = m_buildRectInPixels;
+	m_buildRectInPixelsCreation.z = textLen.x;
+	m_buildRectInPixelsCreation.w = textLen.y;
 
 	//this->SetBuildRect(m_buildRectInPixels);
 
@@ -273,6 +252,8 @@ YY_API yyGUIText* YY_C_DECL yyGUICreateText(const v2f& position, yyGUIFont* font
 	element->SetFont(font);
 	element->m_position = position;
 	element->SetBuildRect(v4f(position.x, position.y, position.x, position.y));
+	element->m_buildRectInPixelsCreation.x = position.x;
+	element->m_buildRectInPixelsCreation.y = position.y;
 
 	yyStringW wstr = text;
 

@@ -151,7 +151,7 @@ bool D3D11::Init(yyWindow* window){
 		return false;
 	}
 
-	UINT numQualityLevels = 0;
+	/*UINT numQualityLevels = 0;
 	hr = m_d3d11Device->CheckMultisampleQualityLevels(
 		DXGI_FORMAT_R8G8B8A8_UNORM,
 		4,
@@ -163,7 +163,7 @@ bool D3D11::Init(yyWindow* window){
 		return false;
 	}
 
-	yyLogWriteInfo("Hardware MSAA Quality levels : %u\n", numQualityLevels);
+	yyLogWriteInfo("Hardware MSAA Quality levels : %u\n", numQualityLevels);*/
 
 	IDXGIDevice *  dxgiDevice = nullptr;
 	IDXGIAdapter * dxgiAdapter = nullptr;

@@ -34,6 +34,7 @@ DemoExample_GUI::DemoExample_GUI(){
 	m_button1 = 0;
 	m_button2 = 0;
 	m_text1 = 0;
+	m_textInput = 0;
 }
 DemoExample_GUI::~DemoExample_GUI(){
 	Shutdown();
@@ -81,6 +82,8 @@ bool DemoExample_GUI::Init(){
 	m_text1->m_color = ColorBlue;
 	m_text1->IgnoreInput(true);*/
 
+	m_textInput = yyGUICreateTextInput(v4f(200.f, 0.f, 250.f, 16.f), g_demo->m_defaultFont, L"Text input bla bla", 0);
+
 	yyGUIRebuild();
 
 	return true;
@@ -88,6 +91,11 @@ bool DemoExample_GUI::Init(){
 
 
 void DemoExample_GUI::Shutdown(){
+	if (m_textInput)
+	{
+		yyGUIDeleteElement(m_textInput);
+		m_textInput = 0;
+	}
 	if (m_button1)
 	{
 		yyGUIDeleteElement(m_button1);

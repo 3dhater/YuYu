@@ -426,6 +426,7 @@ bool OpenGL::Init(yyWindow* window){
 		yyLogWriteInfo("Renderer: %s\n", renderer);
 	glClearDepth(1.0f);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_SCISSOR_TEST);
 	glFrontFace(GL_CW);
 	glViewport(0, 0, window->m_currentSize.x, window->m_currentSize.y);
 

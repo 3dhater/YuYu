@@ -37,7 +37,7 @@
     } while (0)
 
 Engine * g_engine = nullptr;
-yyWindow* g_mainWindow = nullptr;
+
 
 Engine::Engine(yyPoolSetup* ps)
 	:
@@ -50,7 +50,7 @@ Engine::Engine(yyPoolSetup* ps)
 	m_backgroundWorker(nullptr),
 	m_cctx(nullptr)
 {
-	YY_DEBUG_PRINT_FUNC;
+	m_mainWindow = 0;
 
 	if (ps)
 	{
@@ -695,18 +695,17 @@ extern "C"
 	}
 
 	YY_API void YY_C_DECL yySetMainWindow(yyWindow* w){
-		g_mainWindow = w;
+		g_engine->m_mainWindow = w;
 	}
 	YY_API yyWindow* YY_C_DECL yyGetMainWindow(){
-		return g_mainWindow;
+		return g_engine->m_mainWindow;
 	}
 
 	YY_API yyString* YY_C_DECL yySaveFileDialog(const char* title, const char* okButtonLabel,
 		const char* extension)
 	{
-		YY_DEBUG_PRINT_FUNC;
 		assert(g_engine);
-		assert(g_mainWindow);
+		assert(g_engine->m_mainWindow);
 		assert(title);
 		assert(okButtonLabel);
 		yyString * returnPath = 0;
@@ -728,7 +727,7 @@ extern "C"
 		rgSpec.pszSpec = wstr.data();
 
 		g_engine->m_fileSaveDialog->SetFileTypes(1, &rgSpec);
-		auto hr = g_engine->m_fileSaveDialog->Show(g_mainWindow->m_hWnd);
+		auto hr = g_engine->m_fileSaveDialog->Show(g_engine->m_mainWindow->m_hWnd);
 		if (SUCCEEDED(hr))
 		{
 			IShellItem *pItem;
@@ -757,9 +756,8 @@ extern "C"
 	YY_API yyString* YY_C_DECL yyOpenFileDialog(const char* title, const char* okButtonLabel,
 		const char* extensions, const char* extensionTitle)
 	{
-		YY_DEBUG_PRINT_FUNC;
 		assert(g_engine);
-		assert(g_mainWindow);
+		assert(g_engine->m_mainWindow);
 		assert(title);
 		assert(okButtonLabel);
 		assert(extensions);
@@ -793,7 +791,7 @@ extern "C"
 		rgSpec.pszName = extensionTitleW.data();
 		rgSpec.pszSpec = wstr.data();
 		g_engine->m_fileOpenDialog->SetFileTypes(1, &rgSpec);
-		auto hr = g_engine->m_fileOpenDialog->Show(g_mainWindow->m_hWnd);
+		auto hr = g_engine->m_fileOpenDialog->Show(g_engine->m_mainWindow->m_hWnd);
 		if (SUCCEEDED(hr))
 		{
 			IShellItem *pItem;

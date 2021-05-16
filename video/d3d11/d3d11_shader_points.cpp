@@ -59,6 +59,7 @@ bool D3D11ShaderPoints::init(){
 		"[maxvertexcount(4)]\n"
 		"void GSMain(point VSOut input[1], inout TriangleStream<VSOut> TriStream ){\n"
 		"	VSOut Out;\n"
+		"	Out.vColor = input[0].vColor;\n"
 
 		"	const float sz = 5.f;\n"
 		"	float h = 2.f / Viewport.y;\n"
@@ -77,7 +78,6 @@ bool D3D11ShaderPoints::init(){
 		"	{\n"
 		"		Out.pos =input[0].pos;\n"
 		"		Out.pos += sizes[i];\n"
-		"		Out.vColor = input[0].vColor;\n"
 		"		TriStream.Append(Out);\n"
 		"	}\n"
 

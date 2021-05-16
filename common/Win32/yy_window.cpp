@@ -72,6 +72,8 @@ void yyWindow::ToFullscreenMode()
 	{
 		m_currentSize.x = mi.rcMonitor.right - mi.rcMonitor.left;
 		m_currentSize.y = mi.rcMonitor.bottom - mi.rcMonitor.top;
+		_set_current_rect();
+
 		SetWindowLong(m_hWnd, GWL_STYLE, dwStyle & ~WS_OVERLAPPEDWINDOW);
 		SetWindowPos(m_hWnd, HWND_TOP,
 			mi.rcMonitor.left, mi.rcMonitor.top,
@@ -86,6 +88,7 @@ void yyWindow::ToWindowMode()
 	if (!m_isFullscreen) return;
 	SetWindowLong(m_hWnd, GWL_STYLE, m_oldStyle);
 	m_currentSize = m_creationSize;
+	_set_current_rect();
 	SetWindowPlacement(m_hWnd, &m_wndPlcmnt);
 	SetWindowPos(m_hWnd, NULL, 0, 0, 0, 0,
 		SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER |
@@ -102,6 +105,7 @@ bool yyWindow::init(int size_x, int size_y, u32 flags, yyWindow* parent)
 
 	//m_clientSize = m_creationSize;
 	m_currentSize = m_creationSize;
+	_set_current_rect();
 	m_oldSize = m_creationSize;
 
 	DWORD style = WS_OVERLAPPEDWINDOW;
@@ -449,6 +453,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			GetClientRect( hWnd, &rc );
 			pD->m_currentSize.x = rc.right - rc.left;
 			pD->m_currentSize.y = rc.bottom - rc.top;
+			pD->_set_current_rect();
 
 			if (pD->m_currentSize.x != pD->m_oldSize.x || pD->m_currentSize.y != pD->m_oldSize.y)
 			{
@@ -481,6 +486,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			GetClientRect(hWnd, &rc);
 			pD->m_currentSize.x = rc.right - rc.left;
 			pD->m_currentSize.y = rc.bottom - rc.top;
+			pD->_set_current_rect();
 			if (pD->m_currentSize.x != pD->m_oldSize.x || pD->m_currentSize.y != pD->m_oldSize.y)
 			{
 				ClientResize(hWnd, pD->m_currentSize.x, pD->m_currentSize.y);

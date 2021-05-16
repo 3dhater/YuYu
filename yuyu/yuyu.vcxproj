@@ -316,6 +316,7 @@
     <ClCompile Include="gui\yy_gui_pictureBox.cpp" />
     <ClCompile Include="gui\yy_gui.cpp" />
     <ClCompile Include="gui\yy_gui_text.cpp" />
+    <ClCompile Include="gui\yy_gui_textInput.cpp" />
     <ClCompile Include="image_loader_bmp.cpp" />
     <ClCompile Include="image_loader_dds.cpp" />
     <ClCompile Include="image_loader_png.cpp" />
