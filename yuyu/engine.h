@@ -104,6 +104,9 @@ public:
 	
 	yyInputContext* m_inputContext;
 
+	yyCursor* m_cursors[(u32)yyCursorType::_count];
+	yyCursor* m_cursorsDefault[(u32)yyCursorType::_count];
+
 	yySystemState m_state;
 	dll_handle m_videoDriverLib;
 	

@@ -39,9 +39,18 @@ Demo::Demo(){
 	m_defaultFont = 0;
 	m_activeExample = 0;
 	m_selectedExample = -1;
+
+	for (u32 i = 0; i < (u32)yyCursorType::_count; ++i)
+	{
+		m_cursors[i] = 0;
+	}
 }
 
 Demo::~Demo(){
+	for (u32 i = 0; i < (u32)yyCursorType::_count; ++i)
+	{
+		if (m_cursors[i])delete m_cursors[i];
+	}
 	if (m_activeExample) m_activeExample->Shutdown();
 
 	for (u32 i = 0, sz = m_examples.size(); i < sz; ++i)
@@ -64,6 +73,30 @@ bool Demo::Init(const char* videoDriver){
 	yyLogSetErrorOutput(log_onError);
 	yyLogSetInfoOutput(log_onInfo);
 	yyLogSetWarningOutput(log_onError);
+
+	for (u32 i = 0; i < (u32)yyCursorType::_count; ++i)
+	{
+		m_cursors[i] = new yyCursor((yyCursorType)i);
+
+		switch ((yyCursorType)i)
+		{
+		default:
+		case yyCursorType::Arrow: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/arrow.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::Cross: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/prec.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::Hand: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/link.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::Help: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/helpsel.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::IBeam: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/select.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::No: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/unavail.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::Size: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/move.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::SizeNESW: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/nesw.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::SizeNS: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/ns.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::SizeNWSE: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/nwse.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::SizeWE: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/ew.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::UpArrow: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/up.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::Wait: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/working.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		}
+		yySetCursor((yyCursorType)i, m_cursors[i]);
+	}
 
 	m_window = yyCreate<yyWindow>();
 	u32 windowStyle = 0;

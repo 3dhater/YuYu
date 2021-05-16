@@ -50,6 +50,12 @@ Engine::Engine(yyPoolSetup* ps)
 	m_backgroundWorker(nullptr),
 	m_cctx(nullptr)
 {
+	for (u32 i = 0; i < (u32)yyCursorType::_count; ++i)
+	{
+		m_cursors[i] = 0;
+		m_cursorsDefault[i] = 0;
+	}
+
 	m_mainWindow = 0;
 
 	if (ps)
@@ -120,6 +126,31 @@ Engine::Engine(yyPoolSetup* ps)
 	wchar_t wcharBuffer[512];
 	GetCurrentDirectory(512, wcharBuffer);
 	m_workingDir = wcharBuffer;
+
+	for (u32 i = 0; i < (u32)yyCursorType::_count; ++i)
+	{
+		m_cursorsDefault[i] = new yyCursor((yyCursorType)i);
+
+		switch ((yyCursorType)i)
+		{
+		default:
+		case yyCursorType::Arrow: m_cursorsDefault[i]->m_handle = LoadCursor(0, IDC_ARROW); break;
+		case yyCursorType::Cross: m_cursorsDefault[i]->m_handle = LoadCursor(0, IDC_CROSS); break;
+		case yyCursorType::Hand: m_cursorsDefault[i]->m_handle = LoadCursor(0, IDC_HAND); break;
+		case yyCursorType::Help: m_cursorsDefault[i]->m_handle = LoadCursor(0, IDC_HELP); break;
+		case yyCursorType::IBeam: m_cursorsDefault[i]->m_handle = LoadCursor(0, IDC_IBEAM); break;
+		case yyCursorType::No: m_cursorsDefault[i]->m_handle = LoadCursor(0, IDC_NO); break;
+		case yyCursorType::Size: m_cursorsDefault[i]->m_handle = LoadCursor(0, IDC_SIZEALL); break;
+		case yyCursorType::SizeNESW: m_cursorsDefault[i]->m_handle = LoadCursor(0, IDC_SIZENESW); break;
+		case yyCursorType::SizeNS: m_cursorsDefault[i]->m_handle = LoadCursor(0, IDC_SIZENS); break;
+		case yyCursorType::SizeNWSE: m_cursorsDefault[i]->m_handle = LoadCursor(0, IDC_SIZENWSE); break;
+		case yyCursorType::SizeWE: m_cursorsDefault[i]->m_handle = LoadCursor(0, IDC_SIZEWE); break;
+		case yyCursorType::UpArrow: m_cursorsDefault[i]->m_handle = LoadCursor(0, IDC_UPARROW); break;
+		case yyCursorType::Wait: m_cursorsDefault[i]->m_handle = LoadCursor(0, IDC_WAIT); break;
+		}
+
+		m_cursors[i] = m_cursorsDefault[i];
+	}
 #endif
 
 	m_events_num = 0;
@@ -127,7 +158,10 @@ Engine::Engine(yyPoolSetup* ps)
 }
 
 Engine::~Engine(){
-	YY_DEBUG_PRINT_FUNC;
+	for (u32 i = 0; i < (u32)yyCursorType::_count; ++i)
+	{
+		if(m_cursorsDefault[i]) delete m_cursorsDefault[i];
+	}
 	/*if(m_inputContext)
 	{
 		yyDestroy(m_inputContext);
@@ -508,6 +542,15 @@ extern "C"
 		{
 			g_engine->m_state = yySystemState::Quit;
 		}
+	}
+	YY_API void YY_C_DECL yySetCursor(yyCursorType ct, yyCursor* c) {
+		g_engine->m_cursors[(u32)ct] = c;
+	}
+	YY_API void YY_C_DECL yyResetCursor(yyCursorType ct) {
+		g_engine->m_cursors[(u32)ct] = g_engine->m_cursorsDefault[(u32)ct];
+	}
+	YY_API yyCursor* YY_C_DECL yyGetCursor(yyCursorType ct) {
+		return g_engine->m_cursors[(u32)ct];
 	}
 
 	YY_API u64 YY_C_DECL yyGetTime(){

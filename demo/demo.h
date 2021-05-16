@@ -15,6 +15,7 @@ class Demo
 	DemoExample* m_activeExample;
 	s32 m_selectedExample;
 	
+	yyCursor* m_cursors[(u32)yyCursorType::_count];
 
 	void _SelectExampleUpdateColors();
 	void _hideMainMenuGUI();

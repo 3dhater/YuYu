@@ -11,14 +11,13 @@
 #include "yy_video.h"
 #include "yy_events.h"
 #include "yy_ptr.h"
+#include "yy_cursor.h"
 
 enum class yySystemState : u32 
 {
 	Run,
 	Quit
 };
-
-
 
 enum class yyCompressType : u32
 {
@@ -57,6 +56,10 @@ extern "C"
 	YY_API Mat4* YY_C_DECL yyGetBoneMatrix(u32 boneIndex);
 
 	YY_API u64 YY_C_DECL yyGetTime();
+	
+	YY_API yyCursor* YY_C_DECL yyGetCursor(yyCursorType);
+	YY_API void YY_C_DECL yyResetCursor(yyCursorType);
+	YY_API void YY_C_DECL yySetCursor(yyCursorType, yyCursor*);
 
 	YY_API yyInputContext* YY_C_DECL yyGetInputContext();
 

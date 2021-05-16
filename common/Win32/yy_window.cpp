@@ -131,6 +131,12 @@ bool yyWindow::init(int size_x, int size_y, u32 flags, yyWindow* parent)
 		}
 	}
 
+
+	/*HANDLE image = 0;
+	if (!image)
+		image = LoadImage(GetModuleHandle(0), L"../res/blueglass-vista/BlueglassBusy.ani", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE);
+	SetCursor((HCURSOR)image);*/
+
 	WNDCLASSEX wc;
 	ZeroMemory( &wc, sizeof( wc ) ); // memset Winows style
 	wc.cbSize			= sizeof(WNDCLASSEX);
@@ -138,7 +144,7 @@ bool yyWindow::init(int size_x, int size_y, u32 flags, yyWindow* parent)
 	wc.lpfnWndProc		= WndProc;
 	wc.hInstance		= GetModuleHandle( 0 );
 	wc.hIcon			= nullptr;
-	wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
+	wc.hCursor = yyGetCursor(yyCursorType::Arrow)->m_handle;// LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground	= (HBRUSH)(COLOR_MENU+1);
 	wc.lpszMenuName		= nullptr;
 	wc.lpszClassName	= m_class_name;
@@ -148,6 +154,7 @@ bool yyWindow::init(int size_x, int size_y, u32 flags, yyWindow* parent)
 		YY_PRINT_FAILED;
 		return false;
 	}
+
 
 	m_hWnd = CreateWindowExW( 0, m_class_name,
 		(wchar_t*)m_title.to_string().c_str(),
@@ -188,6 +195,8 @@ bool yyWindow::init(int size_x, int size_y, u32 flags, yyWindow* parent)
 	ClientResize(m_hWnd, m_currentSize.x, m_currentSize.y);
 	m_creationSize = m_currentSize;
 
+	
+
 	return true;
 }
 
@@ -213,7 +222,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
 		return true;
 #endif
-
+	
 	yyWindow* pD = nullptr;
 	s32 wmId    = LOWORD(wParam);
 	static HKL KEYBOARD_INPUT_HKL = 0;
@@ -501,6 +510,42 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 	}
 	break;
+	case WM_SETCURSOR: {
+		auto id = LOWORD(lParam);
+		switch (id)
+		{
+		default:
+			break;
+		case HTLEFT:
+			SetCursor(yyGetCursor(yyCursorType::SizeWE)->m_handle);
+			return TRUE;
+		case HTRIGHT:
+			SetCursor(yyGetCursor(yyCursorType::SizeWE)->m_handle);
+			return TRUE;
+		case HTTOP:
+			SetCursor(yyGetCursor(yyCursorType::SizeNS)->m_handle);
+			return TRUE;
+		case HTBOTTOM:
+			SetCursor(yyGetCursor(yyCursorType::SizeNS)->m_handle);
+			return TRUE;
+		case HTTOPLEFT:
+			SetCursor(yyGetCursor(yyCursorType::SizeNWSE)->m_handle);
+			return TRUE;
+		case HTBOTTOMRIGHT:
+			SetCursor(yyGetCursor(yyCursorType::SizeNWSE)->m_handle);
+			return TRUE;
+		case HTBOTTOMLEFT:
+			SetCursor(yyGetCursor(yyCursorType::SizeNESW)->m_handle);
+			return TRUE;
+		case HTTOPRIGHT:
+			SetCursor(yyGetCursor(yyCursorType::SizeNESW)->m_handle);
+			return TRUE;
+		case HTHELP:
+			SetCursor(yyGetCursor(yyCursorType::Help)->m_handle);
+			return TRUE;
+		}
+	}break;
+	
 	case WM_QUIT:
 	case WM_CLOSE:
 	case WM_DESTROY:
