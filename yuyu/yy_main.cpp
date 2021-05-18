@@ -422,6 +422,26 @@ extern "C"
 		if (x2mb_dbl_timer > g_engine->m_inputContext->m_X2MBMultipleClickTime)
 			g_engine->m_inputContext->m_X2MBClickCount = 0;
 
+		s32 ctrl_shift_alt = 0;
+		if (g_engine->m_inputContext->IsKeyHold(yyKey::K_LALT) || g_engine->m_inputContext->IsKeyHold(yyKey::K_RALT))
+			ctrl_shift_alt |= 1;
+		if (g_engine->m_inputContext->IsKeyHold(yyKey::K_LSHIFT) || g_engine->m_inputContext->IsKeyHold(yyKey::K_RSHIFT))
+			ctrl_shift_alt |= 2;
+		if (g_engine->m_inputContext->IsKeyHold(yyKey::K_LCTRL) || g_engine->m_inputContext->IsKeyHold(yyKey::K_RCTRL))
+			ctrl_shift_alt |= 4;
+
+		switch (ctrl_shift_alt)
+		{
+		default:
+		case 0:  g_engine->m_inputContext->m_kbm = yyKeyboardModifier::None;          break;
+		case 1:  g_engine->m_inputContext->m_kbm = yyKeyboardModifier::Alt;           break;
+		case 2:  g_engine->m_inputContext->m_kbm = yyKeyboardModifier::Shift;         break;
+		case 3:  g_engine->m_inputContext->m_kbm = yyKeyboardModifier::ShiftAlt;      break;
+		case 4:  g_engine->m_inputContext->m_kbm = yyKeyboardModifier::Ctrl;          break;
+		case 5:  g_engine->m_inputContext->m_kbm = yyKeyboardModifier::CtrlAlt;       break;
+		case 6:  g_engine->m_inputContext->m_kbm = yyKeyboardModifier::ShiftCtrl;     break;
+		case 7:  g_engine->m_inputContext->m_kbm = yyKeyboardModifier::ShiftCtrlAlt;  break;
+		}
 
 		return g_engine->m_state != yySystemState::Quit;
 	}

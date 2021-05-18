@@ -13,6 +13,17 @@
 #include "yy_ptr.h"
 #include "yy_cursor.h"
 
+enum class yyKeyboardModifier : u32 {
+	None,
+	Ctrl,
+	Alt,
+	Shift,
+	ShiftAlt,
+	ShiftCtrl,
+	ShiftCtrlAlt,
+	CtrlAlt
+};
+
 enum class yySystemState : u32 
 {
 	Run,

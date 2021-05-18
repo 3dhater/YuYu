@@ -1,7 +1,2 @@
-﻿  demo.cpp
-  Generating Code...
-  Skipping... (no relevant changes detected)
-  demo_example_lines.cpp
-  demo_example_gui.cpp
-  demo_example_MDL.cpp
+﻿  yy_window.cpp
   demo.vcxproj -> E:\Code\YuYu\demo\../bin32/demo.exe

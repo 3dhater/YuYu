@@ -401,6 +401,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WA_CLICKACTIVE:
 			if(pD)
 			{
+				auto input = yyGetInputContext();
+				switch (input->m_kbm) {
+				case yyKeyboardModifier::None:
+				case yyKeyboardModifier::Ctrl:
+				case yyKeyboardModifier::Shift:
+				case yyKeyboardModifier::ShiftCtrl:
+				default:
+					break;
+				case yyKeyboardModifier::Alt:
+				case yyKeyboardModifier::ShiftAlt:
+				case yyKeyboardModifier::ShiftCtrlAlt:
+				case yyKeyboardModifier::CtrlAlt:
+				{
+					input->m_kbm = yyKeyboardModifier::None;
+				}
+				break;
+				}
+
 				if(pD->m_onActivate)
 					pD->m_onActivate(pD);
 			}

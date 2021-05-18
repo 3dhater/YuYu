@@ -17,8 +17,10 @@ class yyGUITextInput : public yyGUIElement
 	u8 m_clickCount;
 	void _end_edit();
 
-	s32 m_selectionLeft;
-	s32 m_selectionRight;
+	
+	s32 m_selectionStart;
+	s32 m_selectionEnd;
+	void _deselect();
 
 public:
 	yyGUITextInput();

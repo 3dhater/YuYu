@@ -14,6 +14,7 @@ struct yyInputContext
 		m_MMBClickCount = 0;
 		m_X1MBClickCount = 0;
 		m_X2MBClickCount = 0;
+		m_kbm = yyKeyboardModifier::None;
 	}
 
 	bool m_isLMBDown;
@@ -48,6 +49,8 @@ struct yyInputContext
 	f32  m_wheelDelta;
 
 	char16_t m_character;
+
+	yyKeyboardModifier m_kbm;
 
 	u8 m_key_hit[256];
 

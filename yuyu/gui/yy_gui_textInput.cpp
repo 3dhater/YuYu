@@ -30,8 +30,8 @@ yyGUITextInput::yyGUITextInput(){
 	m_bgColor.set(0.5f);
 	m_bgColorHover.set(0.55f);
 	m_bgColorActive.set(0.25f);
-	m_selectionLeft = 0;
-	m_selectionRight = 0;
+	m_selectionStart = 0;
+	m_selectionEnd = 0;
 }
 
 yyGUITextInput::~yyGUITextInput(){
@@ -144,11 +144,48 @@ void yyGUITextInput::OnUpdate(f32 dt){
 		{
 			if (g_engine->m_inputContext->IsKeyHit(yyKey::K_LEFT) && m_textCursorPositionInChars)
 			{
+				if (g_engine->m_inputContext->m_kbm == yyKeyboardModifier::Shift)
+				{
+
+				}
+				else
+				{
+					if (m_isSelected)
+					{
+						_deselect();
+					}
+					else
+					{
+
+					}
+				}
+
 				--m_textCursorPositionInChars;
+
 				_calculate_text_cursor_rect();
 			}
 			if (g_engine->m_inputContext->IsKeyHit(yyKey::K_RIGHT) && (m_textCursorPositionInChars < text_size))
 			{
+				if (g_engine->m_inputContext->m_kbm == yyKeyboardModifier::Shift)
+				{
+					if ((m_selectionStart == 0) && (m_selectionEnd == 0))
+					{
+						m_selectionStart = m_textCursorPositionInChars;
+					}
+					m_selectionEnd = m_textCursorPositionInChars + 1;
+				}
+				else
+				{
+					if (m_isSelected)
+					{
+						_deselect();
+					}
+					else
+					{
+
+					}
+				}
+
 				++m_textCursorPositionInChars;
 				_calculate_text_cursor_rect();
 			}
@@ -273,7 +310,10 @@ void yyGUITextInput::_end_edit() {
 void yyGUITextInput::_delete_selected() {
 
 }
-
+void yyGUITextInput::_deselect() {
+	m_selectionStart = 0;
+	m_selectionEnd = 0;
+}
 void yyGUITextInput::_calculate_text_cursor_position_from_mouse() {
 	f32 x1 = m_buildRectInPixels.x + m_horScroll;
 	for (size_t i = 0, sz = m_textElement->m_text.size(); i < sz; ++i)
