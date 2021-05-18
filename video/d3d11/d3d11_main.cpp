@@ -147,8 +147,6 @@ void BeginDrawGUI(){
 	g_d3d11->m_d3d11DevCon->IAGetVertexBuffers(0, 1, &old.VertexBuffer, &old.VertexBufferStride, &old.VertexBufferOffset);
 	g_d3d11->m_d3d11DevCon->IAGetInputLayout(&old.InputLayout);
 
-
-
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
@@ -157,7 +155,7 @@ void BeginDrawGUI(){
 	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
 	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
 
-	g_d3d11->SetShader(g_d3d11->m_shaderGUI);
+	g_d3d11->SetActiveShader(g_d3d11->m_shaderGUI);
 
 	g_d3d11->m_isGUI = true;
 }
@@ -248,32 +246,32 @@ void Draw(){
 			{
 			case yyVertexType::Model:
 			{
-				g_d3d11->SetShader(g_d3d11->m_shaderSimple);
+				g_d3d11->SetActiveShader(g_d3d11->m_shaderSimple);
 				g_d3d11->m_shaderSimple->SetConstants(material);
 			}break;
 			case yyVertexType::AnimatedModel:
 			{
-				g_d3d11->SetShader(g_d3d11->m_shaderSimpleAnimated);
+				g_d3d11->SetActiveShader(g_d3d11->m_shaderSimpleAnimated);
 				g_d3d11->m_shaderSimpleAnimated->SetConstants(material);
 			}break;
 			case yyVertexType::LineModel:
 			{
-				g_d3d11->SetShader(g_d3d11->m_shaderLineModel);
+				g_d3d11->SetActiveShader(g_d3d11->m_shaderLineModel);
 				g_d3d11->m_shaderLineModel->SetConstants(material);
 			}break;
 			case yyVertexType::AnimatedLineModel:
 			{
-				g_d3d11->SetShader(g_d3d11->m_shaderLineModelAnimated);
+				g_d3d11->SetActiveShader(g_d3d11->m_shaderLineModelAnimated);
 				g_d3d11->m_shaderLineModelAnimated->SetConstants(material);
 			}break;
 			case yyVertexType::Point:
 			{
-				g_d3d11->SetShader(g_d3d11->m_shaderPoints);
+				g_d3d11->SetActiveShader(g_d3d11->m_shaderPoints);
 				g_d3d11->m_shaderPoints->SetConstants(material);
 			}break;
 			case yyVertexType::AnimatedPoint:
 			{
-				g_d3d11->SetShader(g_d3d11->m_shaderPointsAnimated);
+				g_d3d11->SetActiveShader(g_d3d11->m_shaderPointsAnimated);
 				g_d3d11->m_shaderPointsAnimated->SetConstants(material);
 			}break;
 			}
@@ -343,7 +341,7 @@ void DrawSprite(yySprite* sprite){
 	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
 	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
 
-	g_d3d11->SetShader(g_d3d11->m_shaderSprite);
+	g_d3d11->SetActiveShader(g_d3d11->m_shaderSprite);
 	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &g_d3d11->m_shaderSprite->m_cb);
 
 
@@ -377,7 +375,7 @@ void DrawSprite2(yySprite2* sprite){
 	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
 	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
 
-	g_d3d11->SetShader(g_d3d11->m_shaderSprite2);
+	g_d3d11->SetActiveShader(g_d3d11->m_shaderSprite2);
 	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &g_d3d11->m_shaderSprite2->m_cb);
 
 
@@ -400,7 +398,7 @@ void DrawLine2D(const v3f& _p1, const v3f& _p2, const yyColor& color){
 	g_d3d11->m_d3d11DevCon->IASetInputLayout(NULL);
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-	g_d3d11->SetShader(g_d3d11->m_shaderLine3D);
+	g_d3d11->SetActiveShader(g_d3d11->m_shaderLine3D);
 	g_d3d11->m_shaderLine3D->SetData(p1, p2, color, g_d3d11->m_guiProjectionMatrix);
 	g_d3d11->m_shaderLine3D->SetConstants(0);
 
@@ -411,7 +409,7 @@ void DrawLine3D(const v4f& p1, const v4f& p2, const yyColor& color){
 	g_d3d11->m_d3d11DevCon->IASetInputLayout(NULL);
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-	g_d3d11->SetShader(g_d3d11->m_shaderLine3D);
+	g_d3d11->SetActiveShader(g_d3d11->m_shaderLine3D);
 	g_d3d11->m_shaderLine3D->SetData(p1, p2, color, *yyGetMatrix(yyMatrixType::ViewProjection));
 	g_d3d11->m_shaderLine3D->SetConstants(0);
 	
@@ -476,7 +474,7 @@ void EndDraw(){
 	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
 
 	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
-	g_d3d11->SetShader(g_d3d11->m_shaderScreenQuad);
+	g_d3d11->SetActiveShader(g_d3d11->m_shaderScreenQuad);
 
 	g_d3d11->m_d3d11DevCon->PSSetShaderResources(0, 1, &g_d3d11->m_mainTarget->m_textureResView);
 	g_d3d11->m_d3d11DevCon->PSSetSamplers(0, 1, &g_d3d11->m_mainTarget->m_samplerState);
@@ -545,11 +543,13 @@ void SetGUIShaderData(yyGUIElement* guielement){
 }
 
 void DrawRectangle(const v4f& corners, const yyColor& color1, const yyColor& color2) {
+	auto oldShader = g_d3d11->GetActiveShader();
+
 	g_d3d11->m_shaderRectangle->m_cbVertex_impl.m_ProjMtx = g_d3d11->m_guiProjectionMatrix;
 	g_d3d11->m_shaderRectangle->m_cbVertex_impl.m_Corners = corners;
 	g_d3d11->m_shaderRectangle->m_cbVertex_impl.m_Color1 = color1;
 	g_d3d11->m_shaderRectangle->m_cbVertex_impl.m_Color2 = color2;
-	g_d3d11->SetShader(g_d3d11->m_shaderRectangle);
+	g_d3d11->SetActiveShader(g_d3d11->m_shaderRectangle);
 	g_d3d11->m_shaderRectangle->SetConstants(0);
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -557,6 +557,9 @@ void DrawRectangle(const v4f& corners, const yyColor& color1, const yyColor& col
 	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
 	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &g_d3d11->m_shaderRectangle->m_cbVertex);
 	g_d3d11->m_d3d11DevCon->Draw(6, 0);
+
+	if(oldShader)
+		g_d3d11->SetActiveShader(oldShader);
 }
 
 extern "C"

@@ -464,6 +464,7 @@ void DrawLine3D(const v4f& _p1, const v4f& _p2, const yyColor& color){
 void DrawRectangle(const v4f& corners, const yyColor& color1, const yyColor& color2) {
 	GLboolean last_enable_cull_face = glIsEnabled(GL_CULL_FACE);
 	glDisable(GL_CULL_FACE);
+	glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
 
 	glUseProgram(g_openGL->m_shader_rectangle->m_program);
 	glUniformMatrix4fv(g_openGL->m_shader_rectangle->m_uniform_ProjMtx, 1, GL_FALSE, g_openGL->m_guiProjectionMatrix.getPtr());
@@ -476,10 +477,15 @@ void DrawRectangle(const v4f& corners, const yyColor& color1, const yyColor& col
 
 	glBindVertexArray(g_openGL->m_shader_rectangle->m_VAO);
 	glBindTexture(GL_TEXTURE_2D, 0);
-	
+
+	last_enable_depth_test = glIsEnabled(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST);
+
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	if (last_enable_cull_face) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
 	glBindVertexArray(0);
+	if (last_enable_depth_test) glEnable(GL_DEPTH_TEST); else glDisable(GL_DEPTH_TEST);
+	glUseProgram(last_program);
 }
 
 v2f* GetSpriteCameraPosition(){

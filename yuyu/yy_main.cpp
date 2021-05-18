@@ -50,6 +50,7 @@ Engine::Engine(yyPoolSetup* ps)
 	m_backgroundWorker(nullptr),
 	m_cctx(nullptr)
 {
+	m_cursorDisableAutoChange = false;
 	m_GUIElementInputFocus = 0;
 	for (u32 i = 0; i < (u32)yyCursorType::_count; ++i)
 	{
@@ -543,6 +544,12 @@ extern "C"
 		{
 			g_engine->m_state = yySystemState::Quit;
 		}
+	}
+	YY_API void YY_C_DECL yySetCursorDisableAutoChange(bool v) {
+		g_engine->m_cursorDisableAutoChange = v;
+	}
+	YY_API bool YY_C_DECL yyGetCursorDisableAutoChange() {
+		return g_engine->m_cursorDisableAutoChange;
 	}
 	YY_API void YY_C_DECL yySetCursor(yyCursorType ct, yyCursor* c) {
 		g_engine->m_cursors[(u32)ct] = c;

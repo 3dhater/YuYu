@@ -104,6 +104,7 @@ public:
 	
 	yyInputContext* m_inputContext;
 
+	bool m_cursorDisableAutoChange;
 	yyCursor* m_cursors[(u32)yyCursorType::_count];
 	yyCursor* m_cursorsDefault[(u32)yyCursorType::_count];
 

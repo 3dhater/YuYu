@@ -60,6 +60,8 @@ extern "C"
 	YY_API yyCursor* YY_C_DECL yyGetCursor(yyCursorType);
 	YY_API void YY_C_DECL yyResetCursor(yyCursorType);
 	YY_API void YY_C_DECL yySetCursor(yyCursorType, yyCursor*);
+	YY_API void YY_C_DECL yySetCursorDisableAutoChange(bool);
+	YY_API bool YY_C_DECL yyGetCursorDisableAutoChange();
 
 	YY_API yyInputContext* YY_C_DECL yyGetInputContext();
 

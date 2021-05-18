@@ -12,13 +12,14 @@ extern Engine * g_engine;
 yyGUITextInput::yyGUITextInput(){
 	m_type = yyGUIElementType::TextInput;
 	m_horScroll = 0.f;
+	m_clickCount = 0;
 	m_textCursorTimerLimit = 0.55f;
 	m_textCursorPositionInChars = 0;
 	m_onCharacter = 0;
 	m_drawTextCursor = true;
 	m_isSelected = false;
 	m_textElement = 0;
-	m_bgElement = 0;
+//	m_bgElement = 0;
 	m_textCursorElement = 0;
 	SetBufferSize(1024);
 	m_onClickLMB = 0;
@@ -29,12 +30,14 @@ yyGUITextInput::yyGUITextInput(){
 	m_bgColor.set(0.5f);
 	m_bgColorHover.set(0.55f);
 	m_bgColorActive.set(0.25f);
+	m_selectionLeft = 0;
+	m_selectionRight = 0;
 }
 
 yyGUITextInput::~yyGUITextInput(){
 	if (m_textCursorElement) yyDestroy(m_textCursorElement);
 	if (m_textElement) yyDestroy(m_textElement);
-	if (m_bgElement) yyDestroy(m_bgElement);
+//	if (m_bgElement) yyDestroy(m_bgElement);
 }
 
 void yyGUITextInput::OnUpdate(f32 dt){
@@ -44,13 +47,27 @@ void yyGUITextInput::OnUpdate(f32 dt){
 
 	if (m_ignoreInput) return;
 
-	m_bgElement->m_color = m_bgColor;
+	m_bgColorCurrent = m_bgColor;
 
 	auto GUIElementInputFocus_old = g_engine->m_GUIElementInputFocus;
+	
+	if (g_engine->m_inputContext->m_isLMBHold && (g_engine->m_guiElementInMouseFocus == this)
+		&& (m_clickCount > 1))
+	{
+		yySetCursorDisableAutoChange(true);
+		_calculate_text_cursor_position_from_mouse();
+		_calculate_text_cursor_rect();
+	}
+	
+	if (g_engine->m_inputContext->m_isLMBUp)
+	{
+		yySetCursorDisableAutoChange(false);
+		yyGetCursor(yyCursorType::Arrow)->Activate();
+	}
 
 	if (m_isInActiveAreaRect)
 	{
-		m_bgElement->m_color = m_bgColorHover;
+		m_bgColorCurrent = m_bgColorHover;
 
 		yyGetCursor(yyCursorType::IBeam)->Activate();
 
@@ -60,12 +77,15 @@ void yyGUITextInput::OnUpdate(f32 dt){
 		if (g_engine->m_inputContext->m_isLMBDown)
 		{
 			g_engine->m_GUIElementInputFocus = this;
+			g_engine->m_guiElementInMouseFocus = this;
+			
+			++m_clickCount; // 1,2,3,4...
 
-			if (GUIElementInputFocus_old == this)
+			/*if (GUIElementInputFocus_old == this)
 			{
-				_calculate_text_cursor_position_in_chars();
+				_calculate_text_cursor_position_from_mouse();
 				_calculate_text_cursor_rect();
-			}
+			}*/
 
 			if (m_onClickLMB)
 				m_onClickLMB(this, m_id);
@@ -73,6 +93,7 @@ void yyGUITextInput::OnUpdate(f32 dt){
 		if (g_engine->m_inputContext->m_isMMBDown)
 		{
 			g_engine->m_GUIElementInputFocus = this;
+			++m_clickCount; // 1,2,3,4...
 
 			if (m_onClickMMB)
 				m_onClickMMB(this, m_id);
@@ -80,6 +101,7 @@ void yyGUITextInput::OnUpdate(f32 dt){
 		if (g_engine->m_inputContext->m_isRMBDown)
 		{
 			g_engine->m_GUIElementInputFocus = this;
+			++m_clickCount; // 1,2,3,4...
 
 			if (m_onClickRMB)
 				m_onClickRMB(this, m_id);
@@ -87,6 +109,7 @@ void yyGUITextInput::OnUpdate(f32 dt){
 		if (g_engine->m_inputContext->m_isX1MBDown)
 		{
 			g_engine->m_GUIElementInputFocus = this;
+			++m_clickCount; // 1,2,3,4...
 
 			if (m_onClickX1MB)
 				m_onClickX1MB(this, m_id);
@@ -94,6 +117,7 @@ void yyGUITextInput::OnUpdate(f32 dt){
 		if (g_engine->m_inputContext->m_isX2MBDown)
 		{
 			g_engine->m_GUIElementInputFocus = this;
+			++m_clickCount; // 1,2,3,4...
 
 			if (m_onClickX2MB)
 				m_onClickX2MB(this, m_id);
@@ -198,17 +222,17 @@ void yyGUITextInput::OnUpdate(f32 dt){
 				_calculate_text_cursor_rect();
 			}
 		}
-		m_bgElement->m_color = m_bgColorActive;
+		m_bgColorCurrent = m_bgColorActive;
 
 		if (g_engine->m_inputContext->IsKeyHit(yyKey::K_ESCAPE))
 		{
 			g_engine->m_inputContext->m_key_hit[(u32)yyKey::K_ESCAPE] = 0;
-			g_engine->m_GUIElementInputFocus = 0;
+			_end_edit();
 		}
 		if (g_engine->m_inputContext->IsKeyHit(yyKey::K_ENTER))
 		{
 			g_engine->m_inputContext->m_key_hit[(u32)yyKey::K_ENTER] = 0;
-			g_engine->m_GUIElementInputFocus = 0;
+			_end_edit();
 		}
 		if (g_engine->m_inputContext->m_character)
 		{
@@ -239,12 +263,18 @@ void yyGUITextInput::OnUpdate(f32 dt){
 		}
 	}
 }
-
+void yyGUITextInput::_end_edit() {
+	m_clickCount = 0;
+	g_engine->m_GUIElementInputFocus = 0;
+	m_horScroll = 0.f;
+	m_textCursorPositionInChars = 0;
+	_calculate_text_cursor_rect();
+}
 void yyGUITextInput::_delete_selected() {
 
 }
 
-void yyGUITextInput::_calculate_text_cursor_position_in_chars() {
+void yyGUITextInput::_calculate_text_cursor_position_from_mouse() {
 	f32 x1 = m_buildRectInPixels.x + m_horScroll;
 	for (size_t i = 0, sz = m_textElement->m_text.size(); i < sz; ++i)
 	{
@@ -264,7 +294,10 @@ void yyGUITextInput::_calculate_text_cursor_position_in_chars() {
 
 		x1 += w;
 	}
-	m_textCursorPositionInChars = m_textElement->m_text.size();
+	if(g_engine->m_inputContext->m_cursorCoordsForGUI.x < m_buildRectInPixels.x + m_horScroll)
+		m_textCursorPositionInChars = 0;
+	else
+		m_textCursorPositionInChars = m_textElement->m_text.size();
 }
 
 f32 yyGUITextInput::_get_text_cursor_position_in_pixels() {
@@ -303,7 +336,8 @@ begin:
 
 void yyGUITextInput::OnDraw(){
 	if (!m_visible) return;
-	m_bgElement->OnDraw();
+	//m_bgElement->OnDraw();
+	g_engine->m_videoAPI->DrawRectangle(m_buildRectInPixels, m_bgColorCurrent, m_bgColorCurrent);
 	m_textElement->OnDraw();
 	if (g_engine->m_GUIElementInputFocus == this && m_drawTextCursor)
 		m_textCursorElement->OnDraw();
@@ -336,8 +370,8 @@ void yyGUITextInput::Clear(){
 void yyGUITextInput::Rebuild() {
 	yyGUIElement::CallOnRebuildSetRects();
 	
-	m_bgElement->SetBuildRect(m_buildRectInPixels);
-	m_bgElement->Rebuild();
+	/*m_bgElement->SetBuildRect(m_buildRectInPixels);
+	m_bgElement->Rebuild();*/
 
 	m_textElement->SetBuildRect(m_buildRectInPixels);
 	m_textElement->Rebuild();
@@ -355,9 +389,9 @@ YY_API yyGUITextInput* YY_C_DECL yyGUICreateTextInput(const v4f& rect, yyGUIFont
 	assert(font);
 	yyGUITextInput* element = yyCreate<yyGUITextInput>();
 	
-	element->m_bgElement = yyGUICreatePictureBox(rect, yyGetDefaultTexture(), -1, drawGroup);
+	/*element->m_bgElement = yyGUICreatePictureBox(rect, yyGetDefaultTexture(), -1, drawGroup);
 	yyGUIRemoveElement(element->m_bgElement);
-	element->m_bgElement->m_color = element->m_bgColor;
+	element->m_bgElement->m_color = element->m_bgColor;*/
 
 	element->m_textElement = yyGUICreateText(v2f(rect.x, rect.y), font, text, drawGroup);
 	yyGUIRemoveElement(element->m_textElement);

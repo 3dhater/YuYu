@@ -8,11 +8,17 @@ class yyGUITextInput : public yyGUIElement
 	bool m_drawTextCursor;
 	size_t m_textCursorPositionInChars;
 	void _calculate_text_cursor_rect();
-	void _calculate_text_cursor_position_in_chars();
+	void _calculate_text_cursor_position_from_mouse();
 	f32 _get_text_cursor_position_in_pixels();
 	f32 m_horScroll;
 	bool m_isSelected;
 	void _delete_selected();
+	
+	u8 m_clickCount;
+	void _end_edit();
+
+	s32 m_selectionLeft;
+	s32 m_selectionRight;
 
 public:
 	yyGUITextInput();
@@ -27,7 +33,8 @@ public:
 	virtual void SetBufferSize(u32 newSize);
 
 	yyGUIText* m_textElement;
-	yyGUIPictureBox* m_bgElement;
+	//yyGUIPictureBox* m_bgElement;
+
 	yyGUIPictureBox* m_textCursorElement;
 	/*yyStringW m_text;
 	yyGUIFont* m_font;
@@ -37,6 +44,7 @@ public:
 	u32 m_bufferSize;
 	yyGUITextDrawNode* m_drawNodes;*/
 
+	yyColor m_bgColorCurrent;
 	yyColor m_bgColor;
 	yyColor m_bgColorHover;
 	yyColor m_bgColorActive;

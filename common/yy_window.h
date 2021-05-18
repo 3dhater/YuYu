@@ -80,6 +80,8 @@ public:
 	HDC  m_dc;
 	DWORD m_oldStyle;
 	wchar_t m_class_name[32];
+	HKL KEYBOARD_INPUT_HKL;
+	u32 KEYBOARD_INPUT_CODEPAGE;
 	friend LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 #endif
 

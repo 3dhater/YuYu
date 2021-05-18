@@ -8,6 +8,7 @@
 
 s32 g_window_counter = 0;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+static unsigned int LocaleIdToCodepage(unsigned int lcid);
 
 #ifdef IMGUI_API
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -20,26 +21,24 @@ yyWindow::yyWindow()
 	m_onClose(nullptr),
 	m_onShow(nullptr),
 	m_onMove(nullptr),
-//	m_onFocusLost(nullptr),
-	//m_onFocusSet(nullptr),
 	m_onActivate(nullptr),
 	m_onDeactivate(nullptr),
 	m_onPaint(nullptr),
 	m_onSize(nullptr),
 	m_onMinimize(nullptr),
 	m_onRestore(nullptr)
-	//m_onMouseWheel(nullptr),
-//	m_onMouseButton(nullptr),
-//	m_onKeyboard(nullptr)
 {
-//	m_onRawInput = 0;
 	m_onMaximize = 0;
 
 	m_onCommand = 0;
 
 	m_GPUData = 0;
 	m_isFullscreen = false;
+	
 	m_hWnd = nullptr;
+	KEYBOARD_INPUT_HKL = 0;
+	KEYBOARD_INPUT_CODEPAGE = 1252;
+
 	m_dc = nullptr;
 	m_oldStyle = 0;
 	wsprintfW(m_class_name, L"Window%i", g_window_counter++);
@@ -195,7 +194,8 @@ bool yyWindow::init(int size_x, int size_y, u32 flags, yyWindow* parent)
 	ClientResize(m_hWnd, m_currentSize.x, m_currentSize.y);
 	m_creationSize = m_currentSize;
 
-	
+	KEYBOARD_INPUT_HKL = GetKeyboardLayout(0);
+	KEYBOARD_INPUT_CODEPAGE = LocaleIdToCodepage(LOWORD(KEYBOARD_INPUT_HKL));
 
 	return true;
 }
@@ -215,7 +215,6 @@ v2i ClientResize(HWND hWnd, int nWidth, int nHeight)
 	return size;
 }
 
-static unsigned int LocaleIdToCodepage(unsigned int lcid);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 #ifdef IMGUI_API
@@ -225,8 +224,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	
 	yyWindow* pD = nullptr;
 	s32 wmId    = LOWORD(wParam);
-	static HKL KEYBOARD_INPUT_HKL = 0;
-	static u32 KEYBOARD_INPUT_CODEPAGE = 1252;
+	
 
 	if( message == WM_NCCREATE )
 	{
@@ -511,6 +509,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	break;
 	case WM_SETCURSOR: {
+		if (yyGetCursorDisableAutoChange())
+			return TRUE;
 		auto id = LOWORD(lParam);
 		switch (id)
 		{
@@ -688,14 +688,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 		auto input = yyGetInputContext();
-		if( ToAsciiEx( (UINT)wParam, HIWORD(lParam), keys, chars, 0, KEYBOARD_INPUT_HKL ) == 1 )
+		if (pD)
 		{
-			MultiByteToWideChar( KEYBOARD_INPUT_CODEPAGE, MB_PRECOMPOSED, (LPCSTR)chars,
-				sizeof(chars), (WCHAR*)&input->m_character, 1 );
+			if (ToAsciiEx((UINT)wParam, HIWORD(lParam), keys, chars, 0, pD->KEYBOARD_INPUT_HKL) == 1)
+			{
+				MultiByteToWideChar(pD->KEYBOARD_INPUT_CODEPAGE, MB_PRECOMPOSED, (LPCSTR)chars,
+					sizeof(chars), (WCHAR*)&input->m_character, 1);
+			}
 		}
 
-		//if(pD->m_onKeyboard)
-		//	pD->m_onKeyboard(pD, isPress, (u32)key, character);
 		if (isPress)
 		{
 			if ((u32)key < 256)
@@ -724,8 +725,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}break;
 
 	case WM_INPUTLANGCHANGE:
-		KEYBOARD_INPUT_HKL = GetKeyboardLayout( 0 );
-		KEYBOARD_INPUT_CODEPAGE = LocaleIdToCodepage( LOWORD(KEYBOARD_INPUT_HKL) );
+		if (pD)
+		{
+			pD->KEYBOARD_INPUT_HKL = GetKeyboardLayout(0);
+			pD->KEYBOARD_INPUT_CODEPAGE = LocaleIdToCodepage(LOWORD(pD->KEYBOARD_INPUT_HKL));
+		}
 	return 0;
 
 	case WM_SYSCOMMAND:

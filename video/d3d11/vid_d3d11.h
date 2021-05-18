@@ -75,7 +75,8 @@ public:
 	D3D11ShaderLineModel* m_shaderLineModel;
 	D3D11ShaderLineModelAnimated* m_shaderLineModelAnimated;
 	D3D11ShaderCommon* m_activeShader;
-	void SetShader(D3D11ShaderCommon*);
+	void SetActiveShader(D3D11ShaderCommon*);
+	D3D11ShaderCommon* GetActiveShader();
 
 
 	v2f m_mainTargetSize;

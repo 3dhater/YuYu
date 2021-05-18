@@ -185,7 +185,7 @@ void buttonExit_onRelease(yyGUIElement* elem, s32 m_id){
 	yyQuit();
 }
 void buttonExit_onMouseInRect(yyGUIElement* elem, s32 m_id) {
-	g_demo->m_cursors[(u32)yyCursorType::Hand]->Activate();
+	yySetCursor(yyCursorType::Arrow, g_demo->m_cursors[(u32)yyCursorType::Hand]);
 }
 
 void Demo::MainLoop(){
@@ -214,6 +214,8 @@ void Demo::MainLoop(){
 
 	while (yyRun(&m_dt))
 	{
+		yySetCursor(yyCursorType::Arrow, g_demo->m_cursors[(u32)yyCursorType::Arrow]);
+
 		++fps_counter;
 		fps_timer += m_dt;
 

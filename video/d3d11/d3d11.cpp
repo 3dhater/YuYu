@@ -653,8 +653,10 @@ bool D3D11::_createBackBuffer(int x, int y){
 	m_d3d11DevCon->OMSetRenderTargets(1, &m_MainTargetView, m_depthStencilView);
 	return true;
 }
-
-void D3D11::SetShader(D3D11ShaderCommon* shader){
+D3D11ShaderCommon* D3D11::GetActiveShader() {
+	return m_activeShader;
+}
+void D3D11::SetActiveShader(D3D11ShaderCommon* shader){
 //	if (shader != m_activeShader)
 	{
 		m_activeShader = shader;
