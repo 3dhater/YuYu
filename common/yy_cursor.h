@@ -46,6 +46,14 @@ public:
 	}
 	~yyCursor() {}
 
+	void Activate() {
+#ifdef YY_PLATFORM_WINDOWS
+		::SetCursor(m_handle);
+#else
+#error Need implementation
+#endif
+	}
+
 #ifdef YY_PLATFORM_WINDOWS
 	HCURSOR m_handle;
 	friend LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

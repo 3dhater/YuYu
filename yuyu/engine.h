@@ -142,6 +142,10 @@ public:
 	void GUIDrawDrawGroup(yyGUIDrawGroup*);
 	void GUIRebuildDrawGroup(yyGUIDrawGroup*);
 	bool m_cursorInGUI;
+	
+	yyGUIElement* m_GUIElementInputFocus;
+	//bool m_inputInGUI;
+
 	// input only elements on top
 	bool m_guiIgnoreUpdateInput;
 	yyGUIElement* m_guiElementInMouseFocus;

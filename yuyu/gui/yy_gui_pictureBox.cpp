@@ -128,9 +128,12 @@ void yyGUIPictureBox::OnUpdate(f32 dt){
 
 	if (m_ignoreInput) return;
 
-	if (m_onClick && g_engine->m_inputContext->m_isLMBDown)
+	if (m_isInActiveAreaRect)
 	{
-		if (m_isInActiveAreaRect)
+		if (m_onMouseInRect)
+			m_onMouseInRect(this, m_id);
+
+		if (m_onClick && g_engine->m_inputContext->m_isLMBDown)
 			m_onClick(this, m_id);
 	}
 }

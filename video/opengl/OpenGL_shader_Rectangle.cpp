@@ -17,11 +17,9 @@ OpenGLShaderRectangle::OpenGLShaderRectangle()
 	m_uniform_Color2(0),
 	m_uniform_Corners(0)
 {
-	YY_DEBUG_PRINT_FUNC;
 }
 
 OpenGLShaderRectangle::~OpenGLShaderRectangle(){
-	YY_DEBUG_PRINT_FUNC;
 	if( m_VAO )
 		glDeleteVertexArrays(1,&m_VAO);
 	if( m_program )
@@ -29,7 +27,6 @@ OpenGLShaderRectangle::~OpenGLShaderRectangle(){
 }
 
 bool OpenGLShaderRectangle::init(){
-	YY_DEBUG_PRINT_FUNC;
 	const char * text_v =
 		"#version 330\n"
 		"uniform mat4 ProjMtx;\n"
@@ -66,9 +63,9 @@ bool OpenGLShaderRectangle::init(){
 
 	glUseProgram(m_program);
 	m_uniform_ProjMtx = glGetUniformLocation(m_program, "ProjMtx");
+	m_uniform_Corners = glGetUniformLocation(m_program, "Corners");
 	m_uniform_Color1 = glGetUniformLocation(m_program, "Color1");
 	m_uniform_Color2 = glGetUniformLocation(m_program, "Color2");
-	m_uniform_Corners = glGetUniformLocation(m_program, "Corners");
 	glGenVertexArrays(1, &m_VAO);
 
 	return true;

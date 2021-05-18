@@ -174,6 +174,27 @@ public:
 		append( str.data() );
 	}
 
+	void insert(char_type c, size_t where) {
+		u32 new_size = m_size + 1u;
+		if ((new_size + 1u) > m_allocated)
+			reallocate((new_size + 1u) + m_stringWordSize);
+
+		size_t i = m_size;
+		while (i >= where)
+		{
+			auto next = i + 1;
+			if (next < m_allocated)
+				m_data[next] = m_data[i];
+
+			if (i == 0)
+				break;
+			--i;
+		}
+		m_data[where] = c;
+		m_size = new_size;
+		m_data[m_size] = 0;
+	}
+
 	void push_back( char_type c ){
 		u32 new_size = m_size + 1u;
 		if( (new_size + 1u) > m_allocated )

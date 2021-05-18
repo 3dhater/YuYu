@@ -515,7 +515,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (id)
 		{
 		default:
-			break;
+			SetCursor(yyGetCursor(yyCursorType::Arrow)->m_handle);
+			return TRUE;
 		case HTLEFT:
 			SetCursor(yyGetCursor(yyCursorType::SizeWE)->m_handle);
 			return TRUE;

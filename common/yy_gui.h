@@ -23,6 +23,7 @@ protected:
 	bool m_visible;
 	bool m_isInActiveAreaRect;
 	bool m_ignoreInput;
+	//bool m_isInputFocus;
 public:
 
 	yyGUIElement()
@@ -36,9 +37,11 @@ public:
 		m_color = ColorWhite;
 		m_drawGroup = 0;
 		m_onDraw = 0;
+		m_onMouseInRect = 0;
 		m_onRebuildSetRects = 0;
 		m_userData = 0;
 		m_ignoreSetCursorInGUI = false;
+		//m_isInputFocus = false;
 
 		m_align = AlignLeftTop;
 		m_parent = 0;
@@ -51,6 +54,7 @@ public:
 	virtual void IgnoreInput(bool v) { m_ignoreInput = v; }
 	bool IsVisible() { return m_visible; }
 	bool IsInRect() { return m_isInActiveAreaRect; }
+	//bool IsInputFocus() { return m_isInputFocus; }
 
 	virtual void OnUpdate(f32 dt) = 0;
 	virtual void OnDraw() = 0;
@@ -99,6 +103,8 @@ public:
 	// if you want to calculate ___Rect by yourself
 	yyGUICallback m_onRebuildSetRects;
 	void CallOnRebuildSetRects();
+	
+	yyGUICallback m_onMouseInRect;
 
 	enum Align {
 		AlignLeftTop,
@@ -147,6 +153,7 @@ extern "C"
 {
 	// return true if cursor in gui element
 	YY_API bool YY_C_DECL yyGUIUpdate(f32 deltaTime);
+	YY_API bool YY_C_DECL yyGUIIsInputFocus();
 	// call this when windows size changed or when you add children to some gui element
 	YY_API void YY_C_DECL yyGUIRebuild();
 

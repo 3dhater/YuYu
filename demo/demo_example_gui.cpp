@@ -83,6 +83,7 @@ bool DemoExample_GUI::Init(){
 	m_text1->IgnoreInput(true);*/
 
 	m_textInput = yyGUICreateTextInput(v4f(200.f, 0.f, 250.f, 16.f), g_demo->m_defaultFont, L"Text input bla bla", 0);
+	m_textInput->m_align = m_textInput->AlignCenter;
 
 	yyGUIRebuild();
 
@@ -141,10 +142,16 @@ const wchar_t* DemoExample_GUI::GetDescription(){
 }
 
 bool DemoExample_GUI::DemoStep(f32 deltaTime){
+	bool isGuiInputFocus = yyGUIIsInputFocus();
+
 	if (g_drawGroupToTop)
 	{
 		yyGUIDrawGroupMoveFront(g_drawGroupToTop);
 		g_drawGroupToTop = 0;
 	}
+	
+	if (isGuiInputFocus)
+		return true;
+
 	return g_demo->m_inputContext->IsKeyHit(yyKey::K_ESCAPE) == false;
 }

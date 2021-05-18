@@ -181,11 +181,18 @@ void yyGUIButton::OnUpdate(f32 dt){
 
 	yyGUIElement::CheckCursorInRect();
 
-	if (m_isInActiveAreaRect && !mouseInRectBefore)
+	if (m_isInActiveAreaRect)
 	{
-		if (m_onMouseEnter)
-			m_onMouseEnter(this, m_id);
+		if (m_onMouseInRect)
+			m_onMouseInRect(this, m_id);
+
+		if (!mouseInRectBefore)
+		{
+			if (m_onMouseEnter)
+				m_onMouseEnter(this, m_id);
+		}
 	}
+
 
 	if (!m_isInActiveAreaRect && mouseInRectBefore)
 	{

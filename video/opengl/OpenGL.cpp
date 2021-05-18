@@ -201,7 +201,7 @@ void OpenGL::SetActive(yyWindow* window){
 }
 
 void OpenGL::InitWindow(yyWindow* window){
-	YY_DEBUG_PRINT_FUNC;
+
 #ifdef YY_PLATFORM_WINDOWS
 	auto dc = window->m_dc;
 	int attributeListInt[] =
@@ -215,8 +215,6 @@ void OpenGL::InitWindow(yyWindow* window){
 		WGL_SWAP_METHOD_ARB,    WGL_SWAP_EXCHANGE_ARB,
 		WGL_PIXEL_TYPE_ARB,     WGL_TYPE_RGBA_ARB,
 		WGL_STENCIL_BITS_ARB,   8,
-	//	WGL_SAMPLE_BUFFERS_ARB, 1,
-	//	WGL_SAMPLES_ARB, 8,
 		0
 	};
 	int pixelFormat[1];
@@ -320,8 +318,7 @@ bool OpenGL::Init(yyWindow* window){
 	gwglCreateContextAttribsARB = (wglCreateContextAttribsARB_t)gwglGetProcAddress("wglCreateContextAttribsARB");
 	gwglSwapIntervalEXT = (wglSwapIntervalEXT_t)gwglGetProcAddress("wglSwapIntervalEXT");
 
-	int maxSamples = 0;
-	gglGetIntegerv( GL_MAX_SAMPLES, &maxSamples );
+	
 	gwglMakeCurrent(NULL, NULL);
 	gwglDeleteContext(rc);
 	ReleaseDC(tmp_hwnd, dc);
@@ -418,8 +415,8 @@ bool OpenGL::Init(yyWindow* window){
 #error Need implementation
 #endif
 
-	const GLubyte* vendor = gglGetString(GL_VENDOR);
-	const GLubyte* renderer = gglGetString(GL_RENDERER);
+	const GLubyte* vendor = glGetString(GL_VENDOR);
+	const GLubyte* renderer = glGetString(GL_RENDERER);
 	if(vendor)
 		yyLogWriteInfo("Vendor: %s\n", vendor);
 	if(renderer)

@@ -50,6 +50,7 @@ Engine::Engine(yyPoolSetup* ps)
 	m_backgroundWorker(nullptr),
 	m_cctx(nullptr)
 {
+	m_GUIElementInputFocus = 0;
 	for (u32 i = 0; i < (u32)yyCursorType::_count; ++i)
 	{
 		m_cursors[i] = 0;

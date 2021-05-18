@@ -168,10 +168,13 @@ void Engine::GUIDrawDrawGroup(yyGUIDrawGroup* dg) {
 	}
 }
 
+YY_API bool YY_C_DECL yyGUIIsInputFocus() {
+	return g_engine->m_GUIElementInputFocus != 0;
+}
 YY_API bool YY_C_DECL yyGUIUpdate(f32 deltaTime){
 	g_engine->m_cursorInGUI = false;
 	g_engine->m_guiIgnoreUpdateInput = false;
-	
+
 	auto dg = g_engine->m_GUIDrawGroups.head();
 	for(size_t i = 0, sz = g_engine->m_GUIDrawGroups.size(); i < sz; ++i)
 	{

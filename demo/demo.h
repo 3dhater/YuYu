@@ -43,6 +43,7 @@ public:
 	friend void window_callbackMouse(yyWindow* w, s32 wheel, s32 x, s32 y, u32 click);
 	friend void updateInputContext();
 	friend void window_callbackKeyboard(yyWindow*, bool isPress, u32 key, char16_t character);
+	friend void buttonExit_onMouseInRect(yyGUIElement* elem, s32 m_id);
 };
 
 #endif

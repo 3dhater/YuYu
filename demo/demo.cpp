@@ -93,7 +93,7 @@ bool Demo::Init(const char* videoDriver){
 		case yyCursorType::SizeNWSE: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/nwse.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
 		case yyCursorType::SizeWE: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/ew.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
 		case yyCursorType::UpArrow: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/up.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
-		case yyCursorType::Wait: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/working.cur", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
+		case yyCursorType::Wait: m_cursors[i]->m_handle = (HCURSOR)LoadImage(GetModuleHandle(0), L"../res/aero-no-tail/working.ani", IMAGE_CURSOR, 0, 0, LR_LOADFROMFILE); break;
 		}
 		yySetCursor((yyCursorType)i, m_cursors[i]);
 	}
@@ -184,6 +184,9 @@ void buttonExit_onClick(yyGUIElement* elem, s32 m_id){
 void buttonExit_onRelease(yyGUIElement* elem, s32 m_id){
 	yyQuit();
 }
+void buttonExit_onMouseInRect(yyGUIElement* elem, s32 m_id) {
+	g_demo->m_cursors[(u32)yyCursorType::Hand]->Activate();
+}
 
 void Demo::MainLoop(){
 	yyGUIText* gui_text_fps = yyGUICreateText(v2f(0.f, 0.f), m_defaultFont, 0, 0);
@@ -195,6 +198,7 @@ void Demo::MainLoop(){
 	gui_button_exit->SetMouseHoverTexture(yyGetTextureFromCache("../res/exit_hov.png"));
 	gui_button_exit->SetMouseClickTexture(yyGetTextureFromCache("../res/exit_clk.png"));
 	gui_button_exit->m_onClick = buttonExit_onClick;
+	gui_button_exit->m_onMouseInRect = buttonExit_onMouseInRect;
 	gui_button_exit->m_onRelease = buttonExit_onRelease;
 	gui_button_exit->m_isAnimated = true;
 	gui_button_exit->m_align = yyGUIElement::Align::AlignRightTop;
