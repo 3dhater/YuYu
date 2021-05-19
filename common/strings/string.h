@@ -190,6 +190,8 @@ public:
 		m_data[m_size] = 0;
 	}
 
+	size_t capacity() { return m_allocated; }
+
 	void insert(char_type c, size_t where) {
 		u32 new_size = m_size + 1u;
 		if ((new_size + 1u) > m_allocated)

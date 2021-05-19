@@ -22,6 +22,7 @@ class yyGUITextInput : public yyGUIElement
 	s32 m_selectionEnd;
 	v4f m_selectionRect;
 
+	s32 m_charLimit;
 public:
 	yyGUITextInput();
 	virtual ~yyGUITextInput();
@@ -41,6 +42,8 @@ public:
 	virtual void CutToClipboard();
 	virtual void CopyToClipboard();
 	virtual void PasteFromClipboard();
+	
+	virtual void SetLimit(s32); // default 1000
 
 	yyGUIText* m_textElement;
 	yyGUIText* m_defaultTextElement;

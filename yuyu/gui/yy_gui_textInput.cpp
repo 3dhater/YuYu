@@ -12,6 +12,7 @@ extern Engine * g_engine;
 yyGUITextInput::yyGUITextInput(){
 	m_type = yyGUIElementType::TextInput;
 	m_horScroll = 0.f;
+	m_charLimit = 1000;
 	m_clickCount = 0;
 	m_defaultTextElement = 0;
 	m_textCursorTimerLimit = 0.55f;
@@ -371,7 +372,14 @@ void yyGUITextInput::OnUpdate(f32 dt){
 		if (g_engine->m_inputContext->IsKeyHit(yyKey::K_ESCAPE))
 		{
 			g_engine->m_inputContext->m_key_hit[(u32)yyKey::K_ESCAPE] = 0;
-			_end_edit();
+			if (m_isSelected)
+			{
+				DeselectAll();
+			}
+			else
+			{
+				_end_edit();
+			}
 		}
 		if (g_engine->m_inputContext->IsKeyHit(yyKey::K_ENTER))
 		{
@@ -416,12 +424,18 @@ void yyGUITextInput::OnUpdate(f32 dt){
 						ok = false;
 				}
 				
+				if (m_textElement->m_text.size() >= m_charLimit)
+				{
+					ok = false;
+				}
+
 				if (ok)
 				{
 					if (m_isSelected)
 						DeleteSelected();
 
 					m_textElement->m_text.insert(g_engine->m_inputContext->m_character, m_textCursorPositionInChars);
+					m_textElement->SetBufferSize(m_textElement->m_text.capacity());
 					m_textElement->Rebuild();
 
 					++m_textCursorPositionInChars;
@@ -464,6 +478,9 @@ void yyGUITextInput::CopyToClipboard() {
 	}
 	yyCopyTextToClipboard(&str);
 }
+void yyGUITextInput::SetLimit(s32 l) {
+	m_charLimit = l;
+}
 void yyGUITextInput::PasteFromClipboard() {
 	this->DeleteSelected();
 	yyStringW text;
@@ -472,7 +489,13 @@ void yyGUITextInput::PasteFromClipboard() {
 	auto text_size = text.size();
 	if (text_size)
 	{
+		if (m_textElement->m_text.size() + text_size >= m_charLimit)
+		{
+			return;
+		}
+
 		m_textElement->m_text.insert(text.data(), m_textCursorPositionInChars);
+		m_textElement->SetBufferSize(m_textElement->m_text.capacity());
 		m_textElement->Rebuild();
 		m_textCursorPositionInChars += text_size;
 	}
