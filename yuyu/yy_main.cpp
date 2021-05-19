@@ -445,7 +445,47 @@ extern "C"
 
 		return g_engine->m_state != yySystemState::Quit;
 	}
+	YY_API void YY_C_DECL yyCopyTextToClipboard(yyStringW* str) {
+		assert(str);
+		if (!str->size())
+			return;
+#ifdef YY_PLATFORM_WINDOWS
+		if (!OpenClipboard(0))
+			return;
 
+		auto len = str->size();
+		EmptyClipboard();
+		HGLOBAL clipbuffer;
+		clipbuffer = GlobalAlloc(GMEM_DDESHARE, (len + 1) * sizeof(WCHAR));
+
+		wchar_t* buffer;
+		buffer = (wchar_t*)GlobalLock(clipbuffer);
+
+		memcpy(buffer, str->data(), str->size() * sizeof(wchar_t));
+		buffer[len] = 0;
+
+		GlobalUnlock(clipbuffer);
+		SetClipboardData(CF_UNICODETEXT, clipbuffer);
+		CloseClipboard();
+#else
+#error Need implementation....
+#endif
+	}
+	YY_API void YY_C_DECL yyGetTextFromClipboard(yyStringW* str) {
+		assert(str);
+#ifdef YY_PLATFORM_WINDOWS
+		if (!OpenClipboard(0))
+			return;
+
+		HANDLE hData = GetClipboardData(CF_UNICODETEXT);
+		char16_t* buffer = (char16_t*)GlobalLock(hData);
+		GlobalUnlock(hData);
+		CloseClipboard();
+		str->assign(buffer);
+#else
+#error Need implementation....
+#endif
+	}
 	YY_API yyInputContext* YY_C_DECL yyGetInputContext() {
 		return g_engine->m_inputContext;
 	}

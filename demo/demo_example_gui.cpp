@@ -82,8 +82,9 @@ bool DemoExample_GUI::Init(){
 	m_text1->m_color = ColorBlue;
 	m_text1->IgnoreInput(true);*/
 
-	m_textInput = yyGUICreateTextInput(v4f(200.f, 0.f, 250.f, 16.f), g_demo->m_defaultFont, L"Text input bla bla", 0);
+	m_textInput = yyGUICreateTextInput(v4f(200.f, 0.f, 320.f, 16.f), g_demo->m_defaultFont, L"Text input bla bla", 0);
 	m_textInput->m_align = m_textInput->AlignCenter;
+	m_textInput->UseDefaultText(L"Enter text", yyColor(0.4f));
 
 	yyGUIRebuild();
 

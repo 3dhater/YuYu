@@ -11,7 +11,7 @@
 
 #pragma warning( disable : 4996 )
 
-
+const size_t yyStringWordSize = 16;
 
 template<typename char_type, typename allocator>
 class yyString_base
@@ -25,12 +25,10 @@ class yyString_base
 	typedef const yyString_base& this_const_reference;
 	
 	allocator m_allocator;
-
-	u32 m_stringWordSize;
-
+	
 	pointer m_data;
-	u32     m_allocated;
-	u32     m_size;
+	size_t     m_allocated;
+	size_t     m_size;
 
 	void reallocate( u32 new_allocated )
 	{
@@ -51,9 +49,9 @@ class yyString_base
 	}
 
 	template<typename other_type>
-	u32 getlen( const other_type* str )
+	size_t getlen( const other_type* str )
 	{
-		unsigned int len = 0u;
+		size_t len = 0u;
 		if(str[0]!=0)
 		{
 			const other_type* p = &str[ 0u ];
@@ -79,38 +77,38 @@ public:
 	typedef char_type value_type;
 	
 	yyString_base()
-		: m_stringWordSize(16), m_data(nullptr), m_allocated(16), m_size(0)
+		:m_data(nullptr), m_allocated(yyStringWordSize), m_size(0)
 	{
 		reallocate( m_allocated );
 	}
 
 	template<typename other_type>
 	yyString_base( const other_type * str )
-		: m_stringWordSize(16), m_data(nullptr), m_allocated(16), m_size(0)
+		: m_data(nullptr), m_allocated(yyStringWordSize), m_size(0)
 	{
 		reallocate( m_allocated );
 		assign( str );
 	}
 
 	yyString_base( this_const_reference str )
-		: m_stringWordSize(16), m_data(nullptr), m_allocated(16), m_size(0)
+		: m_data(nullptr), m_allocated(yyStringWordSize), m_size(0)
 	{
 		reallocate( m_allocated );
 		assign( str );
 	}
 
 	yyString_base( this_type&& str )
-		: m_stringWordSize(16), m_data(nullptr), m_allocated(16), m_size(0)
+		: m_data(nullptr), m_allocated(yyStringWordSize), m_size(0)
 	{
 		reallocate( m_allocated );
 		assign( str );
 	}
 
 	yyString_base( char_type c )
-		: m_stringWordSize(16), m_data(nullptr), m_allocated(16), m_size(0)
+		: m_data(nullptr), m_allocated(yyStringWordSize), m_size(0)
 	{
 		u32 new_size = 1u;
-		reallocate( (new_size + 1u) + m_stringWordSize );
+		reallocate( (new_size + 1u) + yyStringWordSize);
 		m_data[ 0u ] = c;
 		m_size = new_size;
 		m_data[ m_size ] = static_cast<char_type>(0x0);
@@ -123,11 +121,6 @@ public:
 			m_allocator.free( m_data );
 			//free( m_data );
 		}
-	}
-
-	void setWordSize( u32 v )
-	{
-		m_stringWordSize = v;
 	}
 
 	void reserve( u32 size )
@@ -161,7 +154,7 @@ public:
 		u32 new_size = getlen( str ) + m_size;
 
 		if( (new_size + 1u) > m_allocated )
-			reallocate( (new_size + 1u) + m_stringWordSize );
+			reallocate( (new_size + 1u) + yyStringWordSize);
 
 		copy( &m_data[m_size], str );
 
@@ -174,10 +167,33 @@ public:
 		append( str.data() );
 	}
 
+	template<typename other_type>
+	void insert(const other_type * str, size_t where) {
+		size_t str_len = getlen(str);
+		size_t new_size = str_len + m_size;
+		if ((new_size + 1u) > m_allocated)
+			reallocate((new_size + 1u) + yyStringWordSize);
+
+		size_t i = m_size;
+		while (i >= where)
+		{
+			m_data[i + str_len] = m_data[i];
+			if (i == 0)
+				break;
+			--i;
+		}
+		for (size_t i = 0; i < str_len; ++i)
+		{
+			m_data[i + where] = str[i];
+		}
+		m_size = new_size;
+		m_data[m_size] = 0;
+	}
+
 	void insert(char_type c, size_t where) {
 		u32 new_size = m_size + 1u;
 		if ((new_size + 1u) > m_allocated)
-			reallocate((new_size + 1u) + m_stringWordSize);
+			reallocate((new_size + 1u) + yyStringWordSize);
 
 		size_t i = m_size;
 		while (i >= where)
@@ -198,7 +214,7 @@ public:
 	void push_back( char_type c ){
 		u32 new_size = m_size + 1u;
 		if( (new_size + 1u) > m_allocated )
-			reallocate( (new_size + 1u) + m_stringWordSize );
+			reallocate( (new_size + 1u) + yyStringWordSize);
 		m_data[ m_size ] = c;
 		m_size = new_size;
 		m_data[ m_size ] = 0;
@@ -206,7 +222,7 @@ public:
 	void append( char_type c ){
 		u32 new_size = m_size + 1u;
 		if( (new_size + 1u) > m_allocated )
-			reallocate( (new_size + 1u) + m_stringWordSize );
+			reallocate( (new_size + 1u) + yyStringWordSize);
 		m_data[ m_size ] = c;
 		m_size = new_size;
 		m_data[ m_size ] = 0;
@@ -429,7 +445,7 @@ public:
 	{
 		if( m_size )
 		{
-			if( m_allocated > (m_size + m_stringWordSize) )
+			if( m_allocated > (m_size + yyStringWordSize) )
 			{
 				reallocate( m_size + 1u );
 				m_data[ m_size ] = static_cast<char_type>(0x0);

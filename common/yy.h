@@ -75,6 +75,9 @@ extern "C"
 	YY_API bool YY_C_DECL yyGetCursorDisableAutoChange();
 
 	YY_API yyInputContext* YY_C_DECL yyGetInputContext();
+	
+	YY_API void YY_C_DECL yyCopyTextToClipboard(yyStringW*);
+	YY_API void YY_C_DECL yyGetTextFromClipboard(yyStringW*);
 
 	// extensions = "obj 3ds fbx"
 	// extensionTitle = "Supported 3d files"
