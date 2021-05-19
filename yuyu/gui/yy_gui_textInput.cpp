@@ -254,7 +254,8 @@ void yyGUITextInput::OnUpdate(f32 dt){
 						DeselectAll();
 				}
 			}
-			else if (g_engine->m_inputContext->IsKeyHit(yyKey::K_DELETE))
+			else if (g_engine->m_inputContext->IsKeyHit(yyKey::K_DELETE)
+				&& g_engine->m_inputContext->m_kbm != yyKeyboardModifier::Shift)
 			{
 				if ((m_textCursorPositionInChars < text_size))
 				{
@@ -389,12 +390,22 @@ void yyGUITextInput::OnUpdate(f32 dt){
 				CopyToClipboard();
 			else if (g_engine->m_inputContext->IsKeyHit(yyKey::K_V))
 				PasteFromClipboard();
+			else if (g_engine->m_inputContext->IsKeyHit(yyKey::K_INSERT))
+				CopyToClipboard();
+		}
+		else if (g_engine->m_inputContext->m_kbm == yyKeyboardModifier::Shift)
+		{
+			if (g_engine->m_inputContext->IsKeyHit(yyKey::K_INSERT))
+				PasteFromClipboard();
+			if (g_engine->m_inputContext->IsKeyHit(yyKey::K_DELETE))
+				CutToClipboard();
 		}
 		else if (g_engine->m_inputContext->m_character)
 		{
 			if (g_engine->m_inputContext->m_character != L'\n'
 				&& g_engine->m_inputContext->m_character != 8 // backspace
 				&& g_engine->m_inputContext->m_character != 13 // enter
+				&& g_engine->m_inputContext->m_character != 27 // escape
 				)
 			{
 				bool ok = true;
@@ -404,6 +415,7 @@ void yyGUITextInput::OnUpdate(f32 dt){
 					if (!m_onCharacter(g_engine->m_inputContext->m_character))
 						ok = false;
 				}
+				
 				if (ok)
 				{
 					if (m_isSelected)
