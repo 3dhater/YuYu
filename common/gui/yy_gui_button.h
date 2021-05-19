@@ -16,8 +16,8 @@ public:
 	virtual void SetVisible(bool v);
 	virtual void SetOffset(const v2f& o);
 
-	virtual void SetMouseHoverTexture(yyResource*, v4i* uv = 0);
-	virtual void SetMouseClickTexture(yyResource*, v4i* uv = 0);
+	virtual void SetMouseHoverTexture(yyResource*, v4f* uv = 0);
+	virtual void SetMouseClickTexture(yyResource*, v4f* uv = 0);
 
 
 	virtual void SetColor(const yyColor&, s32 pictureBox);
@@ -53,7 +53,7 @@ public:
 	// fade in\out for m_mouseHoverPB
 	bool m_isAnimated;
 
-	v4i m_uvRect;
+	v4f m_uvRect;
 };
 
 #endif

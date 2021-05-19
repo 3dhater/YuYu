@@ -14,6 +14,7 @@ enum class yyGUIElementType  : u32
 	Button,
 	Text,
 	TextInput,
+	RangeSlider,
 	Group
 };
 
@@ -146,6 +147,7 @@ public:
 #include "gui\yy_gui_pictureBox.h"
 #include "gui\yy_gui_text.h"
 #include "gui\yy_gui_textInput.h"
+#include "gui\yy_gui_rangeSlider.h"
 
 #include "gui\yy_gui_button.h"
 
@@ -158,13 +160,18 @@ extern "C"
 	YY_API void YY_C_DECL yyGUIRebuild();
 
 	YY_API void YY_C_DECL yyGUIDrawAll();
-	YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResource* texture, s32 id, yyGUIDrawGroup* drawGroup, v4i* uv = 0);
+	YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResource* texture, s32 id, yyGUIDrawGroup* drawGroup, v4f* uv = 0);
 	// auto delete
 	YY_API yyGUIFont* YY_C_DECL yyGUILoadFont(const char* path);
 	YY_API yyGUIText* YY_C_DECL yyGUICreateText(const v2f& position, yyGUIFont* font, const wchar_t* text, yyGUIDrawGroup* drawGroup);
+	// ctrl+a - select all
+	// ctrl+c/ctrl+insert - copy selected
+	// ctrl+x/shift+delete - cut selected
+	// ctrl+v/shift+insert - paste selected
 	YY_API yyGUITextInput* YY_C_DECL yyGUICreateTextInput(const v4f& rect, yyGUIFont* font, const wchar_t* text, yyGUIDrawGroup* drawGroup);
+	YY_API yyGUIRangeSlider* YY_C_DECL yyGUICreateRangeSliderInt(const v4f& rect, s32 minimum, s32 maximum, s32* value, bool vertical, yyGUIDrawGroup* drawGroup);
 	// baseTexture can be 0
-	YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* baseTexture, s32 id, yyGUIDrawGroup* drawGroup, v4i* uv = 0);
+	YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* baseTexture, s32 id, yyGUIDrawGroup* drawGroup, v4f* uv = 0);
 	YY_API void YY_C_DECL yyGUIDeleteElement(yyGUIElement* elem);
 	YY_API void YY_C_DECL yyGUIRemoveElement(yyGUIElement* elem); // without yyDestroy(elem);
 	YY_API yyGUIElement* YY_C_DECL yyGUIGetElementInMouseFocus();

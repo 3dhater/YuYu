@@ -9,6 +9,7 @@ class yyGUIFont;
 class yyGUIPictureBox;
 class yyGUIText;
 class yyGUITextInput;
+class yyGUIRangeSlider;
 class yyGUIButton;
 class yyWindow;
 class Mat4;

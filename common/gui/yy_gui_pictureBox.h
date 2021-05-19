@@ -16,7 +16,7 @@ public:
 
 	yyGUICallback m_onClick; // LMB down
 
-	v4i m_uvRect;
+	v4f m_uvRect;
 };
 
 #endif

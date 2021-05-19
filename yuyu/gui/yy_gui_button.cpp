@@ -365,7 +365,7 @@ void yyGUIButton::Rebuild(){
 	}
 }
 
-YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* baseTexture, s32 id, yyGUIDrawGroup* drawGroup, v4i* uv){
+YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* baseTexture, s32 id, yyGUIDrawGroup* drawGroup, v4f* uv){
 	yyGUIButton* element = yyCreate<yyGUIButton>();
 	element->SetDrawGroup(drawGroup);
 	element->SetBuildRect(rect);
@@ -411,7 +411,7 @@ void yyGUIButton::SetVisible(bool v) {
 	m_visible = v; 
 }
 
-void yyGUIButton::SetMouseHoverTexture(yyResource* t, v4i* uv){
+void yyGUIButton::SetMouseHoverTexture(yyResource* t, v4f* uv){
 	if (!m_mouseHoverPB)
 	{
 		m_mouseHoverPB = yyGUICreatePictureBox(m_buildRectInPixels, t, -1, m_drawGroup, uv);
@@ -424,7 +424,7 @@ void yyGUIButton::SetMouseHoverTexture(yyResource* t, v4i* uv){
 	}
 }
 
-void yyGUIButton::SetMouseClickTexture(yyResource* t, v4i* uv){
+void yyGUIButton::SetMouseClickTexture(yyResource* t, v4f* uv){
 	if (!m_mouseClickPB)
 	{
 		m_mouseClickPB = yyGUICreatePictureBox(m_buildRectInPixels, t, -1, m_drawGroup, uv);

@@ -47,7 +47,7 @@ public:
 	yyArraySmall<yyResource*> m_textures;
 
 
-	u32 m_maxHeight;
+	f32 m_maxHeight;
 };
 
 #endif

@@ -11,7 +11,7 @@
 extern Engine * g_engine;
 
 yyGUIFont::yyGUIFont(){
-	m_maxHeight = 0;
+	m_maxHeight = 0.f;
 	m_glyphs.reserve(0xffff);
 	for (u32 i = 0; i < 0xffff; ++i)
 	{
@@ -194,17 +194,17 @@ YY_API yyGUIFont* YY_C_DECL yyGUILoadFont(const char* fileName){
 		v2f textureSize;
 		newFont->m_textures[0]->GetTextureSize(&textureSize);
 
-		f64 uvPerPixel_x = 1.0 / (f64)textureSize.x;
-		f64 uvPerPixel_y = 1.0 / (f64)textureSize.y;
+		f32 uvPerPixel_x = 1.0f / textureSize.x;
+		f32 uvPerPixel_y = 1.0f / textureSize.y;
 		
 		for (auto & ci : char_info_array)
 		{
 			auto glyph = newFont->GetGlyph(ci.symbol);
 			glyph->symbol = ci.symbol;
-			glyph->lb.set(ci.rect.x * uvPerPixel_x, (f64)(ci.rect.w ) * uvPerPixel_y);
-			glyph->lt.set(ci.rect.x * uvPerPixel_x, (f64)(ci.rect.y) * uvPerPixel_y);
-			glyph->rb.set((ci.rect.z) * uvPerPixel_x, (f64)(ci.rect.w) * uvPerPixel_y);
-			glyph->rt.set((ci.rect.z) * uvPerPixel_x, (f64)(ci.rect.y) * uvPerPixel_y);
+			glyph->lb.set(ci.rect.x * uvPerPixel_x, (ci.rect.w ) * uvPerPixel_y);
+			glyph->lt.set(ci.rect.x * uvPerPixel_x, (ci.rect.y) * uvPerPixel_y);
+			glyph->rb.set((ci.rect.z) * uvPerPixel_x, (ci.rect.w) * uvPerPixel_y);
+			glyph->rt.set((ci.rect.z) * uvPerPixel_x, (ci.rect.y) * uvPerPixel_y);
 
 			glyph->width = ci.rect.z - ci.rect.x ;
 			glyph->height = ci.rect.w - ci.rect.y;

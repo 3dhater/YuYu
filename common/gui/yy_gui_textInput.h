@@ -22,7 +22,7 @@ class yyGUITextInput : public yyGUIElement
 	s32 m_selectionEnd;
 	v4f m_selectionRect;
 
-	s32 m_charLimit;
+	u32 m_charLimit;
 public:
 	yyGUITextInput();
 	virtual ~yyGUITextInput();

@@ -93,7 +93,7 @@ void yyGUIPictureBox::Rebuild() {
 }
 
 
-YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResource* texture, s32 id, yyGUIDrawGroup* drawGroup, v4i* uv){
+YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResource* texture, s32 id, yyGUIDrawGroup* drawGroup, v4f* uv){
 	assert(texture);
 	yyGUIPictureBox* element = yyCreate<yyGUIPictureBox>();
 	element->SetDrawGroup(drawGroup);
@@ -113,8 +113,8 @@ YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResou
 		auto gpu = yyGetVideoDriverAPI();
 		v2f s;
 		texture->GetTextureSize(&s);
-		element->m_uvRect.z = (s32)s.x;
-		element->m_uvRect.w = (s32)s.y;
+		element->m_uvRect.z = s.x;
+		element->m_uvRect.w = s.y;
 	}
 	element->Rebuild();
 
