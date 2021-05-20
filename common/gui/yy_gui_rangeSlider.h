@@ -13,6 +13,8 @@ class yyGUIRangeSlider : public yyGUIElement
 	yyGUITextInput* m_text;
 	v4f m_limitRectangle;
 	void _calculate_limit_rectangle();
+	void _checkLimits();
+	friend void yyGUIRangeSlider_text_onEnter(yyGUIElement* elem, s32 m_id);
 public:
 	yyGUIRangeSlider();
 	virtual ~yyGUIRangeSlider();
@@ -28,6 +30,15 @@ public:
 		f32 * m_ptr_f;
 		s32 * m_ptr_i;
 	};
+	union {
+		f32 m_old_f;
+		s32 m_old_i;
+	};
+
+	                             // default:
+	f32 m_valueMultiplerNormal;  // 1.f
+	f32 m_valueMultiplerShift;   // 10.f
+	f32 m_valueMultiplerAlt;     // 0.f
 	
 	yyGUIRangeSliderType m_sliderType;
 	

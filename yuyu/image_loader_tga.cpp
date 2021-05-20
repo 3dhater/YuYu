@@ -183,9 +183,9 @@ static void ReadTGA_RLE(unsigned char *buf, int size, int bpp,FILE *f){
 
 void ImageLoaderGetInfo_TGA(const char* p, yyImage* img) {
 	_tga_header_t h;
-	unsigned char *cmap, *pix, tmp, *src, *dst;
-	int cmapsize, pixsize, pixsize2;
-	int bpp, bpp2, k, m, n, swapx, swapy;
+	//unsigned char *cmap, *pix, tmp, *src, *dst;
+	//int cmapsize, pixsize, pixsize2;
+	//int bpp, bpp2, k, m, n, swapx, swapy;
 
 	FILE* f = fopen(p, "rb");
 	if (!f)

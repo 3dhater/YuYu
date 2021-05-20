@@ -15,7 +15,7 @@ class yyGUITextInput : public yyGUIElement
 	bool m_isSelected;
 	
 	u8 m_clickCount;
-	void _end_edit();
+	void _end_edit(bool isEnter);
 
 	
 	s32 m_selectionStart;
@@ -45,6 +45,8 @@ public:
 	
 	virtual void SetLimit(s32); // default 1000
 
+	virtual void Activate();
+
 	yyGUIText* m_textElement;
 	yyGUIText* m_defaultTextElement;
 	//yyGUIPictureBox* m_bgElement;
@@ -72,6 +74,8 @@ public:
 	yyGUICallback m_onClickX2MB;
 
 	bool(*m_onCharacter)(wchar_t);
+	yyGUICallback m_onEscape;
+	yyGUICallback m_onEnter;
 
 	virtual void UseDefaultText(const wchar_t*, const yyColor&);
 };

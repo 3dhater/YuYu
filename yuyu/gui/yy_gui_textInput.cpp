@@ -14,6 +14,8 @@ yyGUITextInput::yyGUITextInput(){
 	m_horScroll = 0.f;
 	m_charLimit = 1000;
 	m_clickCount = 0;
+	m_onEscape = 0;
+	m_onEnter = 0;
 	m_defaultTextElement = 0;
 	m_textCursorTimerLimit = 0.55f;
 	m_textCursorPositionInChars = 0;
@@ -41,6 +43,10 @@ yyGUITextInput::~yyGUITextInput(){
 	if (m_textCursorElement) yyDestroy(m_textCursorElement);
 	if (m_textElement) yyDestroy(m_textElement);
 //	if (m_bgElement) yyDestroy(m_bgElement);
+}
+
+void yyGUITextInput::Activate() {
+	g_engine->m_GUIElementInputFocus = this;
 }
 
 void yyGUITextInput::OnUpdate(f32 dt){
@@ -72,7 +78,7 @@ void yyGUITextInput::OnUpdate(f32 dt){
 			if (g_engine->m_guiElementInMouseFocus != this)
 			{
 				DeselectAll();
-				this->_end_edit();
+				this->_end_edit(true);
 			}
 		}
 	}
@@ -118,7 +124,8 @@ void yyGUITextInput::OnUpdate(f32 dt){
 
 		if (g_engine->m_inputContext->m_isLMBDown)
 		{
-			g_engine->m_GUIElementInputFocus = this;
+			Activate();
+			//g_engine->m_GUIElementInputFocus = this;
 			g_engine->m_guiElementInMouseFocus = this;
 
 			++m_clickCount; // 1,2,3,4...
@@ -128,7 +135,8 @@ void yyGUITextInput::OnUpdate(f32 dt){
 		}
 		if (g_engine->m_inputContext->m_isMMBDown)
 		{
-			g_engine->m_GUIElementInputFocus = this;
+			Activate();
+			//g_engine->m_GUIElementInputFocus = this;
 			++m_clickCount; // 1,2,3,4...
 
 			if (m_onClickMMB)
@@ -136,7 +144,8 @@ void yyGUITextInput::OnUpdate(f32 dt){
 		}
 		if (g_engine->m_inputContext->m_isRMBDown)
 		{
-			g_engine->m_GUIElementInputFocus = this;
+			Activate();
+			//g_engine->m_GUIElementInputFocus = this;
 			++m_clickCount; // 1,2,3,4...
 
 			if (m_onClickRMB)
@@ -144,7 +153,8 @@ void yyGUITextInput::OnUpdate(f32 dt){
 		}
 		if (g_engine->m_inputContext->m_isX1MBDown)
 		{
-			g_engine->m_GUIElementInputFocus = this;
+			Activate();
+			//g_engine->m_GUIElementInputFocus = this;
 			++m_clickCount; // 1,2,3,4...
 
 			if (m_onClickX1MB)
@@ -152,7 +162,8 @@ void yyGUITextInput::OnUpdate(f32 dt){
 		}
 		if (g_engine->m_inputContext->m_isX2MBDown)
 		{
-			g_engine->m_GUIElementInputFocus = this;
+			Activate();
+			//g_engine->m_GUIElementInputFocus = this;
 			++m_clickCount; // 1,2,3,4...
 
 			if (m_onClickX2MB)
@@ -377,13 +388,13 @@ void yyGUITextInput::OnUpdate(f32 dt){
 			}
 			else
 			{
-				_end_edit();
+				_end_edit(false);
 			}
 		}
 		if (g_engine->m_inputContext->IsKeyHit(yyKey::K_ENTER))
 		{
 			g_engine->m_inputContext->m_key_hit[(u32)yyKey::K_ENTER] = 0;
-			_end_edit();
+			_end_edit(true);
 		}
 		
 		
@@ -444,7 +455,17 @@ void yyGUITextInput::OnUpdate(f32 dt){
 		}
 	}
 }
-void yyGUITextInput::_end_edit() {
+void yyGUITextInput::_end_edit(bool isEnter) {
+	if (isEnter)
+	{
+		if (m_onEnter)
+			m_onEnter(this, -1);
+	}
+	else
+	{
+		if (m_onEscape)
+			m_onEscape(this, -1);
+	}
 	m_clickCount = 0;
 	g_engine->m_GUIElementInputFocus = 0;
 	m_horScroll = 0.f;

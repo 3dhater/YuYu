@@ -7,6 +7,8 @@
 
 extern Demo* g_demo;
 
+DemoExample_GUI* g_demo_gui = 0;
+
 yyGUIDrawGroup* g_drawGroupToTop = 0;
 void DemoExample_GUI_ButtonGr1_onClick(yyGUIElement* elem, s32 m_id) {
 	g_drawGroupToTop = elem->m_drawGroup;
@@ -21,9 +23,12 @@ void DemoExample_GUI_button1_onClick(yyGUIElement* elem, s32 m_id) {
 }
 void DemoExample_GUI_button2_onClick(yyGUIElement* elem, s32 m_id) {
 	yyLogWriteInfo("Button 2\n");
+	g_demo_gui->m_textInput->Activate();
+	g_demo_gui->m_textInput->SelectAll();
 }
 
 DemoExample_GUI::DemoExample_GUI(){
+	g_demo_gui = this;
 	m_text_hello = 0;
 	m_drawGroup1 = 0;
 	m_drawGroup2 = 0;

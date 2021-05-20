@@ -277,33 +277,35 @@ const float string_to_float_table[17] =
 	0.000000000000001f,
 	0.0000000000000001f,
 };
-YY_FORCE_INLINE float to_float(const char16_t* str)
+
+template<typename char_type>
+float to_float(const char_type* str)
 {
 	float result = 0.f;
-	bool is_negative = *str == '-';
+	bool is_negative = *str == (char_type)'-';
 
 	if(is_negative)
 		++str;
 
 	int i = 0;
-	while(*str >= '0' && *str <= '9')
+	while(*str >= (char_type)'0' && *str <= (char_type)'9')
 	{
 		i *= 10;
-		i += *str - '0';
+		i += *str - (char_type)'0';
 		++str;
 	}
 	result = (float)i;
 				
 	i = 0;
 
-	if(*str == '.')
+	if(*str == (char_type)'.')
 		++str;
 
 	int part_2_count = 0;
-	while(*str >= '0' && *str <= '9')
+	while(*str >= (char_type)'0' && *str <= (char_type)'9')
 	{
 		i *= 10;
-		i += *str - '0';
+		i += *str - (char_type)'0';
 		++str;
 		++part_2_count;
 	}

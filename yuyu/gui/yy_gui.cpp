@@ -256,8 +256,8 @@ void Engine::GUIRebuildElement(yyGUIElement* e) {
 	{
 		parentRectInPixels.x = 0.f;
 		parentRectInPixels.y = 0.f;
-		parentRectInPixels.z = e->m_window->m_currentSize.x;
-		parentRectInPixels.w = e->m_window->m_currentSize.y;
+		parentRectInPixels.z = (f32)e->m_window->m_currentSize.x;
+		parentRectInPixels.w = (f32)e->m_window->m_currentSize.y;
 
 		parentCreationCenter.x = std::floor((f32)e->m_window->m_creationSize.x * 0.5f);
 		parentCreationCenter.y = std::floor((f32)e->m_window->m_creationSize.y * 0.5f);

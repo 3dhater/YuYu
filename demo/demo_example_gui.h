@@ -32,6 +32,8 @@ public:
 	virtual const wchar_t* GetDescription();
 
 	virtual bool DemoStep(f32 deltaTime);
+
+	friend void DemoExample_GUI_button2_onClick(yyGUIElement* elem, s32 m_id);
 };
 
 #endif
