@@ -170,6 +170,9 @@ extern "C"
 	// ctrl+v/shift+insert - paste selected
 	YY_API yyGUITextInput* YY_C_DECL yyGUICreateTextInput(const v4f& rect, yyGUIFont* font, const wchar_t* text, yyGUIDrawGroup* drawGroup);
 	YY_API yyGUIRangeSlider* YY_C_DECL yyGUICreateRangeSliderInt(const v4f& rect, s32 minimum, s32 maximum, s32* value, bool vertical, yyGUIDrawGroup* drawGroup);
+	YY_API yyGUIRangeSlider* YY_C_DECL yyGUICreateRangeSliderFloat(const v4f& rect, f32 minimum, f32 maximum, f32* value, bool vertical, yyGUIDrawGroup* drawGroup);
+	YY_API yyGUIRangeSlider* YY_C_DECL yyGUICreateRangeSliderIntNoLimit(const v4f& rect, s32* value, bool vertical, yyGUIDrawGroup* drawGroup);
+	YY_API yyGUIRangeSlider* YY_C_DECL yyGUICreateRangeSliderFloatNoLimit(const v4f& rect, f32* value, bool vertical, yyGUIDrawGroup* drawGroup);
 	// baseTexture can be 0
 	YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* baseTexture, s32 id, yyGUIDrawGroup* drawGroup, v4f* uv = 0);
 	YY_API void YY_C_DECL yyGUIDeleteElement(yyGUIElement* elem);

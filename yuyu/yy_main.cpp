@@ -617,6 +617,16 @@ extern "C"
 	YY_API void YY_C_DECL yyResetCursor(yyCursorType ct) {
 		g_engine->m_cursors[(u32)ct] = g_engine->m_cursorsDefault[(u32)ct];
 	}
+	YY_API void YY_C_DECL yyShowCursor(bool v) {
+		if (v)
+		{
+			yyGetCursor(yyCursorType::Arrow)->Activate();
+		}
+		else
+		{
+			SetCursor(0);
+		}
+	}
 	YY_API yyCursor* YY_C_DECL yyGetCursor(yyCursorType ct) {
 		return g_engine->m_cursors[(u32)ct];
 	}

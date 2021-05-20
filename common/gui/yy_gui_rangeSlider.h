@@ -2,12 +2,17 @@
 #define _YUYU_GUI_RANGESLIDER_H_
 
 enum class yyGUIRangeSliderType : u32 {
-	IntLimits
+	IntLimits,
+	FloatLimits,
+	Int,
+	Float
 };
 
 class yyGUIRangeSlider : public yyGUIElement
 {
-
+	yyGUITextInput* m_text;
+	v4f m_limitRectangle;
+	void _calculate_limit_rectangle();
 public:
 	yyGUIRangeSlider();
 	virtual ~yyGUIRangeSlider();
@@ -25,6 +30,14 @@ public:
 	};
 	
 	yyGUIRangeSliderType m_sliderType;
+	
+	yyColor m_bgColorCurrent;
+	yyColor m_bgColor;
+	yyColor m_bgColorHover;
+	yyColor m_limitRectColor;
+	bool m_vertical;
+
+	virtual void UseText(yyGUIFont*);
 };
 
 #endif

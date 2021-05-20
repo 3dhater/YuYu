@@ -15,6 +15,13 @@ class DemoExample_GUI : public DemoExample
 	yyGUIText* m_text1;
 	yyGUITextInput* m_textInput;
 
+	s32 m_rangeIntHor_value;
+	yyGUIRangeSlider* m_rangeIntHor;
+	f32 m_rangeFloatHor_value;
+	yyGUIRangeSlider* m_rangeFloatHor;
+	f32 m_rangeFloatHorNoLimit_value;
+	yyGUIRangeSlider* m_rangeFloatHorNoLimit;
+
 public:
 	DemoExample_GUI();
 	virtual ~DemoExample_GUI();

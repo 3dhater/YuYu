@@ -35,6 +35,12 @@ DemoExample_GUI::DemoExample_GUI(){
 	m_button2 = 0;
 	m_text1 = 0;
 	m_textInput = 0;
+	m_rangeIntHor = 0;
+	m_rangeIntHor_value = 0;
+	m_rangeFloatHor = 0;
+	m_rangeFloatHor_value = 0.f;
+	m_rangeFloatHorNoLimit_value = 0.f;
+	m_rangeFloatHorNoLimit = 0;
 }
 DemoExample_GUI::~DemoExample_GUI(){
 	Shutdown();
@@ -85,6 +91,18 @@ bool DemoExample_GUI::Init(){
 	m_textInput = yyGUICreateTextInput(v4f(200.f, 0.f, 320.f, 16.f), g_demo->m_defaultFont, L"Text input bla bla", 0);
 	m_textInput->m_align = m_textInput->AlignCenter;
 	m_textInput->UseDefaultText(L"Enter text", yyColor(0.4f));
+	m_textInput->m_bgColor.set(1.f, 0.f, 0.f, 0.1f);
+	m_textInput->m_bgColorHover.set(0.f, 1.f, 0.f, 0.1f);
+	m_textInput->m_bgColorActive.set(0.f, 0.f, 1.f, 0.1f);
+
+	m_rangeIntHor = yyGUICreateRangeSliderInt(v4f(330.f, 0.f, 400.f, 16.f), 0, 100, &m_rangeIntHor_value, false, 0);
+	m_rangeIntHor->UseText(g_demo->m_defaultFont);
+
+	m_rangeFloatHor = yyGUICreateRangeSliderFloat(v4f(330.f, 17.f, 400.f, 33.f), 0.f, 100.f, &m_rangeFloatHor_value, false, 0);
+	m_rangeFloatHor->UseText(g_demo->m_defaultFont);
+
+	m_rangeFloatHorNoLimit = yyGUICreateRangeSliderFloatNoLimit(v4f(330.f, 34.f, 400.f, 50.f), &m_rangeFloatHorNoLimit_value, false, 0);
+	m_rangeFloatHorNoLimit->UseText(g_demo->m_defaultFont);
 
 	yyGUIRebuild();
 
@@ -93,6 +111,21 @@ bool DemoExample_GUI::Init(){
 
 
 void DemoExample_GUI::Shutdown(){
+	if (m_rangeFloatHorNoLimit)
+	{
+		yyGUIDeleteElement(m_rangeFloatHorNoLimit);
+		m_rangeFloatHorNoLimit = 0;
+	}
+	if (m_rangeFloatHor)
+	{
+		yyGUIDeleteElement(m_rangeFloatHor);
+		m_rangeFloatHor = 0;
+	}
+	if (m_rangeIntHor)
+	{
+		yyGUIDeleteElement(m_rangeIntHor);
+		m_rangeIntHor = 0;
+	}
 	if (m_textInput)
 	{
 		yyGUIDeleteElement(m_textInput);

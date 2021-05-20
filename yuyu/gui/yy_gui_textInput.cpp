@@ -65,6 +65,17 @@ void yyGUITextInput::OnUpdate(f32 dt){
 			_calculate_rects();
 		}
 	}
+	else 
+	{
+		if (g_engine->m_inputContext->m_isLMBDown)
+		{
+			if (g_engine->m_guiElementInMouseFocus != this)
+			{
+				DeselectAll();
+				this->_end_edit();
+			}
+		}
+	}
 
 	if ((g_engine->m_guiElementInMouseFocus == this) && (m_clickCount > 1))
 	{
@@ -95,27 +106,20 @@ void yyGUITextInput::OnUpdate(f32 dt){
 		yyGetCursor(yyCursorType::Arrow)->Activate();
 	}
 
-	if (m_isInActiveAreaRect)
+	if (m_isInActiveAreaRect && (!g_engine->m_guiElementInMouseFocus))
 	{
 		m_bgColorCurrent = m_bgColorHover;
 
-		yyGetCursor(yyCursorType::IBeam)->Activate();
+		if (!g_engine->m_guiElementInMouseFocus)
+			yyGetCursor(yyCursorType::IBeam)->Activate();
 
 		if (m_onMouseInRect)
 			m_onMouseInRect(this,m_id);
 
 		if (g_engine->m_inputContext->m_isLMBDown)
 		{
-			/*if (g_engine->m_inputContext->m_mouseDelta.x == 0.f &&
-				g_engine->m_inputContext->m_mouseDelta.y == 0.f)
-			{
-				DeselectAll();
-			}*/
-			
-
 			g_engine->m_GUIElementInputFocus = this;
 			g_engine->m_guiElementInMouseFocus = this;
-			
 
 			++m_clickCount; // 1,2,3,4...
 			
@@ -162,12 +166,6 @@ void yyGUITextInput::OnUpdate(f32 dt){
 		if (GUIElementInputFocus_old != this)
 		{
 			m_textCursorTimer = 0.f;
-			{
-				_calculate_text_cursor_position_from_mouse();
-				m_textCursorPositionWhenClick = m_textCursorPositionInChars;
-				SelectAll();
-				_calculate_rects();
-			}
 		}
 
 		m_textCursorTimer += dt;
@@ -367,6 +365,7 @@ void yyGUITextInput::OnUpdate(f32 dt){
 				_calculate_rects();
 			}
 		}
+
 		m_bgColorCurrent = m_bgColorActive;
 
 		if (g_engine->m_inputContext->IsKeyHit(yyKey::K_ESCAPE))
@@ -651,7 +650,8 @@ begin:
 
 void yyGUITextInput::OnDraw(){
 	if (!m_visible) return;
-	//m_bgElement->OnDraw();
+
+
 	g_engine->m_videoAPI->DrawRectangle(m_buildRectInPixels, m_bgColorCurrent, m_bgColorCurrent);
 	if (m_isSelected)
 	{

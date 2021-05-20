@@ -56,7 +56,7 @@ bool OpenGLShaderRectangle::init(){
 		"in vec4 out_color;\n"
 		"out vec4 color;\n"
 		"void main(){\n"
-		"    color = vec4(out_color.xyz, 1.f);\n"
+		"    color = out_color;\n"
 		"}\n";
 	if( !createShader(text_v, text_f, nullptr, m_program) )
 		return false;
