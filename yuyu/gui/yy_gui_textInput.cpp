@@ -394,6 +394,10 @@ void yyGUITextInput::OnUpdate(f32 dt){
 		if (g_engine->m_inputContext->IsKeyHit(yyKey::K_ENTER))
 		{
 			g_engine->m_inputContext->m_key_hit[(u32)yyKey::K_ENTER] = 0;
+			if (m_isSelected)
+			{
+				DeselectAll();
+			}
 			_end_edit(true);
 		}
 		
@@ -414,11 +418,18 @@ void yyGUITextInput::OnUpdate(f32 dt){
 		else if (g_engine->m_inputContext->m_kbm == yyKeyboardModifier::Shift)
 		{
 			if (g_engine->m_inputContext->IsKeyHit(yyKey::K_INSERT))
+			{
 				PasteFromClipboard();
+				g_engine->m_inputContext->m_character = 0;
+			}
 			if (g_engine->m_inputContext->IsKeyHit(yyKey::K_DELETE))
+			{
 				CutToClipboard();
+				g_engine->m_inputContext->m_character = 0;
+			}
 		}
-		else if (g_engine->m_inputContext->m_character)
+		
+		if (g_engine->m_inputContext->m_character)
 		{
 			if (g_engine->m_inputContext->m_character != L'\n'
 				&& g_engine->m_inputContext->m_character != 8 // backspace
