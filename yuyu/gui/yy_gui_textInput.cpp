@@ -415,52 +415,55 @@ void yyGUITextInput::OnUpdate(f32 dt){
 			else if (g_engine->m_inputContext->IsKeyHit(yyKey::K_INSERT))
 				CopyToClipboard();
 		}
-		else if (g_engine->m_inputContext->m_kbm == yyKeyboardModifier::Shift)
+		else// if (g_engine->m_inputContext->m_kbm == yyKeyboardModifier::Shift)
 		{
-			if (g_engine->m_inputContext->IsKeyHit(yyKey::K_INSERT))
+			if (g_engine->m_inputContext->m_kbm == yyKeyboardModifier::Shift)
 			{
-				PasteFromClipboard();
-				g_engine->m_inputContext->m_character = 0;
-			}
-			if (g_engine->m_inputContext->IsKeyHit(yyKey::K_DELETE))
-			{
-				CutToClipboard();
-				g_engine->m_inputContext->m_character = 0;
-			}
-		}
-		
-		if (g_engine->m_inputContext->m_character)
-		{
-			if (g_engine->m_inputContext->m_character != L'\n'
-				&& g_engine->m_inputContext->m_character != 8 // backspace
-				&& g_engine->m_inputContext->m_character != 13 // enter
-				&& g_engine->m_inputContext->m_character != 27 // escape
-				)
-			{
-				bool ok = true;
-				//wprintf(L"%c %i\n", g_engine->m_inputContext->m_character,(s32)g_engine->m_inputContext->m_character);
-				if (m_onCharacter)
+				if (g_engine->m_inputContext->IsKeyHit(yyKey::K_INSERT))
 				{
-					if (!m_onCharacter(g_engine->m_inputContext->m_character))
-						ok = false;
+					PasteFromClipboard();
+					//g_engine->m_inputContext->m_character = 0;
 				}
+				if (g_engine->m_inputContext->IsKeyHit(yyKey::K_DELETE))
+				{
+					CutToClipboard();
+					//g_engine->m_inputContext->m_character = 0;
+				}
+			}
+
+			if (g_engine->m_inputContext->m_character)
+			{
+				if (g_engine->m_inputContext->m_character != L'\n'
+					&& g_engine->m_inputContext->m_character != 8 // backspace
+					&& g_engine->m_inputContext->m_character != 13 // enter
+					&& g_engine->m_inputContext->m_character != 27 // escape
+					)
+				{
+					bool ok = true;
+					//wprintf(L"%c %i\n", g_engine->m_inputContext->m_character,(s32)g_engine->m_inputContext->m_character);
+					if (m_onCharacter)
+					{
+						if (!m_onCharacter(g_engine->m_inputContext->m_character))
+							ok = false;
+					}
 				
-				if (m_textElement->m_text.size() >= m_charLimit)
-				{
-					ok = false;
-				}
+					if (m_textElement->m_text.size() >= m_charLimit)
+					{
+						ok = false;
+					}
 
-				if (ok)
-				{
-					if (m_isSelected)
-						DeleteSelected();
+					if (ok)
+					{
+						if (m_isSelected)
+							DeleteSelected();
 
-					m_textElement->m_text.insert(g_engine->m_inputContext->m_character, m_textCursorPositionInChars);
-					m_textElement->SetBufferSize(m_textElement->m_text.capacity());
-					m_textElement->Rebuild();
+						m_textElement->m_text.insert(g_engine->m_inputContext->m_character, m_textCursorPositionInChars);
+						m_textElement->SetBufferSize(m_textElement->m_text.capacity());
+						m_textElement->Rebuild();
 
-					++m_textCursorPositionInChars;
-					_calculate_rects();
+						++m_textCursorPositionInChars;
+						_calculate_rects();
+					}
 				}
 			}
 		}

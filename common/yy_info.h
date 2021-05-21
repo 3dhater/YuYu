@@ -40,6 +40,8 @@
 #define YY_FUNCTION __FUNCTION__
 #define YY_LINE __LINE__
 
+#define YY_ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
+
 #define YY_DL_LOADLIBRARY
 #define YY_DL_FREELIBRARY
 #define YY_DL_GETPROCADDRESS

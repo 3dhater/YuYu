@@ -249,6 +249,21 @@ struct yySprite2
 	{
 		m_currentState = state;
 	}
+
+	void SetState(const char* name)
+	{
+		assert(name);
+		yyStringA stra = name;
+
+		for (u16 i = 0, sz = m_states.size(); i < sz; ++i)
+		{
+			if (m_states.m_data[i]->m_name == stra) {
+				m_currentState = m_states.m_data[i];
+				return;
+			}
+		}
+
+	}
 	
 	yyResource* m_texture;
 

@@ -72,27 +72,41 @@ bool DemoExample_Sprite::Init(){
 
 	m_spriteHero = yyCreateSprite2(yyCreateTextureFromFile("../res/GA3E/hero0.png"));
 //	m_spriteHero->SetState(m_spriteHero->AddStateSingleFrame("0", v4f(82.f, 0.f, 120.f, 84.f), 5, false, false));
-	v4f spriteHeroAnimation[] = {
+	
+	{
+		v4f spriteHeroAnimation[] = {
 		v4f(0.f, 0.f, 38.f, 84.f),
 		v4f(41.f, 0.f, 79.f, 84.f),
-		v4f(82.f, 0.f, 120.f, 84.f),
-		v4f(124.f, 0.f, 173.f, 84.f),
-		v4f(176.f, 0.f, 221.f, 84.f),
-		v4f(226.f, 0.f, 294.f, 84.f),
-		v4f(298.f, 0.f, 362.f, 84.f),
-	};
-	v2f spriteHeroAnimationOffsets[] = {
-		v2f(0.f, 0.f),
-		v2f(0.f, 0.f),
-		v2f(0.f, 0.f),
-		v2f(5.f, 0.f),
-		v2f(3.f, 0.f),
-		v2f(-15.f, 0.f),
-		v2f(-12.f, 0.f),
-	};
-	m_spriteHero->SetState( m_spriteHero->AddStateAnimation("0", spriteHeroAnimation, spriteHeroAnimationOffsets, 
-		7, 5, false, false ) );
-	m_spriteHero->m_currentState->SetFPS(6.f);
+		};
+		v2f spriteHeroAnimationOffsets[] = {
+			v2f(0.f, 0.f),
+			v2f(0.f, 0.f),
+		};
+		m_spriteHero->SetState(m_spriteHero->AddStateAnimation("0", spriteHeroAnimation, spriteHeroAnimationOffsets,
+			YY_ARRAY_SIZE(spriteHeroAnimation), 5, false, false));
+		m_spriteHero->m_currentState->SetFPS(2.f);
+	}
+	{
+		v4f spriteHeroAnimation[] = {
+			v4f(82.f, 0.f, 120.f, 84.f),
+			v4f(124.f, 0.f, 173.f, 84.f),
+			v4f(176.f, 0.f, 221.f, 84.f),
+			v4f(226.f, 0.f, 294.f, 84.f),
+			v4f(298.f, 0.f, 362.f, 84.f),
+		};
+		v2f spriteHeroAnimationOffsets[] = {
+			v2f(0.f, 0.f),
+			v2f(5.f, 0.f),
+			v2f(0.f, 0.f),
+			v2f(0.f, 0.f),
+			v2f(0.f, 0.f),
+		};
+		m_spriteHero->SetState(m_spriteHero->AddStateAnimation("1", spriteHeroAnimation, spriteHeroAnimationOffsets,
+			YY_ARRAY_SIZE(spriteHeroAnimation), 5, false, false));
+		m_spriteHero->m_currentState->SetFPS(2.f);
+	}
+
+	m_spriteHero->SetState("1");
 
 	return true;
 }
