@@ -94,21 +94,15 @@ YY_API void YY_C_DECL yyGUIRemoveElement(yyGUIElement* elem){
 
 YY_API yyGUIDrawGroup* YY_C_DECL yyGUICreateDrawGroup() {
 	yyGUIDrawGroup* new_dg = yyCreate<yyGUIDrawGroup>();
-	if (!g_engine->m_mainGUIDrawGroup)
-		g_engine->m_mainGUIDrawGroup = new_dg;
-	else
-		g_engine->m_GUIDrawGroups.push_back(new_dg);
+	g_engine->m_GUIDrawGroups.push_back(new_dg);
 	return new_dg;
 }
 
 YY_API void YY_C_DECL yyGUIDeleteDrawGroup(yyGUIDrawGroup* dg) {
 	assert(dg);
-	yyDestroy(dg);
 	if (dg == g_engine->m_mainGUIDrawGroup)
-	{
-		g_engine->m_mainGUIDrawGroup = 0;
 		return;
-	}
+	yyDestroy(dg);
 	g_engine->m_GUIDrawGroups.erase_first(dg);
 }
 
@@ -174,6 +168,7 @@ YY_API bool YY_C_DECL yyGUIIsInputFocus() {
 YY_API bool YY_C_DECL yyGUIUpdate(f32 deltaTime){
 	g_engine->m_cursorInGUI = false;
 	g_engine->m_guiIgnoreUpdateInput = false;
+
 
 	auto dg = g_engine->m_GUIDrawGroups.head();
 	for(size_t i = 0, sz = g_engine->m_GUIDrawGroups.size(); i < sz; ++i)
