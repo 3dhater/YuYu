@@ -35,7 +35,7 @@ bool OpenGLShaderLineModel::init(){
 		"uniform vec3 Eye;\n"
 		"void main(){\n"
 		"gl_Position = WVP * vec4(inputPosition,1.0f);\n"
-		"gl_Position.z -= 0.0001f;\n"
+		"gl_Position.z -= 0.0000015f;\n"
 		"vertexColor = inputColor;\n"
 		"vertexNormal = normalize(W * vec4(inputNormal,1.f));\n"
 		"viewDir = normalize(Eye - (mat3(W) * inputPosition));\n"

@@ -45,10 +45,25 @@ bool D3D11ShaderLineModel::init(){
 		"VSOut VSMain(VSIn input){\n"
 		"   VSOut output;\n"
 		"	output.pos   = mul(WVP, float4(input.position.x, input.position.y, input.position.z, 1.f));\n"
-		"	output.pos.z    -= 0.0001f;\n"
+		"	output.pos.z    -= 0.0000015f;\n"
 		"	output.color    = input.color;\n"
 		"	return output;\n"
 		"}\n"
+		//"[maxvertexcount(2)]\n"
+		//"void GSMain(line VSOut input[2], inout TriangleStream<VSOut> TriStream ){\n"
+		//"	VSOut Out;\n"
+		//"	Out.color = input[0].color;\n"
+
+		//"	Out.pos =input[0].pos;\n"
+		//"	TriStream.Append(Out);\n"
+
+		//"	Out.color = input[1].color;\n"
+		////"	Out.color.x = 1.f;\n"
+		//"	Out.pos =input[1].pos;\n"
+		//"	TriStream.Append(Out);\n"
+
+		//"	TriStream.RestartStrip();\n"
+		//"}\n"
 		"PSOut PSMain(VSOut input){\n"
 		"    PSOut output;\n"
 		"    output.color = input.color * BaseColor;\n"
@@ -74,6 +89,12 @@ bool D3D11ShaderLineModel::init(){
 		YY_PRINT_FAILED;
 		return false;
 	}
+
+	/*if (!D3D11_createGeometryShaders("gs_4_0", text, "GSMain", &m_gShader))
+	{
+		YY_PRINT_FAILED;
+		return false;
+	}*/
 
 	if (!D3D11_createConstantBuffer(sizeof(cbVertex), &m_cbVertex))
 	{
@@ -103,6 +124,7 @@ void D3D11ShaderLineModel::SetConstants(yyMaterial* material){
 	memcpy(mappedResource.pData, &m_cbVertexData, d.ByteWidth);
 	g_d3d11->m_d3d11DevCon->Unmap(m_cbVertex, 0);
 	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &m_cbVertex);
+	//g_d3d11->m_d3d11DevCon->GSSetConstantBuffers(0, 1, &m_cbVertex);
 
 	g_d3d11->m_d3d11DevCon->Map(m_cbPixel, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	m_cbPixel->GetDesc(&d);

@@ -13,7 +13,6 @@ extern D3D11 * g_d3d11;
 
 D3D11ShaderPoints::D3D11ShaderPoints(){
 	m_cbVertex = 0;
-	m_gShader = 0;
 }
 
 D3D11ShaderPoints::~D3D11ShaderPoints(){

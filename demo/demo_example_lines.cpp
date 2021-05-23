@@ -128,7 +128,7 @@ bool DemoExample_Lines::Init(){
 	clColor.setAsByteBlue(255);
 	m_lineModelMaterial.SetFogColor(clColor);
 
-	m_gpu->SetClearColor(clColor.m_data[0], clColor.m_data[1], clColor.m_data[2], 1.f);
+	//m_gpu->SetClearColor(clColor.m_data[0], clColor.m_data[1], clColor.m_data[2], 1.f);
 
 	return true;
 }
@@ -194,7 +194,7 @@ bool DemoExample_Lines::DemoStep(f32 deltaTime){
 
 	m_gpu->SetModel(m_lineModel);
 	yySetMaterial(m_lineModelMaterial);
-//	m_gpu->Draw();
+	m_gpu->Draw();
 	
 	//m_lineModelMaterial.m_cullBackFace = true;
 	//m_gpu->SetMaterial(&m_lineModelMaterial);

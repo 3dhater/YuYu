@@ -75,7 +75,7 @@ void yyGUITextInput::OnUpdate(f32 dt){
 	{
 		if (g_engine->m_inputContext->m_isLMBDown)
 		{
-			if (g_engine->m_guiElementInMouseFocus != this)
+			if (g_engine->m_guiElementInMouseFocus != this && g_engine->m_GUIElementInputFocus == this)
 			{
 				DeselectAll();
 				this->_end_edit(true);
@@ -470,13 +470,16 @@ void yyGUITextInput::OnUpdate(f32 dt){
 	}
 }
 void yyGUITextInput::_end_edit(bool isEnter) {
+	printf("1");
 	if (isEnter)
 	{
+		printf("2");
 		if (m_onEnter)
 			m_onEnter(this, -1);
 	}
 	else
 	{
+		printf("3");
 		if (m_onEscape)
 			m_onEscape(this, -1);
 	}
@@ -731,7 +734,7 @@ void yyGUITextInput::SetText(const wchar_t* format, ...){
 }
 
 void yyGUITextInput::Clear(){
-	m_textElement->Clear();
+	DeleteAll();
 }
 
 void yyGUITextInput::Rebuild() {
