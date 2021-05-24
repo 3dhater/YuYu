@@ -149,7 +149,12 @@ void yyGUIRangeSlider::OnUpdate(f32 dt){
 
 	if (g_engine->m_inputContext->m_isLMBUp)
 	{
-		yySetCursorDisableAutoChange(false);
+		if (g_engine->m_guiElementInMouseFocus == this)
+		{
+			yySetCursorDisableAutoChange(false);
+			g_engine->m_guiElementInMouseFocus = false;
+			g_engine->m_GUIElementInputFocus = false;
+		}
 	}
 
 	if (g_engine->m_inputContext->m_LMBClickCount > 1)
