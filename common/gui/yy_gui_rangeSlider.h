@@ -14,6 +14,8 @@ class yyGUIRangeSlider : public yyGUIElement
 	v4f m_limitRectangle;
 	void _calculate_limit_rectangle();
 	void _checkLimits();
+
+	friend void yyGUIRangeSlider_text_onRebuildSetRects(yyGUIElement* elem, s32 m_id);
 	friend void yyGUIRangeSlider_text_onEnter(yyGUIElement* elem, s32 m_id);
 public:
 	yyGUIRangeSlider();

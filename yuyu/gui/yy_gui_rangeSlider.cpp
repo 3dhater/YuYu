@@ -313,6 +313,13 @@ void yyGUIRangeSlider::Rebuild() {
 	if (m_text) m_text->Rebuild();
 }
 
+void yyGUIRangeSlider_text_onRebuildSetRects(yyGUIElement* elem, s32 m_id) {
+	yyGUIRangeSlider * slider = (yyGUIRangeSlider *)elem->m_userData;
+	slider->m_text->m_buildRectInPixels = slider->m_buildRectInPixels;
+
+	slider->m_text->m_clipRectInPixels = slider->m_buildRectInPixels;
+	slider->m_text->m_sensorRectInPixels = slider->m_buildRectInPixels;
+}
 void yyGUIRangeSlider::UseText(yyGUIFont* f) {
 	if (!f) return;
 	if (m_text) return;
@@ -324,10 +331,12 @@ void yyGUIRangeSlider::UseText(yyGUIFont* f) {
 		m_text->m_onCharacter = yyGUIRangeSlider_text_onCharacter;
 		m_text->m_onEscape = yyGUIRangeSlider_text_onEscape;
 		m_text->m_onEnter = yyGUIRangeSlider_text_onEnter;
+		m_text->m_onRebuildSetRects = yyGUIRangeSlider_text_onRebuildSetRects;
 		m_text->m_userData = this;
 		m_text->m_bgColor.set(0.f, 0.f, 0.f, 0.f);
 		m_text->m_bgColorHover.set(0.f, 0.f, 0.f, 0.f);
 		m_text->m_bgColorActive.set(0.f, 0.f, 0.f, 0.f);
+
 		switch (m_sliderType)
 		{
 		default:
@@ -341,6 +350,7 @@ void yyGUIRangeSlider::UseText(yyGUIFont* f) {
 			break;
 		}
 		yyGUIRemoveElement(m_text);
+		
 	}
 }
 
