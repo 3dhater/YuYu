@@ -27,6 +27,21 @@ void DemoExample_GUI_button2_onClick(yyGUIElement* elem, s32 m_id) {
 	g_demo_gui->m_textInput->SelectAll();
 }
 
+void DemoExample_range_onValueChanged(yyGUIRangeSlider* slider) {
+	switch (slider->m_sliderType)
+	{
+	case yyGUIRangeSliderType::Int:
+	case yyGUIRangeSliderType::IntLimits:
+	default:
+		printf("Slider: %i\n", *slider->m_ptr_i);
+		break;
+	case yyGUIRangeSliderType::Float:
+	case yyGUIRangeSliderType::FloatLimits:
+		printf("Slider: %f\n", *slider->m_ptr_f);
+		break;
+	}
+}
+
 DemoExample_GUI::DemoExample_GUI(){
 	g_demo_gui = this;
 	m_text_hello = 0;
@@ -102,12 +117,15 @@ bool DemoExample_GUI::Init(){
 
 	m_rangeIntHor = yyGUICreateRangeSliderInt(v4f(330.f, 0.f, 400.f, 16.f), 0, 100, &m_rangeIntHor_value, false, 0);
 	m_rangeIntHor->UseText(g_demo->m_defaultFont);
+	m_rangeIntHor->m_onValueChanged = DemoExample_range_onValueChanged;
 
 	m_rangeFloatHor = yyGUICreateRangeSliderFloat(v4f(330.f, 17.f, 400.f, 33.f), 0.f, 100.f, &m_rangeFloatHor_value, false, 0);
 	m_rangeFloatHor->UseText(g_demo->m_defaultFont);
+	m_rangeFloatHor->m_onValueChanged = DemoExample_range_onValueChanged;
 
 	m_rangeFloatHorNoLimit = yyGUICreateRangeSliderFloatNoLimit(v4f(330.f, 34.f, 400.f, 50.f), &m_rangeFloatHorNoLimit_value, false, 0);
 	m_rangeFloatHorNoLimit->UseText(g_demo->m_defaultFont);
+	m_rangeFloatHorNoLimit->m_onValueChanged = DemoExample_range_onValueChanged;
 
 	yyGUIRebuild();
 

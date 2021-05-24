@@ -49,6 +49,8 @@ public:
 	bool m_vertical;
 
 	virtual void UseText(yyGUIFont*);
+
+	void(*m_onValueChanged)(yyGUIRangeSlider*);
 };
 
 #endif

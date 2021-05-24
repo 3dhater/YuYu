@@ -68,11 +68,15 @@ void yyGUIRangeSlider_text_onEnter(yyGUIElement* elem, s32 m_id) {
 		break;
 	}
 	slider->_calculate_limit_rectangle();
+
+	if (slider->m_onValueChanged)
+		slider->m_onValueChanged(slider);
 }
 
 yyGUIRangeSlider::yyGUIRangeSlider(){
 	m_type = yyGUIElementType::RangeSlider;
 	m_sliderType = yyGUIRangeSliderType::IntLimits;
+	m_onValueChanged = 0;
 	m_vertical = false;
 	m_bgColor.set(0.2f);
 	m_bgColorHover.set(0.45f);
@@ -177,8 +181,11 @@ void yyGUIRangeSlider::OnUpdate(f32 dt){
 		{
 			counter += g_engine->m_inputContext->m_mouseDelta.x;
 		}
+		bool need_update = false;
 		if (counter >= slower)
 		{
+			need_update = true;
+
 			value_add = counter / slower;
 			value_add *= m_valueMultiplerNormal;
 
@@ -191,6 +198,8 @@ void yyGUIRangeSlider::OnUpdate(f32 dt){
 		}
 		if (counter <= -slower)
 		{
+			need_update = true;
+		
 			value_add = counter / slower;
 			value_add *= m_valueMultiplerNormal;
 			
@@ -202,38 +211,47 @@ void yyGUIRangeSlider::OnUpdate(f32 dt){
 			counter = 0.f;
 		}
 		
-		switch (m_sliderType)
+		if (need_update)
 		{
-		case yyGUIRangeSliderType::Int:
-		case yyGUIRangeSliderType::IntLimits:
-			*m_ptr_i += (s32)value_add;
-			if (value_add != 0.f)
+			switch (m_sliderType)
 			{
-				if (m_sliderType == yyGUIRangeSliderType::IntLimits)
+			case yyGUIRangeSliderType::Int:
+			case yyGUIRangeSliderType::IntLimits:
+				*m_ptr_i += (s32)value_add;
+				if (value_add != 0.f)
 				{
-					_checkLimits();
-					_calculate_limit_rectangle();
+					if (m_sliderType == yyGUIRangeSliderType::IntLimits)
+					{
+						_checkLimits();
+						_calculate_limit_rectangle();
+					}
+					if (m_text)
+						m_text->SetText(L"%i", *m_ptr_i);
+
+					if (m_onValueChanged)
+						m_onValueChanged(this);
 				}
-				if (m_text)
-					m_text->SetText(L"%i", *m_ptr_i);
-			}
-			break;
-		case yyGUIRangeSliderType::Float:
-		case yyGUIRangeSliderType::FloatLimits:
-			*m_ptr_f += value_add;
-			
-			if (value_add != 0.f)
-			{
-				if (m_sliderType == yyGUIRangeSliderType::FloatLimits) {
-					_checkLimits();
-					_calculate_limit_rectangle();
+				break;
+			case yyGUIRangeSliderType::Float:
+			case yyGUIRangeSliderType::FloatLimits:
+				*m_ptr_f += value_add;
+
+				if (value_add != 0.f)
+				{
+					if (m_sliderType == yyGUIRangeSliderType::FloatLimits) {
+						_checkLimits();
+						_calculate_limit_rectangle();
+					}
+					if (m_text)
+						m_text->SetText(L"%f", *m_ptr_f);
+
+					if (m_onValueChanged)
+						m_onValueChanged(this);
 				}
-				if (m_text)
-					m_text->SetText(L"%f", *m_ptr_f);
+				break;
+			default:
+				break;
 			}
-			break;
-		default:
-			break;
 		}
 	}
 

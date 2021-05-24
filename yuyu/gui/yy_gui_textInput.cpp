@@ -470,16 +470,13 @@ void yyGUITextInput::OnUpdate(f32 dt){
 	}
 }
 void yyGUITextInput::_end_edit(bool isEnter) {
-	printf("1");
 	if (isEnter)
 	{
-		printf("2");
 		if (m_onEnter)
 			m_onEnter(this, -1);
 	}
 	else
 	{
-		printf("3");
 		if (m_onEscape)
 			m_onEscape(this, -1);
 	}
