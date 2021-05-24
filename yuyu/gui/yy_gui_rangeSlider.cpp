@@ -267,6 +267,26 @@ void yyGUIRangeSlider::OnUpdate(f32 dt){
 	}
 }
 
+void yyGUIRangeSlider::UpdateText() {
+	switch (m_sliderType)
+	{
+	case yyGUIRangeSliderType::Int:
+	case yyGUIRangeSliderType::IntLimits:
+		if (m_text)
+			m_text->SetText(L"%i", *m_ptr_i);
+		break;
+	case yyGUIRangeSliderType::Float:
+	case yyGUIRangeSliderType::FloatLimits:
+		if (m_text)
+			m_text->SetText(L"%f", *m_ptr_f);
+		break;
+	default:
+		break;
+	}
+	_checkLimits();
+	_calculate_limit_rectangle();
+}
+
 void yyGUIRangeSlider::OnDraw(){
 	if (!m_visible) return;
 	//m_bgElement->OnDraw();
@@ -316,6 +336,7 @@ void yyGUIRangeSlider::Rebuild() {
 	yyGUIElement::CallOnRebuildSetRects();
 	
 	if (m_text) m_text->Rebuild();
+	_calculate_limit_rectangle();
 }
 
 void yyGUIRangeSlider_text_onRebuildSetRects(yyGUIElement* elem, s32 m_id) {

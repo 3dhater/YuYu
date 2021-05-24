@@ -122,11 +122,11 @@ bool DemoExample_GUI::Init(){
 	m_rangeFloatHor = yyGUICreateRangeSliderFloat(v4f(330.f, 17.f, 400.f, 33.f), 0.f, 100.f, &m_rangeFloatHor_value, false, 0);
 	m_rangeFloatHor->UseText(g_demo->m_defaultFont);
 	m_rangeFloatHor->m_onValueChanged = DemoExample_range_onValueChanged;
+	m_rangeFloatHor->m_align = m_rangeFloatHorNoLimit->AlignRightTop;
 
 	m_rangeFloatHorNoLimit = yyGUICreateRangeSliderFloatNoLimit(v4f(330.f, 34.f, 400.f, 50.f), &m_rangeFloatHorNoLimit_value, false, 0);
 	m_rangeFloatHorNoLimit->UseText(g_demo->m_defaultFont);
 	m_rangeFloatHorNoLimit->m_onValueChanged = DemoExample_range_onValueChanged;
-	m_rangeFloatHorNoLimit->m_align = m_rangeFloatHorNoLimit->AlignRightTop;
 
 	yyGUIRebuild();
 

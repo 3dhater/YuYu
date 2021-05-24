@@ -50,7 +50,11 @@ public:
 	yyColor m_limitRectColor;
 	bool m_vertical;
 
+	// enable text
 	virtual void UseText(yyGUIFont*);
+
+	// if you set m_ptr_f/m_ptr_i by yourself, call this function
+	virtual void UpdateText();
 
 	void(*m_onValueChanged)(yyGUIRangeSlider*);
 };
