@@ -15,7 +15,7 @@ public:
 	yyGUIGroup();
 	virtual ~yyGUIGroup();
 	virtual void OnUpdate(f32 dt);
-	virtual void OnDraw();
+	virtual void OnDraw(f32 dt);
 	virtual void Rebuild();
 
 	yyGUICallback m_onClick; // LMB down

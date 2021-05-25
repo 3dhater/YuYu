@@ -7,7 +7,7 @@
 
 #include "../engine.h"
 
-extern Engine * g_engine;
+extern yyEngine * g_engine;
 
 yyGUIGroup::yyGUIGroup()
 	:
@@ -65,7 +65,7 @@ void yyGUIGroup::OnUpdate(f32 dt){
 	}
 }
 
-void yyGUIGroup::OnDraw(){
+void yyGUIGroup::OnDraw(f32 dt){
 	//if (!m_visible) return;
 }
 

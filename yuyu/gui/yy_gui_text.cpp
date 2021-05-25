@@ -7,7 +7,7 @@
 
 #include "../engine.h"
 
-extern Engine * g_engine;
+extern yyEngine * g_engine;
 
 void _yyGui_text_model_AddChar(const v4f& rect, yyGUIFontGlyph* glyph, yyModel* model) {
 	yyVertexGUI v1, v2, v3, v4;
@@ -97,7 +97,7 @@ void yyGUIText::OnUpdate(f32 dt){
 	}
 }
 
-void yyGUIText::OnDraw(){
+void yyGUIText::OnDraw(f32 dt){
 	if (!m_visible) return;
 	g_engine->m_videoAPI->SetGUIShaderData(this); 
 	for (u16 i = 0; i < m_textureCount; ++i)

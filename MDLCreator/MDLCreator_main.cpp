@@ -868,7 +868,7 @@ int main(int argc, char* argv[])
 			}
 
 			g_videoDriver->UseDepth(false);
-			yyGUIDrawAll();
+			yyGUIDrawAll(deltaTime);
 		//	g_videoDriver->DrawLine2D(v3f(50.f, 50.f, 0.f), v3f(264.f, 264.f, 0.f), ColorRed);
 
 

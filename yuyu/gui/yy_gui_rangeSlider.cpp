@@ -7,7 +7,7 @@
 
 #include "../engine.h"
 
-extern Engine * g_engine;
+extern yyEngine * g_engine;
 
 bool yyGUIRangeSlider_text_onCharacter(wchar_t ch) {
 	switch (ch)
@@ -287,7 +287,7 @@ void yyGUIRangeSlider::UpdateText() {
 	_calculate_limit_rectangle();
 }
 
-void yyGUIRangeSlider::OnDraw(){
+void yyGUIRangeSlider::OnDraw(f32 dt){
 	if (!m_visible) return;
 	//m_bgElement->OnDraw();
 	g_engine->m_videoAPI->DrawRectangle(m_buildRectInPixels, m_bgColorCurrent, m_bgColorCurrent);
@@ -298,7 +298,7 @@ void yyGUIRangeSlider::OnDraw(){
 		g_engine->m_videoAPI->DrawRectangle(m_limitRectangle, m_limitRectColor, m_limitRectColor);
 		break;
 	}
-	if (m_text)m_text->OnDraw();
+	if (m_text)m_text->OnDraw(dt);
 }
 
 void yyGUIRangeSlider::_calculate_limit_rectangle() {

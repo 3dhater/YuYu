@@ -9,7 +9,7 @@
 
 #include "../engine.h"
 
-extern Engine * g_engine;
+extern yyEngine * g_engine;
 
 void yyGUIElement::CallOnRebuildSetRects() {
 	if (m_onRebuildSetRects)
@@ -118,20 +118,26 @@ YY_API void YY_C_DECL yyGUIDrawGroupMoveFront(yyGUIDrawGroup* dg) {
 	g_engine->m_GUIDrawGroups.push_front(dg);
 }
 
-void Engine::GUIUpdateDrawGroup(yyGUIDrawGroup* dg, f32 dt) {
+void yyEngine::GUIUpdateDrawGroup(yyGUIDrawGroup* dg, f32 dt) {
 	auto & elements = dg->GetElements();
 	auto guiElement = elements.head();
 	for (size_t i = 0, sz = elements.size(); i < sz; ++i)
 	{
-		if (guiElement->m_data->IsVisible())
+		if (!m_guiIgnoreUpdateInput)
 		{
-			guiElement->m_data->OnUpdate(dt);
+			if (guiElement->m_data->IsVisible())
+			{
+				guiElement->m_data->OnUpdate(dt);
+			}
 		}
+		else
+			guiElement->m_data->m_isInActiveAreaRect = false;
+
 		guiElement = guiElement->m_left;
 	}
 }
 
-void Engine::GUIDrawDrawGroup(yyGUIDrawGroup* dg) {
+void yyEngine::GUIDrawDrawGroup(yyGUIDrawGroup* dg, f32 dt) {
 	auto & elements = dg->GetElements();
 	auto guiElement = elements.head();
 	for (size_t i = 0, sz = elements.size(); i < sz; ++i)
@@ -156,7 +162,7 @@ void Engine::GUIDrawDrawGroup(yyGUIDrawGroup* dg) {
 			g_engine->m_videoAPI->SetGUIShaderData(guiElement->m_data);
 			if (guiElement->m_data->m_onDraw)
 				guiElement->m_data->m_onDraw(guiElement->m_data, guiElement->m_data->m_id);
-			guiElement->m_data->OnDraw();
+			guiElement->m_data->OnDraw(dt);
 		}
 		guiElement = guiElement->m_right;
 	}
@@ -187,15 +193,15 @@ YY_API bool YY_C_DECL yyGUIUpdate(f32 deltaTime){
 	return g_engine->m_cursorInGUI;
 }
 
-YY_API void YY_C_DECL yyGUIDrawAll(){
+YY_API void YY_C_DECL yyGUIDrawAll(f32 dt){
 	g_engine->m_videoAPI->BeginDrawGUI();
-	g_engine->GUIDrawDrawGroup(g_engine->m_mainGUIDrawGroup);
+	g_engine->GUIDrawDrawGroup(g_engine->m_mainGUIDrawGroup, dt);
 
 	auto dg = g_engine->m_GUIDrawGroups.tail();
 	for (size_t i = 0, sz = g_engine->m_GUIDrawGroups.size(); i < sz; ++i)
 	{
 		if (dg->m_data->m_isDraw)
-			g_engine->GUIDrawDrawGroup(dg->m_data);
+			g_engine->GUIDrawDrawGroup(dg->m_data, dt);
 		dg = dg->m_left;
 	}
 
@@ -221,7 +227,7 @@ void yyGUIElement::SetRectsFromBuildRect() {
 	m_clipRectInPixels = m_buildRectInPixelsCreation;
 }
 
-void Engine::GUIRebuildElement(yyGUIElement* e) {
+void yyEngine::GUIRebuildElement(yyGUIElement* e) {
 	v4f parentRectInPixels;
 	f32 parentRectSizeDiff_X = 0.f;
 	f32 parentRectSizeDiff_Y = 0.f;
@@ -431,7 +437,7 @@ void Engine::GUIRebuildElement(yyGUIElement* e) {
 	}
 }
 
-void Engine::GUIRebuildDrawGroup(yyGUIDrawGroup* dg) {
+void yyEngine::GUIRebuildDrawGroup(yyGUIDrawGroup* dg) {
 	auto & elements = dg->GetElements();
 	auto guiElement = elements.head();
 	for (size_t i = 0, sz = elements.size(); i < sz; ++i)

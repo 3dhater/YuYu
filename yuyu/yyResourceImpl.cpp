@@ -3,7 +3,7 @@
 #include "yyResourceImpl.h"
 
 #include "engine.h"
-extern Engine * g_engine;
+extern yyEngine * g_engine;
 
 yyResourceImpl::yyResourceImpl() {
 	m_isSource = false;
@@ -11,6 +11,7 @@ yyResourceImpl::yyResourceImpl() {
 	m_refCount = 0;
 	m_implementation = 0;
 	m_flags = 0;
+
 }
 
 yyResourceImpl::~yyResourceImpl() {

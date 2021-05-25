@@ -310,7 +310,7 @@ void Demo::MainLoop(){
 			}
 
 
-			yyGUIDrawAll();
+			yyGUIDrawAll(m_dt);
 			m_gpu->EndDraw();
 			m_gpu->SwapBuffers();
 

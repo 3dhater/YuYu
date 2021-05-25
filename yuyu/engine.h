@@ -88,12 +88,12 @@ struct IFileOpenDialog;
 #define YY_EVENT_MAX 30
 
 
-class Engine
+class yyEngine
 {
 	void GUIRebuildElement(yyGUIElement*);
 public:
-	Engine(yyPoolSetup*);
-	~Engine();
+	yyEngine(yyPoolSetup*);
+	~yyEngine();
 	
 	yyWindow* m_mainWindow;
 
@@ -140,7 +140,7 @@ public:
 	yyGUIDrawGroup* m_mainGUIDrawGroup;
 	yyList<yyGUIDrawGroup*> m_GUIDrawGroups;
 	void GUIUpdateDrawGroup(yyGUIDrawGroup*, f32 dt);
-	void GUIDrawDrawGroup(yyGUIDrawGroup*);
+	void GUIDrawDrawGroup(yyGUIDrawGroup*, f32 dt);
 	void GUIRebuildDrawGroup(yyGUIDrawGroup*);
 	bool m_cursorInGUI;
 	

@@ -25,6 +25,7 @@ protected:
 	bool m_isInActiveAreaRect;
 	bool m_ignoreInput;
 	//bool m_isInputFocus;
+	friend class yyEngine;
 public:
 
 	yyGUIElement()
@@ -58,7 +59,7 @@ public:
 	//bool IsInputFocus() { return m_isInputFocus; }
 
 	virtual void OnUpdate(f32 dt) = 0;
-	virtual void OnDraw() = 0;
+	virtual void OnDraw(f32 dt) = 0;
 	virtual void Rebuild() = 0;
 
 	void SetDrawGroup(yyGUIDrawGroup* gr);
@@ -159,7 +160,7 @@ extern "C"
 	// call this when windows size changed or when you add children to some gui element
 	YY_API void YY_C_DECL yyGUIRebuild();
 
-	YY_API void YY_C_DECL yyGUIDrawAll();
+	YY_API void YY_C_DECL yyGUIDrawAll(f32 deltaTime);
 	YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResource* texture, s32 id, yyGUIDrawGroup* drawGroup, v4f* uv = 0);
 	// auto delete
 	YY_API yyGUIFont* YY_C_DECL yyGUILoadFont(const char* path);
@@ -216,7 +217,7 @@ public:
 
 
 	friend YY_API bool YY_C_DECL yyGUIUpdate(f32 deltaTime);
-	friend YY_API void YY_C_DECL yyGUIDrawAll();
+	friend YY_API void YY_C_DECL yyGUIDrawAll(f32 deltaTime);
 
 private:
 	yyList<yyGUIElement*> m_guiElements;

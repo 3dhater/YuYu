@@ -21,7 +21,7 @@ public:
 	yyGUIRangeSlider();
 	virtual ~yyGUIRangeSlider();
 	virtual void OnUpdate(f32 dt);
-	virtual void OnDraw();
+	virtual void OnDraw(f32 dt);
 	virtual void Rebuild();
 
 	union {

@@ -27,7 +27,7 @@ public:
 	yyGUITextInput();
 	virtual ~yyGUITextInput();
 	virtual void OnUpdate(f32 dt);
-	virtual void OnDraw();
+	virtual void OnDraw(f32 dt);
 	virtual void Rebuild();
 
 	virtual void SetFont(yyGUIFont*);

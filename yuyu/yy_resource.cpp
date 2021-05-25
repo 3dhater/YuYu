@@ -12,7 +12,7 @@
 #include <string>
 #include "engine.h"
 
-extern Engine * g_engine;
+extern yyEngine * g_engine;
 
 extern "C"
 {

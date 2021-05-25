@@ -6,7 +6,7 @@
 #include <chrono>
 #include <thread>
 
-extern Engine * g_engine;
+extern yyEngine * g_engine;
 
 
 void yyBackgroundWorkerFunction()

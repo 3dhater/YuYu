@@ -8,7 +8,7 @@
 
 #include "../engine.h"
 
-extern Engine * g_engine;
+extern yyEngine * g_engine;
 
 yyGUIButton::yyGUIButton()
 	:
@@ -202,24 +202,6 @@ void yyGUIButton::OnUpdate(f32 dt){
 
 	if (m_ignoreInput) return;
 
-
-	if (m_isAnimated && m_mouseHoverPB)
-	{
-		f32 sp = 10.f  * dt;
-		if (m_isInActiveAreaRect)
-		{
-			m_mouseHoverPB->m_color.m_data[3] += sp;
-			if (m_mouseHoverPB->m_color.m_data[3] > 1.f)
-				m_mouseHoverPB->m_color.m_data[3] = 1.f;
-		}
-		else
-		{
-			m_mouseHoverPB->m_color.m_data[3] -= sp;
-			if (m_mouseHoverPB->m_color.m_data[3] < 0.f)
-				m_mouseHoverPB->m_color.m_data[3] = 0.f;
-		}
-	}
-
 	if (g_engine->m_inputContext->m_isLMBUp)
 	{
 		if (!m_useAsCheckbox)
@@ -261,39 +243,56 @@ void yyGUIButton::OnUpdate(f32 dt){
 	}
 }
 
-void yyGUIButton::OnDraw(){
+void yyGUIButton::OnDraw(f32 dt){
 	if (!m_visible) return;
 	
+	if (m_isAnimated)
+	{
+		f32 sp = 10.f  * dt;
+		if (m_isInActiveAreaRect)
+		{
+			m_mouseHoverPB->m_color.m_data[3] += sp;
+			if (m_mouseHoverPB->m_color.m_data[3] > 1.f)
+				m_mouseHoverPB->m_color.m_data[3] = 1.f;
+		}
+		else
+		{
+			m_mouseHoverPB->m_color.m_data[3] -= sp;
+			if (m_mouseHoverPB->m_color.m_data[3] < 0.f)
+				m_mouseHoverPB->m_color.m_data[3] = 0.f;
+		}
+	}
+
 	if(m_isAnimated)
-		m_basePB->OnDraw();
+		m_basePB->OnDraw(dt);
 
 	if (m_isClicked || m_isChecked)
 	{
 		if (m_mouseClickPB)
 		{
-			m_mouseClickPB->OnDraw();
+			m_mouseClickPB->OnDraw(dt);
 		}
 		else if(m_mouseHoverPB)
 		{
-			m_mouseHoverPB->OnDraw();
+			m_mouseHoverPB->OnDraw(dt);
 		}
 		else
 		{
-			m_basePB->OnDraw();
+			m_basePB->OnDraw(dt);
 		}
 	}
 	else
 	{
-		m_basePB->OnDraw();
+		m_basePB->OnDraw(dt);
 		if (m_mouseHoverPB)
 		{
 			if (m_isInActiveAreaRect || (m_isAnimated && m_mouseHoverPB->m_color.m_data[3] > 0.f))
 			{
-				m_mouseHoverPB->OnDraw();
+				m_mouseHoverPB->OnDraw(dt);
 			}
 			else
 			{
-				m_basePB->OnDraw();
+				m_basePB->OnDraw(dt);
 			}
 		}
 	}
@@ -318,7 +317,7 @@ void yyGUIButton::OnDraw(){
 				m_textElement->m_color = m_textColor;
 			}
 		}
-		m_textElement->OnDraw();
+		m_textElement->OnDraw(dt);
 	}
 }
 

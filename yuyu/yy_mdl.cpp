@@ -9,10 +9,9 @@
 #include <string>
 #include "engine.h"
 
-extern Engine * g_engine;
+extern yyEngine * g_engine;
 
 void MDL_loadVersion1(yyMDL** _mdl, yyFileBuffer* f){
-	YY_DEBUG_PRINT_FUNC;
 	yyMDL* newMDL = *_mdl;
 
 	yyMDLHeader mdlHeader;

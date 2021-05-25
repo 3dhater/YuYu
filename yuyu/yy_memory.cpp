@@ -4,7 +4,7 @@
 #include "yy_model.h"
 
 #include "engine.h"
-extern Engine * g_engine;
+extern yyEngine * g_engine;
 
 #include <cstdlib>
 #include <cassert>

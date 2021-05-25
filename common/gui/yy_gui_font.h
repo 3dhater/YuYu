@@ -32,7 +32,7 @@ public:
 	yyGUIFont();
 	virtual ~yyGUIFont();
 	virtual void OnUpdate(f32 dt) {}
-	virtual void OnDraw() {}
+	virtual void OnDraw(f32 dt) {}
 	virtual void Rebuild();
 	
 	u16 GetTextureCount() {

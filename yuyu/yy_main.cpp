@@ -36,10 +36,10 @@
         }                                       \
     } while (0)
 
-Engine * g_engine = nullptr;
+yyEngine * g_engine = nullptr;
 
 
-Engine::Engine(yyPoolSetup* ps)
+yyEngine::yyEngine(yyPoolSetup* ps)
 	:
 	m_inputContext(nullptr),
 	m_state(yySystemState::Run),
@@ -159,7 +159,7 @@ Engine::Engine(yyPoolSetup* ps)
 	m_events_current = 0;
 }
 
-Engine::~Engine(){
+yyEngine::~yyEngine(){
 	for (u32 i = 0; i < (u32)yyCursorType::_count; ++i)
 	{
 		if(m_cursorsDefault[i]) delete m_cursorsDefault[i];
@@ -221,7 +221,7 @@ Engine::~Engine(){
 	ZSTD_freeCCtx(m_cctx);
 }
 
-void Engine::AddEvent(const yyEvent& event, bool unique) {
+void yyEngine::AddEvent(const yyEvent& event, bool unique) {
 	if (m_events_num == YY_EVENT_MAX)
 	{
 		yyLogWriteWarning("Too many events\n");
@@ -242,7 +242,7 @@ void Engine::AddEvent(const yyEvent& event, bool unique) {
 	++m_events_num;
 }
 
-bool Engine::PollEvent(yyEvent& event) {
+bool yyEngine::PollEvent(yyEvent& event) {
 	if (m_events_num == 0) 
 	{
 		m_events_current = 0;
@@ -516,7 +516,7 @@ extern "C"
 			yyLogWriteWarning("%s: can't load library [%s]\n", YY_FUNCTION, dll_file_name);
 			return false;
 		}
-		auto get_api = (Engine::videoGetApi)yyGetProcAddress(lib, "GetAPI");
+		auto get_api = (yyEngine::videoGetApi)yyGetProcAddress(lib, "GetAPI");
 		if (!get_api)
 		{
 			yyLogWriteWarning("%s: can't find get API function in [%s]\n", YY_FUNCTION, dll_file_name);
@@ -564,7 +564,7 @@ extern "C"
 
 	YY_API yySystemState* YY_C_DECL yyStart(yyInputContext* input, yyPoolSetup* poolSetup){
 		assert(!g_engine);
-		g_engine = yyCreate1<Engine>(poolSetup);
+		g_engine = yyCreate1<yyEngine>(poolSetup);
 		g_engine->m_inputContext = input;
 		//g_engine->m_resourceManager = new yyResourceManager;
 	
@@ -652,7 +652,7 @@ extern "C"
 //	return g_engine->m_inputContext;
 //}
 
-	u8* Engine::compressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size){
+	u8* yyEngine::compressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size){
 		YY_DEBUG_PRINT_FUNC;
 		u8* out_data = (u8*)yyMemAlloc(in_data_size);
 		if( !out_data )
@@ -675,7 +675,7 @@ extern "C"
 		return out_data;
 	}
 
-	u8* Engine::decompressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size){
+	u8* yyEngine::decompressData_zstd( u8* in_data, u32 in_data_size, u32& out_data_size){
 		YY_DEBUG_PRINT_FUNC;
 		unsigned long long const rSize = ZSTD_getFrameContentSize(in_data, in_data_size);
 		CHECK(rSize != ZSTD_CONTENTSIZE_ERROR, "%s: not compressed by zstd!");
@@ -775,7 +775,7 @@ extern "C"
 				return false;
 			}
 
-			g_engine->m_videoDriverGetApi = (Engine::videoGetApi)yyGetProcAddress(g_engine->m_videoDriverLib, "GetAPI");
+			g_engine->m_videoDriverGetApi = (yyEngine::videoGetApi)yyGetProcAddress(g_engine->m_videoDriverLib, "GetAPI");
 			if(!g_engine->m_videoDriverGetApi)
 			{
 				yyLogWriteWarning("Can't get GetApi function from video driver library\n");

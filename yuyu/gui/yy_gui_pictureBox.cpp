@@ -8,7 +8,7 @@
 
 #include "../engine.h"
 
-extern Engine * g_engine;
+extern yyEngine * g_engine;
 
 yyGUIPictureBox::yyGUIPictureBox()
 	:
@@ -138,7 +138,7 @@ void yyGUIPictureBox::OnUpdate(f32 dt){
 	}
 }
 
-void yyGUIPictureBox::OnDraw(){
+void yyGUIPictureBox::OnDraw(f32 dt){
 	if (!m_visible) return;
 	g_engine->m_videoAPI->SetGUIShaderData(this);
 	if (m_texture)

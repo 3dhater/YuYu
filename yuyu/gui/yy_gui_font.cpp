@@ -8,7 +8,7 @@
 
 #include "../engine.h"
 
-extern Engine * g_engine;
+extern yyEngine * g_engine;
 
 yyGUIFont::yyGUIFont(){
 	m_maxHeight = 0.f;

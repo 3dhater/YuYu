@@ -7,7 +7,7 @@
 
 #include "../engine.h"
 
-extern Engine * g_engine;
+extern yyEngine * g_engine;
 
 yyGUITextInput::yyGUITextInput(){
 	m_type = yyGUIElementType::TextInput;
@@ -683,7 +683,7 @@ begin:
 	}
 }
 
-void yyGUITextInput::OnDraw(){
+void yyGUITextInput::OnDraw(f32 dt){
 	if (!m_visible) return;
 
 
@@ -694,7 +694,7 @@ void yyGUITextInput::OnDraw(){
 	}
 	if (m_textElement->m_text.size())
 	{
-		m_textElement->OnDraw();
+		m_textElement->OnDraw(dt);
 	}
 	else
 	{
@@ -702,12 +702,12 @@ void yyGUITextInput::OnDraw(){
 		{
 			if (m_defaultTextElement->m_text.size())
 			{
-				m_defaultTextElement->OnDraw();
+				m_defaultTextElement->OnDraw(dt);
 			}
 		}
 	}
 	if (g_engine->m_GUIElementInputFocus == this && m_drawTextCursor)
-		m_textCursorElement->OnDraw();
+		m_textCursorElement->OnDraw(dt);
 }
 
 void yyGUITextInput::SetBufferSize(u32 newSize){

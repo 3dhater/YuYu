@@ -62,7 +62,7 @@ public:
 #endif
 
 	friend class yyWindow;
-	friend class Engine;
+	friend class yyEngine;
 };
 
 #endif

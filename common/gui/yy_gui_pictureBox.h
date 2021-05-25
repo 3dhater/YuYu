@@ -7,7 +7,7 @@ public:
 	yyGUIPictureBox();
 	virtual ~yyGUIPictureBox();
 	virtual void OnUpdate(f32 dt);
-	virtual void OnDraw();
+	virtual void OnDraw(f32 dt);
 	virtual void Rebuild();
 
 	yyResource* DropTexture();
