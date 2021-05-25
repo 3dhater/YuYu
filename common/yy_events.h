@@ -5,7 +5,18 @@ enum class yyEventType
 {
 	Engine,
 	Window,
-	System
+	System,
+	User
+};
+
+struct yyEvent_User
+{
+	void * m_data;
+	s32 m_id;
+
+	bool is_equal(const yyEvent_User& other) {
+		return m_id == other.m_id;
+	}
 };
 
 struct yyEvent_Engine
@@ -49,6 +60,7 @@ struct yyEvent
 		yyEvent_Engine m_event_engine;
 		yyEvent_Window m_event_window;
 		yyEvent_System m_event_system;
+		yyEvent_User   m_event_user;
 	};
 
 	bool is_equal(const yyEvent& event) {
@@ -61,6 +73,8 @@ struct yyEvent
 			return m_event_window.is_equal(event.m_event_window);
 		case yyEventType::System:
 			return m_event_system.is_equal(event.m_event_system);
+		case yyEventType::User:
+			return m_event_user.is_equal(event.m_event_user);
 		default:
 			yyLogWriteWarning("Need to implement!\n");
 			YY_PRINT_FAILED;
