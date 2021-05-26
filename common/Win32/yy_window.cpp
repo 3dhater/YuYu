@@ -419,6 +419,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				break;
 				}
 
+				input->m_key_hold[(u32)yyKey::K_ALT] = 0;
+				input->m_key_hold[(u32)yyKey::K_LALT] = 0;
+				input->m_key_hold[(u32)yyKey::K_RALT] = 0;
+
 				if(pD->m_onActivate)
 					pD->m_onActivate(pD);
 			}

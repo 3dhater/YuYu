@@ -86,3 +86,6 @@ video/d3d11/x64/Release
 yuyu/x64/Production
 demo/x64/Release
 demo/Debug
+SpriteTool/Debug
+SpriteTool/Release
+SpriteTool/Production
