@@ -46,6 +46,7 @@ void DemoExample_GUI_checklistbox_onClick(yyGUIElement* elem, s32 m_id) {
 	yyGUICheckBox* chb = (yyGUICheckBox*)elem;
 	yyGUIListBox* lb = (yyGUIListBox*)chb->m_userData;
 	lb->m_isAnimatedScroll = chb->m_isChecked;
+	lb->m_y_scrollTarget = lb->m_y_scroll;
 }
 
 DemoExample_GUI::DemoExample_GUI(){
@@ -137,12 +138,13 @@ bool DemoExample_GUI::Init(){
 
 	m_listbox = yyGUICreateListBox(v4f(0.f, 100.f, 100.f, 200.f), g_demo->m_defaultFont, 0);
 	m_listbox->m_align = m_listbox->AlignRightTop;
+	m_listbox->m_isMultiSelect = true;
 	auto lbItem = m_listbox->AddItem(L"first");
-	lbItem->Select(true);
+	//lbItem->Select(true);
 	m_listbox->AddItem(L"yyGUICreateListBox");
 	m_listbox->AddItem(L"yyGUIRebuild");
 	lbItem = m_listbox->AddItem(L"return");
-	lbItem->Select(true);
+	//lbItem->Select(true);
 	m_listbox->AddItem(L"true");
 	m_listbox->AddItem(L"m_listbox");
 	m_listbox->AddItem(L"Shutdown");

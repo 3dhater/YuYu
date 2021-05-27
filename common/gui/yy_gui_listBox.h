@@ -6,6 +6,7 @@ class yyGUIListBoxItem
 	yyGUIText* m_textElement;
 	bool m_selected;
 	bool m_isMouseHover;
+	bool m_isVisible;
 	v4f m_rect;
 public:
 	yyGUIListBoxItem(yyGUIFont*, const wchar_t* t);
@@ -25,8 +26,9 @@ public:
 class yyGUIListBox : public yyGUIElement
 {
 	yyArray<yyGUIListBoxItem*> m_items;
-	f32 m_y_scroll;
-	f32 m_y_scrollTarget;
+	
+	yyGUIListBoxItem* m_itemHover;
+
 	f32 m_contentHeight;
 	f32 m_y_scrollLimit;
 public:
@@ -42,11 +44,15 @@ public:
 
 	yyColor m_itemColorHover;
 	yyColor m_itemColorSelected;
+	yyColor m_itemColorSelectedHover;
 
 	yyGUIFont* m_font;
 	f32 m_y_scroll_speed; // default max font height
+	f32 m_y_scroll;
+	f32 m_y_scrollTarget;
 
 	bool m_isSelectable;
+	bool m_isMultiSelect; // default false
 	bool m_isAnimatedScroll;
 	f32  m_animatedScrollLerp; // 0...1 default 0.15f
 
@@ -59,6 +65,8 @@ public:
 
 	virtual yyGUIListBoxItem* AddItem(const wchar_t* text);
 	virtual void DeleteItem(yyGUIListBoxItem*);
+
+	void(*m_onSelect)(yyGUIListBox*, yyGUIListBoxItem*);
 };
 
 #endif

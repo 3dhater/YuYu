@@ -75,7 +75,8 @@ void yyGUIElement::CheckCursorInRect() {
 		
 		if (m_ignoreInput) return;
 
-		g_engine->m_guiIgnoreUpdateInput = true;
+		if(!g_engine->m_GUIElementInputFocus)
+			g_engine->m_guiIgnoreUpdateInput = true;
 	}
 }
 
