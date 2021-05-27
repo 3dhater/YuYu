@@ -226,3 +226,14 @@ YY_API yyGUIFont* YY_C_DECL yyGUILoadFont(const char* fileName){
 	}
 	return nullptr;
 }
+
+f32 yyGUIFont::GetTextLength(const wchar_t* str) {
+	assert(str);
+	f32 len = 0.f;
+	auto str_len = util::str_len(str);
+	for (size_t i = 0; i < str_len; ++i)
+	{
+		len += GetGlyph(str[i])->width;
+	}
+	return len;
+}

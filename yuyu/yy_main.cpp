@@ -50,6 +50,7 @@ yyEngine::yyEngine(yyPoolSetup* ps)
 	m_backgroundWorker(nullptr),
 	m_cctx(nullptr)
 {
+	m_GUITextureCheckbox = 0;
 	m_cursorDisableAutoChange = false;
 	m_GUIElementInputFocus = 0;
 	for (u32 i = 0; i < (u32)yyCursorType::_count; ++i)
@@ -219,6 +220,12 @@ yyEngine::~yyEngine(){
 		m_videoDriverLib = nullptr;
 	}
 	ZSTD_freeCCtx(m_cctx);
+}
+
+yyResource* yyEngine::GetGUITextureCheckBox() {
+	if (!m_GUITextureCheckbox)
+		m_GUITextureCheckbox = yyGetTextureFromCache("../res/gui/checkbox.png");
+	return m_GUITextureCheckbox;
 }
 
 void yyEngine::AddEvent(const yyEvent& event, bool unique) {

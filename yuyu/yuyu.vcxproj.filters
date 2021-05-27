@@ -255,6 +255,12 @@
     <ClCompile Include="gui\yy_gui_rangeSlider.cpp">
       <Filter>Source Files\gui</Filter>
     </ClCompile>
+    <ClCompile Include="gui\yy_gui_listBox.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\yy_gui_checkBox.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="yyResourceImpl.h">

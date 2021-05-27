@@ -15,7 +15,10 @@ enum class yyGUIElementType  : u32
 	Text,
 	TextInput,
 	RangeSlider,
-	Group
+	Group,
+	ListBox,
+	CheckBox,
+	RadioButton,
 };
 
 class yyGUIElement
@@ -149,8 +152,44 @@ public:
 #include "gui\yy_gui_text.h"
 #include "gui\yy_gui_textInput.h"
 #include "gui\yy_gui_rangeSlider.h"
+#include "gui\yy_gui_listBox.h"
+#include "gui\yy_gui_checkBox.h"
 
 #include "gui\yy_gui_button.h"
+
+/* Minimal code for element looks like this
+yyGUIListBox::yyGUIListBox() {
+	m_type = yyGUIElementType::ListBox;
+}
+
+yyGUIListBox::~yyGUIListBox() {
+}
+
+void yyGUIListBox::OnUpdate(f32 dt) {
+	if (!m_visible) return;
+	yyGUIElement::CheckCursorInRect();
+	if (m_ignoreInput) return;
+
+	m_bgColorCurrent = m_bgColor;
+}
+
+void yyGUIListBox::OnDraw(f32 dt) {
+	if (!m_visible) return;
+	g_engine->m_videoAPI->DrawRectangle(m_buildRectInPixels, m_bgColorCurrent, m_bgColorCurrent);
+}
+
+void yyGUIListBox::Rebuild() {
+	yyGUIElement::CallOnRebuildSetRects();
+}
+
+YY_API yyGUIListBox* YY_C_DECL yyGUICreateListBox(const v4f& rect, yyGUIFont* font, yyGUIDrawGroup* drawGroup) {
+	assert(font);
+	yyGUIListBox* element = yyCreate<yyGUIListBox>();
+	element->SetDrawGroup(drawGroup);
+	element->SetBuildRect(rect);
+	return element;
+}
+*/
 
 extern "C"
 {
@@ -174,6 +213,8 @@ extern "C"
 	YY_API yyGUIRangeSlider* YY_C_DECL yyGUICreateRangeSliderFloat(const v4f& rect, f32 minimum, f32 maximum, f32* value, bool vertical, yyGUIDrawGroup* drawGroup);
 	YY_API yyGUIRangeSlider* YY_C_DECL yyGUICreateRangeSliderIntNoLimit(const v4f& rect, s32* value, bool vertical, yyGUIDrawGroup* drawGroup);
 	YY_API yyGUIRangeSlider* YY_C_DECL yyGUICreateRangeSliderFloatNoLimit(const v4f& rect, f32* value, bool vertical, yyGUIDrawGroup* drawGroup);
+	YY_API yyGUIListBox* YY_C_DECL yyGUICreateListBox(const v4f& rect, yyGUIFont* font, yyGUIDrawGroup* drawGroup);
+	YY_API yyGUICheckBox* YY_C_DECL yyGUICreateCheckBox(const v2f& position, yyGUICheckBoxType t, yyGUIFont* font, const wchar_t* text, yyGUIDrawGroup* drawGroup);
 	// baseTexture can be 0
 	YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* baseTexture, s32 id, yyGUIDrawGroup* drawGroup, v4f* uv = 0);
 	YY_API void YY_C_DECL yyGUIDeleteElement(yyGUIElement* elem);

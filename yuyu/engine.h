@@ -162,6 +162,9 @@ public:
 	yyStringW m_workingDir;
 
 	yyResource* m_defaultTexture;
+	yyResource* m_GUITextureCheckbox;
+
+	yyResource* GetGUITextureCheckBox();
 
 	yyMaterial m_currentMaterial;
 	v3f m_eyePosition;

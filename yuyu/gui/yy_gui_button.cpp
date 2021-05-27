@@ -323,7 +323,7 @@ void yyGUIButton::OnDraw(f32 dt){
 
 void yyGUIButton::Rebuild(){
 	yyGUIElement::CallOnRebuildSetRects();
-	if (m_basePB)
+	/*if (m_basePB)
 	{
 		m_baseTexture = m_basePB->DropTexture();
 		m_color = m_basePB->m_color;
@@ -332,30 +332,45 @@ void yyGUIButton::Rebuild(){
 	m_basePB = yyGUICreatePictureBox(m_buildRectInPixels, m_baseTexture, m_id, m_drawGroup, &m_uvRect);
 	yyGUIRemoveElement(m_basePB);
 	m_basePB->IgnoreInput(true);
-	m_basePB->m_color = m_color;
+	m_basePB->m_color = m_color;*/
+
+	if (m_basePB)
+	{
+		m_basePB->SetBuildRect(m_buildRectInPixels);
+		m_basePB->Rebuild();
+	}
+	else
+	{
+		m_basePB = yyGUICreatePictureBox(m_buildRectInPixels, m_baseTexture, m_id, m_drawGroup, &m_uvRect);
+		m_basePB->m_color = m_color;
+	}
 
 	if (m_mouseHoverPB)
 	{
-		auto t = m_mouseHoverPB->DropTexture();
+		/*auto t = m_mouseHoverPB->DropTexture();
 		auto uvRect = m_mouseHoverPB->m_uvRect;
 		auto color = m_mouseHoverPB->m_color;
 		yyDestroy(m_mouseHoverPB);
 		m_mouseHoverPB = yyGUICreatePictureBox(m_buildRectInPixels, t, -1, m_drawGroup, &uvRect);
 		m_mouseHoverPB->IgnoreInput(true);
 		m_mouseHoverPB->m_color = color;
-		yyGUIRemoveElement(m_mouseHoverPB);
+		yyGUIRemoveElement(m_mouseHoverPB);*/
+		m_mouseHoverPB->SetBuildRect(m_basePB->m_buildRectInPixels);
+		m_mouseHoverPB->Rebuild();
 	}
 
 	if (m_mouseClickPB)
 	{
-		auto t = m_mouseClickPB->DropTexture();
+		/*auto t = m_mouseClickPB->DropTexture();
 		auto uvRect = m_mouseClickPB->m_uvRect;
 		auto color = m_mouseClickPB->m_color;
 		yyDestroy(m_mouseClickPB);
 		m_mouseClickPB = yyGUICreatePictureBox(m_buildRectInPixels, t, -1, m_drawGroup, &uvRect);
 		m_mouseClickPB->IgnoreInput(true);
 		m_mouseClickPB->m_color = color;
-		yyGUIRemoveElement(m_mouseClickPB);
+		yyGUIRemoveElement(m_mouseClickPB);*/
+		m_mouseClickPB->SetBuildRect(m_basePB->m_buildRectInPixels);
+		m_mouseClickPB->Rebuild();
 	}
 
 	if (m_textElement)

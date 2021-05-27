@@ -21,6 +21,9 @@ class DemoExample_GUI : public DemoExample
 	yyGUIRangeSlider* m_rangeFloatHor;
 	f32 m_rangeFloatHorNoLimit_value;
 	yyGUIRangeSlider* m_rangeFloatHorNoLimit;
+	
+	yyGUIListBox* m_listbox;
+	yyGUICheckBox* m_checkLBUseSmooth;
 
 public:
 	DemoExample_GUI();

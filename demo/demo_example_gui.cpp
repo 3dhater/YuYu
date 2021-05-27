@@ -42,6 +42,12 @@ void DemoExample_range_onValueChanged(yyGUIRangeSlider* slider) {
 	}
 }
 
+void DemoExample_GUI_checklistbox_onClick(yyGUIElement* elem, s32 m_id) {
+	yyGUICheckBox* chb = (yyGUICheckBox*)elem;
+	yyGUIListBox* lb = (yyGUIListBox*)chb->m_userData;
+	lb->m_isAnimatedScroll = chb->m_isChecked;
+}
+
 DemoExample_GUI::DemoExample_GUI(){
 	g_demo_gui = this;
 	m_text_hello = 0;
@@ -61,6 +67,7 @@ DemoExample_GUI::DemoExample_GUI(){
 	m_rangeFloatHor_value = 0.f;
 	m_rangeFloatHorNoLimit_value = 0.f;
 	m_rangeFloatHorNoLimit = 0;
+	m_listbox = 0;
 }
 DemoExample_GUI::~DemoExample_GUI(){
 	Shutdown();
@@ -128,6 +135,29 @@ bool DemoExample_GUI::Init(){
 	m_rangeFloatHorNoLimit->UseText(g_demo->m_defaultFont);
 	m_rangeFloatHorNoLimit->m_onValueChanged = DemoExample_range_onValueChanged;
 
+	m_listbox = yyGUICreateListBox(v4f(0.f, 100.f, 100.f, 200.f), g_demo->m_defaultFont, 0);
+	m_listbox->m_align = m_listbox->AlignRightTop;
+	auto lbItem = m_listbox->AddItem(L"first");
+	lbItem->Select(true);
+	m_listbox->AddItem(L"yyGUICreateListBox");
+	m_listbox->AddItem(L"yyGUIRebuild");
+	lbItem = m_listbox->AddItem(L"return");
+	lbItem->Select(true);
+	m_listbox->AddItem(L"true");
+	m_listbox->AddItem(L"m_listbox");
+	m_listbox->AddItem(L"Shutdown");
+	m_listbox->AddItem(L"yyGUIDeleteElement");
+	m_listbox->AddItem(L"m_rangeFloatHorNoLimit");
+	m_listbox->AddItem(L"AlignRightTop");
+	m_listbox->AddItem(L"m_defaultFont");
+
+	m_checkLBUseSmooth = yyGUICreateCheckBox(v2f(0.f, 80.f), yyGUICheckBoxType::Type1, g_demo->m_defaultFont, L"Smooth scrolling", 0);
+	m_checkLBUseSmooth->m_align = m_checkLBUseSmooth->AlignRightTop;
+	//m_checkLBUseSmooth->m_isAnimated = false;
+	m_checkLBUseSmooth->m_onClick = DemoExample_GUI_checklistbox_onClick;
+	m_checkLBUseSmooth->m_userData = m_listbox;
+	m_checkLBUseSmooth->m_isChecked = true;
+
 	yyGUIRebuild();
 
 	return true;
@@ -135,6 +165,17 @@ bool DemoExample_GUI::Init(){
 
 
 void DemoExample_GUI::Shutdown(){
+	if (m_checkLBUseSmooth)
+	{
+		yyGUIDeleteElement(m_checkLBUseSmooth);
+		m_checkLBUseSmooth = 0;
+	}
+
+	if (m_listbox)
+	{
+		yyGUIDeleteElement(m_listbox);
+		m_listbox = 0;
+	}
 	if (m_rangeFloatHorNoLimit)
 	{
 		yyGUIDeleteElement(m_rangeFloatHorNoLimit);

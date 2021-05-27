@@ -112,9 +112,7 @@ void yyGUIRangeSlider::_checkLimits() {
 
 void yyGUIRangeSlider::OnUpdate(f32 dt){
 	if (!m_visible) return;
-	
 	yyGUIElement::CheckCursorInRect();
-
 	if (m_ignoreInput) return;
 
 	m_bgColorCurrent = m_bgColor;

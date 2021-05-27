@@ -41,11 +41,12 @@ public:
 
 	yyArray<yyGUIFontGlyph*> m_glyphs;
 
-	yyGUIFontGlyph* GetGlyph(wchar_t ch);
+	virtual yyGUIFontGlyph* GetGlyph(wchar_t ch);
 	
 	// from engine texture cache. do not delete
 	yyArraySmall<yyResource*> m_textures;
 
+	virtual f32 GetTextLength(const wchar_t* str);
 
 	f32 m_maxHeight;
 };
