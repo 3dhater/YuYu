@@ -22,12 +22,12 @@
 
 #include "math/mat.h"
 
-void OpenGL::UpdateGUIProjectionMatrix(const v2i& windowSize){
+void OpenGL::UpdateGUIProjectionMatrix(const v2f& windowSize){
 	glViewport(0, 0, (GLsizei)windowSize.x, (GLsizei)windowSize.y);
 	float L = 0;
-	float R = (float)windowSize.x;
+	float R = windowSize.x;
 	float T = 0;
-	float B = (float)windowSize.y;
+	float B = windowSize.y;
 
 	m_guiProjectionMatrix.m_data[0] = v4f(2.0f/(R-L),   0.0f,         0.0f,   0.0f);
 	m_guiProjectionMatrix.m_data[1] = v4f(0.0f,         2.0f/(T-B),   0.0f,   0.0f);
@@ -425,7 +425,7 @@ bool OpenGL::Init(yyWindow* window){
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_SCISSOR_TEST);
 	glFrontFace(GL_CW);
-	glViewport(0, 0, window->m_currentSize.x, window->m_currentSize.y);
+	glViewport(0, 0, (GLsizei)window->m_currentSize.x, (GLsizei)window->m_currentSize.y);
 
 	UpdateGUIProjectionMatrix(window->m_currentSize);
 

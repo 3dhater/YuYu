@@ -48,7 +48,7 @@ public:
 	yyColor m_textColorHover;
 	yyColor m_textColorPress;
 	virtual void SetText(const wchar_t*, yyGUIFont*, bool resizeButton);
-	virtual void SetTextColor(const yyColor&);
+	virtual void SetTextColor(const yyColor&);// nneed to remove
 
 	// fade in\out for m_mouseHoverPB
 	bool m_isAnimated;

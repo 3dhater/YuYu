@@ -69,8 +69,8 @@ void yyWindow::ToFullscreenMode()
 	if (GetWindowPlacement(m_hWnd, &m_wndPlcmnt) &&
 		GetMonitorInfo(MonitorFromWindow(m_hWnd, MONITOR_DEFAULTTOPRIMARY), &mi)) 
 	{
-		m_currentSize.x = mi.rcMonitor.right - mi.rcMonitor.left;
-		m_currentSize.y = mi.rcMonitor.bottom - mi.rcMonitor.top;
+		m_currentSize.x = (f32)mi.rcMonitor.right - (f32)mi.rcMonitor.left;
+		m_currentSize.y = (f32)mi.rcMonitor.bottom - (f32)mi.rcMonitor.top;
 		_set_current_rect();
 
 		SetWindowLong(m_hWnd, GWL_STYLE, dwStyle & ~WS_OVERLAPPEDWINDOW);
@@ -95,7 +95,7 @@ void yyWindow::ToWindowMode()
 	m_isFullscreen = false;
 }
 
-bool yyWindow::init(int size_x, int size_y, u32 flags, yyWindow* parent)
+bool yyWindow::init(f32 size_x, f32 size_y, u32 flags, yyWindow* parent)
 {
 	yyLogWriteInfo("Init window...\n");
 
@@ -160,8 +160,8 @@ bool yyWindow::init(int size_x, int size_y, u32 flags, yyWindow* parent)
 		style,
 		0,
 		0,
-		size_x,
-		size_y,
+		(s32)size_x,
+		(s32)size_y,
 		parent ? parent->m_hWnd : nullptr,
 		nullptr,
 		wc.hInstance,
@@ -177,7 +177,7 @@ bool yyWindow::init(int size_x, int size_y, u32 flags, yyWindow* parent)
 		this->Show();
 	}
 
-	MoveWindow(m_hWnd, 0, 0, size_x, size_y, FALSE);
+	MoveWindow(m_hWnd, 0, 0, (s32)size_x, (s32)size_y, FALSE);
 
 	SetForegroundWindow( m_hWnd );
 	::SetFocus( m_hWnd );
@@ -191,7 +191,7 @@ bool yyWindow::init(int size_x, int size_y, u32 flags, yyWindow* parent)
 	device.hwndTarget = 0;
 	RegisterRawInputDevices(&device, 1, sizeof device);
 	
-	ClientResize(m_hWnd, m_currentSize.x, m_currentSize.y);
+	ClientResize(m_hWnd, (s32)m_currentSize.x, (s32)m_currentSize.y);
 	m_creationSize = m_currentSize;
 
 	KEYBOARD_INPUT_HKL = GetKeyboardLayout(0);
@@ -480,13 +480,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			RECT rc;
 			GetClientRect( hWnd, &rc );
-			pD->m_currentSize.x = rc.right - rc.left;
-			pD->m_currentSize.y = rc.bottom - rc.top;
+			pD->m_currentSize.x = (f32)rc.right - (f32)rc.left;
+			pD->m_currentSize.y = (f32)rc.bottom - (f32)rc.top;
 			pD->_set_current_rect();
 
 			if (pD->m_currentSize.x != pD->m_oldSize.x || pD->m_currentSize.y != pD->m_oldSize.y)
 			{
-				ClientResize(hWnd, pD->m_currentSize.x, pD->m_currentSize.y);
+				ClientResize(hWnd, (s32)pD->m_currentSize.x, (s32)pD->m_currentSize.y);
 				if (pD->m_onSize)
 					pD->m_onSize(pD);
 				pD->m_oldSize = pD->m_currentSize;
@@ -513,12 +513,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			RECT rc;
 			GetClientRect(hWnd, &rc);
-			pD->m_currentSize.x = rc.right - rc.left;
-			pD->m_currentSize.y = rc.bottom - rc.top;
+			pD->m_currentSize.x = (f32)rc.right - (f32)rc.left;
+			pD->m_currentSize.y = (f32)rc.bottom - (f32)rc.top;
 			pD->_set_current_rect();
 			if (pD->m_currentSize.x != pD->m_oldSize.x || pD->m_currentSize.y != pD->m_oldSize.y)
 			{
-				ClientResize(hWnd, pD->m_currentSize.x, pD->m_currentSize.y);
+				ClientResize(hWnd, (s32)pD->m_currentSize.x, (s32)pD->m_currentSize.y);
 				if (pD->m_onSize)
 					pD->m_onSize(pD);
 				pD->m_oldSize = pD->m_currentSize;

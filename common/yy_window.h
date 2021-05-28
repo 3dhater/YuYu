@@ -35,7 +35,7 @@ public:
 	yyWindow();
 	~yyWindow();
 
-	bool init(int size_x, int size_y, u32 flags, yyWindow* parent = 0);
+	bool init(f32 size_x, f32 size_y, u32 flags, yyWindow* parent = 0);
 
 	// use it if you want ask user something before closing window
 	yyWindow_callback m_onClose;
@@ -60,10 +60,10 @@ public:
 	//yyWindow_callbackMouse m_onMouseButton;
 	//yyWindow_callbackKeyboard m_onKeyboard;
 
-	v2i m_currentSize;
+	v2f m_currentSize;
 	v4f m_currentRect;
-	v2i m_oldSize;
-	v2i m_creationSize;
+	v2f m_oldSize;
+	v2f m_creationSize;
 	//v2i m_clientSize;
 
 	// for example for swapChain in d3d11

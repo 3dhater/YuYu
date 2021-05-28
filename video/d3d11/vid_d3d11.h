@@ -26,7 +26,7 @@ class D3D11ShaderPointsAnimated;
 
 class D3D11
 {
-	bool _createBackBuffer(int x, int y);
+	bool _createBackBuffer(f32 x, f32 y);
 public:
 	D3D11();
 	~D3D11();
@@ -53,7 +53,7 @@ public:
 	/*std::vector<D3D11Texture*> m_textures;
 	std::vector<D3D11Model*> m_models;*/
 
-	void UpdateGUIProjectionMatrix(const v2i& windowSize);
+	void UpdateGUIProjectionMatrix(const v2f& windowSize);
 	Mat4 m_guiProjectionMatrix;
 
 	D3D11Texture* m_currentTextures[yyVideoDriverMaxTextures];
@@ -80,9 +80,9 @@ public:
 
 
 	v2f m_mainTargetSize;
-	v2i m_windowSize;
+	v2f m_windowSize;
 	v2f m_viewportSize;
-	v2i m_swapChainSize;
+	v2f m_swapChainSize;
 	D3D11Texture* m_mainTarget;
 	D3D11Model*   m_mainTargetSurface;
 	bool updateMainTarget();

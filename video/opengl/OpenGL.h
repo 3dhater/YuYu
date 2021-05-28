@@ -1268,7 +1268,7 @@ public:
 	OpenGL();
 	~OpenGL();
 
-	void UpdateGUIProjectionMatrix(const v2i& windowSize);
+	void UpdateGUIProjectionMatrix(const v2f& windowSize);
 	bool Init(yyWindow* window);
 	void SetActive(yyWindow* window);
 	void InitWindow(yyWindow* window);
@@ -1309,7 +1309,7 @@ public:
 #endif
 
 	v2f m_mainTargetSize;
-	v2i m_windowSize;
+	v2f m_windowSize;
 	OpenGLTexture* m_mainTarget;
 	OpenGLModel*   m_mainTargetSurface;
 	bool updateMainTarget();

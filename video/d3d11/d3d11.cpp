@@ -16,11 +16,11 @@
 #include "d3d11_shader_Rectangle.h"
 #include "d3d11_shader_points.h"
 
-void D3D11::UpdateGUIProjectionMatrix(const v2i& windowSize){
+void D3D11::UpdateGUIProjectionMatrix(const v2f& windowSize){
 	float L = 0;
-	float R = (float)windowSize.x;
+	float R = windowSize.x;
 	float T = 0;
-	float B = (float)windowSize.y;
+	float B = windowSize.y;
 
 	m_guiProjectionMatrix.m_data[0] = v4f(2.0f / (R - L), 0.0f, 0.0f, 0.0f);
 	m_guiProjectionMatrix.m_data[1] = v4f(0.0f, 2.0f / (T - B), 0.0f, 0.0f);
@@ -116,8 +116,8 @@ bool D3D11::Init(yyWindow* window){
 
 	DXGI_MODE_DESC	bufferDesc;
 	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
-	bufferDesc.Width = window->m_currentSize.x;
-	bufferDesc.Height = window->m_currentSize.y;
+	bufferDesc.Width = (UINT)window->m_currentSize.x;
+	bufferDesc.Height = (UINT)window->m_currentSize.y;
 	m_swapChainSize.x = window->m_currentSize.x;
 	m_swapChainSize.y = window->m_currentSize.y;
 	//if (m_params.m_vSync)
@@ -385,8 +385,8 @@ bool D3D11::Init(yyWindow* window){
 	D3D11_RECT sr;
 	sr.left = 0;
 	sr.top = 0;
-	sr.right = window->m_currentSize.x;
-	sr.bottom = window->m_currentSize.y;
+	sr.right = (LONG)window->m_currentSize.x;
+	sr.bottom = (LONG)window->m_currentSize.y;
 	m_d3d11DevCon->RSSetScissorRects(1, &sr);
 
 	D3D11_VIEWPORT viewport;
@@ -579,13 +579,13 @@ bool D3D11::updateMainTarget(){
 		m_MainTargetView = 0;
 	}
 	
-	m_SwapChain->ResizeBuffers(0, m_windowSize.x, m_windowSize.y, DXGI_FORMAT_UNKNOWN, 0);
+	m_SwapChain->ResizeBuffers(0, (UINT)m_windowSize.x, (UINT)m_windowSize.y, DXGI_FORMAT_UNKNOWN, 0);
 	_createBackBuffer(m_windowSize.x, m_windowSize.y);
 
 	return true;
 }
 
-bool D3D11::_createBackBuffer(int x, int y){
+bool D3D11::_createBackBuffer(f32 x, f32 y){
 	if (m_depthStencilBuffer)
 	{
 		m_depthStencilBuffer->Release();

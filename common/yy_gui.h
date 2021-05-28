@@ -256,6 +256,14 @@ public:
 	bool IsDraw() { return m_isDraw; }
 	bool IsInput() { return m_isInput; }
 
+	void MoveFront() {
+		yyGUIDrawGroupMoveFront(this);
+	}
+
+	void MoveBack() {
+		yyGUIDrawGroupMoveBack(this);
+	}
+
 
 	friend YY_API bool YY_C_DECL yyGUIUpdate(f32 deltaTime);
 	friend YY_API void YY_C_DECL yyGUIDrawAll(f32 deltaTime);

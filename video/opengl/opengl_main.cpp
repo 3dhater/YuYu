@@ -540,7 +540,7 @@ void ClearDepth(){
 
 void EndDraw(){
 	glBindFramebuffer(GL_FRAMEBUFFER, 0); // window
-	glViewport(0, 0, g_openGL->m_windowSize.x, g_openGL->m_windowSize.y);
+	glViewport(0, 0, (GLsizei)g_openGL->m_windowSize.x, (GLsizei)g_openGL->m_windowSize.y);
 	SetScissorRect(v4f(0.f, 0.f, (f32)g_openGL->m_windowSize.x, (f32)g_openGL->m_windowSize.y), yyGetMainWindow());
 
 	UseDepth(false);
@@ -565,7 +565,7 @@ void SwapBuffers(){
 #endif
 }
 
-void UpdateMainRenderTarget(const v2i& windowsSize, const v2f& bufferSize){
+void UpdateMainRenderTarget(const v2f& windowsSize, const v2f& bufferSize){
 	g_openGL->m_windowSize = windowsSize;
 	g_openGL->m_mainTargetSize = bufferSize;
 	g_openGL->updateMainTarget();

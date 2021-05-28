@@ -276,7 +276,7 @@ int main(int argc, char* argv[])
 	RECT rc;
 	GetWindowRect(GetDesktopWindow(), &rc);
 	rc.left = 0; rc.top = 0; rc.right = 1200; rc.bottom = 800;
-	if (!p_window->init(rc.right - rc.left, rc.bottom - rc.top, 0))
+	if (!p_window->init((f32)rc.right - (f32)rc.left, (f32)rc.bottom - (f32)rc.top, 0))
 	{
 		YY_PRINT_FAILED;
 		return 1;

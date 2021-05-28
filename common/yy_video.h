@@ -46,7 +46,7 @@ struct yyVideoDriverAPI
 
 	// imgui рисуется между EndDraw и SwapBuffers
 	void (*SwapBuffers)();       // Present\swapbuffers
-	void(*UpdateMainRenderTarget)(const v2i& windowsSize, const v2f& bufferSize);
+	void(*UpdateMainRenderTarget)(const v2f& windowsSize, const v2f& bufferSize);
 
 	void (*BeginDrawGUI)();
 	void (*EndDrawGUI)();

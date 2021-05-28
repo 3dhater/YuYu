@@ -484,7 +484,7 @@ void EndDraw(){
 	g_d3d11->m_d3d11DevCon->DrawIndexed(g_d3d11->m_mainTargetSurface->m_iCount, 0, 0);
 }
 
-void UpdateMainRenderTarget(const v2i& windowsSize, const v2f& bufferSize){
+void UpdateMainRenderTarget(const v2f& windowsSize, const v2f& bufferSize){
 	g_d3d11->m_windowSize = windowsSize;
 	g_d3d11->m_swapChainSize = windowsSize;
 	g_d3d11->m_mainTargetSize = bufferSize;
