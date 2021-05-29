@@ -23,6 +23,7 @@ class D3D11ShaderLineModelAnimated;
 class D3D11ShaderRectangle;
 class D3D11ShaderPoints;
 class D3D11ShaderPointsAnimated;
+class D3D11ShaderStd;
 
 class D3D11
 {
@@ -62,6 +63,7 @@ public:
 	v2f m_spriteCameraPosition;
 	v2f m_spriteCameraScale;
 
+	D3D11ShaderStd* m_shaderStd;
 	D3D11ShaderPoints* m_shaderPoints;
 	D3D11ShaderPointsAnimated* m_shaderPointsAnimated;
 	D3D11ShaderRectangle* m_shaderRectangle;

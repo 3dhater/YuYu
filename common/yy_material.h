@@ -6,6 +6,7 @@
 enum class yyMaterialType
 {
 	Simple,
+	Standart,
 
 
 
@@ -31,6 +32,8 @@ struct yyMaterial
 		
 		m_fogData.x = 1.f;
 		m_fogColor = ColorWhite;
+
+		m_sunPos.y = 100.f;
 	}
 	~yyMaterial() {}
 
@@ -53,7 +56,8 @@ struct yyMaterial
 
 	yyColor m_baseColor;
 
-	v3f m_sunDir;        
+	v3f m_sunPos;
+	v3f m_sunDir;
 	yyColor m_ambientColor;
 	f32 m_selfLight;  // уровень освещённости 0.f...1.f
 };

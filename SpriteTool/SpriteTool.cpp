@@ -1,5 +1,7 @@
 ﻿#include "SpriteTool.h"
 
+SpriteTool* g_app = 0;
+
 void log_onError(const char* message) { fprintf(stderr, message); }
 void log_onInfo(const char* message) { fprintf(stdout, message); }
 void window_onCLose(yyWindow* window) {
@@ -7,15 +9,24 @@ void window_onCLose(yyWindow* window) {
 	yyQuit(); // change yySystemState - set yySystemState::Quit
 }
 
+void loadImage_onRelease(yyGUIElement* elem, s32 m_id) {
+	g_app->LoadImage();
+}
+
 SpriteTool::SpriteTool() {
+	m_texture = 0;
 	m_inputContext = 0;
 	m_engineContext = 0;
 	m_window = 0;
 	m_gpu = 0;
 	m_dt = 0.f;
+	m_buttonLoadImage = 0;
+	m_defaultFont = 0;
+	g_app = this;
 }
 
 SpriteTool::~SpriteTool() {
+	_deleteTexture();
 	if (m_window) yyDestroy(m_window);
 	if (m_engineContext) yyDestroy(m_engineContext);
 	if (m_inputContext) yyDestroy(m_inputContext);
@@ -78,6 +89,22 @@ vidOk:
 
 	m_gpu->SetClearColor(0.7f, 0.7f, 0.7f, 1.f);
 	m_window->SetTitle("SpriteTool");
+
+	m_defaultFont = yyGUILoadFont("../res/fonts/Noto/notosans.txt");
+	if (!m_defaultFont)
+	{
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	m_buttonLoadImage = yyGUICreateButton(v4f(0.f, 0.f, 70.f, 20.f), 0, -1, 0, 0);
+	m_buttonLoadImage->SetColor(yyColor(0.4f), 0);
+	m_buttonLoadImage->SetColor(yyColor(0.5f), 1);
+	m_buttonLoadImage->SetColor(yyColor(0.3f), 2);
+	m_buttonLoadImage->SetText(L"Load image", m_defaultFont, false);
+	m_buttonLoadImage->SetTextColor(ColorWhite);
+	m_buttonLoadImage->m_isAnimated = true;
+	m_buttonLoadImage->m_onRelease = loadImage_onRelease;
 
 	yyGUIRebuild();
 	return true;
@@ -157,5 +184,25 @@ void SpriteTool::MainLoop() {
 			m_gpu->SwapBuffers();
 		}
 		}
+	}
+}
+
+void SpriteTool::LoadImage() {
+	auto path = yyOpenFileDialog("Load image", "Load", "png dds tga", "Supported files");
+	if (path)
+	{
+		yyStringA stra;
+		stra += path->data();
+		_deleteTexture();
+		m_texture = yyCreateTextureFromFile(stra.data());
+		yyDestroy(path);
+	}
+}
+
+void SpriteTool::_deleteTexture() {
+	if (m_texture)
+	{
+		yyMegaAllocator::Destroy(m_texture);
+		m_texture = 0;
 	}
 }

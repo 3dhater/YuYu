@@ -35,6 +35,7 @@ yyGUIButton::yyGUIButton()
 	m_textColorPress = ColorLime;
 }
 
+
 yyGUIButton::~yyGUIButton(){
 	if (m_textElement) yyDestroy(m_textElement);
 	if (m_basePB) yyDestroy(m_basePB);
@@ -44,6 +45,8 @@ yyGUIButton::~yyGUIButton(){
 
 void yyGUIButton::SetTextColor(const yyColor& c) {
 	m_textColor = c;
+	m_textColorHover = c;
+	m_textColorPress = c;
 	if (!m_textElement)
 		return;
 
@@ -430,6 +433,7 @@ void yyGUIButton::SetMouseHoverTexture(yyResource* t, v4f* uv){
 	{
 		m_mouseHoverPB = yyGUICreatePictureBox(m_buildRectInPixels, t, -1, m_drawGroup, uv);
 		m_mouseHoverPB->IgnoreInput(true);
+		m_mouseHoverPB->m_color = m_color;
 		yyGUIRemoveElement(m_mouseHoverPB);
 	}
 	else
@@ -443,6 +447,7 @@ void yyGUIButton::SetMouseClickTexture(yyResource* t, v4f* uv){
 	{
 		m_mouseClickPB = yyGUICreatePictureBox(m_buildRectInPixels, t, -1, m_drawGroup, uv);
 		m_mouseClickPB->IgnoreInput(true);
+		m_mouseClickPB->m_color = m_color;
 		yyGUIRemoveElement(m_mouseClickPB);
 	}
 	else

@@ -20,7 +20,6 @@
 #include "d3d11_shader_LineModel.h"
 #include "d3d11_shader_Rectangle.h"
 #include "d3d11_shader_points.h"
-
 #include "d3d11_shader_standart.h"
 
 #include "scene/common.h"
@@ -238,7 +237,57 @@ void Draw(){
 				g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
 		}
 
-		switch (material->m_type)
+		switch (g_d3d11->m_currentModel->m_vertexType)
+		{
+		case yyVertexType::Model:
+		{
+			switch (material->m_type)
+			{
+			default:
+			case yyMaterialType::Simple:
+				g_d3d11->SetActiveShader(g_d3d11->m_shaderSimple);
+				g_d3d11->m_shaderSimple->SetConstants(material);
+				break;
+			case yyMaterialType::Standart:
+				g_d3d11->SetActiveShader(g_d3d11->m_shaderStd);
+				g_d3d11->m_shaderStd->SetConstants(material);
+				break;
+			}
+		}break;
+		case yyVertexType::AnimatedModel:
+		{
+			g_d3d11->SetActiveShader(g_d3d11->m_shaderSimpleAnimated);
+			g_d3d11->m_shaderSimpleAnimated->SetConstants(material);
+		}break;
+		case yyVertexType::LineModel:
+		{
+			g_d3d11->SetActiveShader(g_d3d11->m_shaderLineModel);
+			g_d3d11->m_shaderLineModel->SetConstants(material);
+		}break;
+		case yyVertexType::AnimatedLineModel:
+		{
+			g_d3d11->SetActiveShader(g_d3d11->m_shaderLineModelAnimated);
+			g_d3d11->m_shaderLineModelAnimated->SetConstants(material);
+		}break;
+		case yyVertexType::Point:
+		{
+			g_d3d11->SetActiveShader(g_d3d11->m_shaderPoints);
+			g_d3d11->m_shaderPoints->SetConstants(material);
+		}break;
+		case yyVertexType::AnimatedPoint:
+		{
+			g_d3d11->SetActiveShader(g_d3d11->m_shaderPointsAnimated);
+			g_d3d11->m_shaderPointsAnimated->SetConstants(material);
+		}break;
+		}
+		if (g_d3d11->m_currentTextures[0])
+		{
+			g_d3d11->m_d3d11DevCon->PSSetShaderResources(0, 1, &g_d3d11->m_currentTextures[0]->m_textureResView);
+			g_d3d11->m_d3d11DevCon->PSSetSamplers(0, 1, &g_d3d11->m_currentTextures[0]->m_samplerState);
+		}
+
+
+		/*switch (material->m_type)
 		{
 		default:
 		case yyMaterialType::Simple:
@@ -281,7 +330,7 @@ void Draw(){
 				g_d3d11->m_d3d11DevCon->PSSetSamplers(0, 1, &g_d3d11->m_currentTextures[0]->m_samplerState);
 			}
 			break;
-		}
+		}*/
 	}
 	u32 offset = 0u;
 //	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerWireframeNoBackFaceCulling);

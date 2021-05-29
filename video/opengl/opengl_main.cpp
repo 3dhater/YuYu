@@ -261,75 +261,29 @@ void Draw(){
 		else
 			glDisable(GL_CULL_FACE);
 
-
-		switch (material->m_type)
+		switch (g_openGL->m_currentModel->m_vertexType)
 		{
-		/*case yyMaterialType::Terrain:
-			glUseProgram(g_openGL->m_shader_terrain->m_program);
-			glUniformMatrix4fv(g_openGL->m_shader_terrain->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr());
-			glUniformMatrix4fv(g_openGL->m_shader_terrain->m_uniform_W, 1, GL_FALSE, g_openGL->m_matrixWorld.getPtr());
-			glUniformMatrix4fv(g_openGL->m_shader_terrain->m_uniform_LightView, 1, GL_FALSE, g_openGL->m_matrixLightView.getPtr());
-			glUniformMatrix4fv(g_openGL->m_shader_terrain->m_uniform_LightProjection, 1, GL_FALSE, g_openGL->m_matrixLightProjection.getPtr());
-			glUniform3fv(g_openGL->m_shader_terrain->m_uniform_sunDir, 1, material->m_sunDir.data());
-			glUniform3fv(g_openGL->m_shader_terrain->m_uniform_ambientColor, 1, material->m_ambientColor.data());
-			glUniform1f(g_openGL->m_shader_terrain->m_uniform_selfLight, material->m_selfLight);
-			if (g_openGL->m_currentTextures[0]) {
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, g_openGL->m_currentTextures[0]->m_texture);
-			}
-			if (g_openGL->m_currentTextures[1]) {
-				glActiveTexture(GL_TEXTURE1);
-				glBindTexture(GL_TEXTURE_2D, g_openGL->m_currentTextures[1]->m_texture);
-			}
-			break;*/
-		default:
-		case yyMaterialType::Simple:
+		case yyVertexType::Model:
 		{
-			switch (g_openGL->m_currentModel->m_vertexType)
+			switch (material->m_type)
 			{
-			case yyVertexType::Model:
+			default:
+			case yyMaterialType::Simple:
 			{
 				glUseProgram(g_openGL->m_shader_simple->m_program);
 				glUniformMatrix4fv(g_openGL->m_shader_simple->m_uniform_WVP, 1, GL_FALSE, yyGetMatrix(yyMatrixType::WorldViewProjection)->getPtr());
 				glUniform4fv(g_openGL->m_shader_simple->m_uniform_BaseColor, 1, &material->m_baseColor.m_data[0]);
 			}break;
-			case yyVertexType::AnimatedModel:
+			case yyMaterialType::Standart:
 			{
-				glUseProgram(g_openGL->m_shader_simpleAnimated->m_program);
-				glUniformMatrix4fv(g_openGL->m_shader_simpleAnimated->m_uniform_WVP, 1, GL_FALSE, yyGetMatrix(yyMatrixType::WorldViewProjection)->getPtr());
-				glUniformMatrix4fv(g_openGL->m_shader_simpleAnimated->m_uniform_World, 1, GL_FALSE, yyGetMatrix(yyMatrixType::World)->getPtr());
-				glUniformMatrix4fv(g_openGL->m_shader_simpleAnimated->m_uniform_Bones, YY_MAX_BONES, GL_FALSE, yyGetBoneMatrix(0)->getPtr());
-				glUniform4fv(g_openGL->m_shader_simpleAnimated->m_uniform_BaseColor, 1, &material->m_baseColor.m_data[0]);
-			}break;
-			case yyVertexType::LineModel:
-			{
-				glUseProgram(g_openGL->m_shader_lineModel->m_program);
-				glUniformMatrix4fv(g_openGL->m_shader_lineModel->m_uniform_WVP, 1, GL_FALSE, yyGetMatrix(yyMatrixType::WorldViewProjection)->getPtr());
-				glUniformMatrix4fv(g_openGL->m_shader_lineModel->m_uniform_W, 1, GL_FALSE, yyGetMatrix(yyMatrixType::World)->getPtr());
-				glUniformMatrix4fv(g_openGL->m_shader_lineModel->m_uniform_V, 1, GL_FALSE, yyGetMatrix(yyMatrixType::View)->getPtr());
-				glUniform3fv(g_openGL->m_shader_lineModel->m_uniform_Eye, 1, yyGetEyePosition()->data());
-				glUniform4fv(g_openGL->m_shader_lineModel->m_uniform_BaseColor, 1, &material->m_baseColor.m_data[0]);
-			}break;
-			case yyVertexType::AnimatedLineModel:
-			{
-				glUseProgram(g_openGL->m_shader_lineModelAnimated->m_program);
-				glUniformMatrix4fv(g_openGL->m_shader_lineModelAnimated->m_uniform_WVP, 1, GL_FALSE, yyGetMatrix(yyMatrixType::WorldViewProjection)->getPtr());
-				glUniformMatrix4fv(g_openGL->m_shader_lineModelAnimated->m_uniform_World, 1, GL_FALSE, yyGetMatrix(yyMatrixType::World)->getPtr());
-				glUniformMatrix4fv(g_openGL->m_shader_lineModelAnimated->m_uniform_Bones, YY_MAX_BONES, GL_FALSE, yyGetBoneMatrix(0)->getPtr());
-				glUniform4fv(g_openGL->m_shader_lineModelAnimated->m_uniform_BaseColor, 1, &material->m_baseColor.m_data[0]);
-			}break;
-			case yyVertexType::Point:
-			{
-				glUseProgram(g_openGL->m_shader_point->m_program);
-				glUniformMatrix4fv(g_openGL->m_shader_point->m_uniform_WVP, 1, GL_FALSE, yyGetMatrix(yyMatrixType::WorldViewProjection)->getPtr());
-			}break;
-			case yyVertexType::AnimatedPoint:
-			{
-				glUseProgram(g_openGL->m_shader_pointAnimated->m_program);
-				glUniformMatrix4fv(g_openGL->m_shader_pointAnimated->m_uniform_WVP, 1, GL_FALSE, yyGetMatrix(yyMatrixType::World)->getPtr());
-				glUniformMatrix4fv(g_openGL->m_shader_pointAnimated->m_uniform_Bones, YY_MAX_BONES, GL_FALSE, yyGetBoneMatrix(0)->getPtr());
+				glUseProgram(g_openGL->m_shader_std->m_program);
+				glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_WVP, 1, GL_FALSE, yyGetMatrix(yyMatrixType::WorldViewProjection)->getPtr());
+				glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_W, 1, GL_FALSE, yyGetMatrix(yyMatrixType::World)->getPtr());
+				glUniform4fv(g_openGL->m_shader_std->m_uniform_BaseColor, 1, &material->m_baseColor.m_data[0]);
+				glUniform3fv(g_openGL->m_shader_std->m_uniform_SunLightPos, 1, &material->m_sunPos.x);
 			}break;
 			}
+
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, 0);
 			if (g_openGL->m_currentTextures[0]) {
@@ -337,36 +291,50 @@ void Draw(){
 				glBindTexture(GL_TEXTURE_2D, g_openGL->m_currentTextures[0]->m_texture);
 			}
 		}break;
-		/*case yyMaterialType::Default:
-			glUseProgram(g_openGL->m_shader_std->m_program);
-			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_WVP, 1, GL_FALSE, g_openGL->m_matrixWorldViewProjection.getPtr());
-			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_W, 1, GL_FALSE, g_openGL->m_matrixWorld.getPtr());
-			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_LightView, 1, GL_FALSE, g_openGL->m_matrixLightView.getPtr());
-			glUniformMatrix4fv(g_openGL->m_shader_std->m_uniform_LightProjection, 1, GL_FALSE, g_openGL->m_matrixLightProjection.getPtr());
-			glUniform3fv(g_openGL->m_shader_std->m_uniform_sunDir, 1, material->m_sunDir.data());
-			glUniform3fv(g_openGL->m_shader_std->m_uniform_ambientColor, 1, material->m_ambientColor.data());
-			glUniform1f(g_openGL->m_shader_std->m_uniform_selfLight, material->m_selfLight);
-			if (g_openGL->m_currentTextures[0]) {
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, g_openGL->m_currentTextures[0]->m_texture);
-			}
-			if (g_openGL->m_currentTextures[1]) {
-				glActiveTexture(GL_TEXTURE1);
-				glBindTexture(GL_TEXTURE_2D, g_openGL->m_currentTextures[1]->m_texture);
-			}
-			break;
-		case yyMaterialType::Depth:
-			glUseProgram(g_openGL->m_shader_depth->m_program);
-			glUniformMatrix4fv(g_openGL->m_shader_depth->m_uniform_World, 1, GL_FALSE, g_openGL->m_matrixWorld.getPtr());
-			glUniformMatrix4fv(g_openGL->m_shader_depth->m_uniform_LightView, 1, GL_FALSE, g_openGL->m_matrixLightView.getPtr());
-			glUniformMatrix4fv(g_openGL->m_shader_depth->m_uniform_LightProjection, 1, GL_FALSE, g_openGL->m_matrixLightProjection.getPtr());
-			if (g_openGL->m_currentTextures[0]) {
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, g_openGL->m_currentTextures[0]->m_texture);
-			}
-			break;*/
-		}
+		case yyVertexType::AnimatedModel:
+		{
+			glUseProgram(g_openGL->m_shader_simpleAnimated->m_program);
+			glUniformMatrix4fv(g_openGL->m_shader_simpleAnimated->m_uniform_WVP, 1, GL_FALSE, yyGetMatrix(yyMatrixType::WorldViewProjection)->getPtr());
+			glUniformMatrix4fv(g_openGL->m_shader_simpleAnimated->m_uniform_World, 1, GL_FALSE, yyGetMatrix(yyMatrixType::World)->getPtr());
+			glUniformMatrix4fv(g_openGL->m_shader_simpleAnimated->m_uniform_Bones, YY_MAX_BONES, GL_FALSE, yyGetBoneMatrix(0)->getPtr());
+			glUniform4fv(g_openGL->m_shader_simpleAnimated->m_uniform_BaseColor, 1, &material->m_baseColor.m_data[0]);
 
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			if (g_openGL->m_currentTextures[0]) {
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, g_openGL->m_currentTextures[0]->m_texture);
+			}
+		}break;
+		case yyVertexType::LineModel:
+		{
+			glUseProgram(g_openGL->m_shader_lineModel->m_program);
+			glUniformMatrix4fv(g_openGL->m_shader_lineModel->m_uniform_WVP, 1, GL_FALSE, yyGetMatrix(yyMatrixType::WorldViewProjection)->getPtr());
+			glUniformMatrix4fv(g_openGL->m_shader_lineModel->m_uniform_W, 1, GL_FALSE, yyGetMatrix(yyMatrixType::World)->getPtr());
+			glUniformMatrix4fv(g_openGL->m_shader_lineModel->m_uniform_V, 1, GL_FALSE, yyGetMatrix(yyMatrixType::View)->getPtr());
+			glUniform3fv(g_openGL->m_shader_lineModel->m_uniform_Eye, 1, yyGetEyePosition()->data());
+			glUniform4fv(g_openGL->m_shader_lineModel->m_uniform_BaseColor, 1, &material->m_baseColor.m_data[0]);
+		}break;
+		case yyVertexType::AnimatedLineModel:
+		{
+			glUseProgram(g_openGL->m_shader_lineModelAnimated->m_program);
+			glUniformMatrix4fv(g_openGL->m_shader_lineModelAnimated->m_uniform_WVP, 1, GL_FALSE, yyGetMatrix(yyMatrixType::WorldViewProjection)->getPtr());
+			glUniformMatrix4fv(g_openGL->m_shader_lineModelAnimated->m_uniform_World, 1, GL_FALSE, yyGetMatrix(yyMatrixType::World)->getPtr());
+			glUniformMatrix4fv(g_openGL->m_shader_lineModelAnimated->m_uniform_Bones, YY_MAX_BONES, GL_FALSE, yyGetBoneMatrix(0)->getPtr());
+			glUniform4fv(g_openGL->m_shader_lineModelAnimated->m_uniform_BaseColor, 1, &material->m_baseColor.m_data[0]);
+		}break;
+		case yyVertexType::Point:
+		{
+			glUseProgram(g_openGL->m_shader_point->m_program);
+			glUniformMatrix4fv(g_openGL->m_shader_point->m_uniform_WVP, 1, GL_FALSE, yyGetMatrix(yyMatrixType::WorldViewProjection)->getPtr());
+		}break;
+		case yyVertexType::AnimatedPoint:
+		{
+			glUseProgram(g_openGL->m_shader_pointAnimated->m_program);
+			glUniformMatrix4fv(g_openGL->m_shader_pointAnimated->m_uniform_WVP, 1, GL_FALSE, yyGetMatrix(yyMatrixType::World)->getPtr());
+			glUniformMatrix4fv(g_openGL->m_shader_pointAnimated->m_uniform_Bones, YY_MAX_BONES, GL_FALSE, yyGetBoneMatrix(0)->getPtr());
+		}break;
+		}
 	}
 	glBindVertexArray(g_openGL->m_currentModel->m_VAO);
 	switch (g_openGL->m_currentModel->m_vertexType)

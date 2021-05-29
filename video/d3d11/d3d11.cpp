@@ -15,6 +15,7 @@
 #include "d3d11_shader_LineModel.h"
 #include "d3d11_shader_Rectangle.h"
 #include "d3d11_shader_points.h"
+#include "d3d11_shader_standart.h"
 
 void D3D11::UpdateGUIProjectionMatrix(const v2f& windowSize){
 	float L = 0;
@@ -38,6 +39,7 @@ D3D11::D3D11(){
 	m_currentModel = nullptr;
 
 	m_activeShader = 0;
+	m_shaderStd = 0;
 	m_shaderScreenQuad = 0;
 	m_shaderGUI = nullptr;
 	m_shaderSprite = nullptr;
@@ -75,6 +77,7 @@ D3D11::~D3D11(){
 	if (m_mainTarget) yyDestroy(m_mainTarget);
 	if (m_mainTargetSurface) yyDestroy(m_mainTargetSurface);
 
+	if (m_shaderStd)yyDestroy(m_shaderStd);
 	if (m_shaderPoints) yyDestroy(m_shaderPoints);
 	if (m_shaderPointsAnimated) yyDestroy(m_shaderPointsAnimated);
 	if (m_shaderRectangle) yyDestroy(m_shaderRectangle);
@@ -492,6 +495,14 @@ bool D3D11::Init(yyWindow* window){
 	if (!m_shaderPointsAnimated->init())
 	{
 		yyLogWriteError("Can't create animated points shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
+	m_shaderStd = yyCreate<D3D11ShaderStd>();
+	if (!m_shaderStd->init())
+	{
+		yyLogWriteError("Can't create standart shader...");
 		YY_PRINT_FAILED;
 		return false;
 	}

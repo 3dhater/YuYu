@@ -69,6 +69,7 @@ DemoExample_GUI::DemoExample_GUI(){
 	m_rangeFloatHorNoLimit_value = 0.f;
 	m_rangeFloatHorNoLimit = 0;
 	m_listbox = 0;
+	m_checkLBUseSmooth = 0;
 }
 DemoExample_GUI::~DemoExample_GUI(){
 	Shutdown();

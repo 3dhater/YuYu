@@ -7,6 +7,10 @@
 #include "yy_gui.h"
 #include "math\math.h"
 
+#ifdef LoadImage
+#undef LoadImage
+#endif
+
 class SpriteTool
 {
 	yyInputContext * m_inputContext;
@@ -20,12 +24,21 @@ class SpriteTool
 	bool m_isCursorInWindow;
 	bool m_isCursorInGUI;
 	bool m_isGUIInputFocus;
+
+	yyGUIFont *m_defaultFont;
+	yyGUIButton* m_buttonLoadImage;
+
+	yyResource* m_texture;
+	void _deleteTexture();
+
 public:
 	SpriteTool();
 	~SpriteTool();
 
 	bool Init(const char*);
 	void MainLoop();
+
+	void LoadImage();
 };
 
 #endif
