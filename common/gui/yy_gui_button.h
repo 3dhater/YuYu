@@ -6,6 +6,7 @@
 class yyGUIButton : public yyGUIElement
 {
 	yyVideoDriverAPI* m_gpu;
+	yyColor m_bgCurrCol;
 public:
 	yyGUIButton();
 	virtual ~yyGUIButton();
@@ -54,6 +55,11 @@ public:
 	bool m_isAnimated;
 
 	v4f m_uvRect;
+
+	bool m_useBackground; //false
+	yyColor m_bgColor; // .set();
+	yyColor m_bgColorHover;
+	yyColor m_bgColorPress;
 };
 
 #endif

@@ -33,6 +33,11 @@ yyGUIButton::yyGUIButton()
 	m_textColor = ColorWhite;
 	m_textColorHover = ColorRed;
 	m_textColorPress = ColorLime;
+
+	m_useBackground = false;
+	m_bgColor.set(0.41f);
+	m_bgColorHover.set(0.53f);
+	m_bgColorPress.set(0.3f);
 }
 
 
@@ -72,6 +77,7 @@ void yyGUIButton::SetText(const wchar_t* text, yyGUIFont* font, bool resizeButto
 
 	m_textResizeButton = resizeButton;
 
+	this->m_useBackground = true;
 
 	m_textElement = yyGUICreateText(v2f(m_buildRectInPixels.x, m_buildRectInPixels.y), font, m_text.data(), m_drawGroup);
 	yyGUIRemoveElement(m_textElement); // remove from gui elements list
@@ -165,7 +171,8 @@ void yyGUIButton::SetColor(const yyColor& c, s32 pictureBox) {
 	{
 	default:
 	case 0:
-		m_basePB->m_color = c;
+		if(m_basePB)
+			m_basePB->m_color = c;
 		m_color = c;
 		break;
 	case 1:
@@ -249,25 +256,95 @@ void yyGUIButton::OnUpdate(f32 dt){
 void yyGUIButton::OnDraw(f32 dt){
 	if (!m_visible) return;
 	
-	if (m_isAnimated)
+	f32 lerp_t = 10.f *dt;
+
+	if (m_useBackground)
 	{
-		f32 sp = 10.f  * dt;
 		if (m_isInActiveAreaRect)
 		{
-			m_mouseHoverPB->m_color.m_data[3] += sp;
-			if (m_mouseHoverPB->m_color.m_data[3] > 1.f)
-				m_mouseHoverPB->m_color.m_data[3] = 1.f;
+		
+			if (m_isAnimated)
+			{
+				if (m_isClicked || m_isChecked)
+				{
+					m_bgCurrCol.m_data[0] = math::lerp(m_bgCurrCol.m_data[0], m_bgColorPress.m_data[0], lerp_t);
+					m_bgCurrCol.m_data[1] = math::lerp(m_bgCurrCol.m_data[1], m_bgColorPress.m_data[1], lerp_t);
+					m_bgCurrCol.m_data[2] = math::lerp(m_bgCurrCol.m_data[2], m_bgColorPress.m_data[2], lerp_t);
+				//	m_bgCurrCol.m_data[3] = math::lerp(m_bgCurrCol.m_data[3], m_bgColorPress.m_data[3], lerp_t);
+				}
+				else
+				{
+					m_bgCurrCol.m_data[0] = math::lerp(m_bgCurrCol.m_data[0], m_bgColorHover.m_data[0], lerp_t);
+					m_bgCurrCol.m_data[1] = math::lerp(m_bgCurrCol.m_data[1], m_bgColorHover.m_data[1], lerp_t);
+					m_bgCurrCol.m_data[2] = math::lerp(m_bgCurrCol.m_data[2], m_bgColorHover.m_data[2], lerp_t);
+					//m_bgCurrCol.m_data[3] = math::lerp(m_bgCurrCol.m_data[3], m_bgColorHover.m_data[3], lerp_t);
+				}
+			}
+			else
+			{
+				if (m_isClicked || m_isChecked)
+					m_bgCurrCol = m_bgColorPress;
+				else
+					m_bgCurrCol = m_bgColorHover;
+			}
 		}
 		else
 		{
-			m_mouseHoverPB->m_color.m_data[3] -= sp;
-			if (m_mouseHoverPB->m_color.m_data[3] < 0.f)
-				m_mouseHoverPB->m_color.m_data[3] = 0.f;
+			if (m_isAnimated)
+			{
+				if (m_isClicked || m_isChecked)
+				{
+					m_bgCurrCol.m_data[0] = math::lerp(m_bgCurrCol.m_data[0], m_bgColorPress.m_data[0], lerp_t);
+					m_bgCurrCol.m_data[1] = math::lerp(m_bgCurrCol.m_data[1], m_bgColorPress.m_data[1], lerp_t);
+					m_bgCurrCol.m_data[2] = math::lerp(m_bgCurrCol.m_data[2], m_bgColorPress.m_data[2], lerp_t);
+				//	m_bgCurrCol.m_data[3] = math::lerp(m_bgCurrCol.m_data[3], m_bgColorPress.m_data[3], lerp_t);
+				}
+				else
+				{
+					m_bgCurrCol.m_data[0] = math::lerp(m_bgCurrCol.m_data[0], m_bgColor.m_data[0], lerp_t);
+					m_bgCurrCol.m_data[1] = math::lerp(m_bgCurrCol.m_data[1], m_bgColor.m_data[1], lerp_t);
+					m_bgCurrCol.m_data[2] = math::lerp(m_bgCurrCol.m_data[2], m_bgColor.m_data[2], lerp_t);
+				//	m_bgCurrCol.m_data[3] = math::lerp(m_bgCurrCol.m_data[3], m_bgColor.m_data[3], lerp_t);
+				}
+			}
+			else
+			{
+				if (m_isClicked || m_isChecked)
+					m_bgCurrCol = m_bgColorPress;
+				else
+					m_bgCurrCol = m_bgColor;
+			}
+		}
+	
+		g_engine->m_videoAPI->DrawRectangle(m_buildRectInPixels, m_bgCurrCol, m_bgCurrCol);
+	}
+
+	if (m_isAnimated)
+	{
+		f32 sp = 10.f  * dt;
+
+		if (m_mouseHoverPB)
+		{
+			if (m_isInActiveAreaRect)
+			{
+				m_mouseHoverPB->m_color.m_data[3] += sp;
+				if (m_mouseHoverPB->m_color.m_data[3] > 1.f)
+					m_mouseHoverPB->m_color.m_data[3] = 1.f;
+			}
+			else
+			{
+				m_mouseHoverPB->m_color.m_data[3] -= sp;
+				if (m_mouseHoverPB->m_color.m_data[3] < 0.f)
+					m_mouseHoverPB->m_color.m_data[3] = 0.f;
+			}
 		}
 	}
 
-	if(m_isAnimated)
-		m_basePB->OnDraw(dt);
+	if (m_isAnimated)
+	{
+		if(m_basePB)
+			m_basePB->OnDraw(dt);
+	}
 
 	if (m_isClicked || m_isChecked)
 	{
@@ -279,21 +356,22 @@ void yyGUIButton::OnDraw(f32 dt){
 		{
 			m_mouseHoverPB->OnDraw(dt);
 		}
-		else
+		else if(m_basePB)
 		{
 			m_basePB->OnDraw(dt);
 		}
 	}
 	else
 	{
-		m_basePB->OnDraw(dt);
+		if (m_basePB)
+			m_basePB->OnDraw(dt);
 		if (m_mouseHoverPB)
 		{
 			if (m_isInActiveAreaRect || (m_isAnimated && m_mouseHoverPB->m_color.m_data[3] > 0.f))
 			{
 				m_mouseHoverPB->OnDraw(dt);
 			}
-			else
+			else if (m_basePB)
 			{
 				m_basePB->OnDraw(dt);
 			}
@@ -326,52 +404,21 @@ void yyGUIButton::OnDraw(f32 dt){
 
 void yyGUIButton::Rebuild(){
 	yyGUIElement::CallOnRebuildSetRects();
-	/*if (m_basePB)
-	{
-		m_baseTexture = m_basePB->DropTexture();
-		m_color = m_basePB->m_color;
-		yyDestroy(m_basePB);
-	}
-	m_basePB = yyGUICreatePictureBox(m_buildRectInPixels, m_baseTexture, m_id, m_drawGroup, &m_uvRect);
-	yyGUIRemoveElement(m_basePB);
-	m_basePB->IgnoreInput(true);
-	m_basePB->m_color = m_color;*/
 
 	if (m_basePB)
 	{
 		m_basePB->SetBuildRect(m_buildRectInPixels);
 		m_basePB->Rebuild();
 	}
-	else
-	{
-		m_basePB = yyGUICreatePictureBox(m_buildRectInPixels, m_baseTexture, m_id, m_drawGroup, &m_uvRect);
-		m_basePB->m_color = m_color;
-	}
 
 	if (m_mouseHoverPB)
 	{
-		/*auto t = m_mouseHoverPB->DropTexture();
-		auto uvRect = m_mouseHoverPB->m_uvRect;
-		auto color = m_mouseHoverPB->m_color;
-		yyDestroy(m_mouseHoverPB);
-		m_mouseHoverPB = yyGUICreatePictureBox(m_buildRectInPixels, t, -1, m_drawGroup, &uvRect);
-		m_mouseHoverPB->IgnoreInput(true);
-		m_mouseHoverPB->m_color = color;
-		yyGUIRemoveElement(m_mouseHoverPB);*/
 		m_mouseHoverPB->SetBuildRect(m_basePB->m_buildRectInPixels);
 		m_mouseHoverPB->Rebuild();
 	}
 
 	if (m_mouseClickPB)
 	{
-		/*auto t = m_mouseClickPB->DropTexture();
-		auto uvRect = m_mouseClickPB->m_uvRect;
-		auto color = m_mouseClickPB->m_color;
-		yyDestroy(m_mouseClickPB);
-		m_mouseClickPB = yyGUICreatePictureBox(m_buildRectInPixels, t, -1, m_drawGroup, &uvRect);
-		m_mouseClickPB->IgnoreInput(true);
-		m_mouseClickPB->m_color = color;
-		yyGUIRemoveElement(m_mouseClickPB);*/
 		m_mouseClickPB->SetBuildRect(m_basePB->m_buildRectInPixels);
 		m_mouseClickPB->Rebuild();
 	}
@@ -389,38 +436,31 @@ YY_API yyGUIButton* YY_C_DECL yyGUICreateButton(const v4f& rect, yyResource* bas
 	element->m_id = id;
 	element->m_baseTexture = baseTexture;
 
-	if (!baseTexture)
-	{
-		element->m_baseTexture = yyGetDefaultTexture();
-		element->SetMouseHoverTexture(element->m_baseTexture);
-		element->SetMouseClickTexture(element->m_baseTexture);
-	}
-	else
+	if (baseTexture)
 	{
 		if (!element->m_baseTexture->IsLoaded())
 			element->m_baseTexture->Load();
-	}
 
-	if (uv)
-	{
-		element->m_uvRect = *uv;
-	}
-	else
-	{
-		auto gpu = yyGetVideoDriverAPI();
-		v2f s;
-		element->m_baseTexture->GetTextureSize(&s);
-		element->m_uvRect.z = s.x;
-		element->m_uvRect.w = s.y;
+		if (uv)
+		{
+			element->m_uvRect = *uv;
+		}
+		else
+		{
+			auto gpu = yyGetVideoDriverAPI();
+			v2f s;
+			element->m_baseTexture->GetTextureSize(&s);
+			element->m_uvRect.z = s.x;
+			element->m_uvRect.w = s.y;
+		}
+		//m_basePB = yyGUICreatePictureBox(m_buildRectInPixels, m_baseTexture, m_id, m_drawGroup, &m_uvRect);
+		//m_basePB->m_color = m_color;
+
+		element->m_basePB = yyGUICreatePictureBox(element->m_buildRectInPixels, baseTexture, -1, element->m_drawGroup, &element->m_uvRect);
+		yyGUIRemoveElement(element->m_basePB);
 	}
 
 	element->Rebuild();
-	//element->m_basePB = yyGUICreatePictureBox(element->m_buildingRect_global, baseTexture, -1, element->m_drawGroup);
-
-	element->m_basePB->IgnoreInput(true);
-
-	yyGUIRemoveElement(element->m_basePB);
-	
 	return element;
 }
 
