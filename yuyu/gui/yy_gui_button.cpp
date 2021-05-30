@@ -26,6 +26,7 @@ yyGUIButton::yyGUIButton()
 	m_useAsCheckbox = false;
 	m_isAnimated = false;
 	m_gpu = yyGetVideoDriverAPI();
+	m_buttonGroup = 0;
 	m_baseTexture = 0;
 	m_onMouseEnter = 0;
 	m_onMouseLeave = 0;
@@ -232,6 +233,15 @@ void yyGUIButton::OnUpdate(f32 dt){
 		{
 			if (m_useAsCheckbox)
 			{
+				if (m_buttonGroup)
+				{
+					auto buttons = m_buttonGroup->m_buttons.data();
+					for (u32 i = 0, sz = m_buttonGroup->m_buttons.size(); i < sz; ++i)
+					{
+						buttons[i]->m_isChecked = false;
+					}
+				}
+
 				if (m_isChecked)
 				{
 					m_isChecked = false;

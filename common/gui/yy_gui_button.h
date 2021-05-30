@@ -3,6 +3,14 @@
 
 #include "../yy_color.h"
 
+// using when button working with m_useAsCheckbox
+//  and it will be like radio button
+//   Just set button->m_buttonGroup = &button_group;
+struct yyGUIButtonGroup
+{
+	yyArray<yyGUIButton*> m_buttons;
+};
+
 class yyGUIButton : public yyGUIElement
 {
 	yyVideoDriverAPI* m_gpu;
@@ -30,6 +38,8 @@ public:
 	yyGUIPictureBox* m_mouseHoverPB;
 	yyGUIPictureBox* m_mouseClickPB;
 	yyResource* m_baseTexture;
+
+	yyGUIButtonGroup* m_buttonGroup;
 
 	yyGUICallback m_onClick; // LMB down
 	yyGUICallback m_onRelease; // LMB up
