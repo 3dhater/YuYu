@@ -102,8 +102,8 @@ public:
 		m_direction.x = m_end.x - m_origin.x;
 		m_direction.y = m_end.y - m_origin.y;
 		m_direction.z = m_end.z - m_origin.z;
+		m_direction.w = 0.f;
 		m_direction.normalize2();
-		m_direction.w = 1.f;
 
 		m_invDir.x = 1.f / m_direction.x;
 		m_invDir.y = 1.f / m_direction.y;
@@ -136,6 +136,25 @@ public:
 		m_Sx = dir_data[m_kx] / dir_data[m_kz];
 		m_Sy = dir_data[m_ky] / dir_data[m_kz];
 		m_Sz = 1.f / dir_data[m_kz];
+	}
+
+	bool planeIntersection(const v4f& planePoint, const v4f& planeNormal, v4f& ip) {
+		float det = (planeNormal.x*m_direction.x) + (planeNormal.y*m_direction.y) + (planeNormal.z*m_direction.z);
+
+		if (std::fabs(det) < Epsilon) return false;
+
+		v4f v;
+		v.x = planePoint.x - m_origin.x;
+		v.y = planePoint.y - m_origin.y;
+		v.z = planePoint.z - m_origin.z;
+
+		float t = (planeNormal.x*v.x) + (planeNormal.y*v.y) + (planeNormal.z*v.z);
+
+		t /= det;
+
+		ip = m_origin + t * m_direction;
+
+		return true;
 	}
 };
 

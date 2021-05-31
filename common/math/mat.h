@@ -260,7 +260,11 @@ public:
 				}
 				// Print this is a singular matrix, return identity ?
 				if (big == column)
-					yyLogWriteWarning("Singular matrix\n"); 
+#ifdef _YUYU_H_
+					yyLogWriteWarning("Singular matrix\n");
+#else
+					fprintf(stderr, "Singular matrix\n");
+#endif
 				// Swap rows                               
 				else for (unsigned j = 0; j < 4; ++j) 
 				{ 
@@ -377,6 +381,9 @@ public:
 
 		return true;
 	}
+	
+	void setTranslation(const v3f& v) { m_data[3].set(v.x, v.y, v.z, 1.f); }
+	void setTranslation(const v4f& v) { m_data[3].set(v.x, v.y, v.z, 1.f); }
 };
 
 class Mat3
