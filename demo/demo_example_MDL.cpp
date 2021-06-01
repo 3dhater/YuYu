@@ -239,7 +239,7 @@ const wchar_t* DemoExample_MDL::GetDescription(){
 bool DemoExample_MDL::DemoStep(f32 deltaTime){
 	m_flyCamera->Update();
 	
-	yySetMatrix(yyMatrixType::ViewProjection, m_flyCamera->m_viewProjectionMatrix);
+	yySetMatrix(yyMatrixType::ViewProjection, &m_flyCamera->m_viewProjectionMatrix);
 	
 	if (m_gunReady)
 	{
@@ -293,10 +293,14 @@ bool DemoExample_MDL::DemoStep(f32 deltaTime){
 		yySetCursorPosition(cursorX, cursorY, g_demo->m_window);
 	}
 
-	Mat4 WorldMatrix;
-	yySetMatrix(yyMatrixType::World, WorldMatrix);
-	yySetMatrix(yyMatrixType::WorldViewProjection,
-		m_flyCamera->m_projectionMatrix * m_flyCamera->m_viewMatrix * WorldMatrix);
+	static Mat4 WorldMatrix;
+	WorldMatrix.identity();
+
+	yySetMatrix(yyMatrixType::World, &WorldMatrix);
+
+	static Mat4 WVP;
+	WVP = m_flyCamera->m_projectionMatrix * m_flyCamera->m_viewMatrix * WorldMatrix;
+	yySetMatrix(yyMatrixType::WorldViewProjection, &WVP);
 	auto size = m_mdl_struct->m_layers.size();
 	for (u16 i = 0; i < size; ++i)
 	{
@@ -313,6 +317,7 @@ bool DemoExample_MDL::DemoStep(f32 deltaTime){
 
 	m_mdl_object->Update(deltaTime);
 	
+	WorldMatrix.identity();
 	WorldMatrix = m_mdl_object->m_mdl->m_preRotation * WorldMatrix;
 	WorldMatrix[3].w = 1.f;
 
@@ -322,9 +327,10 @@ bool DemoExample_MDL::DemoStep(f32 deltaTime){
 		m_gpu->SetModel(layer->m_meshGPU);
 
 
-		yySetMatrix(yyMatrixType::World, WorldMatrix);
-		yySetMatrix(yyMatrixType::WorldViewProjection,
-			m_flyCamera->m_projectionMatrix * m_flyCamera->m_viewMatrix * WorldMatrix);
+		yySetMatrix(yyMatrixType::World, &WorldMatrix);
+
+		WVP = m_flyCamera->m_projectionMatrix * m_flyCamera->m_viewMatrix * WorldMatrix;
+		yySetMatrix(yyMatrixType::WorldViewProjection, &WVP);
 
 		for (u32 t = 0; t < YY_MDL_LAYER_NUM_OF_TEXTURES; ++t)
 		{
@@ -350,6 +356,7 @@ bool DemoExample_MDL::DemoStep(f32 deltaTime){
 		}
 		m_gpu->UseDepth(true);
 		m_gpu->Draw();
+		m_gpu->DrawLine3D(v4f(),v4f(0.f,100,0,0), ColorRed);
 		// draw skeleton
 		{
 			if (numJoints)
@@ -389,7 +396,7 @@ bool DemoExample_MDL::DemoStep(f32 deltaTime){
 		}
 		if (numJoints)
 		{
-			auto M = Mat4();
+			static Mat4 M;
 			for (int i = 0; i < numJoints; ++i)
 			{
 				yySetBoneMatrix(i, M);
@@ -424,9 +431,11 @@ bool DemoExample_MDL::DemoStep(f32 deltaTime){
 	m_mdl_playerGun->Update(deltaTime);
 
 	WorldMatrix = m_mdl_playerGun->m_mdl->m_preRotation;
-	yySetMatrix(yyMatrixType::World, WorldMatrix);
-	yySetMatrix(yyMatrixType::WorldViewProjection,
-		m_handsCamera->m_projectionMatrix * m_handsCamera->m_viewMatrix * WorldMatrix);
+	yySetMatrix(yyMatrixType::World, &WorldMatrix);
+
+	WVP = m_handsCamera->m_projectionMatrix * m_handsCamera->m_viewMatrix * WorldMatrix;
+	yySetMatrix(yyMatrixType::WorldViewProjection, &WVP);
+
 	m_gpu->ClearDepth();
 	for (int n = 0, nsz = m_mdl_playerGun->m_mdl->m_layers.size(); n < nsz; ++n)
 	{
@@ -451,7 +460,7 @@ bool DemoExample_MDL::DemoStep(f32 deltaTime){
 		m_gpu->Draw();
 		if (numJoints)
 		{
-			auto M = Mat4();
+			static Mat4 M;
 			for (int i = 0; i < numJoints; ++i)
 			{
 				yySetBoneMatrix(i, M);

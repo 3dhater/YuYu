@@ -50,6 +50,7 @@ yyEngine::yyEngine(yyPoolSetup* ps)
 	m_backgroundWorker(nullptr),
 	m_cctx(nullptr)
 {
+	m_currentMaterial = 0;
 	m_GUITextureCheckbox = 0;
 	m_cursorDisableAutoChange = false;
 	m_GUIElementInputFocus = 0;
@@ -279,78 +280,55 @@ EngineDestroyer g_engineDestroyer;
 
 extern "C"
 {
-	YY_API void YY_C_DECL yySetMaterial(const yyMaterial& mat) {
+	YY_API void YY_C_DECL yySetDefaultMaterial(const yyMaterial& mat) {
+		g_engine->m_defaultMaterial = mat;
+	}
+	YY_API yyMaterial* YY_C_DECL yyGetDefaultMaterial() {
+		return &g_engine->m_defaultMaterial;
+	}
+	YY_API void YY_C_DECL yySetMaterial(yyMaterial* mat) {
 		g_engine->m_currentMaterial = mat;
 	}
 	YY_API yyMaterial* YY_C_DECL yyGetMaterial() {
-		return &g_engine->m_currentMaterial;
+		if(!g_engine->m_currentMaterial)
+			return &g_engine->m_defaultMaterial;
+		return g_engine->m_currentMaterial;
 	}
-	YY_API void YY_C_DECL yySetEyePosition(const v3f& v) {
+	YY_API void YY_C_DECL yySetEyePosition(v3f* v) {
 		g_engine->m_eyePosition = v;
 	}
 	YY_API v3f* YY_C_DECL yyGetEyePosition() {
-		return &g_engine->m_eyePosition;
+		if (!g_engine->m_eyePosition)
+			return &g_engine->m_defaultEyePosition;
+		return g_engine->m_eyePosition;
 	}
-	YY_API void YY_C_DECL yySetMatrix(yyMatrixType t, const Mat4& m) {
-		switch (t)
-		{
-		case World:
-			g_engine->m_matrixWorld = m;
-			break;
-		case View:
-			g_engine->m_matrixView = m;
-			break;
-		case Projection:
-			g_engine->m_matrixProjection = m;
-			break;
-		case ViewProjection:
-			g_engine->m_matrixViewProjection = m;
-			break;
-		case WorldViewProjection:
-			g_engine->m_matrixWorldViewProjection = m;
-			break;
-		case ViewInvert:
-			g_engine->m_matrixViewInvert = m;
-			break;
-		default:
-			YY_PRINT_FAILED;
-			break;
-		}
+	YY_API void YY_C_DECL yySetDefaultEyePosition(const v3f& e) {
+		g_engine->m_defaultEyePosition = e;
+	}
+	YY_API v3f* YY_C_DECL yyGetDefaultEyePosition() {
+		return &g_engine->m_defaultEyePosition;
+	}
+	YY_API void YY_C_DECL yySetMatrix(yyMatrixType t, Mat4* m) {
+		g_engine->m_matrixPtrs[(u32)t] = m;
 	}
 	YY_API void YY_C_DECL yySetBoneMatrix(u32 boneIndex, const Mat4& m) {
 		assert(boneIndex < YY_MAX_BONES);
 		g_engine->m_matrixBones[boneIndex] = m;
 	}
 	YY_API Mat4* YY_C_DECL yyGetMatrix(yyMatrixType t) {
-		switch (t)
-		{
-		case World:
-			return &g_engine->m_matrixWorld;
-			break;
-		case View:
-			return &g_engine->m_matrixView;
-			break;
-		case Projection:
-			return &g_engine->m_matrixProjection;
-			break;
-		case ViewProjection:
-			return &g_engine->m_matrixViewProjection;
-			break;
-		case WorldViewProjection:
-			return &g_engine->m_matrixWorldViewProjection;
-			break;
-		case ViewInvert:
-			return &g_engine->m_matrixViewInvert;
-			break;
-		default:
-			YY_PRINT_FAILED;
-			break;
-		}
-		return 0;
+		if (!g_engine->m_matrixPtrs[(u32)t])
+			return &g_engine->m_defaultMatrix[(u32)t];
+		return g_engine->m_matrixPtrs[(u32)t];
 	}
 	YY_API Mat4* YY_C_DECL yyGetBoneMatrix(u32 boneIndex) {
 		assert(boneIndex < YY_MAX_BONES);
 		return &g_engine->m_matrixBones[boneIndex];
+	}
+	YY_API void YY_C_DECL yySetDefaultMatrix(yyMatrixType t, const Mat4& m) {
+		g_engine->m_defaultMatrix[(u32)t] = m;
+	}
+	YY_API Mat4* YY_C_DECL yyGetDefaultMatrix(yyMatrixType t) {
+		return &g_engine->m_defaultMatrix[(u32)t];
 	}
 
 	YY_API bool YY_C_DECL yyRun(f32* deltaTime) {

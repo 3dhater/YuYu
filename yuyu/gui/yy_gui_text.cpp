@@ -116,7 +116,7 @@ void yyGUIText::OnDraw(f32 dt){
 	}
 }
 
-void yyGUIText::SetBufferSize(u32 newSize){
+void yyGUIText::SetBufferSize(size_t newSize){
 	if (m_bufferSize == newSize)
 		return;
 	if (m_buffer)

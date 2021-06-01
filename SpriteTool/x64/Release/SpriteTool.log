@@ -1,0 +1,163 @@
+﻿  yy_window.cpp
+e:\code\yuyu\common\yy_fs.h(158): warning C4267: 'argument': conversion from 'size_t' to 'u32', possible loss of data
+..\common\Win32\yy_window.cpp(249): warning C4244: 'argument': conversion from 'WPARAM' to 's32', possible loss of data
+e:\code\yuyu\common\strings/string.h(281): warning C4267: 'argument': conversion from 'size_t' to 'u32', possible loss of data
+  e:\code\yuyu\common\strings/string.h(279): note: while compiling class template member function 'yyString_base<char16_t,yyDefault_allocator> yyString_base<char,yyDefault_allocator>::to_string(void) const'
+  ..\common\Win32\yy_window.cpp(158): note: see reference to function template instantiation 'yyString_base<char16_t,yyDefault_allocator> yyString_base<char,yyDefault_allocator>::to_string(void) const' being compiled
+  e:\code\yuyu\common\strings/string.h(540): note: see reference to class template instantiation 'yyString_base<char,yyDefault_allocator>' being compiled
+e:\code\yuyu\common\strings/string.h(82): warning C4267: 'argument': conversion from 'size_t' to 'u32', possible loss of data
+  e:\code\yuyu\common\strings/string.h(79): note: while compiling class template member function 'yyString_base<char,yyDefault_allocator>::yyString_base(void)'
+  e:\code\yuyu\common\yy_resource.h(78): note: see reference to function template instantiation 'yyString_base<char,yyDefault_allocator>::yyString_base(void)' being compiled
+e:\code\yuyu\common\strings/string.h(288): warning C4267: 'return': conversion from 'size_t' to 'const u32', possible loss of data
+  e:\code\yuyu\common\strings/string.h(288): note: while compiling class template member function 'const u32 yyString_base<wchar_t,yyDefault_allocator>::size(void) const'
+  e:\code\yuyu\common\yy_fs.h(38): note: see reference to function template instantiation 'const u32 yyString_base<wchar_t,yyDefault_allocator>::size(void) const' being compiled
+  e:\code\yuyu\common\yy_fs.h(48): note: see reference to class template instantiation 'yyString_base<wchar_t,yyDefault_allocator>' being compiled
+e:\code\yuyu\common\strings/string.h(96): warning C4267: 'argument': conversion from 'size_t' to 'u32', possible loss of data
+  e:\code\yuyu\common\strings/string.h(93): note: while compiling class template member function 'yyString_base<wchar_t,yyDefault_allocator>::yyString_base(const yyString_base<wchar_t,yyDefault_allocator> &)'
+  e:\code\yuyu\common\yy_fs.h(168): note: see reference to function template instantiation 'yyString_base<wchar_t,yyDefault_allocator>::yyString_base(const yyString_base<wchar_t,yyDefault_allocator> &)' being compiled
+e:\code\yuyu\common\strings/string.h(225): warning C4267: 'initializing': conversion from 'size_t' to 'u32', possible loss of data
+  e:\code\yuyu\common\strings/string.h(224): note: while compiling class template member function 'void yyString_base<wchar_t,yyDefault_allocator>::append(char_type)'
+          with
+          [
+              char_type=wchar_t
+          ]
+  e:\code\yuyu\common\strings/string.h(373): note: see reference to function template instantiation 'void yyString_base<wchar_t,yyDefault_allocator>::append(char_type)' being compiled
+          with
+          [
+              char_type=wchar_t
+          ]
+e:\code\yuyu\common\strings/string.h(103): warning C4267: 'argument': conversion from 'size_t' to 'u32', possible loss of data
+  e:\code\yuyu\common\strings/string.h(100): note: while compiling class template member function 'yyString_base<char16_t,yyDefault_allocator>::yyString_base(yyString_base<char16_t,yyDefault_allocator> &&)'
+  e:\code\yuyu\common\strings/string.h(283): note: see reference to function template instantiation 'yyString_base<char16_t,yyDefault_allocator>::yyString_base(yyString_base<char16_t,yyDefault_allocator> &&)' being compiled
+e:\code\yuyu\common\strings/string.h(89): warning C4267: 'argument': conversion from 'size_t' to 'u32', possible loss of data
+  e:\code\yuyu\common\yy_fs.h(63): note: see reference to function template instantiation 'yyString_base<char,yyDefault_allocator>::yyString_base<char>(const other_type *)' being compiled
+          with
+          [
+              other_type=char
+          ]
+  e:\code\yuyu\common\yy_fs.h(63): note: see reference to function template instantiation 'yyString_base<char,yyDefault_allocator>::yyString_base<char>(const other_type *)' being compiled
+          with
+          [
+              other_type=char
+          ]
+e:\code\yuyu\common\strings/string.h(154): warning C4267: 'initializing': conversion from 'size_t' to 'u32', possible loss of data
+  e:\code\yuyu\common\strings/string.h(167): note: see reference to function template instantiation 'void yyString_base<wchar_t,yyDefault_allocator>::append<char_type>(const other_type *)' being compiled
+          with
+          [
+              char_type=wchar_t,
+              other_type=wchar_t
+          ]
+  e:\code\yuyu\common\strings/string.h(167): note: see reference to function template instantiation 'void yyString_base<wchar_t,yyDefault_allocator>::append<char_type>(const other_type *)' being compiled
+          with
+          [
+              char_type=wchar_t,
+              other_type=wchar_t
+          ]
+  e:\code\yuyu\common\strings/string.h(166): note: while compiling class template member function 'void yyString_base<wchar_t,yyDefault_allocator>::append(const yyString_base<wchar_t,yyDefault_allocator> &)'
+  e:\code\yuyu\common\strings/string.h(148): note: see reference to function template instantiation 'void yyString_base<wchar_t,yyDefault_allocator>::append(const yyString_base<wchar_t,yyDefault_allocator> &)' being compiled
+  SpriteTool.cpp
+e:\code\yuyu\common\yy_fs.h(158): warning C4267: 'argument': conversion from 'size_t' to 'u32', possible loss of data
+SpriteTool.cpp(169): warning C4065: switch statement contains 'default' but no 'case' labels
+e:\code\yuyu\common\strings/string.h(82): warning C4267: 'argument': conversion from 'size_t' to 'u32', possible loss of data
+  e:\code\yuyu\common\strings/string.h(79): note: while compiling class template member function 'yyString_base<char,yyDefault_allocator>::yyString_base(void)'
+  e:\code\yuyu\common\yy_resource.h(78): note: see reference to function template instantiation 'yyString_base<char,yyDefault_allocator>::yyString_base(void)' being compiled
+  e:\code\yuyu\common\strings/string.h(540): note: see reference to class template instantiation 'yyString_base<char,yyDefault_allocator>' being compiled
+e:\code\yuyu\common\strings/string.h(288): warning C4267: 'return': conversion from 'size_t' to 'const u32', possible loss of data
+  e:\code\yuyu\common\strings/string.h(288): note: while compiling class template member function 'const u32 yyString_base<wchar_t,yyDefault_allocator>::size(void) const'
+  e:\code\yuyu\common\yy_fs.h(38): note: see reference to function template instantiation 'const u32 yyString_base<wchar_t,yyDefault_allocator>::size(void) const' being compiled
+  e:\code\yuyu\common\yy_fs.h(48): note: see reference to class template instantiation 'yyString_base<wchar_t,yyDefault_allocator>' being compiled
+e:\code\yuyu\common\strings/string.h(96): warning C4267: 'argument': conversion from 'size_t' to 'u32', possible loss of data
+  e:\code\yuyu\common\strings/string.h(93): note: while compiling class template member function 'yyString_base<wchar_t,yyDefault_allocator>::yyString_base(const yyString_base<wchar_t,yyDefault_allocator> &)'
+  e:\code\yuyu\common\yy_fs.h(168): note: see reference to function template instantiation 'yyString_base<wchar_t,yyDefault_allocator>::yyString_base(const yyString_base<wchar_t,yyDefault_allocator> &)' being compiled
+e:\code\yuyu\common\strings/string.h(225): warning C4267: 'initializing': conversion from 'size_t' to 'u32', possible loss of data
+  e:\code\yuyu\common\strings/string.h(224): note: while compiling class template member function 'void yyString_base<wchar_t,yyDefault_allocator>::append(char_type)'
+          with
+          [
+              char_type=wchar_t
+          ]
+  e:\code\yuyu\common\strings/string.h(373): note: see reference to function template instantiation 'void yyString_base<wchar_t,yyDefault_allocator>::append(char_type)' being compiled
+          with
+          [
+              char_type=wchar_t
+          ]
+e:\code\yuyu\common\strings/string.h(89): warning C4267: 'argument': conversion from 'size_t' to 'u32', possible loss of data
+  e:\code\yuyu\common\yy_fs.h(63): note: see reference to function template instantiation 'yyString_base<char,yyDefault_allocator>::yyString_base<char>(const other_type *)' being compiled
+          with
+          [
+              other_type=char
+          ]
+  e:\code\yuyu\common\yy_fs.h(63): note: see reference to function template instantiation 'yyString_base<char,yyDefault_allocator>::yyString_base<char>(const other_type *)' being compiled
+          with
+          [
+              other_type=char
+          ]
+e:\code\yuyu\common\strings/string.h(154): warning C4267: 'initializing': conversion from 'size_t' to 'u32', possible loss of data
+  e:\code\yuyu\common\strings/string.h(167): note: see reference to function template instantiation 'void yyString_base<wchar_t,yyDefault_allocator>::append<char_type>(const other_type *)' being compiled
+          with
+          [
+              char_type=wchar_t,
+              other_type=wchar_t
+          ]
+  e:\code\yuyu\common\strings/string.h(167): note: see reference to function template instantiation 'void yyString_base<wchar_t,yyDefault_allocator>::append<char_type>(const other_type *)' being compiled
+          with
+          [
+              char_type=wchar_t,
+              other_type=wchar_t
+          ]
+  e:\code\yuyu\common\strings/string.h(166): note: while compiling class template member function 'void yyString_base<wchar_t,yyDefault_allocator>::append(const yyString_base<wchar_t,yyDefault_allocator> &)'
+  e:\code\yuyu\common\strings/string.h(148): note: see reference to function template instantiation 'void yyString_base<wchar_t,yyDefault_allocator>::append(const yyString_base<wchar_t,yyDefault_allocator> &)' being compiled
+  SpriteTool_main.cpp
+e:\code\yuyu\common\yy_fs.h(158): warning C4267: 'argument': conversion from 'size_t' to 'u32', possible loss of data
+e:\code\yuyu\common\strings/string.h(82): warning C4267: 'argument': conversion from 'size_t' to 'u32', possible loss of data
+  e:\code\yuyu\common\strings/string.h(79): note: while compiling class template member function 'yyString_base<char,yyDefault_allocator>::yyString_base(void)'
+  e:\code\yuyu\common\yy_resource.h(78): note: see reference to function template instantiation 'yyString_base<char,yyDefault_allocator>::yyString_base(void)' being compiled
+  e:\code\yuyu\common\strings/string.h(540): note: see reference to class template instantiation 'yyString_base<char,yyDefault_allocator>' being compiled
+e:\code\yuyu\common\strings/string.h(288): warning C4267: 'return': conversion from 'size_t' to 'const u32', possible loss of data
+  e:\code\yuyu\common\strings/string.h(288): note: while compiling class template member function 'const u32 yyString_base<wchar_t,yyDefault_allocator>::size(void) const'
+  e:\code\yuyu\common\yy_fs.h(38): note: see reference to function template instantiation 'const u32 yyString_base<wchar_t,yyDefault_allocator>::size(void) const' being compiled
+  e:\code\yuyu\common\yy_fs.h(48): note: see reference to class template instantiation 'yyString_base<wchar_t,yyDefault_allocator>' being compiled
+e:\code\yuyu\common\strings/string.h(96): warning C4267: 'argument': conversion from 'size_t' to 'u32', possible loss of data
+  e:\code\yuyu\common\strings/string.h(93): note: while compiling class template member function 'yyString_base<wchar_t,yyDefault_allocator>::yyString_base(const yyString_base<wchar_t,yyDefault_allocator> &)'
+  e:\code\yuyu\common\yy_fs.h(168): note: see reference to function template instantiation 'yyString_base<wchar_t,yyDefault_allocator>::yyString_base(const yyString_base<wchar_t,yyDefault_allocator> &)' being compiled
+e:\code\yuyu\common\strings/string.h(225): warning C4267: 'initializing': conversion from 'size_t' to 'u32', possible loss of data
+  e:\code\yuyu\common\strings/string.h(224): note: while compiling class template member function 'void yyString_base<wchar_t,yyDefault_allocator>::append(char_type)'
+          with
+          [
+              char_type=wchar_t
+          ]
+  e:\code\yuyu\common\strings/string.h(373): note: see reference to function template instantiation 'void yyString_base<wchar_t,yyDefault_allocator>::append(char_type)' being compiled
+          with
+          [
+              char_type=wchar_t
+          ]
+e:\code\yuyu\common\strings/string.h(89): warning C4267: 'argument': conversion from 'size_t' to 'u32', possible loss of data
+  e:\code\yuyu\common\yy_fs.h(63): note: see reference to function template instantiation 'yyString_base<char,yyDefault_allocator>::yyString_base<char>(const other_type *)' being compiled
+          with
+          [
+              other_type=char
+          ]
+  e:\code\yuyu\common\yy_fs.h(63): note: see reference to function template instantiation 'yyString_base<char,yyDefault_allocator>::yyString_base<char>(const other_type *)' being compiled
+          with
+          [
+              other_type=char
+          ]
+e:\code\yuyu\common\strings/string.h(154): warning C4267: 'initializing': conversion from 'size_t' to 'u32', possible loss of data
+  e:\code\yuyu\common\strings/string.h(167): note: see reference to function template instantiation 'void yyString_base<wchar_t,yyDefault_allocator>::append<char_type>(const other_type *)' being compiled
+          with
+          [
+              char_type=wchar_t,
+              other_type=wchar_t
+          ]
+  e:\code\yuyu\common\strings/string.h(167): note: see reference to function template instantiation 'void yyString_base<wchar_t,yyDefault_allocator>::append<char_type>(const other_type *)' being compiled
+          with
+          [
+              char_type=wchar_t,
+              other_type=wchar_t
+          ]
+  e:\code\yuyu\common\strings/string.h(166): note: while compiling class template member function 'void yyString_base<wchar_t,yyDefault_allocator>::append(const yyString_base<wchar_t,yyDefault_allocator> &)'
+  e:\code\yuyu\common\strings/string.h(148): note: see reference to function template instantiation 'void yyString_base<wchar_t,yyDefault_allocator>::append(const yyString_base<wchar_t,yyDefault_allocator> &)' being compiled
+  Generating code
+  All 589 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  SpriteTool.vcxproj -> E:\Code\YuYu\SpriteTool\../bin64/SpriteTool.exe
+  SpriteTool.vcxproj -> ../bin64/SpriteTool.pdb (Full PDB)

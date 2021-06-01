@@ -7,7 +7,7 @@ public:
 	yyDefault_allocator(){}
 	~yyDefault_allocator(){}
 
-	void* allocate( u32 size )
+	void* allocate(size_t size )
 	{
 		return yyMemAlloc(size);
 	}
@@ -25,7 +25,7 @@ public:
 	yyAllocator(){}
 	yyAllocator(allocator a):m_allocator(a){}
 
-	Type * allocate( u32 size )
+	Type * allocate(size_t size )
 	{
 		return static_cast<Type*>(m_allocator.allocate(size * sizeof( Type )));
 	}

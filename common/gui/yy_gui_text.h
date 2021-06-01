@@ -19,7 +19,7 @@ struct yyGUITextDrawNode
 
 	bool m_isDraw;
 	yyModel* m_modelSource;
-	u32 m_numOfSymbols;
+	size_t m_numOfSymbols;
 };
 
 class yyGUIText: public yyGUIElement
@@ -34,7 +34,7 @@ public:
 	virtual void SetFont(yyGUIFont*);
 	virtual void SetText(const wchar_t* text, ...);
 	virtual void Clear();
-	virtual void SetBufferSize(u32 newSize);
+	virtual void SetBufferSize(size_t newSize);
 
 	yyStringW m_text;
 	yyGUIFont* m_font;
@@ -42,7 +42,7 @@ public:
 
 	v2f m_position;
 	wchar_t* m_buffer;
-	u32 m_bufferSize;
+	size_t m_bufferSize;
 
 	yyGUITextDrawNode* m_drawNodes;
 

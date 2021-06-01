@@ -49,7 +49,7 @@ void MDL_loadVersion1(yyMDL** _mdl, yyFileBuffer* f){
 		}
 	}
 
-	f->seek(savePosition, f->SeekPos_Begin);
+	f->seek((long)savePosition, f->SeekPos_Begin);
 	for (u32 i = 0; i < mdlHeader.m_numOfLayers; ++i)
 	{
 		yyMDLLayer* newLayer = yyCreate<yyMDLLayer>();

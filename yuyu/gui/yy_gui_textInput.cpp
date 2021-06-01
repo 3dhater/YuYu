@@ -96,8 +96,8 @@ void yyGUITextInput::OnUpdate(f32 dt){
 				if (m_textCursorPositionWhenClick != m_textCursorPositionInChars)
 				{
 					m_isSelected = true;
-					m_selectionStart = m_textCursorPositionWhenClick;
-					m_selectionEnd = m_textCursorPositionInChars;
+					m_selectionStart = (s32)m_textCursorPositionWhenClick;
+					m_selectionEnd = (s32)m_textCursorPositionInChars;
 					//printf("%i %i\n", m_selectionStart, m_selectionEnd);
 				}
 			}
@@ -203,9 +203,9 @@ void yyGUITextInput::OnUpdate(f32 dt){
 						if ((m_selectionStart == 0) && (m_selectionEnd == 0))
 						{
 							m_isSelected = true;
-							m_selectionStart = m_textCursorPositionInChars;
+							m_selectionStart = (s32)m_textCursorPositionInChars;
 						}
-						m_selectionEnd = m_textCursorPositionInChars - 1;
+						m_selectionEnd = (s32)m_textCursorPositionInChars - 1;
 					}
 					else
 					{
@@ -237,9 +237,9 @@ void yyGUITextInput::OnUpdate(f32 dt){
 						if ((m_selectionStart == 0) && (m_selectionEnd == 0))
 						{
 							m_isSelected = true;
-							m_selectionStart = m_textCursorPositionInChars;
+							m_selectionStart = (s32)m_textCursorPositionInChars;
 						}
-						m_selectionEnd = m_textCursorPositionInChars + 1;
+						m_selectionEnd = (s32)m_textCursorPositionInChars + 1;
 					}
 					else
 					{
@@ -344,7 +344,7 @@ void yyGUITextInput::OnUpdate(f32 dt){
 					if ((m_selectionStart == 0) && (m_selectionEnd == 0))
 					{
 						m_isSelected = true;
-						m_selectionStart = m_textCursorPositionInChars;
+						m_selectionStart = (s32)m_textCursorPositionInChars;
 					}
 					m_selectionEnd = 0;
 				}
@@ -363,16 +363,16 @@ void yyGUITextInput::OnUpdate(f32 dt){
 					if ((m_selectionStart == 0) && (m_selectionEnd == 0))
 					{
 						m_isSelected = true;
-						m_selectionStart = m_textCursorPositionInChars;
+						m_selectionStart = (s32)m_textCursorPositionInChars;
 					}
-					m_selectionEnd = m_textElement->m_text.size();
+					m_selectionEnd = (s32)m_textElement->m_text.size();
 				}
 				else
 				{
 					if (m_isSelected)
 						DeselectAll();
 				}
-				m_textCursorPositionInChars = m_textElement->m_text.size();
+				m_textCursorPositionInChars = (s32)m_textElement->m_text.size();
 				_calculate_rects();
 			}
 		}
@@ -576,7 +576,7 @@ void yyGUITextInput::SelectAll() {
 	{
 		m_textCursorPositionInChars = m_textElement->m_text.size();
 		m_selectionStart = 0;
-		m_selectionEnd = m_textCursorPositionInChars;
+		m_selectionEnd = (s32)m_textCursorPositionInChars;
 		m_isSelected = true;
 		_calculate_rects();
 	}

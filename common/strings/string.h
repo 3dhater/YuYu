@@ -30,7 +30,7 @@ class yyString_base
 	size_t     m_allocated;
 	size_t     m_size;
 
-	void reallocate( u32 new_allocated )
+	void reallocate( size_t new_allocated )
 	{
 		//char_type * new_data = (char_type*)malloc( new_allocated * sizeof(char_type) );
 		char_type * new_data = (char_type*)m_allocator.allocate( new_allocated * sizeof(char_type) );
@@ -55,7 +55,7 @@ class yyString_base
 		if(str[0]!=0)
 		{
 			const other_type* p = &str[ 0u ];
-			while( (u32)*p++ ) 
+			while( (size_t)*p++ ) 
 				len++;
 		}
 		return len;
@@ -64,7 +64,7 @@ class yyString_base
 	template<typename dst_type, typename src_type>
 	void copy( dst_type * dst, src_type* src ) const
 	{
-		while( (u32)*src )
+		while( (size_t)*src )
 		{
 			*dst = static_cast<dst_type>(*src);
 			dst++;
@@ -107,7 +107,7 @@ public:
 	yyString_base( char_type c )
 		: m_data(nullptr), m_allocated(yyStringWordSize), m_size(0)
 	{
-		u32 new_size = 1u;
+		size_t new_size = 1u;
 		reallocate( (new_size + 1u) + yyStringWordSize);
 		m_data[ 0u ] = c;
 		m_size = new_size;
@@ -123,7 +123,7 @@ public:
 		}
 	}
 
-	void reserve( u32 size )
+	void reserve( size_t size )
 	{
 		if( size > m_allocated )
 		{
@@ -151,7 +151,7 @@ public:
 	template<typename other_type>
 	void append( const other_type * str )
 	{
-		u32 new_size = getlen( str ) + m_size;
+		size_t new_size = getlen( str ) + m_size;
 
 		if( (new_size + 1u) > m_allocated )
 			reallocate( (new_size + 1u) + yyStringWordSize);
@@ -193,7 +193,7 @@ public:
 	size_t capacity() { return m_allocated; }
 
 	void insert(char_type c, size_t where) {
-		u32 new_size = m_size + 1u;
+		size_t new_size = m_size + 1u;
 		if ((new_size + 1u) > m_allocated)
 			reallocate((new_size + 1u) + yyStringWordSize);
 
@@ -214,7 +214,7 @@ public:
 	}
 
 	void push_back( char_type c ){
-		u32 new_size = m_size + 1u;
+		size_t new_size = m_size + 1u;
 		if( (new_size + 1u) > m_allocated )
 			reallocate( (new_size + 1u) + yyStringWordSize);
 		m_data[ m_size ] = c;
@@ -222,7 +222,7 @@ public:
 		m_data[ m_size ] = 0;
 	}
 	void append( char_type c ){
-		u32 new_size = m_size + 1u;
+		size_t new_size = m_size + 1u;
 		if( (new_size + 1u) > m_allocated )
 			reallocate( (new_size + 1u) + yyStringWordSize);
 		m_data[ m_size ] = c;
@@ -285,7 +285,7 @@ public:
 
 	const_pointer c_str() const { return m_data; }
 	pointer data() const { return m_data; }
-	const u32 size() const { return m_size; }
+	const size_t size() const { return m_size; }
 
 	this_type& operator=( this_const_reference str )
 	{
@@ -319,7 +319,7 @@ public:
 		return operator+(str.data());
 	}
 
-	this_type operator+( u32 num )
+	this_type operator+( size_t num )
 	{
 		this_type r( *this );
 		r.append( num );
@@ -336,12 +336,12 @@ public:
 		return (m_data+(m_size));
 	}
 
-	const_reference operator[]( u32 i ) const 
+	const_reference operator[]( size_t i ) const 
 	{
 		return m_data[ i ];
 	}
 
-	reference operator[]( u32 i )
+	reference operator[]( size_t i )
 	{
 		return m_data[ i ];
 	}
@@ -389,9 +389,9 @@ public:
 		if( other.size() != m_size ) 
 			return false;
 
-		const u32 sz = other.size();
+		const size_t sz = other.size();
 		const auto * ptr = other.data();
-		for( u32 i = 0u; i < sz; ++i )
+		for( size_t i = 0u; i < sz; ++i )
 		{
 			if( ptr[ i ] != m_data[ i ]  )
 				return false;
@@ -405,9 +405,9 @@ public:
 		if( other.size() != m_size )
 			return true;
 
-		const u32 sz = other.size();
+		const size_t sz = other.size();
 		const auto * ptr = other.data();
-		for( u32 i = 0u; i < sz; ++i )
+		for( size_t i = 0u; i < sz; ++i )
 		{
 			if( ptr[ i ] != m_data[ i ]  ) 
 				return true;
@@ -455,16 +455,16 @@ public:
 		}
 	}
 
-	void setSize( u32 size )
+	void setSize( size_t size )
 	{
 		m_size = size;
 	}
 
-	void erase( u32 begin, u32 end )
+	void erase( size_t begin, size_t end )
 	{
-		u32 numCharsToDelete = end - begin + 1u; // delete first char: 0 - 0 + 1
-		u32 next = end + 1u;
-		for( u32 i = begin; i < m_size; ++i )
+		size_t numCharsToDelete = end - begin + 1u; // delete first char: 0 - 0 + 1
+		size_t next = end + 1u;
+		for( size_t i = begin; i < m_size; ++i )
 		{
 			if( next < m_size )
 			{
@@ -481,7 +481,7 @@ public:
 		erase( 0u, 0u );
 	}
 
-	bool is_space( u32 index )
+	bool is_space( size_t index )
 	{
 		if( m_data[ index ] == (char_type)' ' ) return true;
 		if( m_data[ index ] == (char_type)'\r' ) return true;
@@ -499,7 +499,7 @@ public:
 		const int m = 1e9 + 9;
 		long long hash_value = 0;
 		long long p_pow = 1;
-		for(u32 i = 0; i < m_size; ++i)
+		for(size_t i = 0; i < m_size; ++i)
 		{
 			char c = (char)m_data[i];
 			hash_value = (hash_value + (c - 'a' + 1) * p_pow) % m;
@@ -519,8 +519,8 @@ namespace util
 	template<typename allocator>
 	void _string_UTF16_to_UTF8( yyString_base<char16_t,allocator>& utf16, yyString_base<char,allocator>& utf8 )
 	{
-		u32 sz = utf16.size();
-		for( u32 i = 0u; i < sz; ++i )
+		size_t sz = utf16.size();
+		for( size_t i = 0u; i < sz; ++i )
 		{
 			char16_t ch16 = utf16[ i ];
 			if( ch16 < 0x80 )
@@ -547,8 +547,8 @@ YY_FORCE_INLINE void string_UTF16_to_UTF8( yyString_base<char16_t,yyDefault_allo
 		bool add_newLine = false )
 	{
 		yyString_base<Type,allocator> word;
-		u32 sz = string.size();
-		for( u32 i = 0; i < sz; ++i ){
+		size_t sz = string.size();
+		for( size_t i = 0; i < sz; ++i ){
 			auto ch = string[ i ];
 			if( ch < 256 && (u8)ch == ' ' ){
 				if( word.size() ){

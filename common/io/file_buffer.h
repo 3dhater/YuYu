@@ -7,8 +7,8 @@
 class yyFileBuffer
 {
 	u8* m_data;
-	u32 m_dataSize;
-	u32 m_cursorPosition;
+	size_t m_dataSize;
+	size_t m_cursorPosition;
 public:
 	yyFileBuffer()
 	{
@@ -81,7 +81,7 @@ public:
 		}
 	}
 
-	u32 tell() { return m_cursorPosition; }
+	size_t tell() { return m_cursorPosition; }
 
 	u8 getNextSymbol()
 	{

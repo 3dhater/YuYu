@@ -11,12 +11,12 @@ extern yyEngine * g_engine;
 
 extern "C"
 {
-	YY_API void * YY_C_DECL yyMemAlloc(u32 size){
+	YY_API void * YY_C_DECL yyMemAlloc(size_t size){
 		assert(size != 0);
 		return std::malloc(static_cast<size_t>(size));
 	}
 
-	YY_API void * YY_C_DECL yyMemRealloc(void * ptr,u32 size){
+	YY_API void * YY_C_DECL yyMemRealloc(void * ptr, size_t size){
 		return std::realloc(ptr,static_cast<size_t>(size));
 	}
 

@@ -23,9 +23,9 @@ subject to the following restrictions:
 
 extern "C"
 {
-	YY_API void * YY_C_DECL				yyMemAlloc(u32 size); // malloc
+	YY_API void * YY_C_DECL				yyMemAlloc(size_t size); // malloc
 	YY_API void   YY_C_DECL				yyMemFree(void*);     // free
-	YY_API void * YY_C_DECL				yyMemRealloc(void *,u32 size); // realloc
+	YY_API void * YY_C_DECL				yyMemRealloc(void *, size_t size); // realloc
 }
 
 template<typename _type>

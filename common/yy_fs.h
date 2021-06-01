@@ -74,7 +74,7 @@ namespace yy_fs
 			if(string_type.size())
 			{
 
-				for( u32 i = string_type.size() - 1u; i >= 0u; --i )
+				for(size_t i = string_type.size() - 1u; i >= 0u; --i )
 				{
 					auto c = string_type[ i ];
 
@@ -95,7 +95,7 @@ namespace yy_fs
 		path extension()
 		{
 			path result;
-			for( u32 i = string_type.size() - 1u; i >= 0u; --i )
+			for(size_t i = string_type.size() - 1u; i >= 0u; --i )
 			{
 				auto c = string_type[ i ];
 				if( c == '/' || c == '.' || c == '\\' )
@@ -112,7 +112,7 @@ namespace yy_fs
 		path filename()
 		{
 			path result;
-			for (u32 i = string_type.size() - 1u; i >= 0u; --i)
+			for (size_t i = string_type.size() - 1u; i >= 0u; --i)
 			{
 				auto c = string_type[i];
 				if (c == '/' || c == '\\')

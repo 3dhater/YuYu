@@ -166,15 +166,28 @@ public:
 
 	yyResource* GetGUITextureCheckBox();
 
-	yyMaterial m_currentMaterial;
-	v3f m_eyePosition;
-	Mat4 m_matrixWorld;
-	Mat4 m_matrixView;
-	Mat4 m_matrixViewInvert;
-	Mat4 m_matrixProjection;
-	Mat4 m_matrixViewProjection;
-	Mat4 m_matrixWorldViewProjection;
+	yyMaterial m_defaultMaterial;
+	yyMaterial* m_currentMaterial;
+	v3f* m_eyePosition;
+	v3f m_defaultEyePosition;
+	
+	Mat4* m_matrixPtrs[(u32)yyMatrixType::_count];
+	/*Mat4* m_matrixWorld;
+	Mat4* m_matrixView;
+	Mat4* m_matrixViewInvert;
+	Mat4* m_matrixProjection;
+	Mat4* m_matrixViewProjection;
+	Mat4* m_matrixWorldViewProjection;*/
+
 	Mat4 m_matrixBones[YY_MAX_BONES];
+
+	Mat4 m_defaultMatrix[(u32)yyMatrixType::_count];
+	/*Mat4 m_defaultMatrixWorld;
+	Mat4 m_defaultMatrixView;
+	Mat4 m_defaultMatrixViewInvert;
+	Mat4 m_defaultMatrixProjection;
+	Mat4 m_defaultMatrixViewProjection;
+	Mat4 m_defaultMatrixWorldViewProjection;*/
 
 #ifdef YY_PLATFORM_WINDOWS
 	IFileSaveDialog * m_fileSaveDialog;

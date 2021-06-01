@@ -634,8 +634,8 @@ bool D3D11::_createBackBuffer(f32 x, f32 y){
 	if (BackBuffer) BackBuffer->Release();
 	D3D11_TEXTURE2D_DESC	DSD;
 	ZeroMemory(&DSD, sizeof(DSD));
-	DSD.Width = x;
-	DSD.Height = y;
+	DSD.Width = (UINT)x;
+	DSD.Height = (UINT)y;
 	DSD.MipLevels = 1;
 	DSD.ArraySize = 1;
 	DSD.Format = DXGI_FORMAT_D32_FLOAT;

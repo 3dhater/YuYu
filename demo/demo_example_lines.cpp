@@ -181,19 +181,21 @@ bool DemoExample_Lines::DemoStep(f32 deltaTime){
 	if(g_demo->m_inputContext->m_wheelDelta)
 		m_editorCamera->Zoom(g_demo->m_inputContext->m_wheelDelta);
 
-	Mat4 WorldMatrix;
+	static Mat4 WorldMatrix;
 	
 	// camera direction
 	//v3f d(0.f, 0.f, 1.f);
 	//d = -math::mulBasis(d, m_editorCamera->m_viewMatrix);
 	//printf("%f %f %f\n", d.x, d.y, d.z);
 
-	yySetMatrix(yyMatrixType::World, WorldMatrix);
-	yySetMatrix(yyMatrixType::WorldViewProjection,
-		m_editorCamera->m_projectionMatrix * m_editorCamera->m_viewMatrix * WorldMatrix);
+	yySetMatrix(yyMatrixType::World, &WorldMatrix);
+
+	static Mat4 WVP;
+	WVP = m_editorCamera->m_projectionMatrix * m_editorCamera->m_viewMatrix * WorldMatrix;
+	yySetMatrix(yyMatrixType::WorldViewProjection, &WVP);
 
 	m_gpu->SetModel(m_lineModel);
-	yySetMaterial(m_lineModelMaterial);
+	yySetMaterial(&m_lineModelMaterial);
 	m_gpu->Draw();
 	
 	//m_lineModelMaterial.m_cullBackFace = true;
@@ -205,7 +207,7 @@ bool DemoExample_Lines::DemoStep(f32 deltaTime){
 		m_editorCamera->m_viewMatrix.m_data[2].x, m_editorCamera->m_viewMatrix.m_data[2].y, m_editorCamera->m_viewMatrix.m_data[2].z, m_editorCamera->m_viewMatrix.m_data[2].w,
 		m_editorCamera->m_viewMatrix.m_data[3].x, m_editorCamera->m_viewMatrix.m_data[3].y, m_editorCamera->m_viewMatrix.m_data[3].z, m_editorCamera->m_viewMatrix.m_data[3].w);*/
 	
-	yySetEyePosition(m_editorCamera->m_positionInWorld);
+	yySetEyePosition(&m_editorCamera->m_positionInWorld);
 	/*printf("%f %f %f\n", m_editorCamera->m_positionInWorld.x,
 		m_editorCamera->m_positionInWorld.y,
 		m_editorCamera->m_positionInWorld.z);*/
@@ -213,7 +215,7 @@ bool DemoExample_Lines::DemoStep(f32 deltaTime){
 	m_gpu->SetModel(m_pointModel);
 	m_gpu->Draw();
 	
-	yySetMatrix(yyMatrixType::ViewProjection, m_editorCamera->m_viewProjectionMatrix);
+	yySetMatrix(yyMatrixType::ViewProjection, &m_editorCamera->m_viewProjectionMatrix);
 	m_gpu->DrawLine3D(v4f(0.f), v4f(10.f,0.f,10.f,0.f), ColorYellow);
 
 	return g_demo->m_inputContext->IsKeyHit(yyKey::K_ESCAPE) == false;

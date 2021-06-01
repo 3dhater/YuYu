@@ -36,7 +36,7 @@ enum class yyCompressType : u32
 	ZStd
 };
 
-enum yyMatrixType
+enum class yyMatrixType : u32
 {
 	World,
 	View,
@@ -45,6 +45,7 @@ enum yyMatrixType
 	WorldViewProjection,
 	ViewInvert,
 
+	_count
 	//LightView,
 	//LightProjection,
 };
@@ -57,13 +58,22 @@ extern "C"
 	YY_API void YY_C_DECL yyQuit();
 	YY_API bool YY_C_DECL yyRun(f32* deltaTime);
 
-	YY_API void YY_C_DECL yySetMaterial(const yyMaterial& mat);
+	YY_API void YY_C_DECL yySetDefaultMaterial(const yyMaterial& mat);
+	YY_API yyMaterial* YY_C_DECL yyGetDefaultMaterial();
+	YY_API void YY_C_DECL yySetMaterial(yyMaterial* mat);
 	YY_API yyMaterial* YY_C_DECL yyGetMaterial();
-	YY_API void YY_C_DECL yySetEyePosition(const v3f&);
+
+	YY_API void YY_C_DECL yySetDefaultEyePosition(const v3f&);
+	YY_API v3f* YY_C_DECL yyGetDefaultEyePosition();
+	YY_API void YY_C_DECL yySetEyePosition(v3f*);
 	YY_API v3f* YY_C_DECL yyGetEyePosition();
-	YY_API void YY_C_DECL yySetMatrix(yyMatrixType, const Mat4&);
-	YY_API void YY_C_DECL yySetBoneMatrix(u32 boneIndex, const Mat4&);
+
+	YY_API void YY_C_DECL yySetMatrix(yyMatrixType, Mat4*);
 	YY_API Mat4* YY_C_DECL yyGetMatrix(yyMatrixType);
+	YY_API void YY_C_DECL yySetDefaultMatrix(yyMatrixType, const Mat4&);
+	YY_API Mat4* YY_C_DECL yyGetDefaultMatrix(yyMatrixType);
+
+	YY_API void YY_C_DECL yySetBoneMatrix(u32 boneIndex, const Mat4&);
 	YY_API Mat4* YY_C_DECL yyGetBoneMatrix(u32 boneIndex);
 
 	YY_API u64 YY_C_DECL yyGetTime();

@@ -405,7 +405,7 @@ int main(int argc, char* argv[])
 		camera.update();
 
 		// for 3d line
-		yySetMatrix(yyMatrixType::ViewProjection, camera.m_camera->m_viewProjectionMatrix);
+		yySetMatrix(yyMatrixType::ViewProjection, &camera.m_camera->m_viewProjectionMatrix);
 		
 
 		
@@ -743,8 +743,8 @@ int main(int argc, char* argv[])
 
 			g_videoDriver->UseDepth(true);
 
-			yySetMatrix(yyMatrixType::Projection, camera.m_camera->m_projectionMatrix);
-			yySetMatrix(yyMatrixType::View, camera.m_camera->m_viewMatrix);
+			yySetMatrix(yyMatrixType::Projection, &camera.m_camera->m_projectionMatrix);
+			yySetMatrix(yyMatrixType::View, &camera.m_camera->m_viewMatrix);
 
 			
 			bool drawBind = false;
@@ -764,7 +764,7 @@ int main(int argc, char* argv[])
 				auto layer = g_sceneObject->m_mdlObject->m_mdl->m_layers[n];
 				g_videoDriver->SetModel(layer->m_meshGPU);
 
-				Mat4 WorldMatrix;
+				static Mat4 WorldMatrix;
 
 				WorldMatrix = g_sceneObject->m_mdlObject->m_mdl->m_preRotation * WorldMatrix;
 				WorldMatrix[3] = g_sceneObject->m_layerInfo[n].m_offset;
@@ -772,8 +772,11 @@ int main(int argc, char* argv[])
 
 
 
-				yySetMatrix(yyMatrixType::World,  WorldMatrix);
-				yySetMatrix(yyMatrixType::WorldViewProjection, camera.m_camera->m_projectionMatrix * camera.m_camera->m_viewMatrix * WorldMatrix);
+				yySetMatrix(yyMatrixType::World,  &WorldMatrix);
+
+				static Mat4 WVP;
+				WVP = camera.m_camera->m_projectionMatrix * camera.m_camera->m_viewMatrix * WorldMatrix;
+				yySetMatrix(yyMatrixType::WorldViewProjection, &WVP);
 				
 				for (u32 t = 0; t < YY_MDL_LAYER_NUM_OF_TEXTURES; ++t)
 				{
@@ -850,8 +853,8 @@ int main(int argc, char* argv[])
 				for (int i = 0, sz = g_sceneObject->m_hitboxes.size(); i < sz; ++i)
 				{
 					auto hb = g_sceneObject->m_hitboxes[i];
-					yySetMaterial(*hb->m_material);
-					Mat4 W;
+					yySetMaterial(hb->m_material);
+					static Mat4 W;
 
 					if (hb->m_hitbox.m_jointID != -1)
 					{
@@ -859,8 +862,12 @@ int main(int argc, char* argv[])
 						W = g_sceneObject->m_mdlObject->m_mdl->m_preRotation * joint.m_globalTransformation;
 					}
 
-					yySetMatrix(yyMatrixType::World, W);
-					yySetMatrix(yyMatrixType::WorldViewProjection, camera.m_camera->m_projectionMatrix * camera.m_camera->m_viewMatrix * W);
+					yySetMatrix(yyMatrixType::World, &W);
+					
+					static Mat4 WVP;
+					WVP = camera.m_camera->m_projectionMatrix * camera.m_camera->m_viewMatrix * WorldMatrix; 
+					yySetMatrix(yyMatrixType::WorldViewProjection, &WVP);
+
 					g_videoDriver->SetModel(hb->m_gpuModel);
 					g_videoDriver->Draw();
 				}

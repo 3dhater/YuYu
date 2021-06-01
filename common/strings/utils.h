@@ -9,8 +9,8 @@ template<typename Type>
 inline void stringToLower( Type& str )
 {
 	if (!str.size()) return;
-	u32 sz = str.size();
-	for( u32 i = 0u; i < sz; ++i )
+	size_t sz = str.size();
+	for( size_t i = 0u; i < sz; ++i )
 	{
 		auto c = str[ i ];
 		if( c <= 'Z' && c >= 'A' )
@@ -23,7 +23,7 @@ inline void stringFlip( Type& str )
 {
 	if (!str.size()) return;
 	Type flippedStr;
-	for( u32 i = str.size() - 1u; i >= 0u; --i )
+	for( size_t i = str.size() - 1u; i >= 0u; --i )
 	{
 		flippedStr += str[ i ];
 		if( !i ) break;
@@ -34,8 +34,8 @@ template<typename Type>
 inline void stringFlipSlash( Type& str )
 {
 	if (!str.size()) return;
-	u32 sz = str.size();
-	for( u32 i = 0u; i < sz; ++i )
+	size_t sz = str.size();
+	for(size_t i = 0u; i < sz; ++i )
 	{
 		if( str[ i ] == '\\' )
 			str[ i ] = '/';
@@ -45,8 +45,8 @@ template<typename Type>
 inline void stringFlipSlashBackSlash( Type& str )
 {
 	if (!str.size()) return;
-	u32 sz = str.size();
-	for( u32 i = 0u; i < sz; ++i )
+	size_t sz = str.size();
+	for(size_t i = 0u; i < sz; ++i )
 	{
 		if( str[ i ] == '/' )
 			str[ i ] = '\\';
@@ -59,7 +59,7 @@ inline void stringPopBackBefore( Type& str, s8 c )
 		str.pop_back();
 	if( str.size() )
 	{
-		for( u32 i = str.size() - 1u; i >= 0u; --i )
+		for(size_t i = str.size() - 1u; i >= 0u; --i )
 		{
 			if( str[ i ] == (Type::value_type)c ) 
 				break;
@@ -74,7 +74,7 @@ template<typename Type>
 inline Type stringGetExtension( const Type& str, bool addDot )
 {
 	Type ret;
-	for( u32 i = str.size() - 1u; i >= 0u; --i )
+	for( size_t i = str.size() - 1u; i >= 0u; --i )
 	{
 		auto c = str[ i ];
 		if( c == '/' || c == '.' )
@@ -317,8 +317,8 @@ float to_float(const char_type* str)
 template<typename input_string_type, typename output_string_type>
 void utf16_to_utf8(input_string_type* utf16, output_string_type* utf8)
 {
-	u32 sz = utf16->size();
-	for( u32 i = 0u; i < sz; ++i )
+	size_t sz = utf16->size();
+	for( size_t i = 0u; i < sz; ++i )
 	{
 		input_string_type::value_type ch16 = utf16->operator[]( i );
 		if( ch16 < 0x80 )

@@ -117,8 +117,8 @@ yyImage* ImageLoader_DDS(const char* p){
 	auto offset = sizeof(u32) + sizeof(DDS_HEADER);
     u8 * bitData = image.m_data->m_data + offset;
     u64 bitSize  = file_size - offset;
-	image.m_data->m_bitDataOffset = offset;
-	image.m_data->m_fileSize = file_size;
+	image.m_data->m_bitDataOffset = (u32)offset;
+	image.m_data->m_fileSize = (u32)file_size;
 
 	auto format = GetDDSImageFormat(hdr->ddspf);
 	if(format == yyImageFormat::Unknown)
