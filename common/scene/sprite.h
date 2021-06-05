@@ -68,7 +68,10 @@ struct yySprite
 		m_objectBase.m_objectType = yySceneObjectBase::ObjectType::Sprite;
 		m_objectBase.m_implementationPtr = this;
 		m_objectBase.m_updateImplementation = yySprite_update; // наверно m_updateImplementation в принципе лишнее
+		m_useAsBillboard = false;
 	}
+
+	bool m_useAsBillboard;
 
 	~yySprite(){
 #ifdef YY_DEBUG

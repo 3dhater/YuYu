@@ -4,6 +4,7 @@
 #include "demo_example_MDL.h"
 #include "demo_example_gui.h"
 #include "demo_example_lines.h"
+#include "demo_example_billboards.h"
 
 #include "yy_window.h"
 #include "yy_input.h"
@@ -167,6 +168,7 @@ vidOk:
 	AddExample(new DemoExample_MDL);
 	AddExample(new DemoExample_GUI);
 	AddExample(new DemoExample_Lines);
+	AddExample(new DemoExample_Billboards);
 
 
 	if (m_examples.size())

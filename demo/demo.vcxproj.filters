@@ -42,6 +42,9 @@
     <ClCompile Include="demo_example_lines.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="demo_example_billboards.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="demo.h">
@@ -61,6 +64,9 @@
     </ClInclude>
     <ClInclude Include="demo_example_lines.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="demo_example_billboards.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

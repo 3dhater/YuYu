@@ -60,6 +60,12 @@ yyEngine::yyEngine(yyPoolSetup* ps)
 		m_cursorsDefault[i] = 0;
 	}
 
+	for (u32 i = 0; i < (u32)yyMatrixType::_count; ++i)
+	{
+		m_matrixPtrs[i] = 0;
+	}
+	m_eyePosition = 0;
+
 	m_mainWindow = 0;
 
 	if (ps)

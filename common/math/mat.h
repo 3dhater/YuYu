@@ -397,6 +397,19 @@ public:
 		m_data[1u].y = v.y;
 		m_data[2u].z = v.z;
 	}
+
+	void setBasis(const Mat4& other)
+	{
+		m_data[0].x = other.m_data[0].x;
+		m_data[0].y = other.m_data[0].y;
+		m_data[0].z = other.m_data[0].z;
+		m_data[1].x = other.m_data[1].x;
+		m_data[1].y = other.m_data[1].y;
+		m_data[1].z = other.m_data[1].z;
+		m_data[2].x = other.m_data[2].x;
+		m_data[2].y = other.m_data[2].y;
+		m_data[2].z = other.m_data[2].z;
+	}
 };
 
 class Mat3
@@ -478,7 +491,6 @@ public:
 		m_data[1u].y = v.y;
 		m_data[2u].z = v.z;
 	}
-
 
 	void setRotation(const Quat& q)
 	{

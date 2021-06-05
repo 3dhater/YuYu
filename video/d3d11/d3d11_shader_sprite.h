@@ -26,4 +26,25 @@ public:
 	virtual void SetConstants(yyMaterial* material);
 };
 
+class D3D11ShaderSpriteBillboard : public D3D11ShaderCommon
+{
+public:
+	D3D11ShaderSpriteBillboard();
+	virtual ~D3D11ShaderSpriteBillboard();
+
+	struct cbVertex
+	{
+		Mat4 WVP;
+		v2f uv1;
+		v2f uv2;
+		u32 flags;
+		u32 padding[3];
+	}m_structCB;
+
+	ID3D11Buffer*		m_cb;
+
+	bool init();
+	virtual void SetConstants(yyMaterial* material);
+};
+
 #endif

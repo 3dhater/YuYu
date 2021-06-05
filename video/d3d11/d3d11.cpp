@@ -419,6 +419,14 @@ bool D3D11::Init(yyWindow* window){
 		return false;
 	}
 
+	m_shaderSpriteBillboard = yyCreate<D3D11ShaderSpriteBillboard>();
+	if (!m_shaderSpriteBillboard->init())
+	{
+		yyLogWriteError("Can't create sprite billboard shader...");
+		YY_PRINT_FAILED;
+		return false;
+	}
+
 	m_shaderSprite2 = yyCreate<D3D11ShaderSprite2>();
 	if (!m_shaderSprite2->init())
 	{

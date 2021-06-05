@@ -364,34 +364,65 @@ void Draw(){
 
 void DrawSprite(yySprite* sprite){
 	assert(sprite);
-	glUseProgram( g_openGL->m_shader_sprite->m_program );
-	glUniformMatrix4fv(g_openGL->m_shader_sprite->m_uniform_ProjMtx, 1, GL_FALSE, g_openGL->m_guiProjectionMatrix.getPtr() );
-	glUniformMatrix4fv(g_openGL->m_shader_sprite->m_uniform_WorldMtx, 1, GL_FALSE, sprite->m_objectBase.m_globalMatrix.getPtr() );
-	glUniform2fv(g_openGL->m_shader_sprite->m_uniform_CameraPosition, 1, &g_openGL->m_spriteCameraPosition.x);
-	glUniform2fv(g_openGL->m_shader_sprite->m_uniform_CameraScale, 1, &g_openGL->m_spriteCameraScale.x);
-	glUniform2fv(g_openGL->m_shader_sprite->m_uniform_uv1, 1, &sprite->m_tcoords_1.x);
-	glUniform2fv(g_openGL->m_shader_sprite->m_uniform_uv2, 1, &sprite->m_tcoords_2.x);
-
-	int flags = 0;
-	if(sprite->m_currentState)
+	if (sprite->m_useAsBillboard)
 	{
-		if(sprite->m_currentState->m_invertX)
-			flags |= 1;
-		if(sprite->m_currentState->m_invertY)
-			flags |= 2;
+		glUseProgram(g_openGL->m_shader_sprite->m_programBillboard);
+		glUniformMatrix4fv(g_openGL->m_shader_sprite->m_uniform_WVP, 1, GL_FALSE, yyGetMatrix(yyMatrixType::WorldViewProjection)->getPtr());
+		glUniform2fv(g_openGL->m_shader_sprite->m_uniform_uv1_b, 1, &sprite->m_tcoords_1.x);
+		glUniform2fv(g_openGL->m_shader_sprite->m_uniform_uv2_b, 1, &sprite->m_tcoords_2.x);
+
+		int flags = 0;
+		if (sprite->m_currentState)
+		{
+			if (sprite->m_currentState->m_invertX)
+				flags |= 1;
+			if (sprite->m_currentState->m_invertY)
+				flags |= 2;
+		}
+
+		glUniform1i(g_openGL->m_shader_sprite->m_uniform_flags_b, flags);
+
+		if (sprite->m_texture)
+		{
+			SetTexture(0, sprite->m_texture);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, g_openGL->m_currentTextures[0]->m_texture);
+		}
+		SetModel(sprite->m_model);
+		glBindVertexArray(g_openGL->m_currentModel->m_VAO);
+		glDrawElements(GL_TRIANGLES, g_openGL->m_currentModel->m_iCount, GL_UNSIGNED_SHORT, 0);
 	}
+	else
+	{
+		glUseProgram( g_openGL->m_shader_sprite->m_programSprite );
+		glUniformMatrix4fv(g_openGL->m_shader_sprite->m_uniform_ProjMtx, 1, GL_FALSE, g_openGL->m_guiProjectionMatrix.getPtr() );
+		glUniformMatrix4fv(g_openGL->m_shader_sprite->m_uniform_WorldMtx, 1, GL_FALSE, sprite->m_objectBase.m_globalMatrix.getPtr() );
+		glUniform2fv(g_openGL->m_shader_sprite->m_uniform_CameraPosition, 1, &g_openGL->m_spriteCameraPosition.x);
+		glUniform2fv(g_openGL->m_shader_sprite->m_uniform_CameraScale, 1, &g_openGL->m_spriteCameraScale.x);
+		glUniform2fv(g_openGL->m_shader_sprite->m_uniform_uv1, 1, &sprite->m_tcoords_1.x);
+		glUniform2fv(g_openGL->m_shader_sprite->m_uniform_uv2, 1, &sprite->m_tcoords_2.x);
+
+		int flags = 0;
+		if(sprite->m_currentState)
+		{
+			if(sprite->m_currentState->m_invertX)
+				flags |= 1;
+			if(sprite->m_currentState->m_invertY)
+				flags |= 2;
+		}
 	
-	glUniform1i(g_openGL->m_shader_sprite->m_uniform_flags, flags);
+		glUniform1i(g_openGL->m_shader_sprite->m_uniform_flags, flags);
 
-	if(sprite->m_texture)
-	{
-		SetTexture(0, sprite->m_texture);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);
+		if(sprite->m_texture)
+		{
+			SetTexture(0, sprite->m_texture);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D,g_openGL->m_currentTextures[0]->m_texture);
+		}
+		SetModel(sprite->m_model);
+		glBindVertexArray(g_openGL->m_currentModel->m_VAO);
+		glDrawElements(GL_TRIANGLES, g_openGL->m_currentModel->m_iCount, GL_UNSIGNED_SHORT, 0);
 	}
-	SetModel(sprite->m_model);
-	glBindVertexArray(g_openGL->m_currentModel->m_VAO);
-	glDrawElements(GL_TRIANGLES, g_openGL->m_currentModel->m_iCount, GL_UNSIGNED_SHORT, 0);
 }
 
 void DrawSprite2(yySprite2* sprite){

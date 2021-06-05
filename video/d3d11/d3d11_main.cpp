@@ -373,46 +373,87 @@ void Draw(){
 
 void DrawSprite(yySprite* sprite){
 	assert(sprite);
-	g_d3d11->m_shaderSprite->m_structCB.ProjMtx = g_d3d11->m_guiProjectionMatrix;
-	g_d3d11->m_shaderSprite->m_structCB.World = sprite->m_objectBase.m_globalMatrix;
-	g_d3d11->m_shaderSprite->m_structCB.flags = 0;
-	if(sprite->m_currentState)
+	if (sprite->m_useAsBillboard)
 	{
-		if(sprite->m_currentState->m_invertX)
-			g_d3d11->m_shaderSprite->m_structCB.flags |= 1;
-		if(sprite->m_currentState->m_invertY)
-			g_d3d11->m_shaderSprite->m_structCB.flags |= 2;
+		g_d3d11->m_shaderSpriteBillboard->m_structCB.WVP = *yyGetMatrix(yyMatrixType::WorldViewProjection);
+		g_d3d11->m_shaderSpriteBillboard->m_structCB.flags = 0;
+		if (sprite->m_currentState)
+		{
+			if (sprite->m_currentState->m_invertX)
+				g_d3d11->m_shaderSpriteBillboard->m_structCB.flags |= 1;
+			if (sprite->m_currentState->m_invertY)
+				g_d3d11->m_shaderSpriteBillboard->m_structCB.flags |= 2;
+		}
+		g_d3d11->m_shaderSpriteBillboard->m_structCB.uv1 = sprite->m_tcoords_1;
+		g_d3d11->m_shaderSpriteBillboard->m_structCB.uv2 = sprite->m_tcoords_2;
+		g_d3d11->m_shaderSpriteBillboard->SetConstants(0);
+
+		g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		//	const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
+		//	g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaEnabled, blend_factor, 0xffffffff);
+		g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
+		g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
+
+		g_d3d11->SetActiveShader(g_d3d11->m_shaderSpriteBillboard);
+		g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &g_d3d11->m_shaderSpriteBillboard->m_cb);
+
+
+		if (sprite->m_texture)
+		{
+			SetTexture(0, sprite->m_texture);
+			g_d3d11->m_d3d11DevCon->PSSetShaderResources(0, 1, &g_d3d11->m_currentTextures[0]->m_textureResView);
+			g_d3d11->m_d3d11DevCon->PSSetSamplers(0, 1, &g_d3d11->m_currentTextures[0]->m_samplerState);
+		}
+		SetModel(sprite->m_model);
+		u32 offset = 0u;
+		g_d3d11->m_d3d11DevCon->IASetVertexBuffers(0, 1, &g_d3d11->m_currentModel->m_vBuffer, &g_d3d11->m_currentModel->m_stride, &offset);
+		g_d3d11->m_d3d11DevCon->IASetIndexBuffer(g_d3d11->m_currentModel->m_iBuffer, g_d3d11->m_currentModel->m_indexType, 0);
+		g_d3d11->m_d3d11DevCon->DrawIndexed(g_d3d11->m_currentModel->m_iCount, 0, 0);
 	}
-	g_d3d11->m_shaderSprite->m_structCB.uv1 = sprite->m_tcoords_1;
-	g_d3d11->m_shaderSprite->m_structCB.uv2 = sprite->m_tcoords_2;
-	g_d3d11->m_shaderSprite->m_structCB.CameraPositionScale.x = g_d3d11->m_spriteCameraPosition.x;
-	g_d3d11->m_shaderSprite->m_structCB.CameraPositionScale.y = g_d3d11->m_spriteCameraPosition.y;
-	g_d3d11->m_shaderSprite->m_structCB.CameraPositionScale.z = g_d3d11->m_spriteCameraScale.x;
-	g_d3d11->m_shaderSprite->m_structCB.CameraPositionScale.w = g_d3d11->m_spriteCameraScale.y;
-	g_d3d11->m_shaderSprite->SetConstants(0);
-
-	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-//	const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
-//	g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaEnabled, blend_factor, 0xffffffff);
-	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
-	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
-
-	g_d3d11->SetActiveShader(g_d3d11->m_shaderSprite);
-	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &g_d3d11->m_shaderSprite->m_cb);
-
-
-	if(sprite->m_texture)
+	else
 	{
-		SetTexture(0, sprite->m_texture);
-		g_d3d11->m_d3d11DevCon->PSSetShaderResources(0, 1, &g_d3d11->m_currentTextures[0]->m_textureResView);
-		g_d3d11->m_d3d11DevCon->PSSetSamplers(0, 1, &g_d3d11->m_currentTextures[0]->m_samplerState);
+		g_d3d11->m_shaderSprite->m_structCB.ProjMtx = g_d3d11->m_guiProjectionMatrix;
+		g_d3d11->m_shaderSprite->m_structCB.World = sprite->m_objectBase.m_globalMatrix;
+		g_d3d11->m_shaderSprite->m_structCB.flags = 0;
+		if (sprite->m_currentState)
+		{
+			if (sprite->m_currentState->m_invertX)
+				g_d3d11->m_shaderSprite->m_structCB.flags |= 1;
+			if (sprite->m_currentState->m_invertY)
+				g_d3d11->m_shaderSprite->m_structCB.flags |= 2;
+		}
+		g_d3d11->m_shaderSprite->m_structCB.uv1 = sprite->m_tcoords_1;
+		g_d3d11->m_shaderSprite->m_structCB.uv2 = sprite->m_tcoords_2;
+		g_d3d11->m_shaderSprite->m_structCB.CameraPositionScale.x = g_d3d11->m_spriteCameraPosition.x;
+		g_d3d11->m_shaderSprite->m_structCB.CameraPositionScale.y = g_d3d11->m_spriteCameraPosition.y;
+		g_d3d11->m_shaderSprite->m_structCB.CameraPositionScale.z = g_d3d11->m_spriteCameraScale.x;
+		g_d3d11->m_shaderSprite->m_structCB.CameraPositionScale.w = g_d3d11->m_spriteCameraScale.y;
+		g_d3d11->m_shaderSprite->SetConstants(0);
+
+		g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		//	const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
+		//	g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaEnabled, blend_factor, 0xffffffff);
+		g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
+		g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
+
+		g_d3d11->SetActiveShader(g_d3d11->m_shaderSprite);
+		g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &g_d3d11->m_shaderSprite->m_cb);
+
+
+		if (sprite->m_texture)
+		{
+			SetTexture(0, sprite->m_texture);
+			g_d3d11->m_d3d11DevCon->PSSetShaderResources(0, 1, &g_d3d11->m_currentTextures[0]->m_textureResView);
+			g_d3d11->m_d3d11DevCon->PSSetSamplers(0, 1, &g_d3d11->m_currentTextures[0]->m_samplerState);
+		}
+		SetModel(sprite->m_model);
+		u32 offset = 0u;
+		g_d3d11->m_d3d11DevCon->IASetVertexBuffers(0, 1, &g_d3d11->m_currentModel->m_vBuffer, &g_d3d11->m_currentModel->m_stride, &offset);
+		g_d3d11->m_d3d11DevCon->IASetIndexBuffer(g_d3d11->m_currentModel->m_iBuffer, g_d3d11->m_currentModel->m_indexType, 0);
+		g_d3d11->m_d3d11DevCon->DrawIndexed(g_d3d11->m_currentModel->m_iCount, 0, 0);
 	}
-	SetModel(sprite->m_model);
-	u32 offset = 0u;
-	g_d3d11->m_d3d11DevCon->IASetVertexBuffers(0, 1, &g_d3d11->m_currentModel->m_vBuffer, &g_d3d11->m_currentModel->m_stride, &offset);
-	g_d3d11->m_d3d11DevCon->IASetIndexBuffer(g_d3d11->m_currentModel->m_iBuffer, g_d3d11->m_currentModel->m_indexType, 0);
-	g_d3d11->m_d3d11DevCon->DrawIndexed(g_d3d11->m_currentModel->m_iCount, 0, 0);
 }
 
 void DrawSprite2(yySprite2* sprite){

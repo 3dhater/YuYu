@@ -24,6 +24,7 @@ class D3D11ShaderRectangle;
 class D3D11ShaderPoints;
 class D3D11ShaderPointsAnimated;
 class D3D11ShaderStd;
+class D3D11ShaderSpriteBillboard;
 
 class D3D11
 {
@@ -69,6 +70,7 @@ public:
 	D3D11ShaderRectangle* m_shaderRectangle;
 	D3D11ShaderGUI* m_shaderGUI;
 	D3D11ShaderSprite* m_shaderSprite;
+	D3D11ShaderSpriteBillboard* m_shaderSpriteBillboard;
 	D3D11ShaderSprite2* m_shaderSprite2;
 	D3D11ShaderScreenQuad* m_shaderScreenQuad;
 	D3D11ShaderSimple* m_shaderSimple;
