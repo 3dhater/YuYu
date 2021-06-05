@@ -106,6 +106,8 @@ void Camera::_moveCamera(v4f& vel)
 	RotInv.invert();
 	vel = math::mul(vel, RotInv);
 	m_camera->m_objectBase.m_localPosition += vel;
+
+	printf("%f %f %f\n", m_camera->m_objectBase.m_localPosition.x, m_camera->m_objectBase.m_localPosition.y, m_camera->m_objectBase.m_localPosition.z);
 }
 
 void Camera::update()

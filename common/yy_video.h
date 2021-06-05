@@ -99,8 +99,8 @@ struct yyVideoDriverAPI
 
 	//yyResource* (*CreateRenderTargetTexture)(const v2f& size, bool useLinearFilter, bool useComparisonFilter);
 	void(*SetRenderTarget)(yyResource*);
-	void(*SetViewport)(f32 x, f32 y, f32 width, f32 height, yyWindow* window);
-	void(*SetScissorRect)(const v4f& rect, yyWindow* window);
+	void(*SetViewport)(f32 x, f32 y, f32 width, f32 height, yyWindow* window, v4f* old);
+	void(*SetScissorRect)(const v4f& rect, yyWindow* window, v4f* old);
 
 
 	void*(*GetVideoDriverObjects)();

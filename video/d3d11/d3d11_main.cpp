@@ -29,7 +29,7 @@
 yyVideoDriverAPI g_api;
 D3D11 * g_d3d11 = nullptr;
 
-void SetViewport(f32 x, f32 y, f32 width, f32 height, yyWindow* window) {
+void SetViewport(f32 x, f32 y, f32 width, f32 height, yyWindow* window, v4f* old) {
 	D3D11_VIEWPORT viewport;
 	viewport.Width = width;
 	viewport.Height = height;
@@ -40,6 +40,10 @@ void SetViewport(f32 x, f32 y, f32 width, f32 height, yyWindow* window) {
 	g_d3d11->m_d3d11DevCon->RSSetViewports(1, &viewport);
 	g_d3d11->m_viewportSize.x = width;
 	g_d3d11->m_viewportSize.y = height;
+
+	if (old)
+		old->set(g_d3d11->m_old_viewport.x, g_d3d11->m_old_viewport.y, g_d3d11->m_old_viewport.z, g_d3d11->m_old_viewport.w);
+	g_d3d11->m_old_viewport.set(x,y,width,height);
 }
 
 u32 GetAPIVersion(){
@@ -182,13 +186,17 @@ void EndDrawGUI(){
 	g_d3d11->m_d3d11DevCon->IASetInputLayout(old.InputLayout); if (old.InputLayout) old.InputLayout->Release();
 }
 
-void SetScissorRect(const v4f& rect, yyWindow* window) {
+void SetScissorRect(const v4f& rect, yyWindow* window, v4f* old) {
 	D3D11_RECT r;
 	r.left = (LONG)rect.x;
 	r.top = (LONG)rect.y;
 	r.right = (LONG)rect.z;
 	r.bottom = (LONG)rect.w;
 	g_d3d11->m_d3d11DevCon->RSSetScissorRects(1, &r);
+
+	if (old)
+		old->set(g_d3d11->m_old_scissor.x, g_d3d11->m_old_scissor.y, g_d3d11->m_old_scissor.z, g_d3d11->m_old_scissor.w);
+	g_d3d11->m_old_scissor = rect;
 }
 
 void SetTexture(u32 slot, yyResource* res){
@@ -501,7 +509,7 @@ void ClearDepth(){
 void BeginDraw(){
 	 // !!! ??? m_depthStencilView должен быть свой на каждый RTT ???
 	g_d3d11->m_d3d11DevCon->OMSetRenderTargets(1, &g_d3d11->m_mainTarget->m_RTV, g_d3d11->m_depthStencilView);
-	SetViewport(0, 0, g_d3d11->m_mainTargetSize.x, g_d3d11->m_mainTargetSize.y, 0);
+	SetViewport(0, 0, g_d3d11->m_mainTargetSize.x, g_d3d11->m_mainTargetSize.y, 0,0);
 	g_d3d11->m_currentTargetView = g_d3d11->m_mainTarget->m_RTV;
 
 	UseDepth(true);
@@ -510,8 +518,8 @@ void BeginDraw(){
 void EndDraw(){
 	g_d3d11->m_d3d11DevCon->OMSetRenderTargets(1, &g_d3d11->m_MainTargetView, g_d3d11->m_depthStencilView);
 	g_d3d11->m_currentTargetView = g_d3d11->m_MainTargetView;
-	SetViewport(0, 0, (f32)g_d3d11->m_windowSize.x, (f32)g_d3d11->m_windowSize.y, 0);
-	SetScissorRect(v4f(0.f, 0.f, (f32)g_d3d11->m_windowSize.x, (f32)g_d3d11->m_windowSize.y), 0);
+	SetViewport(0, 0, (f32)g_d3d11->m_windowSize.x, (f32)g_d3d11->m_windowSize.y, 0, 0);
+	SetScissorRect(v4f(0.f, 0.f, (f32)g_d3d11->m_windowSize.x, (f32)g_d3d11->m_windowSize.y), 0, 0);
 	ClearColor();
 
 	UseDepth(false);

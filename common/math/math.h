@@ -125,6 +125,31 @@ namespace math
 	{
 		return val * (1.f / base);
 	}
+
+	YY_FORCE_INLINE
+	v2f worldToScreen(const Mat4& VP, const v4f& point3D, const v2f& viewportSize, const v2f& offset)
+	{
+		v4f point = point3D;
+		point.w = 1.f;
+
+		point = math::mul(point, VP);
+
+		return v2f
+		(
+			offset.x + (viewportSize.x * 0.5f + point.x * viewportSize.x * 0.5f / point.w)
+			,
+			offset.y + (viewportSize.y - (viewportSize.y * 0.5f + point.y * viewportSize.y * 0.5f / point.w))
+		);
+	}
+
+	YY_FORCE_INLINE
+	v2f screenToClient(const v2f& screen_coord, const v4f& client_rect)
+	{
+		return v2f(
+			screen_coord.x - client_rect.x,
+			screen_coord.y - client_rect.y
+		);
+	}
 }
 
 #endif

@@ -1319,6 +1319,8 @@ public:
 	v2f m_spriteCameraPosition;
 	v2f m_spriteCameraScale;
 
+	v4f m_old_scissor;
+	v4f m_old_viewport;
 };
 
 #endif

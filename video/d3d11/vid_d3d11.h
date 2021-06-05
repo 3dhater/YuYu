@@ -95,6 +95,9 @@ public:
 	bool m_vsync;
 	
 	bool Init(yyWindow* window);
+
+	v4f m_old_scissor;
+	v4f m_old_viewport;
 };
 
 #endif

@@ -148,13 +148,13 @@ void yyEngine::GUIDrawDrawGroup(yyGUIDrawGroup* dg, f32 dt) {
 			switch (guiElement->m_data->m_type)
 			{
 			default:
-				this->m_videoAPI->SetScissorRect(guiElement->m_data->m_clipRectInPixels, m_mainWindow);
+				this->m_videoAPI->SetScissorRect(guiElement->m_data->m_clipRectInPixels, m_mainWindow, 0);
 				break;
 			case yyGUIElementType::Text:
 				// i can't calculate scissor\clip rect just for Text
 				//  but it works good in elements like buttons/textInput...calculate cliprect for 
 				//   box picture and use it
-				this->m_videoAPI->SetScissorRect(m_mainWindow->m_currentRect, m_mainWindow);
+				this->m_videoAPI->SetScissorRect(m_mainWindow->m_currentRect, m_mainWindow, 0);
 				break;
 			}
 
@@ -208,7 +208,7 @@ YY_API void YY_C_DECL yyGUIDrawAll(f32 dt){
 
 	g_engine->m_videoAPI->EndDrawGUI();
 
-	g_engine->m_videoAPI->SetScissorRect(g_engine->m_mainWindow->m_currentRect, g_engine->m_mainWindow);
+	g_engine->m_videoAPI->SetScissorRect(g_engine->m_mainWindow->m_currentRect, g_engine->m_mainWindow, 0);
 }
 
 YY_API yyGUIElement* YY_C_DECL yyGUIGetElementInMouseFocus(){

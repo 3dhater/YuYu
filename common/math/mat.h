@@ -384,6 +384,19 @@ public:
 	
 	void setTranslation(const v3f& v) { m_data[3].set(v.x, v.y, v.z, 1.f); }
 	void setTranslation(const v4f& v) { m_data[3].set(v.x, v.y, v.z, 1.f); }
+	void setScale(const v3f& v)
+	{
+		m_data[0u].x = v.x;
+		m_data[1u].y = v.y;
+		m_data[2u].z = v.z;
+	}
+
+	void setScale(const v4f& v)
+	{
+		m_data[0u].x = v.x;
+		m_data[1u].y = v.y;
+		m_data[2u].z = v.z;
+	}
 };
 
 class Mat3
@@ -451,6 +464,21 @@ public:
 		m_data[1].set(yx, yy, yz);
 		m_data[2].set(zx, zy, zz);
 	}
+
+	void setScale(const v3f& v)
+	{
+		m_data[0u].x = v.x;
+		m_data[1u].y = v.y;
+		m_data[2u].z = v.z;
+	}
+
+	void setScale(const v4f& v)
+	{
+		m_data[0u].x = v.x;
+		m_data[1u].y = v.y;
+		m_data[2u].z = v.z;
+	}
+
 
 	void setRotation(const Quat& q)
 	{

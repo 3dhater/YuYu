@@ -79,13 +79,17 @@ void SetClearColor(f32 r, f32 g, f32 b, f32 a){
 	glClearColor( r, g, b, a );
 }
 
-void SetScissorRect(const v4f& rect, yyWindow* window) {
+void SetScissorRect(const v4f& rect, yyWindow* window, v4f* old) {
 	f32 x = rect.x;
 	f32 y = window->m_currentSize.y - rect.y;
 	f32 z = rect.z - rect.x;
 	f32 w = rect.w - rect.y;
 	y -= w;
 	glScissor((GLint)x, (GLint)y, (GLsizei)z, (GLsizei)w);
+
+	if (old)
+		old->set(g_openGL->m_old_scissor.x, g_openGL->m_old_scissor.y, g_openGL->m_old_scissor.z, g_openGL->m_old_scissor.w);
+	g_openGL->m_old_scissor = rect;
 }
 
 void UseVSync(bool v){
@@ -214,10 +218,14 @@ void SetRenderTarget(yyResource* rtt){
 	}
 }
 
-void SetViewport(f32 _x, f32 _y, f32 _width, f32 _height, yyWindow* window){
+void SetViewport(f32 _x, f32 _y, f32 _width, f32 _height, yyWindow* window, v4f* old){
 	GLint x = (GLint)_x;
 	GLint y = (GLint)window->m_currentSize.y - (GLint)_y;
 	glViewport(x, y - (GLsizei)_height, (GLsizei)_width, (GLsizei)_height);
+
+	if (old)
+		old->set(g_openGL->m_old_viewport.x, g_openGL->m_old_viewport.y, g_openGL->m_old_viewport.z, g_openGL->m_old_viewport.w);
+	g_openGL->m_old_viewport.set(_x,_y, _width, _height);
 }
 
 void SetTexture(u32 slot, yyResource* res){
@@ -509,7 +517,7 @@ void ClearDepth(){
 void EndDraw(){
 	glBindFramebuffer(GL_FRAMEBUFFER, 0); // window
 	glViewport(0, 0, (GLsizei)g_openGL->m_windowSize.x, (GLsizei)g_openGL->m_windowSize.y);
-	SetScissorRect(v4f(0.f, 0.f, (f32)g_openGL->m_windowSize.x, (f32)g_openGL->m_windowSize.y), yyGetMainWindow());
+	SetScissorRect(v4f(0.f, 0.f, (f32)g_openGL->m_windowSize.x, (f32)g_openGL->m_windowSize.y), yyGetMainWindow(), 0);
 
 	UseDepth(false);
 
