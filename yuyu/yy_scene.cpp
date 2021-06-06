@@ -15,6 +15,7 @@ YY_API yySprite* YY_C_DECL yyCreateSprite(const v4f& r, yyResource* texture, u8 
 	yySprite* newSprite = yyCreate<yySprite>();
 	auto vAPI = yyGetVideoDriverAPI();
 	auto model = yySpriteCreateNew(rect, v2f(0.f,0.f), v2f(1.f,1.f));
+	newSprite->m_creationRect = rect;
 	newSprite->m_model = yyCreateModel(model);
 	newSprite->m_model->Load();
 	newSprite->m_texture = texture;

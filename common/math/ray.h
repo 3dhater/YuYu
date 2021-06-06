@@ -138,7 +138,12 @@ public:
 		m_Sz = 1.f / dir_data[m_kz];
 	}
 
-	bool planeIntersection(const v4f& planePoint, const v4f& planeNormal, v4f& ip) {
+	void getIntersectionPoint(f32 t, v4f& ip)
+	{
+		ip = m_origin + t * m_direction;
+	}
+
+	bool planeIntersection(const v4f& planePoint, const v4f& planeNormal, f32& T) {
 		float det = (planeNormal.x*m_direction.x) + (planeNormal.y*m_direction.y) + (planeNormal.z*m_direction.z);
 
 		if (std::fabs(det) < Epsilon) return false;
@@ -148,12 +153,9 @@ public:
 		v.y = planePoint.y - m_origin.y;
 		v.z = planePoint.z - m_origin.z;
 
-		float t = (planeNormal.x*v.x) + (planeNormal.y*v.y) + (planeNormal.z*v.z);
+		T = (planeNormal.x*v.x) + (planeNormal.y*v.y) + (planeNormal.z*v.z);
 
-		t /= det;
-
-		ip = m_origin + t * m_direction;
-
+		T /= det;
 		return true;
 	}
 };

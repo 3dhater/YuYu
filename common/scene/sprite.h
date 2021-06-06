@@ -180,8 +180,6 @@ struct yySprite
 		}
 	}
 
-
-
 	yyArraySmall<yySpriteState*> m_states;
 
 	yySpriteState* AddState(const char* name){
@@ -196,6 +194,8 @@ struct yySprite
 
 	yyResource* m_texture;
 	yyResource* m_model;
+
+	v4f m_creationRect;
 
 	// если m_currentState не установлен, то будет работать на основе этого vvv
 	// если установлен, то m_tcoords_1 и m_tcoords_2 должны вычислятся на основе 
@@ -234,6 +234,138 @@ struct yySprite
 		m_tcoords_1.y = m_mainFrame.y;
 		m_tcoords_2.x = m_mainFrame.z;
 		m_tcoords_2.y = m_mainFrame.w;
+	}
+
+	bool RayTest(const yyRay& ray, f32 * T ) {
+		{
+			v3f v1(m_creationRect.x, m_creationRect.y, 0.f);
+			v3f v2(m_creationRect.z, m_creationRect.y, 0.f);
+			v3f v3(m_creationRect.z, m_creationRect.w, 0.f);
+
+			v1 = math::mulBasis(v1, m_objectBase.m_globalMatrix) + m_objectBase.m_globalMatrix.m_data[3];
+			v2 = math::mulBasis(v2, m_objectBase.m_globalMatrix) + m_objectBase.m_globalMatrix.m_data[3];
+			v3 = math::mulBasis(v3, m_objectBase.m_globalMatrix) + m_objectBase.m_globalMatrix.m_data[3];
+
+			v4f e1 = v4f(
+				v2.x - v1.x,
+				v2.y - v1.y,
+				v2.z - v1.z,
+				0.f);
+			v4f e2 = v4f(
+				v3.x - v1.x,
+				v3.y - v1.y,
+				v3.z - v1.z,
+				0.f);
+			v4f pvec;
+			ray.m_direction.cross2(e2, pvec);
+			f32 det = e1.dot(pvec);
+
+			bool withBackFace = true;
+			if (withBackFace)
+			{
+				if (std::fabs(det) < Epsilon)
+					goto second;
+			}
+			else
+			{
+				if (det < Epsilon && det > -Epsilon)
+					goto second;
+			}
+
+			v4f tvec(
+				ray.m_origin.x - v1.x,
+				ray.m_origin.y - v1.y,
+				ray.m_origin.z - v1.z,
+				0.f);
+
+			f32 inv_det = 1.f / det;
+			auto U = tvec.dot(pvec) * inv_det;
+
+			if (U < 0.f || U > 1.f)
+				goto second;
+
+			v4f  qvec;
+			tvec.cross2(e1, qvec);
+			auto V = ray.m_direction.dot(qvec) * inv_det;
+
+			if (V < 0.f || U + V > 1.f)
+				goto second;
+
+			// T is length from origin to intersection point
+			*T = e2.dot(qvec) * inv_det;
+
+			if (*T < Epsilon) 
+				goto second;
+
+			auto W = 1.f - U - V;
+
+			return true;
+		}
+		second:
+		{
+			v3f v1(m_creationRect.x, m_creationRect.y, 0.f);
+			v3f v2(m_creationRect.z, m_creationRect.w, 0.f);
+			v3f v3(m_creationRect.x, m_creationRect.w, 0.f);
+
+			v1 = math::mulBasis(v1, m_objectBase.m_globalMatrix) + m_objectBase.m_globalMatrix.m_data[3];
+			v2 = math::mulBasis(v2, m_objectBase.m_globalMatrix) + m_objectBase.m_globalMatrix.m_data[3];
+			v3 = math::mulBasis(v3, m_objectBase.m_globalMatrix) + m_objectBase.m_globalMatrix.m_data[3];
+
+			v4f e1 = v4f(
+				v2.x - v1.x,
+				v2.y - v1.y,
+				v2.z - v1.z,
+				0.f);
+			v4f e2 = v4f(
+				v3.x - v1.x,
+				v3.y - v1.y,
+				v3.z - v1.z,
+				0.f);
+			v4f pvec;
+			ray.m_direction.cross2(e2, pvec);
+			f32 det = e1.dot(pvec);
+
+			bool withBackFace = true;
+			if (withBackFace)
+			{
+				if (std::fabs(det) < Epsilon)
+					return false;
+			}
+			else
+			{
+				if (det < Epsilon && det > -Epsilon)
+					return false;
+			}
+
+			v4f tvec(
+				ray.m_origin.x - v1.x,
+				ray.m_origin.y - v1.y,
+				ray.m_origin.z - v1.z,
+				0.f);
+
+			f32 inv_det = 1.f / det;
+			auto U = tvec.dot(pvec) * inv_det;
+
+			if (U < 0.f || U > 1.f)
+				return false;
+
+			v4f  qvec;
+			tvec.cross2(e1, qvec);
+			auto V = ray.m_direction.dot(qvec) * inv_det;
+
+			if (V < 0.f || U + V > 1.f)
+				return false;
+
+			// T is length from origin to intersection point
+			*T = e2.dot(qvec) * inv_det;
+
+			if (*T < Epsilon) return false;
+
+			auto W = 1.f - U - V;
+
+			return true;
+		}
+		return false;
 	}
 };
 

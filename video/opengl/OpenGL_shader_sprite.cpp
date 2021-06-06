@@ -131,7 +131,7 @@ bool OpenGLShaderSprite::init(){
 			"out vec4 Out_Color;\n"
 			"void main(){\n"
 			"    Out_Color = texture(Texture,out_UV) * vec4(1.f,1.f,1.f,1.f);\n"
-			"    if(Out_Color.a < 0.1) discard;\n"
+			//"    if(Out_Color.a < 0.1) discard;\n"
 			"}\n";
 		if (!createShader(text_v, text_f, nullptr, m_programBillboard))
 			return false;
