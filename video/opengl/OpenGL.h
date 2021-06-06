@@ -1321,6 +1321,8 @@ public:
 
 	v4f m_old_scissor;
 	v4f m_old_viewport;
+	bool m_old_blend;
+	bool m_old_depth;
 };
 
 #endif

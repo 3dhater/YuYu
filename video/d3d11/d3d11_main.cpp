@@ -87,21 +87,30 @@ void UseVSync(bool v){
 	g_d3d11->m_vsync = v;
 }
 
-void UseDepth(bool v){
+bool UseDepth(bool v){
+	/*if (v)
+		printf("Depth ON\n");
+	else
+		printf("Depth OFF\n");*/
+
 	v ? g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateEnabled, 0)
 		: g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
+
+	auto o = g_d3d11->m_old_depth;
+	g_d3d11->m_old_depth = v;
+	return o;
 }
 
-void UseBlend(bool v){
+bool UseBlend(bool v){
+	const float blend_factor[4] = { 1.f, 1.f, 1.f, 1.f };
 	if (v)
-	{
-		const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
 		g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaEnabled, blend_factor, 0xffffffff);
-	}
 	else
-	{
-		g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaDisabled, 0, 0xffffffff);
-	}
+		g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaDisabled, blend_factor, 0xffffffff);
+	
+	auto o = g_d3d11->m_old_blend;
+	g_d3d11->m_old_blend = v;
+	return o;
 }
 
 // `dear imgui`
@@ -390,9 +399,6 @@ void DrawSprite(yySprite* sprite){
 
 		g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		//	const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
-		//	g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaEnabled, blend_factor, 0xffffffff);
-		g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
 		g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
 
 		g_d3d11->SetActiveShader(g_d3d11->m_shaderSpriteBillboard);
@@ -433,9 +439,6 @@ void DrawSprite(yySprite* sprite){
 
 		g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		//	const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
-		//	g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaEnabled, blend_factor, 0xffffffff);
-		g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
 		g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
 
 		g_d3d11->SetActiveShader(g_d3d11->m_shaderSprite);
@@ -468,9 +471,6 @@ void DrawSprite2(yySprite2* sprite){
 
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	//	const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
-	//	g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaEnabled, blend_factor, 0xffffffff);
-	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
 	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
 
 	g_d3d11->SetActiveShader(g_d3d11->m_shaderSprite2);
@@ -544,7 +544,7 @@ void ClearColor(){
 }
 
 void ClearDepth(){
-	g_d3d11->m_d3d11DevCon->ClearDepthStencilView(g_d3d11->m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	g_d3d11->m_d3d11DevCon->ClearDepthStencilView(g_d3d11->m_depthStencilView, D3D11_CLEAR_DEPTH , 1.0f, 0);
 }
 
 void BeginDraw(){
@@ -553,7 +553,8 @@ void BeginDraw(){
 	SetViewport(0, 0, g_d3d11->m_mainTargetSize.x, g_d3d11->m_mainTargetSize.y, 0,0);
 	g_d3d11->m_currentTargetView = g_d3d11->m_mainTarget->m_RTV;
 
-	UseDepth(true);
+//	printf("%s\n", __FUNCTION__);
+//	UseDepth(true);
 }
 
 void EndDraw(){
@@ -563,13 +564,15 @@ void EndDraw(){
 	SetScissorRect(v4f(0.f, 0.f, (f32)g_d3d11->m_windowSize.x, (f32)g_d3d11->m_windowSize.y), 0, 0);
 	ClearColor();
 
-	UseDepth(false);
+//	printf("%s\n", __FUNCTION__);
+//	UseDepth(false);
 
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
 	//	const float blend_factor[4] = { 0.f, 0.f, 0.f, 1.f };
 //	g_d3d11->m_d3d11DevCon->OMSetBlendState(g_d3d11->m_blendStateAlphaEnabled, blend_factor, 0xffffffff);
-	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
+//	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
+	auto old_depth = UseDepth(false);
 
 	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
 	g_d3d11->SetActiveShader(g_d3d11->m_shaderScreenQuad);
@@ -580,6 +583,7 @@ void EndDraw(){
 	g_d3d11->m_d3d11DevCon->IASetVertexBuffers(0, 1, &g_d3d11->m_mainTargetSurface->m_vBuffer, &g_d3d11->m_mainTargetSurface->m_stride, &offset);
 	g_d3d11->m_d3d11DevCon->IASetIndexBuffer(g_d3d11->m_mainTargetSurface->m_iBuffer, g_d3d11->m_mainTargetSurface->m_indexType, 0);
 	g_d3d11->m_d3d11DevCon->DrawIndexed(g_d3d11->m_mainTargetSurface->m_iCount, 0, 0);
+	UseDepth(old_depth);
 }
 
 void UpdateMainRenderTarget(const v2f& windowsSize, const v2f& bufferSize){
@@ -651,13 +655,15 @@ void DrawRectangle(const v4f& corners, const yyColor& color1, const yyColor& col
 	g_d3d11->m_shaderRectangle->SetConstants(0);
 	g_d3d11->m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
+//	g_d3d11->m_d3d11DevCon->OMSetDepthStencilState(g_d3d11->m_depthStencilStateDisabled, 0);
+	auto old_depth = UseDepth(false);
 	g_d3d11->m_d3d11DevCon->RSSetState(g_d3d11->m_RasterizerSolidNoBackFaceCulling);
 	g_d3d11->m_d3d11DevCon->VSSetConstantBuffers(0, 1, &g_d3d11->m_shaderRectangle->m_cbVertex);
 	g_d3d11->m_d3d11DevCon->Draw(6, 0);
 
 	if(oldShader)
 		g_d3d11->SetActiveShader(oldShader);
+	UseDepth(old_depth);
 }
 
 extern "C"

@@ -25,8 +25,8 @@ struct yyVideoDriverAPI
 	void (*Destroy)();
 	
 	void (*UseVSync)(bool);
-	void(*UseDepth)(bool);
-	void(*UseBlend)(bool);
+	bool(*UseDepth)(bool); // return old
+	bool(*UseBlend)(bool); // return old
 	
 	void (*GetDepthRange)(v2f*);
 	

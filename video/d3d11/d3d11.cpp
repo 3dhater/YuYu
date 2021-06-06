@@ -30,6 +30,8 @@ void D3D11::UpdateGUIProjectionMatrix(const v2f& windowSize){
 }
 
 D3D11::D3D11(){
+	m_old_blend = true;
+	m_old_depth = true;
 	m_mainTarget = 0;
 	m_mainTargetSurface = 0;
 	for (u32 i = 0; i < yyVideoDriverMaxTextures; ++i)
@@ -344,12 +346,15 @@ bool D3D11::Init(yyWindow* window){
 	memset(&bd, 0, sizeof(bd));
 	bd.AlphaToCoverageEnable = 0;
 	bd.RenderTarget[0].BlendEnable = TRUE;
+	
 	bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
 	bd.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
 	bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
-	bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+
+	bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+	bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
 	bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+
 	bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
 	if (FAILED(m_d3d11Device->CreateBlendState(&bd, &m_blendStateAlphaEnabled))) 
@@ -520,6 +525,8 @@ bool D3D11::Init(yyWindow* window){
 		YY_PRINT_FAILED;
 		return false;
 	}
+
+	m_d3d11DevCon->OMSetDepthStencilState(m_depthStencilStateEnabled, 0);
 
 	return true;
 }

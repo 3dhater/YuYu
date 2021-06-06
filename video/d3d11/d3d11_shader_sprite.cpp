@@ -157,7 +157,7 @@ bool D3D11ShaderSprite::init(){
 "PSOut PSMain(VSOut input){\n"
 "    PSOut output;\n"
 "    output.color = tex2d_1.Sample(tex2D_sampler_1, input.uv);\n"
-"    if(output.color.a < 0.1) discard;\n"
+//"    if(output.color.a < 0.1) discard;\n"
 		"    return output;\n"
 		"}\n";
 
@@ -324,7 +324,7 @@ bool D3D11ShaderSpriteBillboard::init() {
 		"PSOut PSMain(VSOut input){\n"
 		"    PSOut output;\n"
 		"    output.color = tex2d_1.Sample(tex2D_sampler_1, input.uv);\n"
-		"    if(output.color.a < 0.1) discard;\n"
+	//	"    if(output.color.a < 0.1) discard;\n"
 		"    return output;\n"
 		"}\n";
 

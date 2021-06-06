@@ -29,7 +29,6 @@
 #include "scene/sprite2.h"
 
 yyVideoDriverAPI g_api;
-bool g_useDepth = true;
 
 #ifdef YY_DEBUG
 bool g_drawBegin = false;
@@ -100,14 +99,15 @@ void UseVSync(bool v){
 #endif
 }
 
-void UseDepth(bool v){
-	if (g_useDepth == v)
-		return;
-	g_useDepth = v;
+bool UseDepth(bool v){
 	v ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
+
+	auto o = g_openGL->m_old_depth;
+	g_openGL->m_old_depth = v;
+	return o;
 }
 
-void UseBlend(bool v){
+bool UseBlend(bool v){
 	if (v)
 	{
 		glEnable(GL_BLEND);
@@ -118,6 +118,10 @@ void UseBlend(bool v){
 	{
 		glDisable(GL_BLEND);
 	}
+
+	auto o = g_openGL->m_old_blend;
+	g_openGL->m_old_blend = v;
+	return o;
 }
 
 GLenum last_active_texture;

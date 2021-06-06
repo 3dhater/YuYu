@@ -124,12 +124,13 @@ OpenGL::OpenGL()
 	m_isGUI(false),
 	m_spriteCameraScale(v2f(1.f,1.f))
 {
-	YY_DEBUG_PRINT_FUNC;
 #ifdef YY_PLATFORM_WINDOWS
 	m_OpenGL_lib = nullptr;
 	m_windowDC = nullptr;
 	m_renderingContext = nullptr;
 #endif
+	m_old_blend = true;
+	m_old_depth = true;
 	for( u32 i = 0; i < yyVideoDriverMaxTextures; ++i)
 	{
 		m_currentTextures[i] = nullptr;
