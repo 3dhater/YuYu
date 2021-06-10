@@ -119,6 +119,15 @@ yyEngine::yyEngine(yyPoolSetup* ps)
 	m_imageLoaders.push_back(imageLoader);
 
 #ifdef YY_PLATFORM_WINDOWS
+	RECT cclip;
+	GetWindowRect(GetDesktopWindow(), &cclip);
+	//GetClipCursor(&cclip);
+
+	m_cursorClip.x = (f32)cclip.left;
+	m_cursorClip.y = (f32)cclip.top;
+	m_cursorClip.z = (f32)cclip.right;
+	m_cursorClip.w = (f32)cclip.bottom;
+
 	m_fileSaveDialog = nullptr;
 	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 	if (FAILED(hr))
@@ -615,11 +624,76 @@ extern "C"
 		}
 		else
 		{
+#ifdef YY_PLATFORM_WINDOWS
 			SetCursor(0);
+#else
+#error Need to implement
+#endif
 		}
 	}
 	YY_API yyCursor* YY_C_DECL yyGetCursor(yyCursorType ct) {
 		return g_engine->m_cursors[(u32)ct];
+	}
+	YY_API void YY_C_DECL yySetCursorClip(v4f* New, v4f* Old, yyWindow* w) {
+		v4f o = g_engine->m_cursorClip;
+		if (Old)
+		{
+			Old->x = g_engine->m_cursorClip.x;
+			Old->y = g_engine->m_cursorClip.y;
+			Old->z = g_engine->m_cursorClip.z;
+			Old->w = g_engine->m_cursorClip.w;
+		}
+
+		if (New)
+		{
+			assert(w);
+			g_engine->m_cursorClip.x = New->x;
+			g_engine->m_cursorClip.y = New->y;
+			g_engine->m_cursorClip.z = New->z;
+			g_engine->m_cursorClip.w = New->w;
+#ifdef YY_PLATFORM_WINDOWS
+			POINT p1;
+			p1.x = (LONG)g_engine->m_cursorClip.x;
+			p1.y = (LONG)g_engine->m_cursorClip.y;
+
+			POINT p2;
+			p2.x = (LONG)g_engine->m_cursorClip.z;
+			p2.y = (LONG)g_engine->m_cursorClip.w;
+
+			ClientToScreen(w->m_hWnd, &p1);
+			ClientToScreen(w->m_hWnd, &p2);
+
+			g_engine->m_cursorClip.x = (f32)p1.x;
+			g_engine->m_cursorClip.y = (f32)p1.y;
+			g_engine->m_cursorClip.z = (f32)p2.x;
+			g_engine->m_cursorClip.w = (f32)p2.y;
+			//printf("%f %f %f %f\n", g_engine->m_cursorClip.x, g_engine->m_cursorClip.y, g_engine->m_cursorClip.z, g_engine->m_cursorClip.w);
+#else
+#error Need to implement
+#endif
+		}
+
+#ifdef YY_PLATFORM_WINDOWS
+		if (!New)
+		{
+			RECT cclip;
+			GetWindowRect(GetDesktopWindow(), &cclip);
+
+			g_engine->m_cursorClip.x = (f32)cclip.left;
+			g_engine->m_cursorClip.y = (f32)cclip.top;
+			g_engine->m_cursorClip.z = (f32)cclip.right;
+			g_engine->m_cursorClip.w = (f32)cclip.bottom;
+		}
+
+		RECT cclip;
+		cclip.left = (LONG)g_engine->m_cursorClip.x;
+		cclip.top = (LONG)g_engine->m_cursorClip.y;
+		cclip.right = (LONG)g_engine->m_cursorClip.z;
+		cclip.bottom = (LONG)g_engine->m_cursorClip.w;
+		ClipCursor(&cclip);
+#else
+#error Need to implement
+#endif
 	}
 
 	YY_API u64 YY_C_DECL yyGetTime(){
@@ -812,6 +886,11 @@ extern "C"
 	YY_API yyWindow* YY_C_DECL yyGetMainWindow(){
 		return g_engine->m_mainWindow;
 	}
+	/*YY_API void YY_C_DECL yyClientToScreen(v2f* coords, yyWindow* w) {
+		assert(w);
+		assert(coords);
+		v2f c = *coords;
+	}*/
 
 	YY_API yyString* YY_C_DECL yySaveFileDialog(const char* title, const char* okButtonLabel,
 		const char* extension)

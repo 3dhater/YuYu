@@ -142,6 +142,13 @@ void yyGUIRangeSlider::OnUpdate(f32 dt){
 			yySetCursorDisableAutoChange(true);
 			yyShowCursor(false);
 			cursor_coord_on_click = g_engine->m_inputContext->m_cursorCoordsForGUI;
+
+			v4f clp;
+			clp.x = cursor_coord_on_click.x - 1.f;
+			clp.y = cursor_coord_on_click.y - 1.f;
+			clp.z = cursor_coord_on_click.x + 1.f;
+			clp.w = cursor_coord_on_click.y + 1.f;
+			yySetCursorClip(&clp, 0, this->m_window);
 		}
 	}
 
@@ -150,6 +157,7 @@ void yyGUIRangeSlider::OnUpdate(f32 dt){
 		if (g_engine->m_guiElementInMouseFocus == this)
 		{
 			yySetCursorDisableAutoChange(false);
+			yySetCursorClip(0, 0, 0);
 			g_engine->m_guiElementInMouseFocus = false;
 			g_engine->m_GUIElementInputFocus = false;
 		}

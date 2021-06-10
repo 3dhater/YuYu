@@ -52,7 +52,6 @@ struct v4f
 
 	v4f& operator=(const v3f& v);
 
-
 	f32	dot(const v4f& V2)const { return (x*V2.x) + (y*V2.y) + (z*V2.z) + (w*V2.w); }
 	f32	dot()const { return (x*x) + (y*y) + (z*z) + (w*w); }
 	void	normalize2()
@@ -129,6 +128,7 @@ struct v3i
 struct v3f
 {
 	v3f() :x(0.f), y(0.f), z(0.f) {}
+	v3f(const v4f& v) : x(v.x), y(v.y), z(v.z) {}
 	v3f(f32 _v) :x(_v), y(_v), z(_v) {}
 	v3f(f32 _x, f32 _y, f32 _z) :x(_x), y(_y), z(_z) {}
 	f32 x, y, z;
@@ -184,7 +184,9 @@ struct v3f
 	void add(const v4f&);
 };
 
-YY_FORCE_INLINE v4f& v4f::operator=(const v3f& v) { this->x = v.x; this->y = v.y; this->z = v.z; this->w = 1.f; return *this; }
+// this->w = 1.f really need? or better this->w = 0.f ?
+YY_FORCE_INLINE v4f& v4f::operator=(const v3f& v) { this->x = v.x; this->y = v.y; this->z = v.z; this->w = 0.f; return *this; }
+
 YY_FORCE_INLINE v4f::v4f(const v3f& v) :x(v.x), y(v.y), z(v.z), w(0.f) {}
 YY_FORCE_INLINE void v3f::add(const v4f& v) {
 	this->x += v.x;

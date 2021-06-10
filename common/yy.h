@@ -81,9 +81,11 @@ extern "C"
 	YY_API yyCursor* YY_C_DECL yyGetCursor(yyCursorType);
 	YY_API void YY_C_DECL yyResetCursor(yyCursorType);
 	YY_API void YY_C_DECL yyShowCursor(bool);
+	YY_API void YY_C_DECL yySetCursorClip(v4f* New, v4f* Old, yyWindow*);
 	YY_API void YY_C_DECL yySetCursor(yyCursorType, yyCursor*);
 	YY_API void YY_C_DECL yySetCursorDisableAutoChange(bool);
 	YY_API bool YY_C_DECL yyGetCursorDisableAutoChange();
+	//YY_API void YY_C_DECL yyClientToScreen(v2f* coords, yyWindow*);
 
 	YY_API yyInputContext* YY_C_DECL yyGetInputContext();
 	

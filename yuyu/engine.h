@@ -107,6 +107,7 @@ public:
 	bool m_cursorDisableAutoChange;
 	yyCursor* m_cursors[(u32)yyCursorType::_count];
 	yyCursor* m_cursorsDefault[(u32)yyCursorType::_count];
+	v4f m_cursorClip;
 
 	yySystemState m_state;
 	dll_handle m_videoDriverLib;
