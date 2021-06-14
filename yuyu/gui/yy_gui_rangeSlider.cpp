@@ -413,6 +413,7 @@ void yyGUIRangeSlider::UseText(yyGUIFont* f) {
 		m_text->m_bgColor.set(0.f, 0.f, 0.f, 0.f);
 		m_text->m_bgColorHover.set(0.f, 0.f, 0.f, 0.f);
 		m_text->m_bgColorActive.set(0.f, 0.f, 0.f, 0.f);
+		m_text->m_IBeamOnlyWhenActivated = true;
 
 		switch (m_sliderType)
 		{

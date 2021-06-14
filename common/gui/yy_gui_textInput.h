@@ -62,6 +62,7 @@ public:
 	u32 m_bufferSize;
 	yyGUITextDrawNode* m_drawNodes;*/
 
+	bool m_IBeamOnlyWhenActivated; // false
 
 	yyColor m_bgColorCurrent;
 	yyColor m_bgColor;

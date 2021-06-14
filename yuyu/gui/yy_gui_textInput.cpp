@@ -11,6 +11,7 @@ extern yyEngine * g_engine;
 
 yyGUITextInput::yyGUITextInput(){
 	m_type = yyGUIElementType::TextInput;
+	m_IBeamOnlyWhenActivated = false;
 	m_horScroll = 0.f;
 	m_isActivated = false;
 	m_charLimit = 1000;
@@ -126,8 +127,19 @@ void yyGUITextInput::OnUpdate(f32 dt){
 	{
 		m_bgColorCurrent = m_bgColorHover;
 
-		if (!g_engine->m_guiElementInMouseFocus)
-			yyGetCursor(yyCursorType::IBeam)->Activate();
+		if (m_IBeamOnlyWhenActivated)
+		{
+			if (m_isActivated)
+			{
+				if (!g_engine->m_guiElementInMouseFocus)
+					yyGetCursor(yyCursorType::IBeam)->Activate();
+			}
+		}
+		else
+		{
+			if (!g_engine->m_guiElementInMouseFocus)
+				yyGetCursor(yyCursorType::IBeam)->Activate();
+		}
 
 		if (m_onMouseInRect)
 			m_onMouseInRect(this,m_id);
