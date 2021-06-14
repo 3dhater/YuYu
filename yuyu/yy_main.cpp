@@ -380,6 +380,13 @@ extern "C"
 		if (g_engine->m_inputContext->m_isLMBDown)
 		{
 			++g_engine->m_inputContext->m_LMBClickCount;
+
+			g_engine->m_inputContext->m_isLMBDbl = false;
+
+			//printf("LMB %i\n", g_engine->m_inputContext->m_LMBClickCount);
+			if (g_engine->m_inputContext->m_LMBClickCount==2)
+				g_engine->m_inputContext->m_isLMBDbl = true;
+
 			lmb_dbl_timer = 0.f;
 		}
 

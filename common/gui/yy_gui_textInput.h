@@ -13,6 +13,7 @@ class yyGUITextInput : public yyGUIElement
 	f32 _get_text_width_in_pixels(size_t char_index);
 	f32 m_horScroll;
 	bool m_isSelected;
+	bool m_isActivated;
 	
 	u8 m_clickCount;
 	void _end_edit(bool isEnter);
@@ -46,6 +47,7 @@ public:
 	virtual void SetLimit(s32); // default 1000
 
 	virtual void Activate();
+	virtual bool IsActivated();
 
 	yyGUIText* m_textElement;
 	yyGUIText* m_defaultTextElement;

@@ -410,6 +410,37 @@ public:
 		m_data[2].y = other.m_data[2].y;
 		m_data[2].z = other.m_data[2].z;
 	}
+
+	Mat4 getBasis() {
+		Mat4 other;
+		other.m_data[0].x = m_data[0].x;
+		other.m_data[0].y = m_data[0].y;
+		other.m_data[0].z = m_data[0].z;
+		other.m_data[1].x = m_data[1].x;
+		other.m_data[1].y = m_data[1].y;
+		other.m_data[1].z = m_data[1].z;
+		other.m_data[2].x = m_data[2].x;
+		other.m_data[2].y = m_data[2].y;
+		other.m_data[2].z = m_data[2].z;
+		return other;
+	}
+
+	v3f getAngles() {
+		float sy = sqrt(m_data[0].x * m_data[0].x + m_data[0].y * m_data[0].y);
+		bool singular = sy < 1e-6; // If
+		float x, y, z;
+		if (!singular) {
+			x = atan2(m_data[2].y, m_data[2].z);
+			y = atan2(-m_data[2].x, sy);
+			z = atan2(m_data[1].x, m_data[0].x);
+		}
+		else {
+			x = atan2(-m_data[1].z, m_data[1].y);
+			y = atan2(-m_data[2].x, sy);
+			z = 0;
+		}
+		return v3f(x, y, z);
+	}
 };
 
 class Mat3

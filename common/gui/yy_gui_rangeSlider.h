@@ -33,8 +33,12 @@ public:
 		s32 * m_ptr_i;
 	};
 	union {
-		f32 m_old_f;
-		s32 m_old_i;
+		f32 m_old_onEnter_f;
+		s32 m_old_onEnter_i; // search this if you need
+	};
+	union {
+		f32 m_old_onDrag_f;
+		s32 m_old_onDrag_i; // search this if you need
 	};
 
 	                             // default:

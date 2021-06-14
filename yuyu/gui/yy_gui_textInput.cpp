@@ -12,6 +12,7 @@ extern yyEngine * g_engine;
 yyGUITextInput::yyGUITextInput(){
 	m_type = yyGUIElementType::TextInput;
 	m_horScroll = 0.f;
+	m_isActivated = false;
 	m_charLimit = 1000;
 	m_clickCount = 0;
 	m_onEscape = 0;
@@ -47,6 +48,11 @@ yyGUITextInput::~yyGUITextInput(){
 
 void yyGUITextInput::Activate() {
 	g_engine->m_GUIElementInputFocus = this;
+	m_isActivated = true;
+}
+bool yyGUITextInput::IsActivated() {
+	//return g_engine->m_GUIElementInputFocus == this;
+	return m_isActivated;
 }
 
 void yyGUITextInput::OnUpdate(f32 dt){
@@ -55,6 +61,7 @@ void yyGUITextInput::OnUpdate(f32 dt){
 	yyGUIElement::CheckCursorInRect();
 
 	if (m_ignoreInput) return;
+	g_engine->m_guiIgnoreUpdateInput = false;
 
 	m_bgColorCurrent = m_bgColor;
 
@@ -75,7 +82,10 @@ void yyGUITextInput::OnUpdate(f32 dt){
 	{
 		if (g_engine->m_inputContext->m_isLMBDown)
 		{
-			if (g_engine->m_guiElementInMouseFocus != this && g_engine->m_GUIElementInputFocus == this)
+			if (g_engine->m_guiElementInMouseFocus != this 
+				&& m_isActivated
+				//&& g_engine->m_GUIElementInputFocus == this
+				)
 			{
 				DeselectAll();
 				this->_end_edit(true);
@@ -480,6 +490,7 @@ void yyGUITextInput::_end_edit(bool isEnter) {
 		if (m_onEscape)
 			m_onEscape(this, -1);
 	}
+	m_isActivated = false;
 	m_clickCount = 0;
 	g_engine->m_GUIElementInputFocus = 0;
 	m_horScroll = 0.f;

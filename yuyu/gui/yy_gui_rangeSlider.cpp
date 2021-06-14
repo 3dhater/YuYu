@@ -38,13 +38,13 @@ void yyGUIRangeSlider_text_onEscape(yyGUIElement* elem, s32 m_id) {
 	default:
 	case yyGUIRangeSliderType::Float:
 	case yyGUIRangeSliderType::FloatLimits:
-		*slider->m_ptr_f = slider->m_old_f;
-		text->SetText(L"%f", slider->m_old_f);
+		*slider->m_ptr_f = slider->m_old_onEnter_f;
+		text->SetText(L"%f", slider->m_old_onEnter_f);
 		break;
 	case yyGUIRangeSliderType::Int:
 	case yyGUIRangeSliderType::IntLimits:
-		*slider->m_ptr_i = slider->m_old_i;
-		text->SetText(L"%i", slider->m_old_i);
+		*slider->m_ptr_i = slider->m_old_onEnter_i;
+		text->SetText(L"%i", slider->m_old_onEnter_i);
 		break;
 	}
 }
@@ -86,6 +86,8 @@ yyGUIRangeSlider::yyGUIRangeSlider(){
 	m_valueMultiplerNormal = 1.f;
 	m_valueMultiplerShift = 10.f;
 	m_valueMultiplerAlt = 0.1f;
+	m_old_onDrag_i = 0;
+	m_old_onEnter_i = 0;
 }
 
 yyGUIRangeSlider::~yyGUIRangeSlider(){
@@ -114,6 +116,37 @@ void yyGUIRangeSlider::OnUpdate(f32 dt){
 	if (!m_visible) return;
 	yyGUIElement::CheckCursorInRect();
 	if (m_ignoreInput) return;
+
+	g_engine->m_guiIgnoreUpdateInput = false;
+
+	if (m_old_onDrag_i != *m_ptr_i)
+	{
+		m_old_onDrag_i = *m_ptr_i;
+		switch (m_sliderType)
+		{
+		case yyGUIRangeSliderType::Int:
+		case yyGUIRangeSliderType::IntLimits:
+			if (m_sliderType == yyGUIRangeSliderType::IntLimits)
+			{
+				_checkLimits();
+				_calculate_limit_rectangle();
+			}
+			if (m_text)
+				m_text->SetText(L"%i", *m_ptr_i);
+			break;
+		case yyGUIRangeSliderType::Float:
+		case yyGUIRangeSliderType::FloatLimits:
+			if (m_sliderType == yyGUIRangeSliderType::FloatLimits) {
+				_checkLimits();
+				_calculate_limit_rectangle();
+			}
+			if (m_text)
+				m_text->SetText(L"%f", *m_ptr_f);
+			break;
+		default:
+			break;
+		}
+	}
 
 	m_bgColorCurrent = m_bgColor;
 
@@ -152,25 +185,35 @@ void yyGUIRangeSlider::OnUpdate(f32 dt){
 		}
 	}
 
-	if (g_engine->m_inputContext->m_isLMBUp)
-	{
-		if (g_engine->m_guiElementInMouseFocus == this)
-		{
-			yySetCursorDisableAutoChange(false);
-			yySetCursorClip(0, 0, 0);
-			g_engine->m_guiElementInMouseFocus = false;
-			g_engine->m_GUIElementInputFocus = false;
-		}
-	}
-
-	if (g_engine->m_inputContext->m_LMBClickCount > 1)
+	if (g_engine->m_inputContext->m_LMBClickCount == 2
+		&& g_engine->m_inputContext->m_isLMBDown)
 	{
 		if (m_isInActiveAreaRect)
 		{
-			m_old_i = *m_ptr_i;
-			m_text->Activate();
-			m_text->SelectAll();
+			m_old_onEnter_i = *m_ptr_i;
+			if (m_text)
+			{
+				m_text->Activate();
+				m_text->SelectAll();
+			}
 		}
+	}
+
+	if (g_engine->m_inputContext->m_isLMBUp)
+	{
+		bool good = true;
+		if (m_text)
+		{
+			if(m_text->IsActivated())
+				good = false;
+		}
+		if (g_engine->m_guiElementInMouseFocus == this && good)
+		{
+			g_engine->m_guiElementInMouseFocus = 0;
+			g_engine->m_GUIElementInputFocus = 0;
+		}
+		yySetCursorDisableAutoChange(false);
+		yySetCursorClip(0, 0, 0);
 	}
 
 	static f32 counter = 0.f;
@@ -222,6 +265,8 @@ void yyGUIRangeSlider::OnUpdate(f32 dt){
 			counter = 0.f;
 		}
 		
+		m_old_onDrag_i = *m_ptr_i;
+
 		if (need_update)
 		{
 			switch (m_sliderType)
