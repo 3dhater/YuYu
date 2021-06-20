@@ -242,6 +242,7 @@ public:
 	//https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/matrix-inverse
 	bool invert()
 	{
+
 		Mat4 mat; 
 		auto ptr = this->getPtr();
 		for(unsigned column = 0; column < 4; ++column) 

@@ -130,6 +130,7 @@ bool OpenGLShaderSimpleAnimated::init(){
 		"void main(){\n"
 		"	color = texture(diffuseTexture, texCoord) * BaseColor;\n"
 		"color.xyz = mix(color.xyz, vertColor.xyz, vertColor.www);\n"
+		"color.w += vertColor.w;\n"
 		"}\n";
 	if (!createShader(text_v, text_f, nullptr, m_program))
 		return false;

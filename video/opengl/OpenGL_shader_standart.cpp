@@ -58,7 +58,11 @@ bool OpenGLShaderStd::init(){
 		"	vec3 lightDir = normalize(SunLightPos - fragPos);\n"
 		"	float diff = max(dot(normal, lightDir), 0.0);\n"
 		"	color = texture(diffuseTexture, texCoord) * BaseColor;\n"
+		"	color.w += vertColor.w;\n"
+		"	if(color.w>1.f) color.w = 1.f;\n"
 		"	color.xyz = mix(color.xyz, vertColor.xyz, vertColor.www);\n"
+		"	diff += vertColor.w;\n"
+		"	if(diff>1.f) diff = 1.f;\n"
 		"	color.xyz *= diff;\n"
 		"}\n";
 	if (!createShader(text_v, text_f, nullptr, m_program))

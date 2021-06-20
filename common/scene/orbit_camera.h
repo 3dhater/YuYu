@@ -5,16 +5,12 @@
 #include "scene\common.h"
 #include "scene\camera.h"
 
-
-void yyOrbitCamera_onUpdate(yyCamera* camera);
-
 class yyOrbitCamera : public yyCamera
 {
 public:
 
 	yyOrbitCamera(){
 		m_cameraType = yyCameraType::Custom;
-		m_updateCallback = yyOrbitCamera_onUpdate;
 		m_fov = math::degToRad(80.f);
 		m_near = 0.1f;
 		m_far = 3000.f;
@@ -27,10 +23,37 @@ public:
 
 	void Update(){
 		m_objectBase.UpdateBase();
-		yyCamera::Update();
+		
+		math::makePerspectiveRHMatrix(
+			m_projectionMatrix,
+			m_fov,
+			m_aspect,
+			m_near,
+			m_far);
 
+		m_positionInWorld = v3f(0.f, m_objectBase.m_localPosition.w, 0.f);
+
+		Mat4 MX(Quat(m_objectBase.m_rotation.x, 0.f, 0.f));
+		Mat4 MY(Quat(0.f, m_objectBase.m_rotation.y, 0.f));
+		//Mat4 MZ(Quat(0.f, 0.f, camera->m_objectBase.m_rotation.z));
+
+		m_positionInWorld = math::mul(m_positionInWorld, (MY * MX));
+		m_positionInWorld += v3f(
+			m_objectBase.m_localPosition.x,
+			m_objectBase.m_localPosition.y,
+			m_objectBase.m_localPosition.z);
+
+		Mat4 T;
+		T.m_data[3] = m_positionInWorld;
+		T.m_data[3].w = 1.f;
+
+		Mat4 P(Quat(v4f(-m_objectBase.m_rotation.x + math::degToRad(90.f), 0.f, 0.f, 1.f)));
+		Mat4 Y(Quat(v4f(0.f, -m_objectBase.m_rotation.y, 0.f, 1.f)));
+		Mat4 R(Quat(v4f(0.f, 0.f, -m_objectBase.m_rotation.z, 1.f)));
+		m_viewMatrix = (R*(P * Y)) * T;
 		m_viewMatrixInvert = m_viewMatrix;
 		m_viewMatrixInvert.invert();
+		m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
 	}
 
 	void Reset() {
@@ -85,37 +108,5 @@ public:
 
 };
 
-YY_FORCE_INLINE
-void yyOrbitCamera_onUpdate(yyCamera* camera)
-{
-	yyOrbitCamera* oc = (yyOrbitCamera*)camera;
-
-	math::makePerspectiveRHMatrix(
-		camera->m_projectionMatrix,
-		camera->m_fov,
-		camera->m_aspect,
-		camera->m_near,
-		camera->m_far);
-
-	oc->m_positionInWorld = v3f(0.f, camera->m_objectBase.m_localPosition.w, 0.f);
-
-	Mat4 MX(Quat(camera->m_objectBase.m_rotation.x, 0.f, 0.f));
-	Mat4 MY(Quat(0.f, camera->m_objectBase.m_rotation.y, 0.f));
-	//Mat4 MZ(Quat(0.f, 0.f, camera->m_objectBase.m_rotation.z));
-
-	oc->m_positionInWorld = math::mul(oc->m_positionInWorld, (MY * MX));
-	oc->m_positionInWorld += v3f(
-		camera->m_objectBase.m_localPosition.x,
-		camera->m_objectBase.m_localPosition.y,
-		camera->m_objectBase.m_localPosition.z);
-
-	Mat4 T;
-	T.m_data[3] = oc->m_positionInWorld;
-
-	Mat4 P(Quat(v4f(-camera->m_objectBase.m_rotation.x + math::degToRad(90.f), 0.f, 0.f, 1.f)));
-	Mat4 Y(Quat(v4f(0.f, -camera->m_objectBase.m_rotation.y, 0.f, 1.f)));
-	Mat4 R(Quat(v4f(0.f, 0.f, -camera->m_objectBase.m_rotation.z, 1.f)));
-	camera->m_viewMatrix = (R*(P * Y)) * T;
-}
 
 #endif

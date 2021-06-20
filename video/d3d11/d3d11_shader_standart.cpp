@@ -64,9 +64,13 @@ bool D3D11ShaderStd::init() {
 		"	float3 lightDir = normalize(SunPosition.xyz - input.fragPos.xyz);\n"
 		"	float diff = max(dot(input.normal, lightDir), 0.0);\n"
 
-		"    PSOut output;\n"
-		"    output.color = tex2d_1.Sample(tex2D_sampler_1, input.uv) * BaseColor;\n"
+		"   PSOut output;\n"
+		"   output.color = tex2d_1.Sample(tex2D_sampler_1, input.uv) * BaseColor;\n"
+		"	output.color.w += input.vColor.w;\n"
+		"	if(output.color.w>1.f) output.color.w = 1.f;\n"
 		"	output.color.xyz = lerp(output.color.xyz, input.vColor.xyz, input.vColor.www);\n"
+		"	diff += input.vColor.w;\n"
+		"	if(diff>1.f) diff = 1.f;\n"
 		"	output.color.xyz *= diff;\n"
 
 		"    return output;\n"

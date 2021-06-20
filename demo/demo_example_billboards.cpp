@@ -55,6 +55,7 @@ const wchar_t* DemoExample_Billboards::GetDescription(){
 
 bool DemoExample_Billboards::DemoStep(f32 deltaTime){
 	m_editorCamera->Update();
+
 	if (g_demo->m_inputContext->m_isMMBHold)
 	{
 		if (g_demo->m_inputContext->IsKeyHold(yyKey::K_LALT))
