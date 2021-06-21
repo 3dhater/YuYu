@@ -64,6 +64,7 @@ bool OpenGLShaderStd::init(){
 		"	diff += vertColor.w;\n"
 		"	if(diff>1.f) diff = 1.f;\n"
 		"	color.xyz *= diff;\n"
+		"	if(color.w == 0.f) if(vertColor.w!=1.f)discard;\n"
 		"}\n";
 	if (!createShader(text_v, text_f, nullptr, m_program))
 		return false;

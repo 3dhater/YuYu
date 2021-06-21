@@ -72,7 +72,7 @@ bool D3D11ShaderStd::init() {
 		"	diff += input.vColor.w;\n"
 		"	if(diff>1.f) diff = 1.f;\n"
 		"	output.color.xyz *= diff;\n"
-
+		"	if(output.color.w == 0.f) if(input.vColor.w!=1.f)discard;\n"
 		"    return output;\n"
 		"}\n";
 	if (!D3D11_createShaders(

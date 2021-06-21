@@ -388,7 +388,7 @@ class yyArraySimple
 	u32     m_allocated;
 	void reallocate(u32 new_capacity)
 	{
-		new_capacity += 4;
+		new_capacity += 4 * (m_allocated / 2);
 		auto tmp_size = new_capacity * sizeof(type);
 		pointer new_data = static_cast<type*>(yyMemAlloc(tmp_size));
 		memset(new_data, 0, tmp_size);

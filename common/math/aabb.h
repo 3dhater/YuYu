@@ -140,9 +140,7 @@ public:
 	}
 
 	float radius() {
-		auto c = v4f(m_min + m_max);
-		c *= 0.5f;
-		return c.distance(m_max);
+		return m_min.distance(m_max) * 0.5f;
 	}
 
 	void extent( v4f& v ) { v = v4f( m_max - m_min ); }
