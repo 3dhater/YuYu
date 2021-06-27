@@ -8,12 +8,19 @@ class yyGUIListBoxItem
 	bool m_isMouseHover;
 	bool m_isVisible;
 	v4f m_rect;
+	void* m_userData;
+	s32 m_id;
 public:
 	yyGUIListBoxItem(yyGUIFont*, const wchar_t* t);
 	~yyGUIListBoxItem();
 
 	bool IsSelected() { return m_selected; }
 	void Select(bool v) { m_selected = v; }
+	
+	void SetUserData(void* d) { m_userData = d; }
+	void* GetUserData() { return m_userData; }
+	void SetID(s32 id) { m_id = id; }
+	s32 GetID() { return m_id; }
 
 	virtual void SetText(const wchar_t*);
 	virtual const wchar_t* GetText();

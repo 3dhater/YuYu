@@ -225,6 +225,8 @@ YY_API yyGUIListBox* YY_C_DECL yyGUICreateListBox(const v4f& rect, yyGUIFont* fo
 }
 
 yyGUIListBoxItem::yyGUIListBoxItem(yyGUIFont* f, const wchar_t* t) {
+	m_userData = 0;
+	m_id = -1;
 	m_textElement = yyGUICreateText(v2f(), f, t, 0);
 	yyGUIRemoveElement(m_textElement);
 	m_selected = false;
