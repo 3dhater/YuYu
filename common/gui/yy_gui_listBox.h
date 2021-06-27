@@ -35,9 +35,14 @@ class yyGUIListBox : public yyGUIElement
 	yyArray<yyGUIListBoxItem*> m_items;
 	
 	yyGUIListBoxItem* m_itemHover;
+	yyGUIListBoxItem* m_itemOnTextEdit;
+	yyStringW m_itemOnTextEditText;
 
 	f32 m_contentHeight;
 	f32 m_y_scrollLimit;
+
+	friend void yyGUIListBox_text_onEnter(yyGUIElement* elem, s32 m_id);
+	friend void yyGUIListBox_text_onEscape(yyGUIElement* elem, s32 m_id);
 public:
 	yyGUIListBox();
 	virtual ~yyGUIListBox();
@@ -58,10 +63,15 @@ public:
 	f32 m_y_scroll;
 	f32 m_y_scrollTarget;
 
-	bool m_isSelectable;
-	bool m_isMultiSelect; // default false
-	bool m_isAnimatedScroll;
+	f32 m_itemSizeMinimum;//0.f
+
+	bool m_isEditable; // true
+	bool m_isSelectable; // true
+	bool m_isMultiSelect; // false
+	bool m_isAnimatedScroll; // true
 	f32  m_animatedScrollLerp; // 0...1 default 0.15f
+
+	yyGUITextInput* m_textInput;
 
 	u32 GetItemsCount() { return m_items.size(); }
 	yyGUIListBoxItem* GetItem(u32 index)

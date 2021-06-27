@@ -10,14 +10,29 @@
 
 extern yyEngine * g_engine;
 
+void yyGUIListBox_text_onEscape(yyGUIElement* elem, s32 m_id) {
+	yyGUIListBox * lb = (yyGUIListBox *)elem->m_userData;
+	lb->m_itemOnTextEdit->SetText(lb->m_itemOnTextEditText.data());
+	//yyGUITextInput* text = (yyGUITextInput*)elem;	
+	//text->SetText(L"%f", );
+}
+void yyGUIListBox_text_onEnter(yyGUIElement* elem, s32 m_id) {
+	yyGUIListBox * lb = (yyGUIListBox *)elem->m_userData;
+	yyGUITextInput* text = (yyGUITextInput*)elem;
+	lb->m_itemOnTextEdit->SetText(text->m_textElement->m_text.data());
+}
+
 yyGUIListBox::yyGUIListBox() {
 	m_type = yyGUIElementType::ListBox;
 	m_isSelectable = true;
 	m_isMultiSelect = false;
 	m_isAnimatedScroll = true;
+	m_isEditable = true;
+	m_itemOnTextEdit = 0;
 	m_font = 0;
 	m_onSelect = 0;
 	m_y_scroll = 0.f;
+	m_itemSizeMinimum = 0.f;
 	m_bgColor.set(0.2f);
 	m_bgColorHover.set(0.25f);
 	m_bgColorCurrent = m_bgColor;
@@ -27,9 +42,11 @@ yyGUIListBox::yyGUIListBox() {
 	m_itemColorSelectedHover.set(0.2f, 0.2f, 1.f, 1.f);
 	m_y_scrollTarget = 0.f;
 	m_animatedScrollLerp = 0.15f;
+	m_textInput = 0;
 }
 
 yyGUIListBox::~yyGUIListBox() {
+	if (m_textInput) yyDestroy(m_textInput);
 	for (u32 i = 0, sz = m_items.size(); i < sz; ++i)
 	{
 		yyDestroy(m_items[i]);
@@ -41,6 +58,7 @@ void yyGUIListBox::OnUpdate(f32 dt) {
 	yyGUIElement::CheckCursorInRect();
 	if (m_ignoreInput) return;
 
+	g_engine->m_guiIgnoreUpdateInput = false;
 	m_bgColorCurrent = m_bgColor;
 
 	if (m_isInActiveAreaRect && (!g_engine->m_guiElementInMouseFocus))
@@ -92,13 +110,38 @@ void yyGUIListBox::OnUpdate(f32 dt) {
 					}
 					m_itemHover->m_selected = m_itemHover->m_selected ? false : true;
 				}
+		
+				if (m_onSelect)
+					m_onSelect(this, m_itemHover);
 			}
+		}
 
-			if (m_onSelect)
-				m_onSelect(this, m_itemHover);
+		if (g_engine->m_inputContext->m_LMBClickCount == 2
+			&& g_engine->m_inputContext->m_isLMBDown
+			&& m_isEditable
+			&& m_itemHover)
+		{
+			v4f br = m_itemHover->m_rect;
+			br.y += m_y_scroll;
+			br.w += m_y_scroll;
+
+			m_itemOnTextEdit = m_itemHover;
+			m_itemOnTextEditText = m_itemOnTextEdit->m_textElement->m_text.data();
+
+			m_textInput->SetBuildRect(br);
+			m_textInput->SetText(m_itemOnTextEdit->m_textElement->m_text.data());
+
+			m_itemOnTextEdit->m_textElement->m_text.clear();
+			m_itemOnTextEdit->m_textElement->Rebuild();
+			m_textInput->Rebuild();
+
+			m_textInput->Activate();
+			m_textInput->SelectAll();
 		}
 	}
-
+	
+	if(m_isEditable)
+		m_textInput->OnUpdate(dt);
 }
 
 void yyGUIListBox::OnDraw(f32 dt) {
@@ -172,6 +215,12 @@ void yyGUIListBox::OnDraw(f32 dt) {
 			wprintf(L"%s\n", item->GetText());
 		}*/
 	}
+
+	if (m_isEditable)
+	{
+		if (m_textInput->IsActivated())
+			m_textInput->OnDraw(dt);
+	}
 }
 
 void yyGUIListBox::Rebuild() {
@@ -184,18 +233,25 @@ void yyGUIListBox::Rebuild() {
 
 		f32 y2 = m_buildRectInPixels.y + m_contentHeight;// +m_y_scroll;
 
+		f32 itemH = m_font->m_maxHeight;
 
 		item->m_rect = v4f(
 			m_buildRectInPixels.x,
 			y2,
 			m_buildRectInPixels.z,
-			y2 + m_font->m_maxHeight);
+			y2 + itemH
+		);
 
+		if (item->m_rect.w - item->m_rect.y < m_itemSizeMinimum) {
+			item->m_rect.w = item->m_rect.y + m_itemSizeMinimum;
+			itemH = m_itemSizeMinimum;
+		}
+		
 
 		item->m_textElement->SetBuildRect(item->m_rect);
 		item->m_textElement->Rebuild();
 		 
-		m_contentHeight += m_font->m_maxHeight;
+		m_contentHeight += itemH;
 	}
 
 	m_y_scrollLimit = -m_contentHeight;
@@ -271,6 +327,20 @@ YY_API yyGUIListBox* YY_C_DECL yyGUICreateListBox(const v4f& rect, yyGUIFont* fo
 	element->m_y_scroll_speed = font->m_maxHeight;
 	element->SetDrawGroup(drawGroup);
 	element->SetBuildRect(rect);
+
+	element->m_textInput = yyGUICreateTextInput(v4f(), font, 0, 0);
+	//m_textInput->SetLimit(20);
+	//m_textInput->m_onCharacter = yyGUIRangeSlider_text_onCharacter;
+	element->m_textInput->m_onEscape = yyGUIListBox_text_onEscape;
+	element->m_textInput->m_onEnter = yyGUIListBox_text_onEnter;
+	//m_textInput->m_onRebuildSetRects = yyGUIRangeSlider_text_onRebuildSetRects;
+	element->m_textInput->m_userData = element;
+	element->m_textInput->m_bgColor.set(0.f, 0.f, 0.f, 0.f);
+	element->m_textInput->m_bgColorHover.set(0.f, 0.f, 0.f, 0.f);
+	element->m_textInput->m_bgColorActive.set(0.f, 0.f, 0.f, 0.f);
+	element->m_textInput->m_IBeamOnlyWhenActivated = true;
+	yyGUIRemoveElement(element->m_textInput);
+
 	return element;
 }
 
