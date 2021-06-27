@@ -206,12 +206,62 @@ yyGUIListBoxItem* yyGUIListBox::AddItem(const wchar_t* text) {
 	assert(text);
 	yyGUIListBoxItem* newItem = yyCreate2<yyGUIListBoxItem>(m_font, text);
 	m_items.push_back(newItem);
+	this->Rebuild();
 	return newItem;
 }
 
 void yyGUIListBox::DeleteItem(yyGUIListBoxItem* item) {
 	assert(item);
 	m_items.erase_first(item);
+}
+
+void yyGUIListBox::SelectItem(yyGUIListBoxItem* item) {
+	if (!m_isSelectable)
+		return;
+	if (m_isMultiSelect)
+	{
+		item->m_selected = item->m_selected ? false : true;
+	}
+	else
+	{
+		for (u32 i = 0, sz = m_items.size(); i < sz; ++i)
+		{
+			auto _item = m_items[i];
+			_item->m_selected = false;
+		}
+		item->m_selected = item->m_selected ? false : true;
+	}
+
+	auto h = item->m_rect.w - item->m_rect.y;
+
+	auto lbSz = m_buildRectInPixels.w - m_buildRectInPixels.y;
+	
+	/*printf("[%f %f : %f %f] %f %f\n", 
+		item->m_rect.y, 
+		item->m_rect.w, 
+		item->m_rect.y + m_y_scroll + m_buildRectInPixels.y,
+		item->m_rect.w + m_y_scroll + m_buildRectInPixels.y,
+		m_buildRectInPixels.w, 
+		m_buildRectInPixels.w-h
+	);*/
+
+	if (item->m_rect.y + m_y_scroll > m_buildRectInPixels.w - h)
+	{
+		auto v = item->m_rect.y - (m_buildRectInPixels.w - h);
+		if (!m_isAnimatedScroll)
+			m_y_scroll = -v;
+		else
+			m_y_scrollTarget = -v;
+	}
+	else if (item->m_rect.w + m_y_scroll < m_buildRectInPixels.y + h)
+	{
+		auto v = item->m_rect.w - (m_buildRectInPixels.y + h);
+
+		if (!m_isAnimatedScroll)
+			m_y_scroll = v;
+		else
+			m_y_scrollTarget = v;
+	}
 }
 
 YY_API yyGUIListBox* YY_C_DECL yyGUICreateListBox(const v4f& rect, yyGUIFont* font, yyGUIDrawGroup* drawGroup) {

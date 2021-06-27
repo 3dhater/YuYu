@@ -73,6 +73,8 @@ public:
 	virtual yyGUIListBoxItem* AddItem(const wchar_t* text);
 	virtual void DeleteItem(yyGUIListBoxItem*);
 
+	virtual void SelectItem(yyGUIListBoxItem*);
+
 	void(*m_onSelect)(yyGUIListBox*, yyGUIListBoxItem*);
 };
 
