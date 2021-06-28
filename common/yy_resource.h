@@ -225,6 +225,14 @@ extern "C"
 	//  Use Unload() for --m_refCount
 	//  Use IsLoaded(). If not loaded, you can call yyDeleteTexture
 	// call yyRemoveTextureFromCache(newRes); before yyMegaAllocator::Destroy(newRes); you want delete by yourself
+	/*
+		if (r->IsLoaded()){
+			r->Unload();
+
+			if (!r->IsLoaded())
+				yyDeleteTexture(r, true);
+		}
+	*/
 	YY_API yyResource* YY_C_DECL yyGetTextureFromCache(const char*);
 	YY_API void YY_C_DECL yyRemoveTextureFromCache(yyResource*);
 	YY_API void YY_C_DECL yyDeleteTexture(yyResource*, bool onlyUnloaded); // only if refCount == 0

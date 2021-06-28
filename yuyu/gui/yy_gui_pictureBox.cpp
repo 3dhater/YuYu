@@ -56,7 +56,8 @@ void yyGUIPictureBox::Rebuild() {
 	v2f lt, rb;
 	{
 		v2f tsz;
-		m_texture->GetTextureSize(&tsz);
+		if(m_texture)
+			m_texture->GetTextureSize(&tsz);
 		f32 mulX = 1.f / (f32)tsz.x;
 		f32 mulY = 1.f / (f32)tsz.y;
 
@@ -101,8 +102,9 @@ YY_API yyGUIPictureBox* YY_C_DECL yyGUICreatePictureBox(const v4f& rect, yyResou
 	element->m_texture = texture;
 	element->m_id = id;
 
-	if (!element->m_texture->IsLoaded())
-		element->m_texture->Load();
+	if(texture)
+		if (!element->m_texture->IsLoaded())
+			element->m_texture->Load();
 
 	if (uv)
 	{
