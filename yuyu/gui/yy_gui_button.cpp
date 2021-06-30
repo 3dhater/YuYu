@@ -34,6 +34,8 @@ yyGUIButton::yyGUIButton()
 	m_textColor = ColorWhite;
 	m_textColorHover = ColorRed;
 	m_textColorPress = ColorLime;
+	m_onCheck = 0;
+	m_onUncheck = 0;
 
 	m_useBackground = false;
 	m_bgColor.set(0.41f);
@@ -238,17 +240,28 @@ void yyGUIButton::OnUpdate(f32 dt){
 					auto buttons = m_buttonGroup->m_buttons.data();
 					for (u32 i = 0, sz = m_buttonGroup->m_buttons.size(); i < sz; ++i)
 					{
-						buttons[i]->m_isChecked = false;
+						if (buttons[i] != this)
+						{
+							auto oldCheck = buttons[i]->m_isChecked;
+							buttons[i]->m_isChecked = false;
+
+							if (buttons[i]->m_onUncheck && oldCheck)
+								buttons[i]->m_onUncheck(buttons[i], buttons[i]->m_id);
+						}
 					}
 				}
 
 				if (m_isChecked)
 				{
 					m_isChecked = false;
+					if (m_onUncheck)
+						m_onUncheck(this, this->m_id);
 				}
 				else
 				{
 					m_isChecked = true;
+					if (m_onCheck)
+						m_onCheck(this, this->m_id);
 				}
 			}
 			else

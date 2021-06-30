@@ -46,6 +46,10 @@ public:
 	yyGUICallback m_onMouseEnter;
 	yyGUICallback m_onMouseLeave;
 
+	// for m_useAsCheckbox
+	yyGUICallback m_onCheck;
+	yyGUICallback m_onUncheck;
+
 	//bool m_mouseInRect;
 	bool m_isClicked;
 	bool m_isChecked;
